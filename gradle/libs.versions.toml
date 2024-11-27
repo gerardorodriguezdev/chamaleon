@@ -5,6 +5,7 @@ jvm = "21"
 
 # Libraries
 kmp-serialization = "1.7.3"
+gradle-publish = "1.2.1"
 
 [libraries]
 kmp-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kmp-serialization" }
@@ -13,3 +14,4 @@ kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin"
 [plugins]
 kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kmp-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+gradle-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-publish" }
