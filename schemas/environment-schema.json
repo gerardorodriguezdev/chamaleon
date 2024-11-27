@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "platformType": {
+        "type": "string",
+        "enum": [
+          "android",
+          "wasm",
+          "jvm",
+          "ios"
+        ],
+        "minLength": 1
+      },
+      "properties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "type": [
+                "string",
+                "boolean",
+                "null"
+              ],
+              "minLength": 1
+            }
+          },
+          "required": [
+            "name",
+            "value"
+          ]
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "required": [
+      "platformType",
+      "properties"
+    ]
+  },
+  "minItems": 1,
+  "uniqueItems": true
+}

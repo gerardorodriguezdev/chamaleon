@@ -1,0 +1,11 @@
+# Directories
+**/.idea
+**/.gradle
+**/build
+**/local
+**/.kotlin
+**/release
+
+# Files
+.DS_Store
+local.properties

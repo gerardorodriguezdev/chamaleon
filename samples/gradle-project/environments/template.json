@@ -1,0 +1,12 @@
+{
+  "supportedPlatforms": [
+    "android"
+  ],
+  "propertyDefinitions": [
+    {
+      "name": "HOST",
+      "propertyType": "String",
+      "nullable": false
+    }
+  ]
+}

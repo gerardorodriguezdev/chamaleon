@@ -1,0 +1,15 @@
+[versions]
+# Platforms
+kotlin = "2.1.0-RC2"
+jvm = "21"
+
+# Libraries
+kmp-serialization = "1.7.3"
+
+[libraries]
+kmp-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kmp-serialization" }
+kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+[plugins]
+kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kmp-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
