@@ -6,7 +6,6 @@ import org.chamaleon.core.models.Platform.Property
 import org.chamaleon.core.models.PlatformType
 import org.chamaleon.core.models.PropertyValue.StringProperty
 import org.gradle.api.Project
-import org.gradle.internal.extensions.core.extra
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -28,41 +27,20 @@ class ChamaleonGradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project with local files only WHEN task is executed THEN build is successful`() {
-        val buildResult = buildResult("help")
+    fun `GIVEN plugin is applied to project WHEN task is executed THEN build is successful`() {
+        val buildResult = buildResult()
 
         assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.task(":help")?.outcome)
     }
 
     @Test
-    fun `GIVEN plugin is applied to project with arguments WHEN task is executed THEN build is successful`() {
-        val buildResult = buildResult("help", "-PCHAMALEON_SELECTED_ENVIRONMENT=production")
-
-        assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.task(":help")?.outcome)
-    }
-
-    @Test
-    fun `GIVEN plugin is applied to project with local files only WHEN project is configured THEN valid extension is returned`() {
+    fun `GIVEN plugin is applied to project WHEN project is configured THEN valid extension is returned`() {
         val project = buildProject()
         val extension = project.extension()
 
         assertEquals(expected = expectedEnvironments, actual = extension.environments.get())
         assertEquals(
             expected = LOCAL_ENVIRONMENT_NAME,
-            actual = extension.selectedEnvironmentName.get()
-        )
-    }
-
-    @Test
-    fun `GIVEN plugin is applied to project with extras WHEN project is configured THEN valid extension is returned`() {
-        val project = buildProject {
-            extra.set(ChamaleonGradlePlugin.SELECTED_ENVIRONMENT_KEY, PRODUCTION_ENVIRONMENT_NAME)
-        }
-        val extension = project.extension()
-
-        assertEquals(expected = expectedEnvironments, actual = extension.environments.get())
-        assertEquals(
-            expected = PRODUCTION_ENVIRONMENT_NAME,
             actual = extension.selectedEnvironmentName.get()
         )
     }
@@ -89,12 +67,12 @@ class ChamaleonGradlePluginTest {
         localPropertiesFile.writeText(localPropertiesFileContent)
     }
 
-    private fun buildResult(vararg arguments: String): BuildResult =
+    private fun buildResult(): BuildResult =
         GradleRunner
             .create()
             .withProjectDir(testDir)
             .withPluginClasspath()
-            .withArguments(arguments.toList())
+            .withArguments("help")
             .build()
 
     private fun buildProject(configuration: Project.() -> Unit = {}): Project =

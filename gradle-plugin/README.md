@@ -107,11 +107,5 @@ If you want to set an environment as the selected one, you can do it by adding `
 CHAMALEON_SELECTED_ENVIRONMENT=development
 ```
 
-Alternatively, you can specify the environment via the command line:
-
-```bash
-./gradlew build -PCHAMALEON_SELECTED_ENVIRONMENT=development
-```
-
 > If you have a `production.json` and want to test locally but avoid commiting it just add `production.json` to your
 `.gitignore` file

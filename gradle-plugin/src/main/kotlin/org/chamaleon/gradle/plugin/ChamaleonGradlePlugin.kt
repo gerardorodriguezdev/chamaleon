@@ -4,7 +4,6 @@ import org.chamaleon.core.EnvironmentsProcessor
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
-import org.gradle.internal.extensions.core.extra
 import java.util.*
 
 class ChamaleonGradlePlugin : Plugin<Project> {
@@ -21,38 +20,14 @@ class ChamaleonGradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.localProperties(): LocalProperties? =
-        localPropertiesFromCommands() ?: localPropertiesFromFile()
-
-    private fun Project.localPropertiesFromCommands(): LocalProperties? =
-        extra.properties.toLocalProperties()
-
-    private fun Project.localPropertiesFromFile(): LocalProperties? {
+    private fun Project.localProperties(): LocalProperties? {
         val propertiesFile = environmentsDirectory.file(LOCAL_PROPERTIES_FILE).asFile
         if (!propertiesFile.exists()) return null
 
         val properties = Properties()
         properties.load(propertiesFile.inputStream())
 
-        val propertiesMap = properties.toMap()
-        return propertiesMap.toLocalProperties()
-    }
-
-    private fun Properties.toMap(): Map<String, Any> {
-        val propertiesMap = mutableMapOf<String, Any>()
-
-        entries.forEach { entry ->
-            val key = entry.key
-            if (key is String) {
-                propertiesMap.put(key = key, value = entry.value)
-            }
-        }
-
-        return propertiesMap
-    }
-
-    private fun Map<String, Any>.toLocalProperties(): LocalProperties? {
-        val selectedEnvironment = get(SELECTED_ENVIRONMENT_KEY) as? String
+        val selectedEnvironment = properties[SELECTED_ENVIRONMENT_KEY] as? String
         if (selectedEnvironment == null) return null
 
         return LocalProperties(

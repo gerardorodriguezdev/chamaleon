@@ -11,9 +11,9 @@ Simplify the management of multiple environments for any Kotlin project
 ## What problems do this solve?
 
 If you have a kotlin multiplatform app or server that has *staging*, *debug*, *qa*, *production* or more variants, this
-plugin allows you to define in an easy way all the environment variables for each environment, check that each has the same
-structure and swap between them easily, so you don't have to pass which environment to select on the command line per
-task
+plugin allows you to define in an easy way all the environment variables for each environment, check that each has the
+same structure and swap between them easily, so you don't have to pass which environment to select on the command line
+per task
 
 For ease of use you should use both the [Gradle Plugin](gradle-plugin) and the [Intellij Plugin]()
 
