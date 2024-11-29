@@ -11,7 +11,7 @@ import org.chamaleon.core.models.Schema
 import org.chamaleon.core.models.Schema.PropertyDefinition
 
 object TestData {
-    const val ENVIRONMENTS_FILE_NAME = "local-environment.json"
+    const val ENVIRONMENTS_FILE_NAME = "local-environment"
 
     val validCompleteSchema = Schema(
         supportedPlatforms = setOf(

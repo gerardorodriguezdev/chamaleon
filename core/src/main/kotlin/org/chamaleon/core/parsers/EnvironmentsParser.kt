@@ -28,7 +28,7 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
         val directoryFiles = directory.listFiles()
 
         val jsonFiles = directoryFiles?.filter { file ->
-            file.name != SCHEMA_FILE && file.extension.endsWith("json")
+            file.name != SCHEMA_FILE && file.nameWithoutExtension.endsWith("-environment") && file.extension.endsWith("json")
         } ?: emptyList()
 
         val environments = jsonFiles.mapNotNull { file ->
