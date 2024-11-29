@@ -32,14 +32,14 @@ tasks {
 }
 
 gradlePlugin {
-    website = "https://github.com/gerardorodriguezdev/chamaleon"
+    website = "https://github.com/gerardorodriguezdev/chamaleon/tree/master/gradle-plugin"
     vcsUrl = "https://github.com/gerardorodriguezdev/chamaleon"
 
     plugins {
         register("org.chamaleon") {
             id = "org.chamaleon"
             displayName = "Chamaleon"
-            description = "Environments configurator"
+            description = "Simplify managing multiple environments for any Kotlin project"
             tags = listOf(
                 "kotlin",
                 "kmp",
