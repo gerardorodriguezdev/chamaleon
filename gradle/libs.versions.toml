@@ -1,6 +1,6 @@
 [versions]
 # Platforms
-kotlin = "2.1.0-RC2"
+kotlin = "2.1.0"
 jvm = "21"
 
 # Libraries
