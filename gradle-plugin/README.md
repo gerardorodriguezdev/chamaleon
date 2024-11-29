@@ -4,7 +4,7 @@ Simplify the management of multiple environments for any Kotlin project
 
 ## Features
 
-- Define multiple environments and swap between them
+- Define multiple environments and switch between them
 - Keep the same structure of all your environments
 - Kotlin multiplatform support in mind from the creation
 
@@ -28,7 +28,7 @@ Create a directory named environments in the root of your project. Inside this d
 myProject
     environments
         template.json
-        development.json
+        development-environment.json
 ```
 
 You can see a sample on [Sample Gradle Project](../samples/gradle-project)
@@ -59,11 +59,11 @@ This is the file that will be used to validate all the **environment json files*
         - **propertyType:** Can be *String* or *Boolean* -> `required`
         - **nullable:** If the property is nullable or not (default=false)-> `optional`
 
-### 4. Fill the `development.json`
+### 4. Fill the `development-environment.json`
 
-Any json file named not named `template.json` inside the `environments` directory will be considered an environment.
-You can as many as you want with any name like `local.json` or `production.json`. For now we added `development.json`.
-Let's just add this content:
+Any json file named `anything-environment.json` inside the `environments` directory will be considered an environment.
+You can as many as you want with like `local-environment.json` or `production-environment.json`. For now we added
+`development-environment.json`. Let's add this content to it:
 
 ```json
 [
@@ -104,8 +104,13 @@ If you want to set an environment as the selected one, you can do it by adding `
 `environments` with this content:
 
 ```properties
-CHAMALEON_SELECTED_ENVIRONMENT=development
+CHAMALEON_SELECTED_ENVIRONMENT=development-environment
 ```
 
-> If you have a `production.json` and want to test locally but avoid commiting it just add `production.json` to your
-`.gitignore` file
+> If you have a `production-environment.json` and want to test locally but avoid commiting it just add 
+> `production-environment.json` to your `.gitignore` file
+
+## Using the json schemas
+The json schemas for `template.json` and `yourenvironments-environment.json` have been uploaded to 
+[Schema store](https://www.schemastore.org/json/) so you can see hints if the schema is valid or not. Alternatively you
+can find them here [Schemas](../schemas)

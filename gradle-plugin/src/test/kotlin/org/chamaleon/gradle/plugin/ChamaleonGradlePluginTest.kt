@@ -57,10 +57,10 @@ class ChamaleonGradlePluginTest {
         val templateJsonFile = File(environmentsDirectory, "template.json")
         templateJsonFile.writeText(templateJsonFileContent)
 
-        val localJsonFile = File(environmentsDirectory, "local.json")
+        val localJsonFile = File(environmentsDirectory, "local-environment.json")
         localJsonFile.writeText(localJsonFileContent)
 
-        val productionJsonFile = File(environmentsDirectory, "production.json")
+        val productionJsonFile = File(environmentsDirectory, "production-environment.json")
         productionJsonFile.writeText(productionJsonFileContent)
 
         val localPropertiesFile = File(environmentsDirectory, ChamaleonGradlePlugin.LOCAL_PROPERTIES_FILE)
@@ -90,10 +90,10 @@ class ChamaleonGradlePluginTest {
     companion object {
         const val EXPECTED_PROPERTY_NAME = "HOST"
 
-        const val LOCAL_ENVIRONMENT_NAME = "local"
+        const val LOCAL_ENVIRONMENT_NAME = "local-environment"
         const val LOCAL_ENVIRONMENT_HOST = "localhost"
 
-        const val PRODUCTION_ENVIRONMENT_NAME = "production"
+        const val PRODUCTION_ENVIRONMENT_NAME = "production-environment"
         const val PRODUCTION_ENVIRONMENT_HOST = "otherhost"
 
         val buildFileContent =
@@ -156,7 +156,7 @@ class ChamaleonGradlePluginTest {
         val localPropertiesFileContent =
             //language=properties
             """
-                CHAMALEON_SELECTED_ENVIRONMENT=local
+                CHAMALEON_SELECTED_ENVIRONMENT=local-environment
             """.trimIndent()
 
         val expectedEnvironments =
