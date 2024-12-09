@@ -25,7 +25,7 @@ interface SchemaParser {
     }
 
     companion object {
-        const val SCHEMA_FILE = "template.json"
+        const val SCHEMA_FILE = "cha.json"
     }
 }
 
