@@ -8,7 +8,6 @@ import org.chamaleon.core.models.Platform
 import org.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import org.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure
 import org.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Success
-import org.chamaleon.core.parsers.SchemaParser.Companion.SCHEMA_FILE
 import java.io.File
 
 interface EnvironmentsParser {
@@ -27,9 +26,7 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
     override fun environmentsParserResult(): EnvironmentsParserResult {
         val directoryFiles = directory.listFiles()
 
-        val jsonFiles = directoryFiles?.filter { file ->
-            file.name != SCHEMA_FILE && file.nameWithoutExtension.endsWith("-cha") && file.extension.endsWith("json")
-        } ?: emptyList()
+        val jsonFiles = directoryFiles?.filter { file -> file.isEnvironmentFile } ?: emptyList()
 
         val environments = jsonFiles.mapNotNull { file ->
             val environmentName = file.nameWithoutExtension
@@ -52,6 +49,8 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
         return Success(environments = environments.toSet())
     }
 
+    private val File.isEnvironmentFile: Boolean get() = name.endsWith(ENVIRONMENT_FILE_POSFIX)
+
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->
             Platform(
@@ -67,4 +66,8 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
                 value = propertyDto.value,
             )
         }.toSet()
+
+    private companion object {
+        const val ENVIRONMENT_FILE_POSFIX = "-cha.json"
+    }
 }

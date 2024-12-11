@@ -13,7 +13,7 @@ class DefaultSchemaParserTest {
     @TempDir
     lateinit var directory: File
 
-    private val defaultSchemaParser by lazy { DefaultSchemaParser(directory) }
+    private val defaultSchemaParser by lazy { DefaultSchemaParser(directory, TestData.SCHEMA_FILE) }
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
@@ -58,7 +58,7 @@ class DefaultSchemaParserTest {
             directory.mkdirs()
         }
 
-        val schemaFile = File(directory, SchemaParser.SCHEMA_FILE)
+        val schemaFile = File(directory, TestData.SCHEMA_FILE)
         schemaFile.createNewFile()
 
         content?.let { content ->

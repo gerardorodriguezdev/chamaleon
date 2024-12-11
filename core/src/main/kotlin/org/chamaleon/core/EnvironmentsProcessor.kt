@@ -11,7 +11,6 @@ import org.chamaleon.core.parsers.DefaultSchemaParser
 import org.chamaleon.core.parsers.EnvironmentsParser
 import org.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import org.chamaleon.core.parsers.SchemaParser
-import org.chamaleon.core.parsers.SchemaParser.Companion.SCHEMA_FILE
 import org.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import java.io.File
 
@@ -20,7 +19,7 @@ class EnvironmentsProcessor(
     val environmentsParser: EnvironmentsParser,
 ) {
     constructor(directory: File) : this(
-        schemaParser = DefaultSchemaParser(directory),
+        schemaParser = DefaultSchemaParser(directory, SCHEMA_FILE),
         environmentsParser = DefaultEnvironmentsParser(directory),
     )
 
@@ -174,5 +173,9 @@ class EnvironmentsProcessor(
         ) : EnvironmentsProcessorException(
             "Value on property $propertyName for platform $platformType on environment $environmentName was null and is not marked as nullable on schema"
         )
+    }
+
+    private companion object {
+        const val SCHEMA_FILE = "cha.json"
     }
 }

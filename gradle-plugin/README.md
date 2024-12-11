@@ -100,7 +100,7 @@ chamaleon.environments // The environments are parsed and you can read the prope
 
 ## Selecting an environment
 
-If you want to set an environment as the selected one, you can do it by adding `chamaleon.local.properties` file in
+If you want to set an environment as the selected one, you can do it by adding `cha.properties` file in
 `environments` with this content:
 
 ```properties

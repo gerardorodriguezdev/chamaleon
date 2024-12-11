@@ -5,6 +5,7 @@ import org.chamaleon.core.models.Platform
 import org.chamaleon.core.models.Platform.Property
 import org.chamaleon.core.models.PlatformType
 import org.chamaleon.core.models.PropertyValue.StringProperty
+import org.chamaleon.gradle.plugin.testing.TestData
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
@@ -51,19 +52,19 @@ class ChamaleonGradlePluginTest {
     }
 
     private fun createFiles() {
-        val environmentsDirectory = File(testDir, ChamaleonGradlePlugin.ENVIRONMENTS_DIRECTORY)
+        val environmentsDirectory = File(testDir, TestData.ENVIRONMENTS_DIRECTORY)
             .apply { mkdirs() }
 
-        val templateJsonFile = File(environmentsDirectory, "cha.json")
+        val templateJsonFile = File(environmentsDirectory, TestData.SCHEMA_FILE)
         templateJsonFile.writeText(templateJsonFileContent)
 
-        val localJsonFile = File(environmentsDirectory, "local-cha.json")
+        val localJsonFile = File(environmentsDirectory, TestData.LOCAL_ENVIRONMENT_FILE)
         localJsonFile.writeText(localJsonFileContent)
 
-        val productionJsonFile = File(environmentsDirectory, "production-cha.json")
+        val productionJsonFile = File(environmentsDirectory, TestData.PRODUCTION_ENVIRONMENT_FILE)
         productionJsonFile.writeText(productionJsonFileContent)
 
-        val localPropertiesFile = File(environmentsDirectory, ChamaleonGradlePlugin.LOCAL_PROPERTIES_FILE)
+        val localPropertiesFile = File(environmentsDirectory, TestData.LOCAL_PROPERTIES_FILE)
         localPropertiesFile.writeText(localPropertiesFileContent)
     }
 
@@ -87,7 +88,7 @@ class ChamaleonGradlePluginTest {
         return extensions.findByType(ChamaleonExtension::class.java)!!
     }
 
-    companion object {
+    private companion object {
         const val EXPECTED_PROPERTY_NAME = "HOST"
 
         const val LOCAL_ENVIRONMENT_NAME = "local-cha"
@@ -156,7 +157,7 @@ class ChamaleonGradlePluginTest {
         val localPropertiesFileContent =
             //language=properties
             """
-                CHAMALEON_SELECTED_ENVIRONMENT=local-cha
+                CHAMALEON_SELECTED_ENVIRONMENT=$LOCAL_ENVIRONMENT_NAME
             """.trimIndent()
 
         val expectedEnvironments =

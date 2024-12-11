@@ -40,10 +40,10 @@ class ChamaleonGradlePlugin : Plugin<Project> {
 
     private data class LocalProperties(val selectedEnvironmentName: String)
 
-    companion object {
+    private companion object {
         const val EXTENSION_NAME = "chamaleon"
         const val ENVIRONMENTS_DIRECTORY = "environments"
-        const val LOCAL_PROPERTIES_FILE = "chamaleon.local.properties"
+        const val LOCAL_PROPERTIES_FILE = "cha.properties"
         const val SELECTED_ENVIRONMENT_KEY = "CHAMALEON_SELECTED_ENVIRONMENT"
     }
 }

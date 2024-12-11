@@ -3,7 +3,7 @@ package org.chamaleon.core.parsers
 import org.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import org.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure.SerializationError
 import org.chamaleon.core.testing.TestData
-import org.chamaleon.core.testing.TestData.ENVIRONMENTS_FILE_NAME
+import org.chamaleon.core.testing.TestData.ENVIRONMENT_FILE
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -60,7 +60,7 @@ class DefaultEnvironmentsParserTest {
             directory.mkdirs()
         }
 
-        val environmentsFile = File(directory, "$ENVIRONMENTS_FILE_NAME.json")
+        val environmentsFile = File(directory, ENVIRONMENT_FILE)
         environmentsFile.createNewFile()
 
         content?.let { content ->

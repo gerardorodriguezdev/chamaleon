@@ -6,7 +6,6 @@ import org.chamaleon.core.dtos.SchemaDto
 import org.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
 import org.chamaleon.core.models.Schema
 import org.chamaleon.core.models.Schema.PropertyDefinition
-import org.chamaleon.core.parsers.SchemaParser.Companion.SCHEMA_FILE
 import org.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import org.chamaleon.core.parsers.SchemaParser.SchemaParserResult.Failure
 import java.io.File
@@ -23,15 +22,14 @@ interface SchemaParser {
             data class SerializationError(val throwable: Throwable) : Failure
         }
     }
-
-    companion object {
-        const val SCHEMA_FILE = "cha.json"
-    }
 }
 
-internal class DefaultSchemaParser(val directory: File) : SchemaParser {
+internal class DefaultSchemaParser(
+    val directory: File,
+    val schemaFileName: String,
+) : SchemaParser {
     override fun schemaParserResult(): SchemaParserResult {
-        val schemaFile = File(directory, SCHEMA_FILE)
+        val schemaFile = File(directory, schemaFileName)
         if (!schemaFile.exists()) return Failure.FileNotFound(directory.path)
 
         val schemaFileContent = schemaFile.readText()
