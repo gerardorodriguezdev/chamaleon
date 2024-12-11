@@ -199,5 +199,4 @@ class PropertySerializerTest {
             assertEquals(expectedPropertyDto, actualPropertyDto)
         }
     }
-
 }

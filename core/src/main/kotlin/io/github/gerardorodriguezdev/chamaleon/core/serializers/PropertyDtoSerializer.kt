@@ -33,7 +33,11 @@ internal object PropertyDtoSerializer : KSerializer<PropertyDto> {
                     key = "value",
                     element = when (propertyValue) {
                         is PropertyValue.StringProperty -> {
-                            if (propertyValue.value.isEmpty()) throw SerializationException("StringProperty value was empty")
+                            if (propertyValue.value.isEmpty()) {
+                                throw SerializationException(
+                                    "StringProperty value was empty"
+                                )
+                            }
                             JsonPrimitive(propertyValue.value)
                         }
 

@@ -174,7 +174,7 @@ class ChamaleonGradlePluginTest {
 
         private fun expectedPlatform(value: String): Platform =
             Platform(
-                platformType = PlatformType.android,
+                platformType = PlatformType.ANDROID,
                 properties = setOf(
                     Property(name = EXPECTED_PROPERTY_NAME, value = StringProperty(value)),
                 )

@@ -1,4 +1,24 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.kotlin.dsl.withType
+
 plugins {
     alias(libs.plugins.kmp.kotlin) apply false
     alias(libs.plugins.kmp.serialization) apply false
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = true
+    config.from("detekt.yml")
+    autoCorrect = true
+}
+
+dependencies {
+    detektPlugins(libs.detekt.formatting)
+}
+
+tasks.withType<Detekt> detekt@{
+    setSource(files(project.projectDir))
+    exclude("**/build/**")
 }

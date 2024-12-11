@@ -1,5 +1,17 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
+import kotlinx.serialization.SerialName
+
 enum class PlatformType {
-    android, wasm, ios, jvm
+    @SerialName("android")
+    ANDROID,
+
+    @SerialName("wasm")
+    WASM,
+
+    @SerialName("ios")
+    IOS,
+
+    @SerialName("jvm")
+    JVM
 }

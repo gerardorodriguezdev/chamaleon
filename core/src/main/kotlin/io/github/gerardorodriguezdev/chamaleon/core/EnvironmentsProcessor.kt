@@ -66,16 +66,18 @@ class EnvironmentsProcessor(
     private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment) {
         val platformTypes = environment.platforms.map { platform -> platform.platformType }
 
-        if (supportedPlatforms.size != platformTypes.size || !supportedPlatforms.containsAll(platformTypes))
+        if (supportedPlatforms.size != platformTypes.size || !supportedPlatforms.containsAll(platformTypes)) {
             throw PlatformsNotEqualToSchema(environment.name)
+        }
     }
 
     private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String) {
         val propertyDefinitionNames = propertyDefinitions.map { propertyDefinition -> propertyDefinition.name }
         val propertyNames = platform.properties.map { property -> property.name }
 
-        if (propertyDefinitionNames.size != propertyNames.size || !propertyDefinitionNames.containsAll(propertyNames))
+        if (propertyDefinitionNames.size != propertyNames.size || !propertyDefinitionNames.containsAll(propertyNames)) {
             throw PropertiesNotEqualToSchema(platform.platformType, environmentName)
+        }
     }
 
     private fun Schema.verifyPropertyTypeIsCorrect(
@@ -140,8 +142,8 @@ class EnvironmentsProcessor(
 
     private fun PropertyValue.toPropertyType(): PropertyType =
         when (this) {
-            is StringProperty -> PropertyType.String
-            is BooleanProperty -> PropertyType.Boolean
+            is StringProperty -> PropertyType.STRING
+            is BooleanProperty -> PropertyType.BOOLEAN
         }
 
     sealed class EnvironmentsProcessorException(message: String) : Exception(message) {
@@ -155,7 +157,9 @@ class EnvironmentsProcessor(
             EnvironmentsProcessorException("Platforms of environment $environmentName are not equal to schema")
 
         class PropertiesNotEqualToSchema(platformType: PlatformType, environmentName: String) :
-            EnvironmentsProcessorException("Properties on platform $platformType for environment $environmentName are not equal to schema")
+            EnvironmentsProcessorException(
+                "Properties on platform $platformType for environment $environmentName are not equal to schema"
+            )
 
         class PropertyTypeNotMatchSchema(
             propertyName: String,
@@ -163,7 +167,8 @@ class EnvironmentsProcessor(
             environmentName: String,
             propertyType: PropertyType,
         ) : EnvironmentsProcessorException(
-            "Value of property $propertyName for platform $platformType on environment $environmentName doesn't match propertyType $propertyType on schema"
+            "Value of property $propertyName for platform $platformType " +
+                "on environment $environmentName doesn't match propertyType $propertyType on schema"
         )
 
         class NullPropertyNotNullableOnSchema(
@@ -171,7 +176,8 @@ class EnvironmentsProcessor(
             platformType: PlatformType,
             environmentName: String,
         ) : EnvironmentsProcessorException(
-            "Value on property $propertyName for platform $platformType on environment $environmentName was null and is not marked as nullable on schema"
+            "Value on property $propertyName for platform $platformType on environment " +
+                "$environmentName was null and is not marked as nullable on schema"
         )
     }
 

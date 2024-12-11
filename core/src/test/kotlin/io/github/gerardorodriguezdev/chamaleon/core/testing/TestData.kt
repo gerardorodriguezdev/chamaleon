@@ -17,30 +17,30 @@ object TestData {
 
     val validCompleteSchema = Schema(
         supportedPlatforms = setOf(
-            wasm,
-            android,
-            jvm,
-            ios,
+            WASM,
+            ANDROID,
+            JVM,
+            IOS,
         ),
         propertyDefinitions = setOf(
             PropertyDefinition(
                 name = "HOST",
-                propertyType = PropertyType.String,
+                propertyType = PropertyType.STRING,
                 nullable = true,
             ),
             PropertyDefinition(
                 name = "DOMAIN",
-                propertyType = PropertyType.String,
+                propertyType = PropertyType.STRING,
                 nullable = false,
             ),
             PropertyDefinition(
                 name = "IS_DEBUG",
-                propertyType = PropertyType.Boolean,
+                propertyType = PropertyType.BOOLEAN,
                 nullable = true,
             ),
             PropertyDefinition(
                 name = "IS_PRODUCTION",
-                propertyType = PropertyType.Boolean,
+                propertyType = PropertyType.BOOLEAN,
                 nullable = false,
             )
         )
@@ -69,19 +69,19 @@ object TestData {
         name = ENVIRONMENT_FILE_NAME,
         platforms = setOf(
             Platform(
-                platformType = wasm,
+                platformType = WASM,
                 properties = validCompleteProperties
             ),
             Platform(
-                platformType = android,
+                platformType = ANDROID,
                 properties = validCompleteProperties
             ),
             Platform(
-                platformType = jvm,
+                platformType = JVM,
                 properties = validCompleteProperties
             ),
             Platform(
-                platformType = ios,
+                platformType = IOS,
                 properties = validCompleteProperties
             ),
         )

@@ -1,0 +1,9 @@
+style:
+  WildcardImport:
+    active: false
+
+formatting:
+  NoWildcardImports:
+    active: false
+  FinalNewline:
+    active: false

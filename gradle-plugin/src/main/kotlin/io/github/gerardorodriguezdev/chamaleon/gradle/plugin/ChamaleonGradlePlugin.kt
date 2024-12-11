@@ -20,6 +20,7 @@ class ChamaleonGradlePlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("ReturnCount")
     private fun Project.localProperties(): LocalProperties? {
         val propertiesFile = environmentsDirectory.file(LOCAL_PROPERTIES_FILE).asFile
         if (!propertiesFile.exists()) return null

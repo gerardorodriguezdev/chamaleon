@@ -28,6 +28,8 @@ internal class DefaultSchemaParser(
     val directory: File,
     val schemaFileName: String,
 ) : SchemaParser {
+
+    @Suppress("ReturnCount")
     override fun schemaParserResult(): SchemaParserResult {
         val schemaFile = File(directory, schemaFileName)
         if (!schemaFile.exists()) return Failure.FileNotFound(directory.path)
