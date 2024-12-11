@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Build
-        uses: ./.github/workflows/build-action.yml
+        uses: ./.github/actions/build-action
       - name: Publish
         run: |
           ./gradlew :gradle-plugin:publishPlugins \

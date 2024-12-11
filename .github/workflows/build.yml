@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Build
-        uses: ./.github/workflows/build-action.yml
+        uses: ./.github/actions/build-action
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
