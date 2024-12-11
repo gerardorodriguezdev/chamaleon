@@ -1,3 +1,3 @@
 plugins {
-    id("org.chamaleon")
+    id("io.github.gerardorodriguezdev.chamaleon")
 }

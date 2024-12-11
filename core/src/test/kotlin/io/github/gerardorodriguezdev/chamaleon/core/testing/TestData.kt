@@ -1,0 +1,89 @@
+package io.github.gerardorodriguezdev.chamaleon.core.testing
+
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType.*
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
+
+object TestData {
+    private const val ENVIRONMENT_FILE_NAME = "local-cha"
+    const val ENVIRONMENT_FILE = "$ENVIRONMENT_FILE_NAME.json"
+    const val SCHEMA_FILE = "cha.json"
+
+    val validCompleteSchema = Schema(
+        supportedPlatforms = setOf(
+            wasm,
+            android,
+            jvm,
+            ios,
+        ),
+        propertyDefinitions = setOf(
+            PropertyDefinition(
+                name = "HOST",
+                propertyType = PropertyType.String,
+                nullable = true,
+            ),
+            PropertyDefinition(
+                name = "DOMAIN",
+                propertyType = PropertyType.String,
+                nullable = false,
+            ),
+            PropertyDefinition(
+                name = "IS_DEBUG",
+                propertyType = PropertyType.Boolean,
+                nullable = true,
+            ),
+            PropertyDefinition(
+                name = "IS_PRODUCTION",
+                propertyType = PropertyType.Boolean,
+                nullable = false,
+            )
+        )
+    )
+
+    private val validCompleteProperties = setOf(
+        Property(
+            name = "HOST",
+            value = null,
+        ),
+        Property(
+            name = "DOMAIN",
+            value = StringProperty("www.domain.com"),
+        ),
+        Property(
+            name = "IS_DEBUG",
+            value = null,
+        ),
+        Property(
+            name = "IS_PRODUCTION",
+            value = BooleanProperty(true),
+        ),
+    )
+
+    val validCompleteEnvironment = Environment(
+        name = ENVIRONMENT_FILE_NAME,
+        platforms = setOf(
+            Platform(
+                platformType = wasm,
+                properties = validCompleteProperties
+            ),
+            Platform(
+                platformType = android,
+                properties = validCompleteProperties
+            ),
+            Platform(
+                platformType = jvm,
+                properties = validCompleteProperties
+            ),
+            Platform(
+                platformType = ios,
+                properties = validCompleteProperties
+            ),
+        )
+    )
+}

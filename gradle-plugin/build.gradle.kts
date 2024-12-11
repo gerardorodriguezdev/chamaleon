@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.gradle.publish)
 }
 
-group = "org.chamaleon"
+group = "io.github.gerardorodriguezdev.chamaleon"
 version = "1.0.0"
 
 kotlin {
@@ -36,8 +36,8 @@ gradlePlugin {
     vcsUrl = "https://github.com/gerardorodriguezdev/chamaleon"
 
     plugins {
-        register("org.chamaleon") {
-            id = "org.chamaleon"
+        register("io.github.gerardorodriguezdev.chamaleon") {
+            id = "io.github.gerardorodriguezdev.chamaleon"
             displayName = "Chamaleon"
             description = "Simplify managing multiple environments for any Kotlin project"
             tags = listOf(
@@ -48,7 +48,7 @@ gradlePlugin {
                 "environments",
                 "configuration",
             )
-            implementationClass = "org.chamaleon.gradle.plugin.ChamaleonGradlePlugin"
+            implementationClass = "io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin"
         }
     }
 }

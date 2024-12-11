@@ -14,7 +14,7 @@ Simplify the management of multiple environments for any Kotlin project
 
 ```kotlin
 plugins {
-    id("org.chamaleon") version "1.0.0"
+    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.0"
 }
 ```
 
@@ -92,7 +92,7 @@ Now that you have applied the plugin and added the required files you should be 
 
 ```kotlin
 plugins {
-    id("org.chamaleon") version "1.0.0"
+    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.0"
 }
 
 chamaleon.environments // The environments are parsed and you can read the properties per environment and/or per platform
@@ -107,10 +107,11 @@ If you want to set an environment as the selected one, you can do it by adding `
 CHAMALEON_SELECTED_ENVIRONMENT=development-cha
 ```
 
-> If you have a `production-cha.json` and want to test locally but avoid commiting it just add 
+> If you have a `production-cha.json` and want to test locally but avoid commiting it just add
 > `production-cha.json` to your `.gitignore` file
 
 ## Using the json schemas
-The json schemas for `cha.json` and `yourenvironments-cha.json` have been uploaded to 
+
+The json schemas for `cha.json` and `yourenvironments-cha.json` have been uploaded to
 [Schema store](https://www.schemastore.org/json/) so you can see hints if the schema is valid or not. Alternatively you
 can find them here [Schemas](../schemas)
