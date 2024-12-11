@@ -1,0 +1,23 @@
+name: Release Workflow
+
+on:
+  push:
+    branches: [ 'release' ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build
+        uses: ./.github/workflows/build-action.yml
+      - name: Publish
+        run: |
+          ./gradlew :gradle-plugin:publishPlugins \
+          -Pgradle.publish.key=${{ secrets.GRADLE_PLUGIN_KEY}} \
+          -Pgradle.publish.secret=${{ secrets.GRADLE_PLUGIN_KEY}} \
+      - name: Upload release artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./gradle-plugin/build/libs/*.jar
