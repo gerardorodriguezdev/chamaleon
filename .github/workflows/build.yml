@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout actions
+        uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/build-action
       - name: Upload artifacts
