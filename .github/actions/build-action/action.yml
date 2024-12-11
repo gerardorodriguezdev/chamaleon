@@ -19,5 +19,5 @@ runs:
       uses: gradle/actions/setup-gradle@v3
 
     - name: Build
-      run: ./gradlew :detekt :test :build
+      run: ./gradlew detekt test build
       shell: bash
