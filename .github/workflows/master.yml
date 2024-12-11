@@ -13,7 +13,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/build-action
-      - name: Upload artifacts
+
+      - name: Upload core artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: core
+          path: ./core/build/libs/*.jar
+
+      - name: Upload gradle artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gradle-plugin

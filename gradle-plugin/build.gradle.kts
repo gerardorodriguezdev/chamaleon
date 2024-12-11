@@ -8,7 +8,7 @@ version = "1.0.0"
 
 kotlin {
     compilerOptions {
-        allWarningsAsErrors.set(true)
+        allWarningsAsErrors = true
     }
 
     jvmToolchain(libs.versions.jvm.get().toInt())
