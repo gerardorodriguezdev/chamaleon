@@ -20,3 +20,4 @@ runs:
 
     - name: Build
       run: ./gradlew :detekt :test :build
+      shell: bash
