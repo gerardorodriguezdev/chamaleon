@@ -21,6 +21,6 @@ For ease of use you should use both the [Gradle Plugin](gradle-plugin) and the [
 
 The project is separated into 3 different projects:
 
-- **core:** The actual code that makes the magic
+- **core:** The actual code that makes the magic [Core library](core)
 - **gradle-plugin:** Gradle plugin to use Chamaleon [Gradle Plugin](gradle-plugin)
 - **intellij-plugin:** Intellij plugin to switch between the different environments [Intellij Plugin]()
