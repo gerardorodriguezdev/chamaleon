@@ -26,11 +26,11 @@ jobs:
       - name: Upload core artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: core-${{ BRANCH_NAME }}
+          name: core-${{ env.BRANCH_NAME }}
           path: ./core/build/libs/*.jar
 
       - name: Upload gradle artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-plugin-${{ BRANCH_NAME }}
+          name: gradle-plugin-${{ env.BRANCH_NAME }}
           path: ./gradle-plugin/build/libs/*.jar
