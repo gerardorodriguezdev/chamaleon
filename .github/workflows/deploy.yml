@@ -2,17 +2,35 @@ name: Release Workflow
 
 on:
   push:
-    branches: [ 'release' ]
+    branches:
+      - release
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout actions
+      - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Build
-        uses: ./.github/actions/build-action
+        uses: ./.github/actions/setup-action
+
+      - name: Download core artifacts from master
+        uses: actions/download-artifact@v4
+        with:
+          name: core-master
+          path: ./core/build/libs
+
+      - name: Download gradle plugin artifacts from master
+        uses: actions/download-artifact@v4
+        with:
+          name: gradle-plugin-master
+          path: ./gradle-plugin/build/libs
 
       - name: Publish gradle plugin
         run: |

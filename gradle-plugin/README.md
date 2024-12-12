@@ -14,7 +14,7 @@ Simplify the management of multiple environments for any Kotlin project
 
 ```kotlin
 plugins {
-    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.0"
+    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.1" // check the latest version
 }
 ```
 
@@ -92,7 +92,7 @@ Now that you have applied the plugin and added the required files you should be 
 
 ```kotlin
 plugins {
-    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.0"
+    //... your plugins and the chamaleon plugin you applied before ^^^
 }
 
 chamaleon.environments // The environments are parsed and you can read the properties per environment and/or per platform
