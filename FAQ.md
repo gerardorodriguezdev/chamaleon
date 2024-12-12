@@ -1,4 +1,4 @@
-# Github workflow
+# GitHub workflow
 
 ## How to contribute?
 
@@ -14,7 +14,7 @@
 - Send a PR to merge with release
 - If all good the maintainers will merge the PR
 - When this happens a deployment will be done
-- After the deployment is finished it will upload the artifacts and create the github release
+- After the deployment is finished it will upload the artifacts and create the GitHub release
 
 ## How to update the jvm?
 
