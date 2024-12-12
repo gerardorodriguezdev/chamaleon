@@ -15,7 +15,7 @@ plugin allows you to define in an easy way all the environment variables for eac
 same structure and switch between them easily, so you don't have to pass which environment to select on the command line
 per task
 
-For ease of use you should use both the [Gradle Plugin](gradle-plugin) and the [Intellij Plugin]()
+For ease of use you should use both the [Gradle Plugin](gradle-plugin) and the [Intellij Plugin](intellij-plugin)
 
 ## Projects
 

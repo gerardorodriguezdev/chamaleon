@@ -5,6 +5,7 @@
 **/local
 **/.kotlin
 **/release
+**/.intellijPlatform
 
 # Files
 .DS_Store

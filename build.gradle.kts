@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kmp.kotlin) apply false
     alias(libs.plugins.kmp.serialization) apply false
     alias(libs.plugins.maven.publish) apply false
+    alias(libs.plugins.intellij) apply false
     alias(libs.plugins.detekt)
 }
 
