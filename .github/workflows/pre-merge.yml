@@ -23,11 +23,11 @@ jobs:
       - name: Upload core artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: core-${{ github.head_ref }}
+          name: core-${{ github.ref_name }}
           path: ./core/build/libs/*.jar
 
       - name: Upload gradle artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-plugin-${{ github.head_ref }}
+          name: gradle-plugin-${{ github.ref_name }}
           path: ./gradle-plugin/build/libs/*.jar
