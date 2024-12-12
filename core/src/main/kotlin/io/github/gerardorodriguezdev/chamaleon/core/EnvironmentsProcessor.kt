@@ -161,6 +161,7 @@ class EnvironmentsProcessor(
                 "Properties on platform $platformType for environment $environmentName are not equal to schema"
             )
 
+        @Suppress("Indentation")
         class PropertyTypeNotMatchSchema(
             propertyName: String,
             platformType: PlatformType,
@@ -171,6 +172,7 @@ class EnvironmentsProcessor(
                     "on environment $environmentName doesn't match propertyType $propertyType on schema"
         )
 
+        @Suppress("Indentation")
         class NullPropertyNotNullableOnSchema(
             propertyName: String,
             platformType: PlatformType,
