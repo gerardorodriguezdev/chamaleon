@@ -22,4 +22,4 @@ kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin"
 kmp-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 gradle-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-publish" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish"}
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
