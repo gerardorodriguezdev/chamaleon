@@ -27,13 +27,13 @@ kotlin {
 mavenPublishing {
     coordinates(
         groupId = group.toString(),
-        artifactId = "core",
+        artifactId = "chamaleon-core",
         version = version.toString()
     )
 
     pom {
         name = "Chamaleon Core"
-        description = "Core library to parse chamaleon files"
+        description = "Chamaleon core library to parse chamaleon files"
         url = "https://github.com/gerardorodriguezdev/chamaleon"
 
         licenses {
