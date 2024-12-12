@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"
-version = libs.versions.release
+version = libs.versions.release.get()
 
 kotlin {
     compilerOptions {
