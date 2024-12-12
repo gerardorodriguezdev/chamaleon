@@ -24,13 +24,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: core-master
-          path: ./core
+          path: ./core/build/libs
 
       - name: Download gradle plugin artifacts from master
         uses: actions/download-artifact@v4
         with:
           name: gradle-plugin-master
-          path: ./gradle-plugin
+          path: ./gradle-plugin/build/libs
 
       - name: Publish gradle plugin
         run: |
