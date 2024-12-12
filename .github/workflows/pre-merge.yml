@@ -6,12 +6,15 @@ on:
       - '*release*'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      BRANCH_NAME: ${{ github.ref == 'refs/heads/master' && 'master' || 'pr' }}
 
     steps:
       - name: Checkout code
@@ -23,11 +26,11 @@ jobs:
       - name: Upload core artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: core-${{ github.ref }}
+          name: core-${{ BRANCH_NAME }}
           path: ./core/build/libs/*.jar
 
       - name: Upload gradle artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-plugin-${{ github.ref }}
+          name: gradle-plugin-${{ BRANCH_NAME }}
           path: ./gradle-plugin/build/libs/*.jar
