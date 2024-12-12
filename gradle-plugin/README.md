@@ -62,7 +62,7 @@ This is the file that will be used to validate all the **environment json files*
 ### 4. Fill the `development-cha.json`
 
 Any json file named `anything-cha.json` inside the `environments` directory will be considered an environment.
-You can as many as you want with like `local-cha.json` or `production-cha.json`. For now we added
+You can as many as you want with like `local-cha.json` or `production-cha.json`. For now, we added
 `development-cha.json`. Let's add this content to it:
 
 ```json

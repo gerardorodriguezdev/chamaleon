@@ -1,5 +1,4 @@
 import io.gitlab.arturbosch.detekt.Detekt
-import org.gradle.kotlin.dsl.withType
 
 plugins {
     alias(libs.plugins.kmp.kotlin) apply false
