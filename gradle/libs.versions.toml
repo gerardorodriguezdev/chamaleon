@@ -10,7 +10,7 @@ detekt = "1.23.7"
 maven-publish = "0.30.0"
 
 # Releases
-release = "1.0.0"
+release = "1.0.1"
 
 [libraries]
 kmp-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kmp-serialization" }
