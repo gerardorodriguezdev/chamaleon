@@ -5,11 +5,14 @@
 
     <depends>com.intellij.modules.platform</depends>
 
+    <description>Chamaleon Intellij plugin to configure different chamaleon environments</description>
+
     <resource-bundle>messages.Bundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
                 factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.MainToolWindowFactory"
-                id="ChamaleonWindow"/>
+                id="ChamaleonWindow"
+                anchor="right"/>
     </extensions>
 </idea-plugin>
