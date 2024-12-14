@@ -3,13 +3,17 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 plugins {
     kotlin("jvm")
     alias(libs.plugins.intellij)
+    alias(libs.plugins.kmp.compose)
+    alias(libs.plugins.kmp.compose.compiler)
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"
 version = libs.versions.release.get()
 
 repositories {
+    google()
     mavenCentral()
+    maven("https://packages.jetbrains.team/maven/p/kpm/public/")
 
     intellijPlatform {
         defaultRepositories()
@@ -25,7 +29,17 @@ kotlin {
     jvmToolchain(libs.versions.jvm.get().toInt())
 
     dependencies {
-        implementation(libs.kmp.serialization)
+        implementation(libs.jvm.coroutines) {
+            exclude(
+                group = "org.jetbrains.kotlinx",
+                module = "kotlinx-coroutines-core"
+            )
+        }
+        implementation(compose.desktop.currentOs) {
+            exclude(group = "org.jetbrains.compose.material")
+            exclude(group = "org.jetbrains.kotlinx")
+        }
+        implementation(libs.intellij.jewel) { exclude(group = "org.jetbrains.kotlinx") }
 
         testImplementation(libs.kmp.test)
 

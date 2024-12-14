@@ -1,7 +1,7 @@
 [versions]
 # Platforms
 kotlin = "2.1.0"
-jvm = "21"
+jvm = "17"
 
 # Libraries
 kmp-serialization = "1.7.3"
@@ -9,6 +9,9 @@ gradle-publish = "1.3.0"
 detekt = "1.23.7"
 maven-publish = "0.30.0"
 intellij = "2.2.0"
+kmp-compose = "1.7.0"
+kmp-coroutines = "1.9.0"
+intellij-jewel = "0.25.0"
 
 # Releases
 release = "1.0.2"
@@ -17,10 +20,14 @@ release = "1.0.2"
 kmp-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kmp-serialization" }
 kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
+intellij-jewel = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge-233", version.ref = "intellij-jewel" }
 
 [plugins]
 kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kmp-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kmp-compose = { id = "org.jetbrains.compose", version.ref = "kmp-compose" }
+kmp-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gradle-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-publish" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
