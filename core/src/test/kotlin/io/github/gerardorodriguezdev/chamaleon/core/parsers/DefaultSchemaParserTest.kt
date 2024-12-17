@@ -40,7 +40,7 @@ class DefaultSchemaParserTest {
 
         val schemaParserResult = defaultSchemaParser.schemaParserResult()
 
-        assertIs<SchemaParserResult.Failure.SerializationError>(schemaParserResult)
+        assertIs<SchemaParserResult.Failure.Serialization>(schemaParserResult)
     }
 
     @Test

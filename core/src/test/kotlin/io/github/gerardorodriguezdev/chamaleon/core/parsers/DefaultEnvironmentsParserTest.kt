@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure.SerializationError
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure.Serialization
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.ENVIRONMENT_FILE
 import org.junit.jupiter.api.Test
@@ -41,7 +41,7 @@ class DefaultEnvironmentsParserTest {
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult()
 
-        assertIs<SerializationError>(actualEnvironmentsParserResult)
+        assertIs<Serialization>(actualEnvironmentsParserResult)
     }
 
     @Test

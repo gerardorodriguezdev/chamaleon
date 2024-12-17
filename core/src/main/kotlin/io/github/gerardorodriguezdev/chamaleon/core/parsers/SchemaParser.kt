@@ -19,7 +19,7 @@ interface SchemaParser {
         sealed interface Failure : SchemaParserResult {
             data class FileNotFound(val path: String) : Failure
             data class FileIsEmpty(val path: String) : Failure
-            data class SerializationError(val throwable: Throwable) : Failure
+            data class Serialization(val throwable: Throwable) : Failure
         }
     }
 }
@@ -41,7 +41,7 @@ internal class DefaultSchemaParser(
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
             SchemaParserResult.Success(schemaDto.toSchema())
         } catch (exception: SerializationException) {
-            Failure.SerializationError(exception)
+            Failure.Serialization(exception)
         }
     }
 

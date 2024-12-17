@@ -17,7 +17,7 @@ interface EnvironmentsParser {
         data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
 
         sealed interface Failure : EnvironmentsParserResult {
-            data class SerializationError(val throwable: Throwable) : Failure
+            data class Serialization(val throwable: Throwable) : Failure
         }
     }
 }
@@ -37,7 +37,7 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
             val platformDtos = try {
                 Json.decodeFromString<Set<PlatformDto>>(fileContent)
             } catch (error: SerializationException) {
-                return Failure.SerializationError(error)
+                return Failure.Serialization(error)
             }
 
             Environment(
