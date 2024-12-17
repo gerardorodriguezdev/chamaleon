@@ -41,6 +41,8 @@ kotlin {
         }
         implementation(libs.intellij.jewel) { exclude(group = "org.jetbrains.kotlinx") }
 
+        implementation(projects.core)
+
         testImplementation(libs.kmp.test)
 
         intellijPlatform {
