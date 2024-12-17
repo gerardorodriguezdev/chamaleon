@@ -91,10 +91,10 @@ class ChamaleonGradlePluginTest {
     private companion object {
         const val EXPECTED_PROPERTY_NAME = "HOST"
 
-        const val LOCAL_ENVIRONMENT_NAME = "local-cha"
+        const val LOCAL_ENVIRONMENT_NAME = "local"
         const val LOCAL_ENVIRONMENT_HOST = "localhost"
 
-        const val PRODUCTION_ENVIRONMENT_NAME = "production-cha"
+        const val PRODUCTION_ENVIRONMENT_NAME = "production"
         const val PRODUCTION_ENVIRONMENT_HOST = "otherhost"
 
         val buildFileContent =

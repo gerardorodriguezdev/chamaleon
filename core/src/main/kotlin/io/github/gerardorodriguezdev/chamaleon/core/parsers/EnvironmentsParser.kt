@@ -29,7 +29,7 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
         val jsonFiles = directoryFiles?.filter { file -> file.isEnvironmentFile } ?: emptyList()
 
         val environments = jsonFiles.mapNotNull { file ->
-            val environmentName = file.nameWithoutExtension
+            val environmentName = file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX)
 
             val fileContent = file.readText()
             if (fileContent.isEmpty()) return@mapNotNull null
@@ -49,7 +49,7 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
         return Success(environments = environments.toSet())
     }
 
-    private val File.isEnvironmentFile: Boolean get() = name.endsWith(ENVIRONMENT_FILE_POSFIX)
+    private val File.isEnvironmentFile: Boolean get() = name.endsWith(ENVIRONMENT_FILE_SUFFIX)
 
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->
@@ -68,6 +68,6 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
         }.toSet()
 
     private companion object {
-        const val ENVIRONMENT_FILE_POSFIX = "-cha.json"
+        const val ENVIRONMENT_FILE_SUFFIX = "-cha.json"
     }
 }
