@@ -1,0 +1,11 @@
+[
+  {
+    "platformType": "android",
+    "properties": [
+      {
+        "name": "HOST",
+        "value": "otherhost"
+      }
+    ]
+  }
+]

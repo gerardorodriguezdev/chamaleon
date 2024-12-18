@@ -27,6 +27,7 @@ class DefaultEnvironmentsProcessor(
     val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(),
     val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
 ) : EnvironmentsProcessor {
+
     override fun process(directory: File): EnvironmentsProcessorResult {
         val schemaFile = File(directory, SCHEMA_FILE)
         val schemaParsingResult = schemaParser.schemaParserResult(schemaFile)
