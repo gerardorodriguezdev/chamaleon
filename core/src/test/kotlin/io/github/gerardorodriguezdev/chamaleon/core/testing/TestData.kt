@@ -15,6 +15,7 @@ object TestData {
     private const val ENVIRONMENT_FILE_NAME = "$ENVIRONMENT_NAME-cha"
     const val ENVIRONMENT_FILE = "$ENVIRONMENT_FILE_NAME.json"
     const val SCHEMA_FILE = "cha.json"
+    const val PROPERTIES_FILE = "cha.properties"
 
     val validCompleteSchema = Schema(
         supportedPlatforms = setOf(
