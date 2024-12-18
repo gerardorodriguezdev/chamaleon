@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.DefaultEnvironmentsProcessor
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
@@ -10,7 +10,7 @@ class ChamaleonGradlePlugin : Plugin<Project> {
         with(target) {
             val extension = extensions.create(EXTENSION_NAME, ChamaleonExtension::class.java)
 
-            val environmentsProcessor = EnvironmentsProcessor(environmentsDirectory.asFile)
+            val environmentsProcessor = DefaultEnvironmentsProcessor(environmentsDirectory.asFile)
             val environmentsProcessorResult = environmentsProcessor.process()
 
             extension.environments.set(environmentsProcessorResult.environments)

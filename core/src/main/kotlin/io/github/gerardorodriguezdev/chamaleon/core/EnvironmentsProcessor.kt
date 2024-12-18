@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorException.*
+import io.github.gerardorodriguezdev.chamaleon.core.DefaultEnvironmentsProcessor.DefaultEnvironmentsProcessorException.*
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
@@ -12,18 +13,27 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.Pro
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import java.io.File
 
-class EnvironmentsProcessor(
+interface EnvironmentsProcessor {
+    fun process(): EnvironmentsProcessorResult
+
+    data class EnvironmentsProcessorResult(
+        val selectedEnvironmentName: String? = null,
+        val environments: Set<Environment>,
+    )
+}
+
+class DefaultEnvironmentsProcessor(
     val schemaParser: SchemaParser,
     val environmentsParser: EnvironmentsParser,
     val propertiesParser: PropertiesParser,
-) {
+) : EnvironmentsProcessor {
     constructor(directory: File) : this(
         schemaParser = DefaultSchemaParser(directory, SCHEMA_FILE),
         environmentsParser = DefaultEnvironmentsParser(directory),
         propertiesParser = DefaultPropertiesParser(directory, PROPERTIES_FILE),
     )
 
-    fun process(): EnvironmentsProcessorResult {
+    override fun process(): EnvironmentsProcessorResult {
         val schemaParsingResult = schemaParser.schemaParserResult()
         val schema = schemaParsingResult.schema()
 
@@ -170,23 +180,18 @@ class EnvironmentsProcessor(
             is BooleanProperty -> PropertyType.BOOLEAN
         }
 
-    data class EnvironmentsProcessorResult(
-        val selectedEnvironmentName: String? = null,
-        val environments: Set<Environment>,
-    )
-
-    sealed class EnvironmentsProcessorException(message: String) : Exception(message) {
+    sealed class DefaultEnvironmentsProcessorException(message: String) : Exception(message) {
         class SchemaFileNotFound(directoryPath: String) :
-            EnvironmentsProcessorException("'$SCHEMA_FILE' not found on '$directoryPath'")
+            DefaultEnvironmentsProcessorException("'$SCHEMA_FILE' not found on '$directoryPath'")
 
         class SchemaFileIsEmpty(directoryPath: String) :
-            EnvironmentsProcessorException("'$SCHEMA_FILE' on '$directoryPath' is empty")
+            DefaultEnvironmentsProcessorException("'$SCHEMA_FILE' on '$directoryPath' is empty")
 
         class PlatformsNotEqualToSchema(environmentName: String) :
-            EnvironmentsProcessorException("Platforms of environment '$environmentName' are not equal to schema")
+            DefaultEnvironmentsProcessorException("Platforms of environment '$environmentName' are not equal to schema")
 
         class PropertiesNotEqualToSchema(platformType: PlatformType, environmentName: String) :
-            EnvironmentsProcessorException(
+            DefaultEnvironmentsProcessorException(
                 "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
             )
 
@@ -196,7 +201,7 @@ class EnvironmentsProcessor(
             platformType: PlatformType,
             environmentName: String,
             propertyType: PropertyType,
-        ) : EnvironmentsProcessorException(
+        ) : DefaultEnvironmentsProcessorException(
             "Value of property '$propertyName' for platform '$platformType' " +
                     "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
         )
@@ -206,17 +211,17 @@ class EnvironmentsProcessor(
             propertyName: String,
             platformType: PlatformType,
             environmentName: String,
-        ) : EnvironmentsProcessorException(
+        ) : DefaultEnvironmentsProcessorException(
             "Value on property '$propertyName' for platform '$platformType' on environment " +
                     "'$environmentName' was null and is not marked as nullable on schema"
         )
 
         class InvalidPropertiesFile(directoryPath: String) :
-            EnvironmentsProcessorException("Invalid properties on '$PROPERTIES_FILE' on '$directoryPath'")
+            DefaultEnvironmentsProcessorException("Invalid properties on '$PROPERTIES_FILE' on '$directoryPath'")
 
         @Suppress("Indentation")
         class SelectedEnvironmentInvalid(selectedEnvironmentName: String, environmentNames: String) :
-            EnvironmentsProcessorException(
+            DefaultEnvironmentsProcessorException(
                 "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
                         "[$environmentNames]"
             )

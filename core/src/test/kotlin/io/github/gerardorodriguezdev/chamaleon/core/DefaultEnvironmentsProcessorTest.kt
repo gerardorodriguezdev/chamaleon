@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorException.*
+import io.github.gerardorodriguezdev.chamaleon.core.DefaultEnvironmentsProcessor.DefaultEnvironmentsProcessorException.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
-class EnvironmentsProcessorTest {
+class DefaultEnvironmentsProcessorTest {
     private val schemaParser = FakeSchemaParser()
     private val environmentsParser = FakeEnvironmentsParser()
     private val propertiesParser = FakePropertiesParser()
 
-    private val environmentsProcessor = EnvironmentsProcessor(
+    private val defaultEnvironmentsProcessor = DefaultEnvironmentsProcessor(
         schemaParser = schemaParser,
         environmentsParser = environmentsParser,
         propertiesParser = propertiesParser,
@@ -29,7 +29,7 @@ class EnvironmentsProcessorTest {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.FileNotFound("")
 
         assertThrows<SchemaFileNotFound> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -38,7 +38,7 @@ class EnvironmentsProcessorTest {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.FileIsEmpty("")
 
         assertThrows<SchemaFileIsEmpty> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -47,7 +47,7 @@ class EnvironmentsProcessorTest {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.Serialization(Exception())
 
         assertThrows<Exception> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -56,7 +56,7 @@ class EnvironmentsProcessorTest {
         environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 
         assertThrows<Exception> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -71,7 +71,7 @@ class EnvironmentsProcessorTest {
         )
 
         assertThrows<PlatformsNotEqualToSchema> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -90,7 +90,7 @@ class EnvironmentsProcessorTest {
         )
 
         assertThrows<PropertiesNotEqualToSchema> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -113,7 +113,7 @@ class EnvironmentsProcessorTest {
         )
 
         assertThrows<PropertyTypeNotMatchSchema> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -122,7 +122,7 @@ class EnvironmentsProcessorTest {
         propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile("")
 
         assertThrows<InvalidPropertiesFile> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -131,7 +131,7 @@ class EnvironmentsProcessorTest {
         propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.Parsing(Exception())
 
         assertThrows<Exception> {
-            environmentsProcessor.process()
+            defaultEnvironmentsProcessor.process()
         }
     }
 
@@ -142,7 +142,7 @@ class EnvironmentsProcessorTest {
             environments = setOf(TestData.validCompleteEnvironment),
         )
 
-        val actualEnvironmentsProcessorResult = environmentsProcessor.process()
+        val actualEnvironmentsProcessorResult = defaultEnvironmentsProcessor.process()
 
         assertEquals(actualEnvironmentsProcessorResult, expectedEnvironmentsProcessorResult)
     }

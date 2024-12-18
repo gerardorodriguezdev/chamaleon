@@ -10,7 +10,7 @@ Just create an EnvironmentsProcessor, and it will parse the directory provided a
 ````kotlin
 val file = File("MyDirectory")
 
-val environmentsProcessor = EnvironmentsProcessor(file)
+val environmentsProcessor = DefaultEnvironmentsProcessor(file)
 
 val environments = environmentsProcessor.environments()
 
