@@ -3,9 +3,11 @@ package io.github.gerardorodriguezdev.chamaleon.core
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorException.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentsParser
+import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakePropertiesParser
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeSchemaParser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,50 +16,52 @@ import kotlin.test.assertEquals
 class EnvironmentsProcessorTest {
     private val schemaParser = FakeSchemaParser()
     private val environmentsParser = FakeEnvironmentsParser()
+    private val propertiesParser = FakePropertiesParser()
 
     private val environmentsProcessor = EnvironmentsProcessor(
         schemaParser = schemaParser,
         environmentsParser = environmentsParser,
+        propertiesParser = propertiesParser,
     )
 
     @Test
-    fun `GIVEN schema parsing file not found WHEN environments THEN throws exception`() {
+    fun `GIVEN schema parsing file not found WHEN process THEN throws exception`() {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.FileNotFound("")
 
         assertThrows<SchemaFileNotFound> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN schema parsing file is empty WHEN environments THEN throws exception`() {
+    fun `GIVEN schema parsing file is empty WHEN process THEN throws exception`() {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.FileIsEmpty("")
 
         assertThrows<SchemaFileIsEmpty> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN schema parsing serialization error WHEN environments THEN throws exception`() {
-        schemaParser.schemaParserResult = SchemaParserResult.Failure.SerializationError(Exception())
+    fun `GIVEN schema parsing serialization error WHEN process THEN throws exception`() {
+        schemaParser.schemaParserResult = SchemaParserResult.Failure.Serialization(Exception())
 
         assertThrows<Exception> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN environments parsing serialization error WHEN environments THEN throws exception`() {
-        environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.SerializationError(Exception())
+    fun `GIVEN environments parsing serialization error WHEN process THEN throws exception`() {
+        environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 
         assertThrows<Exception> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN environment is missing platform from schema WHEN environments THEN throws exception`() {
+    fun `GIVEN environment is missing platform from schema WHEN process THEN throws exception`() {
         environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
             environments = setOf(
                 TestData.validCompleteEnvironment.copy(
@@ -67,12 +71,12 @@ class EnvironmentsProcessorTest {
         )
 
         assertThrows<PlatformsNotEqualToSchema> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN platform is missing property from schema WHEN environments THEN throws exception`() {
+    fun `GIVEN platform is missing property from schema WHEN process THEN throws exception`() {
         environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
             environments = setOf(
                 TestData.validCompleteEnvironment.copy(
@@ -86,12 +90,12 @@ class EnvironmentsProcessorTest {
         )
 
         assertThrows<PropertiesNotEqualToSchema> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN property has incorrect type from schema WHEN environments THEN throws exception`() {
+    fun `GIVEN property has incorrect type from schema WHEN process THEN throws exception`() {
         environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
             environments = setOf(
                 TestData.validCompleteEnvironment.copy(
@@ -109,16 +113,37 @@ class EnvironmentsProcessorTest {
         )
 
         assertThrows<PropertyTypeNotMatchSchema> {
-            environmentsProcessor.environments()
+            environmentsProcessor.process()
         }
     }
 
     @Test
-    fun `GIVEN valid schema and environments WHEN environments THEN returns environments`() {
-        val expectedEnvironments = setOf(TestData.validCompleteEnvironment)
+    fun `GIVEN invalid properties file WHEN process THEN throws exception`() {
+        propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile("")
 
-        val actualEnvironments = environmentsProcessor.environments()
+        assertThrows<InvalidPropertiesFile> {
+            environmentsProcessor.process()
+        }
+    }
 
-        assertEquals(expectedEnvironments, actualEnvironments)
+    @Test
+    fun `GIVEN properties file parsing error WHEN process THEN throws exception`() {
+        propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.Parsing(Exception())
+
+        assertThrows<Exception> {
+            environmentsProcessor.process()
+        }
+    }
+
+    @Test
+    fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() {
+        val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult(
+            selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
+            environments = setOf(TestData.validCompleteEnvironment),
+        )
+
+        val actualEnvironmentsProcessorResult = environmentsProcessor.process()
+
+        assertEquals(actualEnvironmentsProcessorResult, expectedEnvironmentsProcessorResult)
     }
 }
