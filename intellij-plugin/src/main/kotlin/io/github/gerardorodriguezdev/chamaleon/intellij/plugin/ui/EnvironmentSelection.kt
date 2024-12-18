@@ -15,8 +15,8 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 
 @OptIn(ExperimentalJewelApi::class)
 @Composable
-fun EnvironmentSelectionToolWindow(
-    state: EnvironmentSelectionToolWindowState,
+fun EnvironmentSelection(
+    state: EnvironmentSelectionState,
     onEnvironmentChanged: (newEnvironmentPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     SwingBridgeTheme {
@@ -56,6 +56,6 @@ fun EnvironmentSelectionToolWindow(
     }
 }
 
-data class EnvironmentSelectionToolWindowState(
+data class EnvironmentSelectionState(
     val environmentCardStates: ImmutableList<EnvironmentCardState>,
 )
