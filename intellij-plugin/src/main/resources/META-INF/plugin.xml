@@ -12,7 +12,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
                 factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.MainToolWindowFactory"
-                id="ChamaleonWindow"
+                id="Chamaleon"
                 anchor="right"/>
     </extensions>
 </idea-plugin>
