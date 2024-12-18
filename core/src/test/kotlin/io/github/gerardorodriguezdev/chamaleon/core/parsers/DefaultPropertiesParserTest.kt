@@ -11,14 +11,15 @@ class DefaultPropertiesParserTest {
     @TempDir
     lateinit var directory: File
 
-    private val defaultPropertiesParser by lazy { DefaultPropertiesParser(directory, TestData.PROPERTIES_FILE) }
+    private val propertiesFile by lazy { File(directory, TestData.PROPERTIES_FILE) }
+    private val defaultPropertiesParser by lazy { DefaultPropertiesParser() }
 
     @Test
     fun `GIVEN invalid properties file WHEN propertiesParserResult THEN returns failure`() {
         val expectedPropertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile(directory.path)
         createPropertiesFile(invalidPropertiesFile)
 
-        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult()
+        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
         assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
     }
@@ -27,7 +28,7 @@ class DefaultPropertiesParserTest {
     fun `GIVEN no properties file WHEN propertiesParserResult THEN returns success`() {
         val expectedPropertiesParserResult = PropertiesParserResult.Success()
 
-        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult()
+        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
         assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
     }
@@ -37,7 +38,7 @@ class DefaultPropertiesParserTest {
         val expectedPropertiesParserResult = PropertiesParserResult.Success()
         createPropertiesFile(emptyPropertiesFile)
 
-        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult()
+        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
         assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
     }
@@ -47,7 +48,7 @@ class DefaultPropertiesParserTest {
         val expectedPropertiesParserResult = PropertiesParserResult.Success(SELECTED_ENVIRONMENT)
         createPropertiesFile(validPropertiesFile)
 
-        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult()
+        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
         assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
     }
@@ -57,7 +58,7 @@ class DefaultPropertiesParserTest {
         val expectedPropertiesParserResult = PropertiesParserResult.Success(SELECTED_ENVIRONMENT)
         createPropertiesFile(validPropertiesFileWithMultipleProperties)
 
-        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult()
+        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
         assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
     }

@@ -13,13 +13,14 @@ class DefaultSchemaParserTest {
     @TempDir
     lateinit var directory: File
 
-    private val defaultSchemaParser by lazy { DefaultSchemaParser(directory, TestData.SCHEMA_FILE) }
+    private val schemaFile by lazy { File(directory, TestData.SCHEMA_FILE) }
+    private val defaultSchemaParser by lazy { DefaultSchemaParser() }
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
         val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(directory.path)
 
-        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult()
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
     }
@@ -29,7 +30,7 @@ class DefaultSchemaParserTest {
         val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(directory.path)
         createSchemaFile()
 
-        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult()
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
     }
@@ -38,7 +39,7 @@ class DefaultSchemaParserTest {
     fun `GIVEN invalid schema file WHEN schemaParserResult THEN returns failure`() {
         createSchemaFile(invalidSchemaJson)
 
-        val schemaParserResult = defaultSchemaParser.schemaParserResult()
+        val schemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertIs<SchemaParserResult.Failure.Serialization>(schemaParserResult)
     }
@@ -48,7 +49,7 @@ class DefaultSchemaParserTest {
         val expectedSchemaParserResult = SchemaParserResult.Success(TestData.validCompleteSchema)
         createSchemaFile(completeValidSchemaJson)
 
-        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult()
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
     }

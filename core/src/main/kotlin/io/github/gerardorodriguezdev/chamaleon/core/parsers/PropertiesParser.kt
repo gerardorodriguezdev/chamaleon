@@ -8,7 +8,7 @@ import java.io.File
 import java.util.*
 
 interface PropertiesParser {
-    fun propertiesParserResult(): PropertiesParserResult
+    fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
 
     sealed interface PropertiesParserResult {
         data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
@@ -19,14 +19,9 @@ interface PropertiesParser {
     }
 }
 
-class DefaultPropertiesParser(
-    val directory: File,
-    val propertiesFileName: String,
-) : PropertiesParser {
-
+class DefaultPropertiesParser : PropertiesParser {
     @Suppress("ReturnCount")
-    override fun propertiesParserResult(): PropertiesParserResult {
-        val propertiesFile = File(directory, propertiesFileName)
+    override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         if (!propertiesFile.exists()) return Success()
 
         return try {
@@ -36,7 +31,7 @@ class DefaultPropertiesParser(
             if (properties.isEmpty) return Success()
 
             val selectedEnvironmentName = properties[SELECTED_ENVIRONMENT_KEY] as? String
-            if (selectedEnvironmentName == null) return InvalidPropertiesFile(directory.path)
+            if (selectedEnvironmentName == null) return InvalidPropertiesFile(propertiesFile.parent)
 
             return Success(selectedEnvironmentName)
         } catch (error: Exception) {

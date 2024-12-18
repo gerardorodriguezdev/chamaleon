@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.ui.component.VerticalScrollbar
@@ -57,5 +58,6 @@ fun EnvironmentSelection(
 }
 
 data class EnvironmentSelectionState(
-    val environmentCardStates: ImmutableList<EnvironmentCardState>,
+    val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
+    val isLoading: Boolean = false,
 )

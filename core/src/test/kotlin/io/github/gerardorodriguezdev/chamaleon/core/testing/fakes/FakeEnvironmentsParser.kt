@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.testing.fakes
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
+import java.io.File
 
 class FakeEnvironmentsParser(
     var environmentsParserResult: EnvironmentsParserResult =
@@ -12,5 +13,5 @@ class FakeEnvironmentsParser(
             )
         ),
 ) : EnvironmentsParser {
-    override fun environmentsParserResult(): EnvironmentsParserResult = environmentsParserResult
+    override fun environmentsParserResult(directory: File): EnvironmentsParserResult = environmentsParserResult
 }

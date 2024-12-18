@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 interface SchemaParser {
-    fun schemaParserResult(): SchemaParserResult
+    fun schemaParserResult(schemaFile: File): SchemaParserResult
 
     sealed interface SchemaParserResult {
         data class Success(val schema: Schema) : SchemaParserResult
@@ -24,18 +24,13 @@ interface SchemaParser {
     }
 }
 
-internal class DefaultSchemaParser(
-    val directory: File,
-    val schemaFileName: String,
-) : SchemaParser {
-
+internal class DefaultSchemaParser : SchemaParser {
     @Suppress("ReturnCount")
-    override fun schemaParserResult(): SchemaParserResult {
-        val schemaFile = File(directory, schemaFileName)
-        if (!schemaFile.exists()) return Failure.FileNotFound(directory.path)
+    override fun schemaParserResult(schemaFile: File): SchemaParserResult {
+        if (!schemaFile.exists()) return Failure.FileNotFound(schemaFile.parent)
 
         val schemaFileContent = schemaFile.readText()
-        if (schemaFileContent.isEmpty()) return Failure.FileIsEmpty(directory.path)
+        if (schemaFileContent.isEmpty()) return Failure.FileIsEmpty(schemaFile.parent)
 
         return try {
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)

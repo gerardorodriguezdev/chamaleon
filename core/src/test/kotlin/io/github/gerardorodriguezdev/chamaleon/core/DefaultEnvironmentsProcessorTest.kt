@@ -11,9 +11,14 @@ import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeProperties
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeSchemaParser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import kotlin.test.assertEquals
 
 class DefaultEnvironmentsProcessorTest {
+    @TempDir
+    lateinit var directory: File
+
     private val schemaParser = FakeSchemaParser()
     private val environmentsParser = FakeEnvironmentsParser()
     private val propertiesParser = FakePropertiesParser()
@@ -29,7 +34,7 @@ class DefaultEnvironmentsProcessorTest {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.FileNotFound("")
 
         assertThrows<SchemaFileNotFound> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -38,7 +43,7 @@ class DefaultEnvironmentsProcessorTest {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.FileIsEmpty("")
 
         assertThrows<SchemaFileIsEmpty> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -47,7 +52,7 @@ class DefaultEnvironmentsProcessorTest {
         schemaParser.schemaParserResult = SchemaParserResult.Failure.Serialization(Exception())
 
         assertThrows<Exception> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -56,7 +61,7 @@ class DefaultEnvironmentsProcessorTest {
         environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 
         assertThrows<Exception> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -71,7 +76,7 @@ class DefaultEnvironmentsProcessorTest {
         )
 
         assertThrows<PlatformsNotEqualToSchema> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -90,7 +95,7 @@ class DefaultEnvironmentsProcessorTest {
         )
 
         assertThrows<PropertiesNotEqualToSchema> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -113,7 +118,7 @@ class DefaultEnvironmentsProcessorTest {
         )
 
         assertThrows<PropertyTypeNotMatchSchema> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -122,7 +127,7 @@ class DefaultEnvironmentsProcessorTest {
         propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile("")
 
         assertThrows<InvalidPropertiesFile> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -131,7 +136,7 @@ class DefaultEnvironmentsProcessorTest {
         propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.Parsing(Exception())
 
         assertThrows<Exception> {
-            defaultEnvironmentsProcessor.process()
+            defaultEnvironmentsProcessor.process(directory)
         }
     }
 
@@ -142,7 +147,7 @@ class DefaultEnvironmentsProcessorTest {
             environments = setOf(TestData.validCompleteEnvironment),
         )
 
-        val actualEnvironmentsProcessorResult = defaultEnvironmentsProcessor.process()
+        val actualEnvironmentsProcessorResult = defaultEnvironmentsProcessor.process(directory)
 
         assertEquals(actualEnvironmentsProcessorResult, expectedEnvironmentsProcessorResult)
     }

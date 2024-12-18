@@ -14,7 +14,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaP
 import java.io.File
 
 interface EnvironmentsProcessor {
-    fun process(): EnvironmentsProcessorResult
+    fun process(directory: File): EnvironmentsProcessorResult
 
     data class EnvironmentsProcessorResult(
         val selectedEnvironmentName: String? = null,
@@ -23,24 +23,20 @@ interface EnvironmentsProcessor {
 }
 
 class DefaultEnvironmentsProcessor(
-    val schemaParser: SchemaParser,
-    val environmentsParser: EnvironmentsParser,
-    val propertiesParser: PropertiesParser,
+    val schemaParser: SchemaParser = DefaultSchemaParser(),
+    val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(),
+    val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
 ) : EnvironmentsProcessor {
-    constructor(directory: File) : this(
-        schemaParser = DefaultSchemaParser(directory, SCHEMA_FILE),
-        environmentsParser = DefaultEnvironmentsParser(directory),
-        propertiesParser = DefaultPropertiesParser(directory, PROPERTIES_FILE),
-    )
-
-    override fun process(): EnvironmentsProcessorResult {
-        val schemaParsingResult = schemaParser.schemaParserResult()
+    override fun process(directory: File): EnvironmentsProcessorResult {
+        val schemaFile = File(directory, SCHEMA_FILE)
+        val schemaParsingResult = schemaParser.schemaParserResult(schemaFile)
         val schema = schemaParsingResult.schema()
 
-        val environmentsParserResult = environmentsParser.environmentsParserResult()
+        val environmentsParserResult = environmentsParser.environmentsParserResult(directory)
         val environments = environmentsParserResult.environments()
 
-        val propertiesParserResult = propertiesParser.propertiesParserResult()
+        val propertiesFile = File(directory, PROPERTIES_FILE)
+        val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
         val selectedEnvironmentName = propertiesParserResult.selectedEnvironmentName()
 
         schema.verifyEnvironments(environments)

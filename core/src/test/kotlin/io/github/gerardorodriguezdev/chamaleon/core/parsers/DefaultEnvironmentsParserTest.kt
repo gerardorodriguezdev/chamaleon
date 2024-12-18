@@ -14,13 +14,13 @@ class DefaultEnvironmentsParserTest {
     @TempDir
     lateinit var directory: File
 
-    private val defaultEnvironmentsParser by lazy { DefaultEnvironmentsParser(directory) }
+    private val defaultEnvironmentsParser by lazy { DefaultEnvironmentsParser() }
 
     @Test
     fun `GIVEN file not found WHEN environmentsParserResult THEN returns empty set`() {
         val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = setOf())
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult()
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(directory)
 
         assertEquals(expectedEnvironmentsParserResult, actualEnvironmentsParserResult)
     }
@@ -30,7 +30,7 @@ class DefaultEnvironmentsParserTest {
         val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = setOf())
         createEnvironmentsFile()
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult()
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(directory)
 
         assertEquals(expectedEnvironmentsParserResult, actualEnvironmentsParserResult)
     }
@@ -39,7 +39,7 @@ class DefaultEnvironmentsParserTest {
     fun `GIVEN invalid environments json WHEN environmentsParserResult THEN returns error`() {
         createEnvironmentsFile(invalidEnvironmentsJson)
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult()
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(directory)
 
         assertIs<Serialization>(actualEnvironmentsParserResult)
     }
@@ -50,7 +50,7 @@ class DefaultEnvironmentsParserTest {
             EnvironmentsParserResult.Success(environments = setOf(TestData.validCompleteEnvironment))
         createEnvironmentsFile(completeValidEnvironmentsJson)
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult()
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(directory)
 
         assertEquals(expectedEnvironmentsParserResult, actualEnvironmentsParserResult)
     }
