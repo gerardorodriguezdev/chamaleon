@@ -11,7 +11,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.MainToolWindowFactory"
+                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
                 id="Chamaleon"
                 anchor="right"/>
     </extensions>
