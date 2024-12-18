@@ -40,6 +40,7 @@ kotlin {
             exclude(group = "org.jetbrains.kotlinx")
         }
         implementation(libs.intellij.jewel) { exclude(group = "org.jetbrains.kotlinx") }
+        implementation(libs.kmp.immutable) { exclude(group = "org.jetbrains.kotlinx") }
 
         implementation(projects.core)
 
