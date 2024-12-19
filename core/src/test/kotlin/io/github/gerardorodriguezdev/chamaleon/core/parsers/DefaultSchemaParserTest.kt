@@ -37,7 +37,7 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN invalid schema file WHEN schemaParserResult THEN returns failure`() {
-        createSchemaFile(invalidSchemaJson)
+        createSchemaFile(invalidSchema)
 
         val schemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -47,7 +47,7 @@ class DefaultSchemaParserTest {
     @Test
     fun `GIVEN valid schema file WHEN schemaParserResult THEN returns schemaDto`() {
         val expectedSchemaParserResult = SchemaParserResult.Success(TestData.validCompleteSchema)
-        createSchemaFile(completeValidSchemaJson)
+        createSchemaFile(completeValidSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -68,7 +68,7 @@ class DefaultSchemaParserTest {
     }
 
     private companion object {
-        val invalidSchemaJson =
+        val invalidSchema =
             //language=json
             """
                 {
@@ -77,7 +77,7 @@ class DefaultSchemaParserTest {
                 }
             """.trimIndent()
 
-        val completeValidSchemaJson =
+        val completeValidSchema =
             //language=json
             """
                 {

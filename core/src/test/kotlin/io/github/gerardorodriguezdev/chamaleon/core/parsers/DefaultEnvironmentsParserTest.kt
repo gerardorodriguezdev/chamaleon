@@ -36,8 +36,8 @@ class DefaultEnvironmentsParserTest {
     }
 
     @Test
-    fun `GIVEN invalid environments json WHEN environmentsParserResult THEN returns error`() {
-        createEnvironmentsFile(invalidEnvironmentsJson)
+    fun `GIVEN invalid environments WHEN environmentsParserResult THEN returns error`() {
+        createEnvironmentsFile(invalidEnvironments)
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(directory)
 
@@ -45,10 +45,10 @@ class DefaultEnvironmentsParserTest {
     }
 
     @Test
-    fun `GIVEN valid complete environments json WHEN environmentsParserResult THEN returns environments`() {
+    fun `GIVEN valid complete environments WHEN environmentsParserResult THEN returns environments`() {
         val expectedEnvironmentsParserResult =
             EnvironmentsParserResult.Success(environments = setOf(TestData.validCompleteEnvironment))
-        createEnvironmentsFile(completeValidEnvironmentsJson)
+        createEnvironmentsFile(completeValidEnvironments)
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(directory)
 
@@ -69,7 +69,7 @@ class DefaultEnvironmentsParserTest {
     }
 
     companion object {
-        val invalidEnvironmentsJson =
+        val invalidEnvironments =
             //language=json
             """
                 [
@@ -85,7 +85,7 @@ class DefaultEnvironmentsParserTest {
                 ]
             """.trimIndent()
 
-        val completeValidEnvironmentsJson =
+        val completeValidEnvironments =
             //language=json
             """
                 [

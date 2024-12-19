@@ -15,6 +15,7 @@ import java.io.File
 
 interface EnvironmentsProcessor {
     fun process(directory: File): EnvironmentsProcessorResult
+    fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
 
     data class EnvironmentsProcessorResult(
         val selectedEnvironmentName: String? = null,
@@ -49,6 +50,9 @@ class DefaultEnvironmentsProcessor(
         )
     }
 
+    override fun updateSelectedEnvironment(directory: File, newSelectedEnvironment: String?): Boolean =
+        propertiesParser.updateSelectedEnvironment(File(directory, PROPERTIES_FILE), newSelectedEnvironment)
+
     private fun SchemaParserResult.schema(): Schema =
         when (this) {
             is SchemaParserResult.Success -> schema
@@ -66,8 +70,7 @@ class DefaultEnvironmentsProcessor(
     private fun PropertiesParserResult.selectedEnvironmentName(): String? =
         when (this) {
             is PropertiesParserResult.Success -> selectedEnvironmentName
-            is PropertiesParserResult.Failure.InvalidPropertiesFile -> throw InvalidPropertiesFile(path)
-            is PropertiesParserResult.Failure.Parsing -> throw throwable
+            is PropertiesParserResult.Failure -> throw throwable
         }
 
     private fun Schema.verifyEnvironments(environments: Set<Environment>) {
@@ -212,9 +215,6 @@ class DefaultEnvironmentsProcessor(
             "Value on property '$propertyName' for platform '$platformType' on environment " +
                     "'$environmentName' was null and is not marked as nullable on schema"
         )
-
-        class InvalidPropertiesFile(directoryPath: String) :
-            DefaultEnvironmentsProcessorException("Invalid properties on '$PROPERTIES_FILE' on '$directoryPath'")
 
         @Suppress("Indentation")
         class SelectedEnvironmentInvalid(selectedEnvironmentName: String, environmentNames: String) :

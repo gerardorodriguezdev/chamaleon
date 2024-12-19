@@ -1,21 +1,20 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
+import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure.InvalidPropertiesFile
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure.Parsing
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.*
 
 interface PropertiesParser {
     fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
+    fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
 
     sealed interface PropertiesParserResult {
         data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
-        sealed interface Failure : PropertiesParserResult {
-            data class Parsing(val throwable: Throwable) : Failure
-            data class InvalidPropertiesFile(val path: String) : Failure
-        }
+        data class Failure(val throwable: Throwable) : PropertiesParserResult
     }
 }
 
@@ -24,22 +23,24 @@ class DefaultPropertiesParser : PropertiesParser {
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         if (!propertiesFile.exists()) return Success()
 
+        val propertiesFileContent = propertiesFile.readText()
+        if (propertiesFileContent.isEmpty()) return Success()
+
         return try {
-            val properties = Properties()
-            properties.load(propertiesFile.inputStream())
-
-            if (properties.isEmpty) return Success()
-
-            val selectedEnvironmentName = properties[SELECTED_ENVIRONMENT_KEY] as? String
-            if (selectedEnvironmentName == null) return InvalidPropertiesFile(propertiesFile.parent)
-
-            return Success(selectedEnvironmentName)
+            val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
+            return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
         } catch (error: Exception) {
-            Parsing(error)
+            Failure(error)
         }
     }
 
-    private companion object {
-        const val SELECTED_ENVIRONMENT_KEY = "CHAMALEON_SELECTED_ENVIRONMENT"
-    }
+    override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean =
+        try {
+            val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
+            val propertiesFileContent = Json.encodeToString(propertiesDto)
+            propertiesFile.writeText(propertiesFileContent)
+            true
+        } catch (_: Exception) {
+            false
+        }
 }

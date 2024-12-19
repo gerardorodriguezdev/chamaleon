@@ -1,11 +1,13 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class DefaultPropertiesParserTest {
     @TempDir
@@ -16,12 +18,12 @@ class DefaultPropertiesParserTest {
 
     @Test
     fun `GIVEN invalid properties file WHEN propertiesParserResult THEN returns failure`() {
-        val expectedPropertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile(directory.path)
         createPropertiesFile(invalidPropertiesFile)
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
+        actualPropertiesParserResult as Failure
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertIs<Failure>(actualPropertiesParserResult)
     }
 
     @Test
@@ -53,16 +55,6 @@ class DefaultPropertiesParserTest {
         assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
     }
 
-    @Test
-    fun `GIVEN valid properties file with multiple properties WHEN propertiesParserResult THEN returns selected environment`() {
-        val expectedPropertiesParserResult = PropertiesParserResult.Success(SELECTED_ENVIRONMENT)
-        createPropertiesFile(validPropertiesFileWithMultipleProperties)
-
-        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
-
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
-    }
-
     private fun createPropertiesFile(content: String? = null) {
         if (!directory.exists()) {
             directory.mkdirs()
@@ -80,24 +72,21 @@ class DefaultPropertiesParserTest {
         const val SELECTED_ENVIRONMENT = "local"
 
         val invalidPropertiesFile =
-            //language=properties
+            //language=json
             """
-                CHAMALEON=local
+                {
+                  "selectedEnvironmentNam": "local"
+                }
             """.trimIndent()
 
         val emptyPropertiesFile = ""
 
         val validPropertiesFile =
-            //language=properties
+            //language=json
             """
-                CHAMALEON_SELECTED_ENVIRONMENT=$SELECTED_ENVIRONMENT
-            """.trimIndent()
-
-        val validPropertiesFileWithMultipleProperties =
-            //language=properties
-            """
-                CHAMALEON_SELECTED_ENVIRONMENT=$SELECTED_ENVIRONMENT
-                OTHER=other
+                {
+                  "selectedEnvironmentName": "local"
+                }
             """.trimIndent()
     }
 }

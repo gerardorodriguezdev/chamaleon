@@ -124,16 +124,16 @@ class DefaultEnvironmentsProcessorTest {
 
     @Test
     fun `GIVEN invalid properties file WHEN process THEN throws exception`() {
-        propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile("")
+        propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
 
-        assertThrows<InvalidPropertiesFile> {
+        assertThrows<Exception> {
             defaultEnvironmentsProcessor.process(directory)
         }
     }
 
     @Test
     fun `GIVEN properties file parsing error WHEN process THEN throws exception`() {
-        propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.Parsing(Exception())
+        propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
 
         assertThrows<Exception> {
             defaultEnvironmentsProcessor.process(directory)
