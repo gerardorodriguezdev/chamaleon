@@ -14,6 +14,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DefaultEnvironmentsProcessorTest {
     @TempDir
@@ -150,5 +151,18 @@ class DefaultEnvironmentsProcessorTest {
         val actualEnvironmentsProcessorResult = defaultEnvironmentsProcessor.process(directory)
 
         assertEquals(actualEnvironmentsProcessorResult, expectedEnvironmentsProcessorResult)
+    }
+
+    @Test
+    fun `WHEN updateSelectedEnvironmentResult THEN returns true`() {
+        propertiesParser.updateSelectedEnvironmentResult = true
+
+        val updateSelectedEnvironmentResult =
+            defaultEnvironmentsProcessor.updateSelectedEnvironment(
+                directory = directory,
+                newSelectedEnvironment = TestData.ENVIRONMENT_NAME,
+            )
+
+        assertTrue { updateSelectedEnvironmentResult }
     }
 }
