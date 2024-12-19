@@ -100,11 +100,13 @@ chamaleon.environments // The environments are parsed and you can read the prope
 
 ## Selecting an environment
 
-If you want to set an environment as the selected one, you can do it by adding `cha.properties` file in
+If you want to set an environment as the selected one, you can do it by adding `cha.properties.json` file in
 `environments` with this content:
 
-```properties
-CHAMALEON_SELECTED_ENVIRONMENT=development-cha
+```json
+{
+  "selectedEnvironmentName": "local"
+}
 ```
 
 > If you have a `production-cha.json` and want to test locally but avoid commiting it just add

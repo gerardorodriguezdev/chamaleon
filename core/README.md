@@ -8,11 +8,11 @@ It's consumed by the [Gradle plugin](../gradle-plugin) and the [Intellij Plugin]
 Just create an EnvironmentsProcessor, and it will parse the directory provided and give you the environments if present
 
 ````kotlin
-val file = File("MyDirectory")
+val myDirectory = File("MyDirectory")
 
-val environmentsProcessor = DefaultEnvironmentsProcessor(file)
+val environmentsProcessor = DefaultEnvironmentsProcessor()
 
-val environments = environmentsProcessor.environments()
+val environmentsProcessorResult = environmentsProcessor.process(myDirectory)
 
-val someEnvironment = environments.first()
+val someEnvironment = environments.environments.first()
 ````
