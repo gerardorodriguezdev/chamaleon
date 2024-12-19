@@ -5,5 +5,5 @@ object TestData {
     const val LOCAL_ENVIRONMENT_FILE = "local-cha.json"
     const val PRODUCTION_ENVIRONMENT_FILE = "production-cha.json"
     const val ENVIRONMENTS_DIRECTORY = "environments"
-    const val LOCAL_PROPERTIES_FILE = "cha.properties"
+    const val LOCAL_PROPERTIES_FILE = "cha.properties.json"
 }

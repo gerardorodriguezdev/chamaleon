@@ -226,6 +226,6 @@ class DefaultEnvironmentsProcessor(
 
     private companion object {
         const val SCHEMA_FILE = "cha.json"
-        const val PROPERTIES_FILE = "cha.properties"
+        const val PROPERTIES_FILE = "cha.properties.json"
     }
 }
