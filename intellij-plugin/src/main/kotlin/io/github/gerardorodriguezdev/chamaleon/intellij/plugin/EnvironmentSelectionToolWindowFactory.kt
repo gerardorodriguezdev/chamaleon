@@ -33,6 +33,9 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
         toolWindow.addComposeTab(Bundle.environmentSelectionWindowName) {
             EnvironmentSelection(
                 state = environmentSelectionPresenter.state.value,
+                onRefreshClicked = {
+                    project.scanProject()
+                },
                 onSelectedEnvironmentChanged = { propertiesFilePath, newSelectedEnvironment ->
                     project.onSelectedEnvironmentChanged(propertiesFilePath, newSelectedEnvironment)
                 },

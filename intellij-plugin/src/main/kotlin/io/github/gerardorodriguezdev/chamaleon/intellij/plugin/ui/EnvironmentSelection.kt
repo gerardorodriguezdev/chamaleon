@@ -19,6 +19,7 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 @Composable
 fun EnvironmentSelection(
     state: EnvironmentSelectionState,
+    onRefreshClicked: () -> Unit,
     onSelectedEnvironmentChanged: (environmentPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     SwingBridgeTheme {
