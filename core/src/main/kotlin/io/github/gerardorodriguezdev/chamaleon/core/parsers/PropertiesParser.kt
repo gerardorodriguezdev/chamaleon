@@ -43,16 +43,22 @@ internal class DefaultPropertiesParser : PropertiesParser {
                 return true
             } else {
                 val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
-                val prettyJson = Json {
-                    prettyPrint = true
-                    prettyPrintIndent = "  "
-                }
                 val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
                 propertiesFile.writeText(propertiesFileContent)
                 return true
             }
         } catch (_: Exception) {
             return false
+        }
+    }
+
+    private companion object {
+        const val indentation = "  "
+
+        @OptIn(ExperimentalSerializationApi::class)
+        val prettyJson = Json {
+            prettyPrint = true
+            prettyPrintIndent = indentation
         }
     }
 }
