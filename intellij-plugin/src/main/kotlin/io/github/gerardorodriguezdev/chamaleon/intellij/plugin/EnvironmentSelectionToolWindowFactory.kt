@@ -41,13 +41,17 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     }
 
     private fun Project.scanProject() {
-        val projectDirectory = basePath ?: return
-        environmentSelectionPresenter.scanProject(projectDirectory)
+        val projectDirectoryPath = basePath ?: return
+        environmentSelectionPresenter.scanProject(projectDirectoryPath)
     }
 
     private fun Project.onSelectedEnvironmentChanged(propertiesFilePath: String, newSelectedEnvironment: String?) {
-        val projectDirectory = basePath ?: return
-        environmentSelectionPresenter.onEnvironmentChanged(projectDirectory, propertiesFilePath, newSelectedEnvironment)
+        val projectDirectoryPath = basePath ?: return
+        environmentSelectionPresenter.onEnvironmentChanged(
+            projectDirectoryPath = projectDirectoryPath,
+            environmentPath = propertiesFilePath,
+            newSelectedEnvironment = newSelectedEnvironment,
+        )
     }
 
     private fun File.onPropertiesFileChanged() {

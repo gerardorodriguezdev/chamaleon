@@ -1,5 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.CONVENTION_ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
@@ -52,7 +53,7 @@ class ChamaleonGradlePluginTest {
     }
 
     private fun createFiles() {
-        val environmentsDirectory = File(testDir, TestData.ENVIRONMENTS_DIRECTORY)
+        val environmentsDirectory = File(testDir, CONVENTION_ENVIRONMENTS_DIRECTORY_NAME)
             .apply { mkdirs() }
 
         val templateFile = File(environmentsDirectory, TestData.SCHEMA_FILE)

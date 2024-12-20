@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
 import io.github.gerardorodriguezdev.chamaleon.core.DefaultEnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.CONVENTION_ENVIRONMENTS_DIRECTORY_NAME
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
@@ -19,10 +20,9 @@ class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private val Project.environmentsDirectory: Directory
-        get() = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY)
+        get() = layout.projectDirectory.dir(CONVENTION_ENVIRONMENTS_DIRECTORY_NAME)
 
     private companion object {
         const val EXTENSION_NAME = "chamaleon"
-        const val ENVIRONMENTS_DIRECTORY = "environments"
     }
 }

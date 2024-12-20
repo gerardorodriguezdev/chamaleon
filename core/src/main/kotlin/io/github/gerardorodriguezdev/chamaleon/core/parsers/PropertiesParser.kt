@@ -19,7 +19,7 @@ interface PropertiesParser {
     }
 }
 
-class DefaultPropertiesParser : PropertiesParser {
+internal class DefaultPropertiesParser : PropertiesParser {
     @Suppress("ReturnCount")
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         if (!propertiesFile.exists()) return Success()

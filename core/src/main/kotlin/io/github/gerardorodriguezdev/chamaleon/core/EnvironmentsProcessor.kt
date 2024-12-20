@@ -21,6 +21,10 @@ interface EnvironmentsProcessor {
         val selectedEnvironmentName: String? = null,
         val environments: Set<Environment>,
     )
+
+    companion object {
+        const val CONVENTION_ENVIRONMENTS_DIRECTORY_NAME = "environments"
+    }
 }
 
 class DefaultEnvironmentsProcessor(
