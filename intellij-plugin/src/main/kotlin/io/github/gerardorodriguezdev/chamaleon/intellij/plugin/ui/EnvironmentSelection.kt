@@ -19,7 +19,7 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 @Composable
 fun EnvironmentSelection(
     state: EnvironmentSelectionState,
-    onEnvironmentChanged: (environmentPath: String, newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (environmentPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     SwingBridgeTheme {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -28,7 +28,7 @@ fun EnvironmentSelection(
             } else {
                 EnvironmentCards(
                     environmentCardStates = state.environmentCardStates,
-                    onEnvironmentChanged = onEnvironmentChanged,
+                    onEnvironmentChanged = onSelectedEnvironmentChanged,
                 )
             }
         }
