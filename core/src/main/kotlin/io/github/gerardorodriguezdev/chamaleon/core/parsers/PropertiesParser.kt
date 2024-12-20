@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -34,14 +35,24 @@ class DefaultPropertiesParser : PropertiesParser {
         }
     }
 
-    override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean =
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
-            val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
-            val prettyJson = Json { prettyPrint = true }
-            val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
-            propertiesFile.writeText(propertiesFileContent)
-            true
+            if (newSelectedEnvironment == null) {
+                propertiesFile.writeText("")
+                return true
+            } else {
+                val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
+                val prettyJson = Json {
+                    prettyPrint = true
+                    prettyPrintIndent = "  "
+                }
+                val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
+                propertiesFile.writeText(propertiesFileContent)
+                return true
+            }
         } catch (_: Exception) {
-            false
+            return false
         }
+    }
 }
