@@ -20,7 +20,9 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
         environmentsProcessor = DefaultEnvironmentsProcessor(),
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
-        onEnvironmentsDirectoryChanged = { environmentsDirectory -> environmentsDirectory.onEnvironmentsDirectoryChanged() },
+        onEnvironmentsDirectoryChanged = { environmentsDirectory ->
+            environmentsDirectory.onEnvironmentsDirectoryChanged()
+        },
     )
 
     @OptIn(ExperimentalJewelApi::class)
