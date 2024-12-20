@@ -28,7 +28,7 @@ fun EnvironmentCard(
             .border(
                 width = 1.dp,
                 color = JBUI.CurrentTheme.Banner.INFO_BORDER_COLOR.toComposeColor(),
-                RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp)
             )
             .padding(8.dp),
     ) {
