@@ -19,7 +19,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 @Composable
 fun EnvironmentCard(
     state: EnvironmentCardState,
-    onEnvironmentChanged: (newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (newSelectedEnvironment: String?) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -33,8 +33,8 @@ fun EnvironmentCard(
             .padding(8.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            Text(text = Bundle.environmentPath, modifier = Modifier.width(150.dp))
-            Text(state.environmentPath, modifier = Modifier.weight(1f))
+            Text(text = Bundle.environmentsDirectoryPath, modifier = Modifier.width(150.dp))
+            Text(text = state.environmentsDirectoryPath, modifier = Modifier.weight(1f))
         }
 
         Row(
@@ -48,7 +48,7 @@ fun EnvironmentCard(
                     state.environments.forEach { environment ->
                         selectableItem(
                             selected = environment == state.selectedEnvironment,
-                            onClick = { onEnvironmentChanged(environment) }
+                            onClick = { onSelectedEnvironmentChanged(environment) }
                         ) {
                             Text(environment)
                         }
@@ -61,7 +61,7 @@ fun EnvironmentCard(
 
             IconActionButton(
                 key = AllIconsKeys.Actions.Close,
-                onClick = { onEnvironmentChanged(null) },
+                onClick = { onSelectedEnvironmentChanged(null) },
                 contentDescription = Bundle.removeSelectedEnvironment,
             )
         }
@@ -69,7 +69,7 @@ fun EnvironmentCard(
 }
 
 data class EnvironmentCardState(
-    val environmentPath: String,
+    val environmentsDirectoryPath: String,
     val selectedEnvironment: String?,
     val environments: ImmutableList<String>,
 )

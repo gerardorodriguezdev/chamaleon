@@ -20,7 +20,7 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
         environmentsProcessor = DefaultEnvironmentsProcessor(),
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
-        onPropertiesFileChanged = { propertiesFile -> propertiesFile.onPropertiesFileChanged() },
+        onEnvironmentsDirectoryChanged = { directory -> directory.onEnvironmentsDirectoryChanged() },
     )
 
     @OptIn(ExperimentalJewelApi::class)
@@ -36,8 +36,8 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
                 onRefreshClicked = {
                     project.scanProject()
                 },
-                onSelectedEnvironmentChanged = { propertiesFilePath, newSelectedEnvironment ->
-                    project.onSelectedEnvironmentChanged(propertiesFilePath, newSelectedEnvironment)
+                onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
+                    project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)
                 },
             )
         }
@@ -48,16 +48,19 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
         environmentSelectionPresenter.scanProject(projectDirectoryPath)
     }
 
-    private fun Project.onSelectedEnvironmentChanged(propertiesFilePath: String, newSelectedEnvironment: String?) {
+    private fun Project.onSelectedEnvironmentChanged(
+        environmentsDirectoryPath: String,
+        newSelectedEnvironment: String?
+    ) {
         val projectDirectoryPath = basePath ?: return
-        environmentSelectionPresenter.onEnvironmentChanged(
+        environmentSelectionPresenter.onSelectedEnvironmentChanged(
             projectDirectoryPath = projectDirectoryPath,
-            environmentPath = propertiesFilePath,
+            environmentsDirectoryPath = environmentsDirectoryPath,
             newSelectedEnvironment = newSelectedEnvironment,
         )
     }
 
-    private fun File.onPropertiesFileChanged() {
+    private fun File.onEnvironmentsDirectoryChanged() {
         VfsUtil.markDirtyAndRefresh(true, true, true, this)
     }
 

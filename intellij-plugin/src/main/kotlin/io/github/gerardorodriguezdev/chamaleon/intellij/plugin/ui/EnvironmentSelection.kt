@@ -20,7 +20,7 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 fun EnvironmentSelection(
     state: EnvironmentSelectionState,
     onRefreshClicked: () -> Unit,
-    onSelectedEnvironmentChanged: (environmentPath: String, newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     SwingBridgeTheme {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -29,7 +29,7 @@ fun EnvironmentSelection(
             } else {
                 EnvironmentCards(
                     environmentCardStates = state.environmentCardStates,
-                    onEnvironmentChanged = onSelectedEnvironmentChanged,
+                    onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
                 )
             }
         }
@@ -39,7 +39,7 @@ fun EnvironmentSelection(
 @Composable
 private fun BoxScope.EnvironmentCards(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
-    onEnvironmentChanged: (environmentPath: String, newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -53,13 +53,13 @@ private fun BoxScope.EnvironmentCards(
     ) {
         items(
             items = environmentCardStates,
-            key = { environmentCardState -> environmentCardState.environmentPath },
+            key = { environmentCardState -> environmentCardState.environmentsDirectoryPath },
         ) { environmentCardState ->
             EnvironmentCard(
                 state = environmentCardState,
-                onEnvironmentChanged = { newSelectedEnvironment ->
-                    onEnvironmentChanged(
-                        environmentCardState.environmentPath,
+                onSelectedEnvironmentChanged = { newSelectedEnvironment ->
+                    onSelectedEnvironmentChanged(
+                        environmentCardState.environmentsDirectoryPath,
                         newSelectedEnvironment,
                     )
                 }

@@ -15,7 +15,7 @@ import java.io.File
 
 interface EnvironmentsProcessor {
     fun process(directory: File): EnvironmentsProcessorResult
-    fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
+    fun updateSelectedEnvironment(directory: File, newSelectedEnvironment: String?): Boolean
 
     data class EnvironmentsProcessorResult(
         val selectedEnvironmentName: String? = null,

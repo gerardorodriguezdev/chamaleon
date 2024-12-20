@@ -15,7 +15,7 @@ object Bundle {
     val environmentSelectionWindowName by messageDelegate("environment.selection.window.name")
 
     @get:Composable
-    val environmentPath by rememberedMessageDelegate("environment.path")
+    val environmentsDirectoryPath by rememberedMessageDelegate("environments.directory.path")
 
     @get:Composable
     val selectedEnvironment by rememberedMessageDelegate("selected.environment")
