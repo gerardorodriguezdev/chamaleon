@@ -37,7 +37,8 @@ class DefaultPropertiesParser : PropertiesParser {
     override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean =
         try {
             val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
-            val propertiesFileContent = Json.encodeToString(propertiesDto)
+            val prettyJson = Json { prettyPrint = true }
+            val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
             true
         } catch (_: Exception) {
