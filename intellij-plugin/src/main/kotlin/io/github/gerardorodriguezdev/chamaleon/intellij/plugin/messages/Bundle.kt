@@ -23,6 +23,9 @@ object Bundle {
     @get:Composable
     val removeSelectedEnvironment by rememberedMessageDelegate("remove.selected.environment")
 
+    @get:Composable
+    val refreshEnvironments by rememberedMessageDelegate("refresh.environments")
+
     private fun message(
         key: @PropertyKey(resourceBundle = BUNDLE) String,
         vararg params: Any
