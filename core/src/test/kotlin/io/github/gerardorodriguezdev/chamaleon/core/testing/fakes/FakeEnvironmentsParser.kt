@@ -13,5 +13,6 @@ class FakeEnvironmentsParser(
             )
         ),
 ) : EnvironmentsParser {
-    override fun environmentsParserResult(directory: File): EnvironmentsParserResult = environmentsParserResult
+    override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult =
+        environmentsParserResult
 }

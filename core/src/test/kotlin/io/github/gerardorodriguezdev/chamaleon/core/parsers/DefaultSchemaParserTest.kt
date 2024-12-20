@@ -11,14 +11,14 @@ import kotlin.test.assertIs
 class DefaultSchemaParserTest {
 
     @TempDir
-    lateinit var directory: File
+    lateinit var environmentsDirectory: File
 
-    private val schemaFile by lazy { File(directory, TestData.SCHEMA_FILE) }
+    private val schemaFile by lazy { File(environmentsDirectory, TestData.SCHEMA_FILE) }
     private val defaultSchemaParser by lazy { DefaultSchemaParser() }
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(directory.path)
+        val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(environmentsDirectory.path)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -27,7 +27,7 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN schema empty WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(directory.path)
+        val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(environmentsDirectory.path)
         createSchemaFile()
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
@@ -55,11 +55,11 @@ class DefaultSchemaParserTest {
     }
 
     private fun createSchemaFile(content: String? = null) {
-        if (!directory.exists()) {
-            directory.mkdirs()
+        if (!environmentsDirectory.exists()) {
+            environmentsDirectory.mkdirs()
         }
 
-        val schemaFile = File(directory, TestData.SCHEMA_FILE)
+        val schemaFile = File(environmentsDirectory, TestData.SCHEMA_FILE)
         schemaFile.createNewFile()
 
         content?.let { content ->

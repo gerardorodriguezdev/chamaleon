@@ -12,9 +12,9 @@ import kotlin.test.assertTrue
 
 class DefaultPropertiesParserTest {
     @TempDir
-    lateinit var directory: File
+    lateinit var environmentsDirectory: File
 
-    private val propertiesFile by lazy { File(directory, TestData.PROPERTIES_FILE) }
+    private val propertiesFile by lazy { File(environmentsDirectory, TestData.PROPERTIES_FILE) }
     private val defaultPropertiesParser by lazy { DefaultPropertiesParser() }
 
     @Test
@@ -72,11 +72,11 @@ class DefaultPropertiesParserTest {
     }
 
     private fun createPropertiesFile(content: String? = null) {
-        if (!directory.exists()) {
-            directory.mkdirs()
+        if (!environmentsDirectory.exists()) {
+            environmentsDirectory.mkdirs()
         }
 
-        val propertiesFile = File(directory, TestData.PROPERTIES_FILE)
+        val propertiesFile = File(environmentsDirectory, TestData.PROPERTIES_FILE)
         propertiesFile.createNewFile()
 
         content?.let { content ->

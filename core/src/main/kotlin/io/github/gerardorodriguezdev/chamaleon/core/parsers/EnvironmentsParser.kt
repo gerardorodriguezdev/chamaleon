@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 interface EnvironmentsParser {
-    fun environmentsParserResult(directory: File): EnvironmentsParserResult
+    fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
 
     sealed interface EnvironmentsParserResult {
         data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
@@ -23,10 +23,10 @@ interface EnvironmentsParser {
 }
 
 internal class DefaultEnvironmentsParser : EnvironmentsParser {
-    override fun environmentsParserResult(directory: File): EnvironmentsParserResult {
-        val directoryFiles = directory.listFiles()
+    override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
+        val environmentsDirectoryFiles = environmentsDirectory.listFiles()
 
-        val jsonFiles = directoryFiles?.filter { file -> file.isEnvironmentFile } ?: emptyList()
+        val jsonFiles = environmentsDirectoryFiles?.filter { file -> file.isEnvironmentFile } ?: emptyList()
 
         val environments = jsonFiles.mapNotNull { file ->
             val environmentName = file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX)

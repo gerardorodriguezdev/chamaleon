@@ -14,8 +14,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaP
 import java.io.File
 
 interface EnvironmentsProcessor {
-    fun process(directory: File): EnvironmentsProcessorResult
-    fun updateSelectedEnvironment(directory: File, newSelectedEnvironment: String?): Boolean
+    fun process(environmentsDirectory: File): EnvironmentsProcessorResult
+    fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
 
     data class EnvironmentsProcessorResult(
         val selectedEnvironmentName: String? = null,
@@ -33,15 +33,15 @@ class DefaultEnvironmentsProcessor(
     val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
 ) : EnvironmentsProcessor {
 
-    override fun process(directory: File): EnvironmentsProcessorResult {
-        val schemaFile = File(directory, SCHEMA_FILE)
+    override fun process(environmentsDirectory: File): EnvironmentsProcessorResult {
+        val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
         val schemaParsingResult = schemaParser.schemaParserResult(schemaFile)
         val schema = schemaParsingResult.schema()
 
-        val environmentsParserResult = environmentsParser.environmentsParserResult(directory)
+        val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
         val environments = environmentsParserResult.environments()
 
-        val propertiesFile = File(directory, PROPERTIES_FILE)
+        val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
         val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
         val selectedEnvironmentName = propertiesParserResult.selectedEnvironmentName()
 
@@ -54,8 +54,8 @@ class DefaultEnvironmentsProcessor(
         )
     }
 
-    override fun updateSelectedEnvironment(directory: File, newSelectedEnvironment: String?): Boolean =
-        propertiesParser.updateSelectedEnvironment(File(directory, PROPERTIES_FILE), newSelectedEnvironment)
+    override fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean =
+        propertiesParser.updateSelectedEnvironment(File(environmentsDirectory, PROPERTIES_FILE), newSelectedEnvironment)
 
     private fun SchemaParserResult.schema(): Schema =
         when (this) {
@@ -185,11 +185,11 @@ class DefaultEnvironmentsProcessor(
         }
 
     sealed class DefaultEnvironmentsProcessorException(message: String) : Exception(message) {
-        class SchemaFileNotFound(directoryPath: String) :
-            DefaultEnvironmentsProcessorException("'$SCHEMA_FILE' not found on '$directoryPath'")
+        class SchemaFileNotFound(environmentsDirectoryPath: String) :
+            DefaultEnvironmentsProcessorException("'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'")
 
-        class SchemaFileIsEmpty(directoryPath: String) :
-            DefaultEnvironmentsProcessorException("'$SCHEMA_FILE' on '$directoryPath' is empty")
+        class SchemaFileIsEmpty(environmentsDirectoryPath: String) :
+            DefaultEnvironmentsProcessorException("'$SCHEMA_FILE' on '$environmentsDirectoryPath' is empty")
 
         class PlatformsNotEqualToSchema(environmentName: String) :
             DefaultEnvironmentsProcessorException("Platforms of environment '$environmentName' are not equal to schema")
