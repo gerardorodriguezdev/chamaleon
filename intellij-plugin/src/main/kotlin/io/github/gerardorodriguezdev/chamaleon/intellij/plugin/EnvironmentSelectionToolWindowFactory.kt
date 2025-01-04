@@ -17,7 +17,7 @@ import java.io.File
 
 class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
-        environmentsProcessor = EnvironmentsProcessor.build(),
+        environmentsProcessor = EnvironmentsProcessor.create(),
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->

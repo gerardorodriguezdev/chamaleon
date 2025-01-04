@@ -98,7 +98,7 @@ public interface EnvironmentsProcessor {
         public const val PROPERTIES_FILE: String = "cha.properties.json"
         public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
 
-        public fun build(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
+        public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
     }
 }
 
@@ -110,52 +110,75 @@ internal class DefaultEnvironmentsProcessor(
 ) : EnvironmentsProcessor {
     private val scope = CoroutineScope(ioDispatcher)
 
-    //TODO: Refactor
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         scope
             .async {
-                val schemaDeferred = async {
-                    val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
-                    val schemaParsingResult = schemaParser.schemaParserResult(schemaFile)
-                    schemaParsingResult.schema()
-                }
+                val filesParsingResult = parseFiles(environmentsDirectory)
+                if (filesParsingResult.isFailure()) return@async filesParsingResult.value
 
-                val environmentsDeferred = async {
-                    val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
-                    environmentsParserResult.environments()
-                }
+                val (schema, environments, selectedEnvironmentName) = filesParsingResult.value
 
-                val selectedEnvironmentNameDeferred = async {
-                    val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
-                    val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
-                    propertiesParserResult.selectedEnvironmentName()
-                }
-
-                val schema = schemaDeferred.await()
-                val environments = environmentsDeferred.await()
-                val selectedEnvironmentName = selectedEnvironmentNameDeferred.await()
-
-                if (schema.isFailure()) return@async schema.value
-                if (environments.isFailure()) return@async environments.value
-                if (selectedEnvironmentName.isFailure()) return@async selectedEnvironmentName.value
-
-                val schemaVerificationDeferred = async { schema.value.verifyEnvironments(environments.value) }
-                val selectedEnvironmentVerificationDeferred =
-                    async { selectedEnvironmentName.value.verifyEnvironments(environments.value) }
-
-                val schemaVerificationResult = schemaVerificationDeferred.await()
-                if (schemaVerificationResult is Failure) return@async schemaVerificationResult
-
-                val selectedEnvironmentVerificationResult = selectedEnvironmentVerificationDeferred.await()
-                if (selectedEnvironmentVerificationResult is Failure) return@async selectedEnvironmentVerificationResult
+                val environmentsVerificationResult = verifyEnvironments(schema, environments, selectedEnvironmentName)
+                if (environmentsVerificationResult is Failure) return@async environmentsVerificationResult
 
                 return@async Success(
-                    selectedEnvironmentName = selectedEnvironmentName.value,
-                    environments = environments.value,
+                    selectedEnvironmentName = selectedEnvironmentName,
+                    environments = environments,
                 )
             }.await()
 
-    //Todo: Test
+    private suspend fun CoroutineScope.parseFiles(environmentsDirectory: File): Result<FilesParsingResult, Failure> {
+        val schemaDeferred = async {
+            val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
+            val schemaParsingResult = schemaParser.schemaParserResult(schemaFile)
+            schemaParsingResult.schema()
+        }
+
+        val environmentsDeferred = async {
+            val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
+            environmentsParserResult.environments()
+        }
+
+        val selectedEnvironmentNameDeferred = async {
+            val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
+            val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
+            propertiesParserResult.selectedEnvironmentName()
+        }
+
+        val schemaResult = schemaDeferred.await()
+        val environmentsResult = environmentsDeferred.await()
+        val selectedEnvironmentNameResult = selectedEnvironmentNameDeferred.await()
+
+        if (schemaResult.isFailure()) return failure(schemaResult.value)
+        if (environmentsResult.isFailure()) return failure(environmentsResult.value)
+        if (selectedEnvironmentNameResult.isFailure()) return failure(selectedEnvironmentNameResult.value)
+
+        return success(
+            FilesParsingResult(
+                schema = schemaResult.value,
+                environments = environmentsResult.value,
+                selectedEnvironmentName = selectedEnvironmentNameResult.value,
+            )
+        )
+    }
+
+    private suspend fun CoroutineScope.verifyEnvironments(
+        schema: Schema,
+        environments: Set<Environment>,
+        selectedEnvironmentName: String?,
+    ): Failure? {
+        val schemaVerificationDeferred = async { schema.verifyEnvironments(environments) }
+        val selectedEnvironmentVerificationDeferred = async { selectedEnvironmentName.verifyEnvironments(environments) }
+
+        val schemaVerificationResult = schemaVerificationDeferred.await()
+        if (schemaVerificationResult is Failure) return schemaVerificationResult
+
+        val selectedEnvironmentVerificationResult = selectedEnvironmentVerificationDeferred.await()
+        if (selectedEnvironmentVerificationResult is Failure) return selectedEnvironmentVerificationResult
+
+        return null
+    }
+
     override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
         scope
             .async {
@@ -319,4 +342,10 @@ internal class DefaultEnvironmentsProcessor(
             .filter { file -> file.isDirectory && file.name == ENVIRONMENTS_DIRECTORY_NAME }
             .map { file -> file.path }
             .toList()
+
+    private data class FilesParsingResult(
+        val schema: Schema,
+        val environments: Set<Environment>,
+        val selectedEnvironmentName: String?,
+    )
 }

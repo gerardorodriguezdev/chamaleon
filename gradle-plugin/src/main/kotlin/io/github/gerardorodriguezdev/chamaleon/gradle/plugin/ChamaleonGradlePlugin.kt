@@ -11,7 +11,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         with(target) {
             val extension = extensions.create(EXTENSION_NAME, ChamaleonExtension::class.java)
 
-            val environmentsProcessor = EnvironmentsProcessor.build()
+            val environmentsProcessor = EnvironmentsProcessor.create()
             val environmentsProcessorResult = environmentsProcessor.process(environmentsDirectory.asFile)
 
             extension.environments.set(environmentsProcessorResult.environments)
