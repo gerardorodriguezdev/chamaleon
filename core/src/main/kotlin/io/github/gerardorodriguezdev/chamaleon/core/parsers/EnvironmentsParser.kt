@@ -10,14 +10,14 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
-interface EnvironmentsParser {
-    fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
+public interface EnvironmentsParser {
+    public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
 
-    sealed interface EnvironmentsParserResult {
-        data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
+    public sealed interface EnvironmentsParserResult {
+        public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
 
-        sealed interface Failure : EnvironmentsParserResult {
-            data class Serialization(val throwable: Throwable) : Failure
+        public sealed interface Failure : EnvironmentsParserResult {
+            public data class Serialization(val throwable: Throwable) : Failure
         }
     }
 }

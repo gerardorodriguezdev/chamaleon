@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import io.github.gerardorodriguezdev.chamaleon.core.DefaultEnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.messages.Bundle
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentSelection
@@ -17,7 +17,7 @@ import java.io.File
 
 class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
-        environmentsProcessor = DefaultEnvironmentsProcessor(),
+        environmentsProcessor = EnvironmentsProcessor.build(),
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->

@@ -10,16 +10,16 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
-interface SchemaParser {
-    fun schemaParserResult(schemaFile: File): SchemaParserResult
+public interface SchemaParser {
+    public fun schemaParserResult(schemaFile: File): SchemaParserResult
 
-    sealed interface SchemaParserResult {
-        data class Success(val schema: Schema) : SchemaParserResult
+    public sealed interface SchemaParserResult {
+        public data class Success(val schema: Schema) : SchemaParserResult
 
-        sealed interface Failure : SchemaParserResult {
-            data class FileNotFound(val path: String) : Failure
-            data class FileIsEmpty(val path: String) : Failure
-            data class Serialization(val throwable: Throwable) : Failure
+        public sealed interface Failure : SchemaParserResult {
+            public data class FileNotFound(val path: String) : Failure
+            public data class FileIsEmpty(val path: String) : Failure
+            public data class Serialization(val throwable: Throwable) : Failure
         }
     }
 }

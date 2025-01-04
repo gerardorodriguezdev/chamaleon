@@ -2,7 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.models
 
 import kotlinx.serialization.SerialName
 
-enum class PlatformType {
+public enum class PlatformType {
     @SerialName("android")
     ANDROID,
 

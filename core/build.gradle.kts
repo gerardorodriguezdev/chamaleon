@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     kotlin("jvm")
@@ -10,6 +11,8 @@ group = "io.github.gerardorodriguezdev.chamaleon"
 version = libs.versions.release.get()
 
 kotlin {
+    explicitApi = ExplicitApiMode.Strict
+
     compilerOptions {
         extraWarnings = true
         allWarningsAsErrors = true

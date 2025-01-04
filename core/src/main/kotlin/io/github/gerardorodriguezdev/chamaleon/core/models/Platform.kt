@@ -1,10 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-data class Platform(
+public data class Platform(
     val platformType: PlatformType,
     val properties: Set<Property>,
 ) {
-    data class Property(
+    public data class Property(
         val name: String,
         val value: PropertyValue?,
     )

@@ -9,13 +9,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 
-interface PropertiesParser {
-    fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
-    fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
+public interface PropertiesParser {
+    public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
+    public fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
 
-    sealed interface PropertiesParserResult {
-        data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
-        data class Failure(val throwable: Throwable) : PropertiesParserResult
+    public sealed interface PropertiesParserResult {
+        public data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
+        public data class Failure(val throwable: Throwable) : PropertiesParserResult
     }
 }
 

@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-data class Environment(
+public data class Environment(
     val name: String,
     val platforms: Set<Platform>,
 ) {

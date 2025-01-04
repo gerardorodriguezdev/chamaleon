@@ -13,21 +13,23 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.Pro
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import java.io.File
 
-interface EnvironmentsProcessor {
-    fun process(environmentsDirectory: File): EnvironmentsProcessorResult
-    fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
+public interface EnvironmentsProcessor {
+    public fun process(environmentsDirectory: File): EnvironmentsProcessorResult
+    public fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
 
-    data class EnvironmentsProcessorResult(
+    public data class EnvironmentsProcessorResult(
         val selectedEnvironmentName: String? = null,
         val environments: Set<Environment>,
     )
 
-    companion object {
-        const val CONVENTION_ENVIRONMENTS_DIRECTORY_NAME = "environments"
+    public companion object {
+        public const val CONVENTION_ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
+
+        public fun build(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
     }
 }
 
-class DefaultEnvironmentsProcessor(
+internal class DefaultEnvironmentsProcessor(
     val schemaParser: SchemaParser = DefaultSchemaParser(),
     val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(),
     val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
