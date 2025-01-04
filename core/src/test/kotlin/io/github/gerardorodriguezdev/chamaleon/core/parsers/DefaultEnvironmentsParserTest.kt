@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure.Serialization
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
-import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.ENVIRONMENT_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.ENVIRONMENT_NAME
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -69,6 +69,9 @@ class DefaultEnvironmentsParserTest {
     }
 
     companion object {
+        private const val ENVIRONMENT_FILE_NAME = "$ENVIRONMENT_NAME-cha"
+        const val ENVIRONMENT_FILE = "$ENVIRONMENT_FILE_NAME.json"
+
         val invalidEnvironments =
             //language=json
             """

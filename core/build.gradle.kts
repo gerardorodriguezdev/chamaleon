@@ -22,8 +22,10 @@ kotlin {
 
     dependencies {
         implementation(libs.kmp.serialization)
+        implementation(libs.kmp.coroutines)
 
         testImplementation(libs.kmp.test)
+        testImplementation(libs.kmp.test.coroutines)
     }
 }
 

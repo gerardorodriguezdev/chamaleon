@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
-import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Success

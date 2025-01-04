@@ -21,6 +21,8 @@ release = "1.0.2"
 kmp-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kmp-serialization" }
 kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+kmp-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kmp-coroutines" }
+kmp-test-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kmp-coroutines" }
 jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
 intellij-jewel = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge-233", version.ref = "intellij-jewel" }
 kmp-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kmp-immutable" }

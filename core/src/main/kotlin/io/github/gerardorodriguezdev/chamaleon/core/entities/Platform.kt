@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.models
+package io.github.gerardorodriguezdev.chamaleon.core.entities
 
 public data class Platform(
     val platformType: PlatformType,

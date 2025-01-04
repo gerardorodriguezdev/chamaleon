@@ -2,7 +2,6 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.Test
@@ -14,7 +13,7 @@ class DefaultPropertiesParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
-    private val propertiesFile by lazy { File(environmentsDirectory, TestData.PROPERTIES_FILE) }
+    private val propertiesFile by lazy { File(environmentsDirectory, PROPERTIES_FILE) }
     private val defaultPropertiesParser by lazy { DefaultPropertiesParser() }
 
     @Test
@@ -76,7 +75,7 @@ class DefaultPropertiesParserTest {
             environmentsDirectory.mkdirs()
         }
 
-        val propertiesFile = File(environmentsDirectory, TestData.PROPERTIES_FILE)
+        val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
         propertiesFile.createNewFile()
 
         content?.let { content ->
@@ -88,6 +87,7 @@ class DefaultPropertiesParserTest {
 
     private companion object {
         const val SELECTED_ENVIRONMENT = "local"
+        const val PROPERTIES_FILE = "cha.properties.json"
 
         val invalidPropertiesFile =
             //language=json

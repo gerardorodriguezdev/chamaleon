@@ -1,21 +1,17 @@
 package io.github.gerardorodriguezdev.chamaleon.core.testing
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType.*
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.*
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 
 object TestData {
     const val ENVIRONMENT_NAME = "local"
-    private const val ENVIRONMENT_FILE_NAME = "$ENVIRONMENT_NAME-cha"
-    const val ENVIRONMENT_FILE = "$ENVIRONMENT_FILE_NAME.json"
-    const val SCHEMA_FILE = "cha.json"
-    const val PROPERTIES_FILE = "cha.properties.json"
 
     val validCompleteSchema = Schema(
         supportedPlatforms = setOf(

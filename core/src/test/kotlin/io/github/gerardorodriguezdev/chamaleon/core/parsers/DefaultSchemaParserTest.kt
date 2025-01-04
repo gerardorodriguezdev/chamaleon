@@ -13,7 +13,7 @@ class DefaultSchemaParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
-    private val schemaFile by lazy { File(environmentsDirectory, TestData.SCHEMA_FILE) }
+    private val schemaFile by lazy { File(environmentsDirectory, SCHEMA_FILE) }
     private val defaultSchemaParser by lazy { DefaultSchemaParser() }
 
     @Test
@@ -59,7 +59,7 @@ class DefaultSchemaParserTest {
             environmentsDirectory.mkdirs()
         }
 
-        val schemaFile = File(environmentsDirectory, TestData.SCHEMA_FILE)
+        val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
         schemaFile.createNewFile()
 
         content?.let { content ->
@@ -68,6 +68,8 @@ class DefaultSchemaParserTest {
     }
 
     private companion object {
+        const val SCHEMA_FILE = "cha.json"
+
         val invalidSchema =
             //language=json
             """
