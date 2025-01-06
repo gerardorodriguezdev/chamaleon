@@ -1,11 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.CONVENTION_ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.testing.TestData
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -53,10 +53,10 @@ class ChamaleonGradlePluginTest {
     }
 
     private fun createFiles() {
-        val environmentsDirectory = File(testDir, CONVENTION_ENVIRONMENTS_DIRECTORY_NAME)
+        val environmentsDirectory = File(testDir, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
             .apply { mkdirs() }
 
-        val templateFile = File(environmentsDirectory, TestData.SCHEMA_FILE)
+        val templateFile = File(environmentsDirectory, EnvironmentsProcessor.SCHEMA_FILE)
         templateFile.writeText(templateFileContent)
 
         val localEnvironmentFile = File(environmentsDirectory, TestData.LOCAL_ENVIRONMENT_FILE)
@@ -65,7 +65,7 @@ class ChamaleonGradlePluginTest {
         val productionEnvironmentFile = File(environmentsDirectory, TestData.PRODUCTION_ENVIRONMENT_FILE)
         productionEnvironmentFile.writeText(productionEnvironmentFileContent)
 
-        val localPropertiesFile = File(environmentsDirectory, TestData.LOCAL_PROPERTIES_FILE)
+        val localPropertiesFile = File(environmentsDirectory, EnvironmentsProcessor.PROPERTIES_FILE)
         localPropertiesFile.writeText(localPropertiesFileContent)
     }
 

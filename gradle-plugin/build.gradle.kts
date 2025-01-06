@@ -20,6 +20,7 @@ kotlin {
 
 dependencies {
     implementation(projects.core)
+    implementation(libs.kmp.coroutines)
     testImplementation(gradleTestKit())
     testImplementation(libs.kmp.test)
 }
