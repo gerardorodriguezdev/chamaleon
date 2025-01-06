@@ -33,6 +33,7 @@ public interface EnvironmentsProcessor {
 
     public sealed interface EnvironmentsProcessorResult {
         public data class Success(
+            val environmentsDirectoryPath: String,
             val selectedEnvironmentName: String? = null,
             val environments: Set<Environment>,
         ) : EnvironmentsProcessorResult
@@ -94,6 +95,7 @@ internal class DefaultEnvironmentsProcessor(
             if (environmentsVerificationResult is Failure) return@coroutineScope environmentsVerificationResult
 
             return@coroutineScope Success(
+                environmentsDirectoryPath = environmentsDirectory.absolutePath,
                 selectedEnvironmentName = selectedEnvironmentName,
                 environments = environments,
             )
@@ -309,7 +311,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun File.environmentsDirectoriesPaths(): List<String> =
         walkTopDown()
             .filter { file -> file.isEnvironmentsDirectory }
-            .map { file -> file.path }
+            .map { file -> file.absolutePath }
             .toList()
 
     private val File.isEnvironmentsDirectory: Boolean get() = isDirectory && name == ENVIRONMENTS_DIRECTORY_NAME

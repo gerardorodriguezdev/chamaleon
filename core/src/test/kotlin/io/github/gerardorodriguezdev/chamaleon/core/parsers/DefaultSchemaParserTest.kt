@@ -18,7 +18,7 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(environmentsDirectory.path)
+        val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(environmentsDirectory.absolutePath)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -27,7 +27,7 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN schema empty WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(environmentsDirectory.path)
+        val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(environmentsDirectory.absolutePath)
         createSchemaFile()
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)

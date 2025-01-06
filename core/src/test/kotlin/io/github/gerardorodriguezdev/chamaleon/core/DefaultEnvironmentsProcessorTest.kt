@@ -146,6 +146,7 @@ class DefaultEnvironmentsProcessorTest {
     fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() =
         runTest {
             val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
+                environmentsDirectoryPath = directory.absolutePath,
                 selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
                 environments = setOf(TestData.validCompleteEnvironment),
             )
@@ -157,13 +158,14 @@ class DefaultEnvironmentsProcessorTest {
 
     @Test
     fun `GIVEN valid environments WHEN processRecursively THEN returns results list`() = runTest {
-        createEnvironmentsDirectory()
+        val environmentsDirectory = environmentsDirectory()
 
         val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
 
         assertEquals(
             listOf(
                 EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
+                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
                     selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
                     environments = setOf(
                         TestData.validCompleteEnvironment
@@ -177,7 +179,7 @@ class DefaultEnvironmentsProcessorTest {
     @Test
     fun `GIVEN invalid environments WHEN processRecursively THEN returns results list`() = runTest {
         val expectedException = Exception()
-        createEnvironmentsDirectory()
+        environmentsDirectory()
         propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(expectedException)
 
         val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
@@ -201,8 +203,9 @@ class DefaultEnvironmentsProcessorTest {
         assertTrue { updateSelectedEnvironmentResult }
     }
 
-    private fun createEnvironmentsDirectory() {
+    private fun environmentsDirectory(): File {
         val environmentsDirectory = File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
         environmentsDirectory.mkdir()
+        return environmentsDirectory
     }
 }
