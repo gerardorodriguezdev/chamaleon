@@ -9,8 +9,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentsParser
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakePropertiesParser
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeSchemaParser
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -27,14 +25,10 @@ class DefaultEnvironmentsProcessorTest {
     private val environmentsParser = FakeEnvironmentsParser()
     private val propertiesParser = FakePropertiesParser()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val ioDispatcher = UnconfinedTestDispatcher()
-
     private val defaultEnvironmentsProcessor = DefaultEnvironmentsProcessor(
         schemaParser = schemaParser,
         environmentsParser = environmentsParser,
         propertiesParser = propertiesParser,
-        ioDispatcher = ioDispatcher,
     )
 
     @Test

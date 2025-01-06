@@ -4,10 +4,10 @@ public data class Environment(
     val name: String,
     val platforms: Set<Platform>,
 ) {
-    val wasmPlatform: Platform get() = platform(PlatformType.WASM)
-    val androidPlatform: Platform get() = platform(PlatformType.ANDROID)
-    val iosPlatform: Platform get() = platform(PlatformType.IOS)
-    val jvmPlatform: Platform get() = platform(PlatformType.JVM)
+    public fun wasmPlatform(): Platform = platform(PlatformType.WASM)
+    public fun androidPlatform(): Platform = platform(PlatformType.ANDROID)
+    public fun iosPlatform(): Platform = platform(PlatformType.IOS)
+    public fun jvmPlatform(): Platform = platform(PlatformType.JVM)
 
     private fun Environment.platform(platformType: PlatformType): Platform =
         platforms.first { platform ->

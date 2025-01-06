@@ -10,8 +10,8 @@ internal sealed class Result<out S, out F> {
     class Failure<out F>(val value: F) : Result<Nothing, F>()
 
     companion object {
-        fun <T> success(success: T): Success<T> = Success(success)
-        fun <T> failure(failure: T): Failure<T> = Failure(failure)
+        fun <T> T.toSuccess(): Success<T> = Success(this)
+        fun <T> T.toFailure(): Failure<T> = Failure(this)
     }
 }
 
