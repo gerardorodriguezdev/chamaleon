@@ -207,14 +207,10 @@ internal class DefaultEnvironmentsProcessor(
                     async {
                         val environmentsDirectory = File(environmentsDirectoryPath)
                         val environmentsProcessorResult = process(environmentsDirectory)
-                        when (environmentsProcessorResult) {
-                            is Success -> environmentsProcessorResult
-                            is Failure -> null
-                        }
+                        environmentsProcessorResult
                     }
                 }
                 .awaitAll()
-                .filterNotNull()
         }
 
     override fun updateSelectedEnvironment(
