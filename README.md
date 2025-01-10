@@ -27,5 +27,5 @@ It's usually not explicit what the environment variables you need or are used in
 
 ## How to use?
 
-1. Install the [Chamaleon Gradle Plugin](gradle-plugin)
-2. (Optional) Install the [Chamaleon IntelliJ Plugin](intellij-plugin)
+1. Install the [Chamaleon Gradle Plugin](gradle-plugin/README.md)
+2. (Optional) Install the [Chamaleon IntelliJ Plugin](intellij-plugin/README.md)

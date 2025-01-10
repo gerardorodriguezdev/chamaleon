@@ -2,4 +2,5 @@
 
 IntelliJ plugin for [Chamaleon](../README.md)
 
-This plugin has been uploaded to [Jetbrains Marketplace](https://plugins.jetbrains.com/)
+> This plugin is hosted on
+> the [Jetbrains Marketplace](https://plugins.jetbrains.com/)

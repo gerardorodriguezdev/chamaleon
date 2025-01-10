@@ -8,7 +8,7 @@ Gradle plugin for [Chamaleon](../README.md)
 
 ```kotlin
 plugins {
-    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.1" // check the latest version
+    id("io.github.gerardorodriguezdev.chamaleon")
 }
 ```
 
