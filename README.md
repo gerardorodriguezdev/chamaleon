@@ -4,23 +4,28 @@ Simplify the management of multiple environments for any Kotlin project
 
 ## Features
 
-- Define multiple environments and switch between them
-- Keep the same structure of all your environments
-- Kotlin multiplatform support in mind from the creation
+- Switch between environments easily (qa, debug, prod, or anything really)
+- Define multiple environments in a consistent way between different types of projects (even mobile apps or services)
+- Works great for any Kotlin project (multiplatform as well)
 
-## What problems do this solve?
+## What problems does Chamaleon solve?
 
-If you have a kotlin multiplatform app or server that has *staging*, *debug*, *qa*, *production* or more variants, this
-plugin allows you to define in an easy way all the environment variables for each environment, check that each has the
-same structure and switch between them easily, so you don't have to pass which environment to select on the command line
-per task
+### Switching between environments
 
-For ease of use you should use both the [Gradle Plugin](gradle-plugin) and the [Intellij Plugin](intellij-plugin)
+If you have multiple environments like staging, debug, qa, production or some custom one, it becomes a pain to
+switch between them as you would usually need to pass some arguments to each task that you run or have multiple run
+configurations with those arguments saved there
 
-## Projects
+### Different way of working with environments between different projects
 
-The project is separated into 3 different projects:
+If you have multiple environments for a mobile app, you usually need to generate a file depending on which environment
+you want to configure, but for services you would need to expose the environment contents by environment variables
 
-- **core:** The actual code that makes the magic [Core library](core)
-- **gradle-plugin:** Gradle plugin to use Chamaleon [Gradle Plugin](gradle-plugin)
-- **intellij-plugin:** Intellij plugin to switch between the different environments [Intellij Plugin]()
+### Environment variables all over the place
+
+It's usually not explicit what the environment variables you need or are used in the project
+
+## How to use?
+
+1. Install the [Chamaleon Gradle Plugin](gradle-plugin)
+2. (Optional) Install the [Chamaleon IntelliJ Plugin](intellij-plugin)
