@@ -1,11 +1,11 @@
 <idea-plugin>
-    <id>com.github.gerardorodriguezdev.chamaleon</id>
+    <id>io.github.gerardorodriguezdev.chamaleon</id>
     <name>Chamaleon</name>
     <vendor>gerardorodriguezdev</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
-    <description>Chamaleon Intellij plugin to configure different chamaleon environments</description>
+    <description>Simplify the management of multiple environments for any Kotlin project</description>
 
     <resource-bundle>messages.Bundle</resource-bundle>
 

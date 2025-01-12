@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="intellij-plugin:runIdeForUiTests" type="GradleRunConfiguration"
+    <configuration default="false" name="intellij-plugin:buildPlugin" type="GradleRunConfiguration"
                    factoryName="Gradle">
         <ExternalSystemSettings>
             <option name="executionName"/>
@@ -11,7 +11,7 @@
             </option>
             <option name="taskNames">
                 <list>
-                    <option value="intellij-plugin:runIdeForUiTests"/>
+                    <option value="intellij-plugin:buildPlugin"/>
                 </list>
             </option>
             <option name="vmOptions"/>
