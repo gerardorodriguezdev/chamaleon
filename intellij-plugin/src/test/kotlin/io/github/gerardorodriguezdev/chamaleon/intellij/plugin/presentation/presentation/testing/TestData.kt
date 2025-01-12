@@ -8,7 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
 
 object TestData {
-    const val ENVIRONMENTS_PATH = "environments"
+    const val ENVIRONMENTS_PATH = "/environments"
 
     const val LOCAL_ENVIRONMENT_NAME = "local"
     const val PRODUCTION_ENVIRONMENT_NAME = "production"
