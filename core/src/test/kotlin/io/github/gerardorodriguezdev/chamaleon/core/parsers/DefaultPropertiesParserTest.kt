@@ -87,7 +87,7 @@ class DefaultPropertiesParserTest {
 
     private companion object {
         const val SELECTED_ENVIRONMENT = "local"
-        const val PROPERTIES_FILE = "cha.properties.json"
+        const val PROPERTIES_FILE = "properties.chamaleon.json"
 
         val invalidPropertiesFile =
             //language=json

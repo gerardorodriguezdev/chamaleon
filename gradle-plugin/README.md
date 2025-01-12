@@ -91,7 +91,7 @@ chamaleon.environments
 
 ## Selecting an environment
 
-If you want to set an environment as the selected one, you can do it by adding `cha.properties.json` file in
+If you want to set an environment as the selected one, you can do it by adding `properties.chamaleon.json` file in
 `environments` with this content:
 
 ```json

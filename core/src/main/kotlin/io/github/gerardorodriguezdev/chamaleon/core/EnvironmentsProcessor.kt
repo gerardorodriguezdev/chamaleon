@@ -72,7 +72,7 @@ public interface EnvironmentsProcessor {
 
     public companion object {
         public const val SCHEMA_FILE: String = "cha.json"
-        public const val PROPERTIES_FILE: String = "cha.properties.json"
+        public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
         public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
 
         public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
