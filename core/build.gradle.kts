@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm")
     alias(libs.plugins.kmp.serialization)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kmp.binary.compability.validator)
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"

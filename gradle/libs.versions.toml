@@ -13,6 +13,7 @@ kmp-compose = "1.7.0"
 kmp-coroutines = "1.9.0"
 intellij-jewel = "0.25.0"
 kmp-immutable = "0.3.8"
+kmp-binary-compability-validator = "0.17.0"
 
 # Releases
 release = "1.0.2"
@@ -36,3 +37,4 @@ gradle-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-publi
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 intellij = { id = "org.jetbrains.intellij.platform", version.ref = "intellij" }
+kmp-binary-compability-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kmp-binary-compability-validator" }
