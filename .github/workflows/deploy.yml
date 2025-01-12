@@ -20,18 +20,6 @@ jobs:
       - name: Build
         uses: ./.github/actions/setup-action
 
-      - name: Download core artifacts from master
-        uses: actions/download-artifact@v4
-        with:
-          name: core-master
-          path: ./core/build/libs
-
-      - name: Download gradle plugin artifacts from master
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle-plugin-master
-          path: ./gradle-plugin/build/libs
-
       - name: Publish gradle plugin
         run: |
           ./gradlew :gradle-plugin:publishPlugins \
@@ -47,7 +35,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_CENTRAL_GPG_KEY_CONTENTS }}
 
-      - name: Upload artifacts
+      - name: Upload releases
         uses: softprops/action-gh-release@v2
         with:
           files: |
