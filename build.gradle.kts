@@ -18,6 +18,7 @@ detekt {
 
 dependencies {
     detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.compose)
 }
 
 tasks.withType<Detekt> detekt@{

@@ -79,6 +79,7 @@ public interface EnvironmentsProcessor {
     }
 }
 
+@Suppress("TooManyFunctions")
 internal class DefaultEnvironmentsProcessor(
     val schemaParser: SchemaParser = DefaultSchemaParser(),
     val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(),
@@ -101,6 +102,7 @@ internal class DefaultEnvironmentsProcessor(
             )
         }
 
+    @Suppress("ReturnCount")
     private suspend fun CoroutineScope.parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> {
         val schemaParsing = async {
             val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
@@ -154,6 +156,7 @@ internal class DefaultEnvironmentsProcessor(
             is PropertiesParserResult.Failure -> PropertiesSerialization(throwable).toFailure()
         }
 
+    @Suppress("ReturnCount")
     private suspend fun CoroutineScope.verifyEnvironments(
         schema: Schema,
         environments: Set<Environment>,
@@ -172,6 +175,7 @@ internal class DefaultEnvironmentsProcessor(
         return null
     }
 
+    @Suppress("NestedBlockDepth", "ReturnCount")
     private fun Schema.verifyEnvironments(environments: Set<Environment>): Failure? {
         environments.forEach { environment ->
             val verificationResult = verifyEnvironmentContainsAllPlatforms(environment)
@@ -198,7 +202,9 @@ internal class DefaultEnvironmentsProcessor(
                 selectedEnvironmentName = this,
                 environmentNames = environments.joinToString { environment -> environment.name }
             )
-        } else null
+        } else {
+            null
+        }
 
     override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
         coroutineScope {
@@ -229,7 +235,9 @@ internal class DefaultEnvironmentsProcessor(
 
         return if (supportedPlatforms.size != platformTypes.size || !supportedPlatforms.containsAll(platformTypes)) {
             PlatformsNotEqualToSchema(environment.name)
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String): Failure? {
@@ -240,7 +248,9 @@ internal class DefaultEnvironmentsProcessor(
             propertyDefinitionNames.size != propertyNames.size || !propertyDefinitionNames.containsAll(propertyNames)
         ) {
             PropertiesNotEqualToSchema(platform.platformType, environmentName)
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun Schema.verifyPropertyTypeIsCorrect(
@@ -281,7 +291,9 @@ internal class DefaultEnvironmentsProcessor(
                 platformType = platformType,
                 environmentName = environmentName,
             )
-        } else null
+        } else {
+            null
+        }
 
     private fun verifyPropertyType(
         propertyName: String,
@@ -299,7 +311,9 @@ internal class DefaultEnvironmentsProcessor(
                 environmentName = environmentName,
                 propertyType = propertyType,
             )
-        } else null
+        } else {
+            null
+        }
     }
 
     private fun PropertyValue.toPropertyType(): PropertyType =

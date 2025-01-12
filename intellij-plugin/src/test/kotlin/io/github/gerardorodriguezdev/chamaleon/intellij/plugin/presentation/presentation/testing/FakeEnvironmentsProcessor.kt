@@ -6,7 +6,9 @@ import java.io.File
 
 class FakeEnvironmentsProcessor(
     var processEnvironmentsProcessorResult: EnvironmentsProcessorResult = TestData.successEnvironmentsProcessorResult,
-    var processRecursivelyResult: List<EnvironmentsProcessorResult> = listOf(TestData.successEnvironmentsProcessorResult),
+    var processRecursivelyResult: List<EnvironmentsProcessorResult> = listOf(
+        TestData.successEnvironmentsProcessorResult
+    ),
     var updateSelectedEnvironmentResult: Boolean = true,
 ) : EnvironmentsProcessor {
 

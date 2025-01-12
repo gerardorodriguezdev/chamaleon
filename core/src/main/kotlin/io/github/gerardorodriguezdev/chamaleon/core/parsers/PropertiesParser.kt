@@ -5,6 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.Pro
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -30,12 +31,15 @@ internal class DefaultPropertiesParser : PropertiesParser {
         return try {
             val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
             return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
-        } catch (error: Exception) {
+        } catch (error: IllegalArgumentException) {
+            Failure(error)
+        } catch (error: SerializationException) {
             Failure(error)
         }
     }
 
     @OptIn(ExperimentalSerializationApi::class)
+    @Suppress("ReturnCount")
     override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
             if (newSelectedEnvironment == null) {

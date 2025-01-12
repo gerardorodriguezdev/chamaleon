@@ -41,6 +41,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     private fun Project.environmentsDirectory(): Directory =
         layout.projectDirectory.dir(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
 
+    @Suppress("Indentation")
     private fun Failure.toErrorMessage(): String =
         when (this) {
             is Failure.SchemaFileNotFound -> "'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'"

@@ -27,28 +27,45 @@ object Bundle {
     val refreshEnvironments by rememberedMessageDelegate("refresh.environments")
 
     private fun message(
-        key: @PropertyKey(resourceBundle = BUNDLE) String,
+        key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String,
         vararg params: Any
     ): @Nls String = INSTANCE.getMessage(key, *params)
 
     @Composable
     private fun rememberMessage(
-        @PropertyKey(resourceBundle = BUNDLE)
-        key: String,
+        @PropertyKey(resourceBundle = BUNDLE) key: String,
         vararg params: Any,
     ): String = remember { message(key, params) }
 
-    private fun messageDelegate(key: @PropertyKey(resourceBundle = BUNDLE) String): MessageDelegate =
+    private fun messageDelegate(
+        key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String
+    ): MessageDelegate =
         MessageDelegate(key)
 
-    private fun rememberedMessageDelegate(key: @PropertyKey(resourceBundle = BUNDLE) String): RememberedMessageDelegate =
+    private fun rememberedMessageDelegate(
+        key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String
+    ): RememberedMessageDelegate =
         RememberedMessageDelegate(key)
 
-    private class MessageDelegate(private val key: @PropertyKey(resourceBundle = BUNDLE) String) {
+    private class MessageDelegate(
+        private val key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String
+    ) {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): String = message(key)
     }
 
-    private class RememberedMessageDelegate(private val key: @PropertyKey(resourceBundle = BUNDLE) String) {
+    private class RememberedMessageDelegate(
+        private val key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String
+    ) {
         @Composable
         operator fun getValue(thisRef: Any?, property: KProperty<*>): String = rememberMessage(key)
     }
