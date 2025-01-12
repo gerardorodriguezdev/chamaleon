@@ -38,7 +38,7 @@ class DefaultPropertiesParserTest {
     @Test
     fun `GIVEN empty properties file WHEN propertiesParserResult THEN returns selected environment`() {
         val expectedPropertiesParserResult = Success()
-        createPropertiesFile(emptyPropertiesFile)
+        createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
@@ -57,7 +57,7 @@ class DefaultPropertiesParserTest {
 
     @Test
     fun `WHEN updateSelectedEnvironment THEN updates file`() {
-        createPropertiesFile(emptyPropertiesFile)
+        createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
         val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
             propertiesFile = propertiesFile,
@@ -97,7 +97,7 @@ class DefaultPropertiesParserTest {
                 }
             """.trimIndent()
 
-        val emptyPropertiesFile = ""
+        const val EMPTY_PROPERTIES_FILE = ""
 
         val validPropertiesFile =
             //language=json

@@ -53,12 +53,12 @@ internal class DefaultPropertiesParser : PropertiesParser {
     }
 
     private companion object {
-        const val indentation = "  "
+        const val INDENTATION = "  "
 
         @OptIn(ExperimentalSerializationApi::class)
         val prettyJson = Json {
             prettyPrint = true
-            prettyPrintIndent = indentation
+            prettyPrintIndent = INDENTATION
         }
     }
 }

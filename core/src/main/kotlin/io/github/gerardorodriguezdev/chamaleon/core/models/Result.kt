@@ -16,15 +16,6 @@ internal sealed class Result<out S, out F> {
 }
 
 @OptIn(ExperimentalContracts::class)
-internal fun <S, F> Result<S, F>.isSuccess(): Boolean {
-    contract {
-        returns(true) implies (this@isSuccess is Success<S>)
-        returns(false) implies (this@isSuccess is Failure<F>)
-    }
-    return this is Success<S>
-}
-
-@OptIn(ExperimentalContracts::class)
 internal fun <S, F> Result<S, F>.isFailure(): Boolean {
     contract {
         returns(true) implies (this@isFailure is Failure<F>)
