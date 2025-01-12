@@ -13,6 +13,7 @@
         <toolWindow
                 factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
                 id="Chamaleon"
-                anchor="right"/>
+                anchor="right"
+                icon="icons/pluginIcon"/>
     </extensions>
 </idea-plugin>
