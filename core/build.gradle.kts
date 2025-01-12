@@ -18,7 +18,7 @@ kotlin {
         allWarningsAsErrors = true
     }
 
-    jvmToolchain(libs.versions.jvm.get().toInt())
+    jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
         implementation(libs.kmp.serialization)

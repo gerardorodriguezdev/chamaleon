@@ -26,7 +26,7 @@ kotlin {
         allWarningsAsErrors = true
     }
 
-    jvmToolchain(libs.versions.jvm.get().toInt())
+    jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
         implementation(libs.jvm.coroutines) {
@@ -50,6 +50,7 @@ kotlin {
         }
 
         testImplementation(libs.kmp.test)
+        testImplementation(libs.kmp.test.coroutines)
 
         intellijPlatform {
             intellijIdeaCommunity("2023.3")

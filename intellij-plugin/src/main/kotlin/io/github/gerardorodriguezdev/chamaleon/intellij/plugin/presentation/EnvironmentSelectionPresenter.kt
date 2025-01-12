@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentCardState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentSelectionState
 import kotlinx.collections.immutable.ImmutableList
@@ -50,11 +51,11 @@ class EnvironmentSelectionPresenter(
     private fun List<EnvironmentsProcessorResult>.toEnvironmentCardStates(
         projectDirectory: File,
     ): ImmutableList<EnvironmentCardState> =
-        filterIsInstance<EnvironmentsProcessorResult.Success>()
+        filterIsInstance<Success>()
             .map { success -> success.toEnvironmentCardState(projectDirectory) }
             .toPersistentList()
 
-    private fun EnvironmentsProcessorResult.Success.toEnvironmentCardState(projectDirectory: File): EnvironmentCardState =
+    private fun Success.toEnvironmentCardState(projectDirectory: File): EnvironmentCardState =
         EnvironmentCardState(
             environmentsDirectoryPath = environmentsDirectoryPath.removePrefix(projectDirectory.absolutePath),
             selectedEnvironment = selectedEnvironmentName,
