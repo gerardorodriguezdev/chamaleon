@@ -31,3 +31,9 @@ jobs:
         with:
           name: gradle-plugin-${{ github.head_ref }}
           path: ./gradle-plugin/build/libs/*.jar
+
+      - name: Upload intellij plugin artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: intellij-plugin-${{ github.head_ref }}
+          path: ./intellij-plugin/build/distributions/*.zip

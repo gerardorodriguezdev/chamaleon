@@ -10,5 +10,5 @@ runs:
       uses: ./.github/actions/setup-action
 
     - name: Build
-      run: ./gradlew :detekt :test :build :core:apiCheck
+      run: ./gradlew :detekt :core:apiCheck :test :build :intellij-plugin:buildPlugin
       shell: bash

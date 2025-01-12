@@ -63,6 +63,8 @@ kotlin {
 }
 
 intellijPlatform {
+    buildSearchableOptions = false
+
     pluginConfiguration {
         version = libs.versions.release.get()
 
