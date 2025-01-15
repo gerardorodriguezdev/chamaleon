@@ -4,10 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.Pro
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class DefaultPropertiesParserTest {
     @TempDir
@@ -70,6 +67,21 @@ class DefaultPropertiesParserTest {
         assertEquals(SELECTED_ENVIRONMENT, newSelectedEnvironmentName)
     }
 
+    @Test
+    fun `GIVEN selectedEnvironment WHEN updateSelectedEnvironment to null THEN empties file`() {
+        createPropertiesFile(validPropertiesFile)
+
+        val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
+            propertiesFile = propertiesFile,
+            newSelectedEnvironment = null,
+        )
+
+        assertTrue { propertiesFileUpdated }
+        val newSelectedEnvironmentName =
+            defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
+        assertNull(newSelectedEnvironmentName)
+    }
+
     private fun createPropertiesFile(content: String? = null) {
         if (!environmentsDirectory.exists()) {
             environmentsDirectory.mkdirs()
@@ -88,6 +100,7 @@ class DefaultPropertiesParserTest {
     private companion object {
         const val SELECTED_ENVIRONMENT = "local"
         const val PROPERTIES_FILE = "properties.chamaleon.json"
+        const val EMPTY_PROPERTIES_FILE = ""
 
         val invalidPropertiesFile =
             //language=json
@@ -96,8 +109,6 @@ class DefaultPropertiesParserTest {
                   "selectedEnvironmentNam": "local"
                 }
             """.trimIndent()
-
-        const val EMPTY_PROPERTIES_FILE = ""
 
         val validPropertiesFile =
             //language=json

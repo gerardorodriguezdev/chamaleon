@@ -14,13 +14,20 @@ class DefaultEnvironmentsParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
+    private var environmentFileMatcher: (file: File) -> Boolean = { _ -> true }
+    private var environmentNameExtractor: (file: File) -> String = { _ -> ENVIRONMENT_NAME }
+
     private val defaultEnvironmentsParser by lazy {
-        DefaultEnvironmentsParser(restrictedFileNames = listOf(RESTRICTED_FILE_NAME))
+        DefaultEnvironmentsParser(
+            environmentFileMatcher = environmentFileMatcher,
+            environmentNameExtractor = environmentNameExtractor,
+        )
     }
 
     @Test
     fun `GIVEN file not found WHEN environmentsParserResult THEN returns empty set`() {
         val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = setOf())
+        environmentFileMatcher = { _ -> false }
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
@@ -72,8 +79,6 @@ class DefaultEnvironmentsParserTest {
 
     companion object {
         const val ENVIRONMENT_FILE = "$ENVIRONMENT_NAME.chamaleon.json"
-
-        const val RESTRICTED_FILE_NAME = "restricted"
 
         val invalidEnvironments =
             //language=json

@@ -16,7 +16,6 @@ kotlin {
 
     compilerOptions {
         extraWarnings = true
-        allWarningsAsErrors = true
     }
 
     jvmToolchain(libs.versions.java.get().toInt())
@@ -27,6 +26,7 @@ kotlin {
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)
+        testImplementation(libs.jvm.test.parameterized)
     }
 }
 

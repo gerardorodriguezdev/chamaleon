@@ -12,6 +12,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeSchemaPars
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -203,9 +206,49 @@ class DefaultEnvironmentsProcessorTest {
         assertTrue { updateSelectedEnvironmentResult }
     }
 
+    @ParameterizedTest
+    @MethodSource("fileNames")
+    fun `GIVEN file name WHEN matching THEN matches correctly`(expected: Boolean, fileName: String) {
+        val file = File(directory, fileName)
+        val actual = DefaultEnvironmentsProcessor.environmentFileMatcher(file)
+        assertEquals(expected, actual)
+    }
+
+    @ParameterizedTest
+    @MethodSource("environmentNames")
+    fun `GIVEN file WHEN extracting environment name THEN extracts correctly`(expected: String, fileName: String) {
+        val file = File(directory, fileName)
+        val actual = DefaultEnvironmentsProcessor.environmentFileNameExtractor(file)
+        assertEquals(expected, actual)
+    }
+
     private fun environmentsDirectory(): File {
         val environmentsDirectory = File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
         environmentsDirectory.mkdir()
         return environmentsDirectory
+    }
+
+    companion object {
+        @JvmStatic
+        fun fileNames(): List<Arguments> =
+            listOf(
+                // Valid
+                Arguments.of(true, "local.chamaleon.json"),
+                Arguments.of(true, "production.chamaleon.json"),
+
+                // Invalid
+                Arguments.of(false, "local.chamaleon.jso"),
+                Arguments.of(false, "chamaleon.json"),
+                Arguments.of(false, "local.json"),
+                Arguments.of(false, EnvironmentsProcessor.SCHEMA_FILE),
+                Arguments.of(false, EnvironmentsProcessor.PROPERTIES_FILE),
+            )
+
+        @JvmStatic
+        fun environmentNames(): List<Arguments> =
+            listOf(
+                Arguments.of("local", "local.chamaleon.json"),
+                Arguments.of("production", "production.chamaleon.json"),
+            )
     }
 }

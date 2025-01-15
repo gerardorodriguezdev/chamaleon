@@ -1,9 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENT_FILE_SUFFIX
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure.*
@@ -78,6 +78,8 @@ public interface EnvironmentsProcessor {
         public const val PROPERTIES_FILE_NAME: String = "properties"
         public const val PROPERTIES_FILE: String = "$PROPERTIES_FILE_NAME.chamaleon.json"
 
+        public const val ENVIRONMENT_FILE_SUFFIX: String = ".chamaleon.json"
+
         public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
 
         public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
@@ -88,10 +90,8 @@ public interface EnvironmentsProcessor {
 internal class DefaultEnvironmentsProcessor(
     val schemaParser: SchemaParser = DefaultSchemaParser(),
     val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(
-        restrictedFileNames = listOf(
-            SCHEMA_FILE_NAME,
-            PROPERTIES_FILE,
-        )
+        environmentFileMatcher = environmentFileMatcher,
+        environmentNameExtractor = environmentFileNameExtractor,
     ),
     val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
 ) : EnvironmentsProcessor {
@@ -345,4 +345,15 @@ internal class DefaultEnvironmentsProcessor(
         val environments: Set<Environment>,
         val selectedEnvironmentName: String?,
     )
+
+    internal companion object {
+        val restrictedFiles = listOf(
+            SCHEMA_FILE,
+            PROPERTIES_FILE
+        )
+        val environmentFileMatcher = { file: File ->
+            file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) && file.name !in restrictedFiles
+        }
+        val environmentFileNameExtractor = { file: File -> file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
+    }
 }

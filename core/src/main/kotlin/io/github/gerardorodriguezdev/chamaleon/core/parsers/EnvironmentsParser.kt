@@ -11,8 +11,6 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface EnvironmentsParser {
-    public val restrictedFileNames: List<String>
-
     public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
 
     public sealed interface EnvironmentsParserResult {
@@ -25,15 +23,18 @@ public interface EnvironmentsParser {
 }
 
 internal class DefaultEnvironmentsParser(
-    override val restrictedFileNames: List<String>,
+    val environmentFileMatcher: (File) -> Boolean,
+    val environmentNameExtractor: (File) -> String,
 ) : EnvironmentsParser {
+
     override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
         val environmentsDirectoryFiles = environmentsDirectory.listFiles()
 
-        val jsonFiles = environmentsDirectoryFiles?.filter { file -> file.isEnvironmentFile } ?: emptyList()
+        val environmentsFiles =
+            environmentsDirectoryFiles?.filter { file -> environmentFileMatcher(file) } ?: emptyList()
 
-        val environments = jsonFiles.mapNotNull { file ->
-            val environmentName = file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX)
+        val environments = environmentsFiles.mapNotNull { file ->
+            val environmentName = environmentNameExtractor(file)
 
             val fileContent = file.readText()
             if (fileContent.isEmpty()) return@mapNotNull null
@@ -53,13 +54,6 @@ internal class DefaultEnvironmentsParser(
         return Success(environments = environments.toSet())
     }
 
-    private val File.isEnvironmentFile: Boolean
-        get() = name.endsWith(ENVIRONMENT_FILE_SUFFIX) && !restrictedFileNames.any { fileName ->
-            name.startsWith(
-                fileName
-            )
-        }
-
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->
             Platform(
@@ -75,8 +69,4 @@ internal class DefaultEnvironmentsParser(
                 value = propertyDto.value,
             )
         }.toSet()
-
-    private companion object {
-        const val ENVIRONMENT_FILE_SUFFIX = ".chamaleon.json"
-    }
 }

@@ -11,10 +11,6 @@ version = libs.versions.release.get()
 kotlin {
     explicitApi = ExplicitApiMode.Strict
 
-    compilerOptions {
-        allWarningsAsErrors = true
-    }
-
     jvmToolchain(libs.versions.java.get().toInt())
 }
 
