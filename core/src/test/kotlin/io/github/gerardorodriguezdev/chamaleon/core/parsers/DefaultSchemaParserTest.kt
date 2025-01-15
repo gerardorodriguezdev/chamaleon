@@ -68,7 +68,7 @@ class DefaultSchemaParserTest {
     }
 
     private companion object {
-        const val SCHEMA_FILE = "cha.json"
+        const val SCHEMA_FILE = "template.chamaleon.json"
 
         val invalidSchema =
             //language=json

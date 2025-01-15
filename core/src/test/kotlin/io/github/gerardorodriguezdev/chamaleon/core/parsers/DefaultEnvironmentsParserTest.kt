@@ -14,7 +14,9 @@ class DefaultEnvironmentsParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
-    private val defaultEnvironmentsParser by lazy { DefaultEnvironmentsParser() }
+    private val defaultEnvironmentsParser by lazy {
+        DefaultEnvironmentsParser(restrictedFileNames = listOf(RESTRICTED_FILE_NAME))
+    }
 
     @Test
     fun `GIVEN file not found WHEN environmentsParserResult THEN returns empty set`() {
@@ -69,8 +71,9 @@ class DefaultEnvironmentsParserTest {
     }
 
     companion object {
-        private const val ENVIRONMENT_FILE_NAME = "$ENVIRONMENT_NAME-cha"
-        const val ENVIRONMENT_FILE = "$ENVIRONMENT_FILE_NAME.json"
+        const val ENVIRONMENT_FILE = "$ENVIRONMENT_NAME.chamaleon.json"
+
+        const val RESTRICTED_FILE_NAME = "restricted"
 
         val invalidEnvironments =
             //language=json

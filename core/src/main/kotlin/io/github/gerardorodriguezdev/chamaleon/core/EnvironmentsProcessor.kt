@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure.*
@@ -71,8 +72,12 @@ public interface EnvironmentsProcessor {
     }
 
     public companion object {
-        public const val SCHEMA_FILE: String = "cha.json"
-        public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
+        public const val SCHEMA_FILE_NAME: String = "template"
+        public const val SCHEMA_FILE: String = "$SCHEMA_FILE_NAME.chamaleon.json"
+
+        public const val PROPERTIES_FILE_NAME: String = "properties"
+        public const val PROPERTIES_FILE: String = "$PROPERTIES_FILE_NAME.chamaleon.json"
+
         public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
 
         public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
@@ -82,7 +87,12 @@ public interface EnvironmentsProcessor {
 @Suppress("TooManyFunctions")
 internal class DefaultEnvironmentsProcessor(
     val schemaParser: SchemaParser = DefaultSchemaParser(),
-    val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(),
+    val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(
+        restrictedFileNames = listOf(
+            SCHEMA_FILE_NAME,
+            PROPERTIES_FILE,
+        )
+    ),
     val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
 ) : EnvironmentsProcessor {
 

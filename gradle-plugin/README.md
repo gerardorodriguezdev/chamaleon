@@ -22,13 +22,13 @@ Create a directory named `environments` in the root of your project. Inside this
 ```text
 myProject
     environments
-        cha.json
-        development-cha.json
+        template.chamaleon.json
+        development.chamaleon.json
 ```
 
 You can see a sample on [Sample Gradle Project](../samples/gradle-project)
 
-### 3. Fill the `cha.json`
+### 3. Fill the `template.chamaleon.json`
 
 This is the file that will be used to validate all the environment json files
 
@@ -54,11 +54,11 @@ This is the file that will be used to validate all the environment json files
         - **propertyType:** Can be String or Boolean -> required
         - **nullable:** If the property is nullable or not (default=false)-> optional
 
-### 4. Fill the `development-cha.json`
+### 4. Fill the `development.chamaleon.json`
 
-Any json file named `anything-cha.json` inside the `environments` directory will be considered an environment.
-You can as many as you want with like `local-cha.json` or `production-cha.json`. For now, we added
-`development-cha.json`. Let's add this content to it:
+Any json file named `anything.chamaleon.json` inside the `environments` directory will be considered an environment.
+You can as many as you want with like `local.chamaleon.json` or `production.chamaleon.json`. For now, we added
+`development.chamaleon.json`. Let's add this content to it:
 
 ```json
 [
@@ -102,6 +102,6 @@ If you want to set an environment as the selected one, you can do it by adding `
 
 ## Using the json schemas
 
-The json schemas for `cha.json` and `yourenvironments-cha.json` have been uploaded to
+The json schemas for `template.chamaleon.json` and `yourenvironments.chamaleon.json` have been uploaded to
 [Schema store](https://www.schemastore.org/json/) so you can see hints if the schema is valid or not. Alternatively you
 can find them here [Schemas](../schemas)

@@ -11,6 +11,8 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface EnvironmentsParser {
+    public val restrictedFileNames: List<String>
+
     public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
 
     public sealed interface EnvironmentsParserResult {
@@ -22,7 +24,9 @@ public interface EnvironmentsParser {
     }
 }
 
-internal class DefaultEnvironmentsParser : EnvironmentsParser {
+internal class DefaultEnvironmentsParser(
+    override val restrictedFileNames: List<String>,
+) : EnvironmentsParser {
     override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
         val environmentsDirectoryFiles = environmentsDirectory.listFiles()
 
@@ -49,7 +53,12 @@ internal class DefaultEnvironmentsParser : EnvironmentsParser {
         return Success(environments = environments.toSet())
     }
 
-    private val File.isEnvironmentFile: Boolean get() = name.endsWith(ENVIRONMENT_FILE_SUFFIX)
+    private val File.isEnvironmentFile: Boolean
+        get() = name.endsWith(ENVIRONMENT_FILE_SUFFIX) && !restrictedFileNames.any { fileName ->
+            name.startsWith(
+                fileName
+            )
+        }
 
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->
@@ -68,6 +77,6 @@ internal class DefaultEnvironmentsParser : EnvironmentsParser {
         }.toSet()
 
     private companion object {
-        const val ENVIRONMENT_FILE_SUFFIX = "-cha.json"
+        const val ENVIRONMENT_FILE_SUFFIX = ".chamaleon.json"
     }
 }
