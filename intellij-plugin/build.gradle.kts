@@ -29,19 +29,25 @@ kotlin {
 
     dependencies {
         implementation(libs.jvm.coroutines) {
+            exclude(group = "org.jetbrains.kotlinx")
             exclude(
                 group = "org.jetbrains.kotlinx",
                 module = "kotlinx-coroutines-core"
             )
         }
         implementation(compose.desktop.currentOs) {
+            exclude(group = "org.jetbrains.kotlinx")
             exclude(group = "org.jetbrains.compose.material")
+        }
+        implementation(libs.intellij.jewel) {
             exclude(group = "org.jetbrains.kotlinx")
         }
-        implementation(libs.intellij.jewel) { exclude(group = "org.jetbrains.kotlinx") }
-        implementation(libs.kmp.immutable) { exclude(group = "org.jetbrains.kotlinx") }
+        implementation(libs.kmp.immutable) {
+            exclude(group = "org.jetbrains.kotlinx")
+        }
 
         implementation(projects.core) {
+            exclude(group = "org.jetbrains.kotlinx")
             exclude(
                 group = "org.jetbrains.kotlinx",
                 module = "kotlinx-coroutines-core"
