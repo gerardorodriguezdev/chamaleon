@@ -10,7 +10,7 @@ class DefaultPropertiesParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
-    private val propertiesFile by lazy { File(environmentsDirectory, PROPERTIES_FILE) }
+    private val propertiesFile by lazy { File(environmentsDirectory, "anyFileName") }
     private val defaultPropertiesParser by lazy { DefaultPropertiesParser() }
 
     @Test
@@ -87,7 +87,6 @@ class DefaultPropertiesParserTest {
             environmentsDirectory.mkdirs()
         }
 
-        val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
         propertiesFile.createNewFile()
 
         content?.let { content ->
@@ -99,7 +98,6 @@ class DefaultPropertiesParserTest {
 
     private companion object {
         const val SELECTED_ENVIRONMENT = "local"
-        const val PROPERTIES_FILE = "properties.chamaleon.json"
         const val EMPTY_PROPERTIES_FILE = ""
 
         val invalidPropertiesFile =

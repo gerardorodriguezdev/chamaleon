@@ -69,7 +69,7 @@ class DefaultEnvironmentsParserTest {
             environmentsDirectory.mkdirs()
         }
 
-        val environmentsFile = File(environmentsDirectory, ENVIRONMENT_FILE)
+        val environmentsFile = File(environmentsDirectory, "anyFileName")
         environmentsFile.createNewFile()
 
         content?.let { content ->
@@ -78,8 +78,6 @@ class DefaultEnvironmentsParserTest {
     }
 
     companion object {
-        const val ENVIRONMENT_FILE = "$ENVIRONMENT_NAME.chamaleon.json"
-
         val invalidEnvironments =
             //language=json
             """
