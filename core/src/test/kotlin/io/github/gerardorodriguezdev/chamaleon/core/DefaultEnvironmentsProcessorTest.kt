@@ -206,6 +206,12 @@ class DefaultEnvironmentsProcessorTest {
         assertTrue { updateSelectedEnvironmentResult }
     }
 
+    @Test
+    fun `GIVEN environmentName WHEN environmentFileName THEN returns environment name`() {
+        val environmentFileName = EnvironmentsProcessor.environmentFileName("local")
+        assertEquals(localEnvironmentFileName, environmentFileName)
+    }
+
     @ParameterizedTest
     @MethodSource("fileNames")
     fun `GIVEN file name WHEN matching THEN matches correctly`(expected: Boolean, fileName: String) {
@@ -229,17 +235,25 @@ class DefaultEnvironmentsProcessorTest {
     }
 
     companion object {
+        private const val LOCAL_ENVIRONMENT_NAME = "local"
+        private const val PRODUCTION_ENVIRONMENT_NAME = "production"
+        private val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
+        private val productionEnvironmentFileName =
+            EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)
+
         @JvmStatic
         fun fileNames(): List<Arguments> =
             listOf(
                 // Valid
-                Arguments.of(true, "local.chamaleon.json"),
-                Arguments.of(true, "production.chamaleon.json"),
+                Arguments.of(true, localEnvironmentFileName),
+                Arguments.of(true, productionEnvironmentFileName),
 
-                // Invalid
+                // Invalid environment file name
                 Arguments.of(false, "local.chamaleon.jso"),
                 Arguments.of(false, "chamaleon.json"),
                 Arguments.of(false, "local.json"),
+
+                // Restricted file names
                 Arguments.of(false, EnvironmentsProcessor.SCHEMA_FILE),
                 Arguments.of(false, EnvironmentsProcessor.PROPERTIES_FILE),
             )
@@ -247,8 +261,8 @@ class DefaultEnvironmentsProcessorTest {
         @JvmStatic
         fun environmentNames(): List<Arguments> =
             listOf(
-                Arguments.of("local", "local.chamaleon.json"),
-                Arguments.of("production", "production.chamaleon.json"),
+                Arguments.of(LOCAL_ENVIRONMENT_NAME, localEnvironmentFileName),
+                Arguments.of(PRODUCTION_ENVIRONMENT_NAME, productionEnvironmentFileName),
             )
     }
 }

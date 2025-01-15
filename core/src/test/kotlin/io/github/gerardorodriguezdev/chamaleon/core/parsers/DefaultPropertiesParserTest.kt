@@ -94,8 +94,6 @@ class DefaultPropertiesParserTest {
         }
     }
 
-    private fun PropertiesParser.PropertiesParserResult.toSuccess(): Success = this as Success
-
     private companion object {
         const val SELECTED_ENVIRONMENT = "local"
         const val EMPTY_PROPERTIES_FILE = ""
@@ -115,5 +113,7 @@ class DefaultPropertiesParserTest {
                   "selectedEnvironmentName": "local"
                 }
             """.trimIndent()
+
+        fun PropertiesParser.PropertiesParserResult.toSuccess(): Success = this as Success
     }
 }

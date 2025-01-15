@@ -6,7 +6,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.testing.TestData
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
@@ -59,10 +58,10 @@ class ChamaleonGradlePluginTest {
         val templateFile = File(environmentsDirectory, EnvironmentsProcessor.SCHEMA_FILE)
         templateFile.writeText(templateFileContent)
 
-        val localEnvironmentFile = File(environmentsDirectory, TestData.LOCAL_ENVIRONMENT_FILE)
+        val localEnvironmentFile = File(environmentsDirectory, localEnvironmentFileName)
         localEnvironmentFile.writeText(localEnvironmentFileContent)
 
-        val productionEnvironmentFile = File(environmentsDirectory, TestData.PRODUCTION_ENVIRONMENT_FILE)
+        val productionEnvironmentFile = File(environmentsDirectory, productionEnvironmentFileName)
         productionEnvironmentFile.writeText(productionEnvironmentFileContent)
 
         val localPropertiesFile = File(environmentsDirectory, EnvironmentsProcessor.PROPERTIES_FILE)
@@ -94,9 +93,11 @@ class ChamaleonGradlePluginTest {
 
         const val LOCAL_ENVIRONMENT_NAME = "local"
         const val LOCAL_ENVIRONMENT_HOST = "localhost"
+        val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
 
         const val PRODUCTION_ENVIRONMENT_NAME = "production"
         const val PRODUCTION_ENVIRONMENT_HOST = "otherhost"
+        val productionEnvironmentFileName = EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)
 
         val buildFileContent =
             //language=kotlin
