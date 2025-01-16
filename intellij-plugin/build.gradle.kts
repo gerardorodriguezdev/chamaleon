@@ -103,7 +103,6 @@ intellijPlatform {
 
     publishing {
         token.set(providers.environmentVariable("JETBRAINS_PUBLISH_TOKEN"))
-        channels.set(listOf("beta"))
     }
 
     pluginVerification {
