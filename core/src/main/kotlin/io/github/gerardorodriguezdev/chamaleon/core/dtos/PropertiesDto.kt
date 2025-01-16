@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class PropertiesDto(
-    val selectedEnvironmentName: String,
+    val selectedEnvironmentName: String?,
 )

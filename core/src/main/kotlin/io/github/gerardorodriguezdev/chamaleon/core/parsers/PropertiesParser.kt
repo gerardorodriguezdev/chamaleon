@@ -42,15 +42,10 @@ internal class DefaultPropertiesParser : PropertiesParser {
     @Suppress("ReturnCount")
     override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
-            if (newSelectedEnvironment == null) {
-                propertiesFile.writeText("")
-                return true
-            } else {
-                val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
-                val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
-                propertiesFile.writeText(propertiesFileContent)
-                return true
-            }
+            val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
+            val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
+            propertiesFile.writeText(propertiesFileContent)
+            return true
         } catch (_: Exception) {
             return false
         }

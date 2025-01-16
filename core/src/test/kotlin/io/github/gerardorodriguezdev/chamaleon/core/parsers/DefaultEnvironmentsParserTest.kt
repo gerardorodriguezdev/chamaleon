@@ -26,8 +26,8 @@ class DefaultEnvironmentsParserTest {
 
     @Test
     fun `GIVEN file not found WHEN environmentsParserResult THEN returns empty set`() {
+        environmentFileMatcher = { false }
         val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = setOf())
-        environmentFileMatcher = { _ -> false }
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 

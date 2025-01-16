@@ -53,7 +53,17 @@ class DefaultPropertiesParserTest {
     }
 
     @Test
-    fun `WHEN updateSelectedEnvironment THEN updates file`() {
+    fun `GIVEN valid properties file with no selected environment WHEN propertiesParserResult THEN returns null`() {
+        val expectedPropertiesParserResult = Success()
+        createPropertiesFile(validPropertiesFileWithNoSelectedEnvironment)
+
+        val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
+
+        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+    }
+
+    @Test
+    fun `WHEN updateSelectedEnvironment with environment THEN updates file`() {
         createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
         val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
@@ -65,6 +75,21 @@ class DefaultPropertiesParserTest {
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
         assertEquals(SELECTED_ENVIRONMENT, newSelectedEnvironmentName)
+    }
+
+    @Test
+    fun `WHEN updateSelectedEnvironment without environment THEN updates file`() {
+        createPropertiesFile(EMPTY_PROPERTIES_FILE)
+
+        val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
+            propertiesFile = propertiesFile,
+            newSelectedEnvironment = null,
+        )
+
+        assertTrue { propertiesFileUpdated }
+        val newSelectedEnvironmentName =
+            defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
+        assertNull(newSelectedEnvironmentName)
     }
 
     @Test
@@ -111,6 +136,14 @@ class DefaultPropertiesParserTest {
             """
                 {
                   "selectedEnvironmentName": "local"
+                }
+            """.trimIndent()
+
+        val validPropertiesFileWithNoSelectedEnvironment =
+            //language=json
+            """
+                {
+                  "selectedEnvironmentName": null
                 }
             """.trimIndent()
 
