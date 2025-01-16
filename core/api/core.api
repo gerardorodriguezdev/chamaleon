@@ -207,6 +207,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/entities/Platfor
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType : java/lang/Enum {
 	public static final field ANDROID Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
+	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType$Companion;
 	public static final field IOS Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 	public static final field JVM Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 	public static final field WASM Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
@@ -215,12 +216,21 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/entities/Platfor
 	public static fun values ()[Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 }
 
+public final class io/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class io/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType : java/lang/Enum {
 	public static final field BOOLEAN Lio/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType;
+	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType$Companion;
 	public static final field STRING Lio/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType;
 	public static fun values ()[Lio/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/entities/PropertyType$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/entities/PropertyValue {
