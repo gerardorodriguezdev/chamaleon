@@ -1,39 +1,45 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     kotlin("jvm")
     alias(libs.plugins.kmp.serialization)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kmp.binary.compability.validator)
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"
 version = libs.versions.release.get()
 
 kotlin {
+    explicitApi = ExplicitApiMode.Strict
+
     compilerOptions {
         extraWarnings = true
-        allWarningsAsErrors = true
     }
 
-    jvmToolchain(libs.versions.jvm.get().toInt())
+    jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
         implementation(libs.kmp.serialization)
+        implementation(libs.kmp.coroutines)
 
         testImplementation(libs.kmp.test)
+        testImplementation(libs.kmp.test.coroutines)
+        testImplementation(libs.jvm.test.parameterized)
     }
 }
 
 mavenPublishing {
     coordinates(
         groupId = group.toString(),
-        artifactId = "core",
+        artifactId = "chamaleon-core",
         version = version.toString()
     )
 
     pom {
         name = "Chamaleon Core"
-        description = "Core library to parse chamaleon files"
+        description = "Chamaleon core library to parse chamaleon files"
         url = "https://github.com/gerardorodriguezdev/chamaleon"
 
         licenses {

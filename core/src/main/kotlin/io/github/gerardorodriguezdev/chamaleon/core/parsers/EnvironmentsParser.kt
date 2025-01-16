@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
-import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Success
@@ -10,26 +10,31 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
-interface EnvironmentsParser {
-    fun environmentsParserResult(): EnvironmentsParserResult
+public interface EnvironmentsParser {
+    public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
 
-    sealed interface EnvironmentsParserResult {
-        data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
+    public sealed interface EnvironmentsParserResult {
+        public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
 
-        sealed interface Failure : EnvironmentsParserResult {
-            data class SerializationError(val throwable: Throwable) : Failure
+        public sealed interface Failure : EnvironmentsParserResult {
+            public data class Serialization(val throwable: Throwable) : Failure
         }
     }
 }
 
-internal class DefaultEnvironmentsParser(private val directory: File) : EnvironmentsParser {
-    override fun environmentsParserResult(): EnvironmentsParserResult {
-        val directoryFiles = directory.listFiles()
+internal class DefaultEnvironmentsParser(
+    val environmentFileMatcher: (File) -> Boolean,
+    val environmentNameExtractor: (File) -> String,
+) : EnvironmentsParser {
 
-        val jsonFiles = directoryFiles?.filter { file -> file.isEnvironmentFile } ?: emptyList()
+    override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
+        val environmentsDirectoryFiles = environmentsDirectory.listFiles()
 
-        val environments = jsonFiles.mapNotNull { file ->
-            val environmentName = file.nameWithoutExtension
+        val environmentsFiles =
+            environmentsDirectoryFiles?.filter { file -> environmentFileMatcher(file) } ?: emptyList()
+
+        val environments = environmentsFiles.mapNotNull { file ->
+            val environmentName = environmentNameExtractor(file)
 
             val fileContent = file.readText()
             if (fileContent.isEmpty()) return@mapNotNull null
@@ -37,7 +42,7 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
             val platformDtos = try {
                 Json.decodeFromString<Set<PlatformDto>>(fileContent)
             } catch (error: SerializationException) {
-                return Failure.SerializationError(error)
+                return Failure.Serialization(error)
             }
 
             Environment(
@@ -48,8 +53,6 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
 
         return Success(environments = environments.toSet())
     }
-
-    private val File.isEnvironmentFile: Boolean get() = name.endsWith(ENVIRONMENT_FILE_POSFIX)
 
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->
@@ -66,8 +69,4 @@ internal class DefaultEnvironmentsParser(private val directory: File) : Environm
                 value = propertyDto.value,
             )
         }.toSet()
-
-    private companion object {
-        const val ENVIRONMENT_FILE_POSFIX = "-cha.json"
-    }
 }

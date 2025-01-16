@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.gradle.publish)
@@ -7,15 +9,14 @@ group = "io.github.gerardorodriguezdev.chamaleon"
 version = libs.versions.release.get()
 
 kotlin {
-    compilerOptions {
-        allWarningsAsErrors = true
-    }
+    explicitApi = ExplicitApiMode.Strict
 
-    jvmToolchain(libs.versions.jvm.get().toInt())
+    jvmToolchain(libs.versions.java.get().toInt())
 }
 
 dependencies {
     implementation(projects.core)
+    implementation(libs.kmp.coroutines)
     testImplementation(gradleTestKit())
     testImplementation(libs.kmp.test)
 }

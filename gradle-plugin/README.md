@@ -1,41 +1,51 @@
 # Chamaleon Gradle Plugin
 
-Simplify the management of multiple environments for any Kotlin project
-
-## Features
-
-- Define multiple environments and switch between them
-- Keep the same structure of all your environments
-- Kotlin multiplatform support in mind from the creation
+Gradle plugin for [Chamaleon](../README.md)
 
 ## Quick start
 
-### 1. Apply the plugin in your `build.gradle.kts` file
+### 1. Apply the plugin in your `build.gradle.kts`
 
 ```kotlin
 plugins {
-    id("io.github.gerardorodriguezdev.chamaleon") version "1.0.1" // check the latest version
+    id("io.github.gerardorodriguezdev.chamaleon") version "xxx" // Latest release version
 }
 ```
 
-> This plugin is hosted on the [Gradle Plugins Portal](https://plugins.gradle.org/)
+> This plugin is hosted on
+> the [Gradle Plugins Portal](https://plugins.gradle.org/plugin/io.github.gerardorodriguezdev.chamaleon)
 
-### 2. Create the configuration files
+### 2. Setup configuration files
 
-Create a directory named environments in the root of your project. Inside this directory, create the following files:
+Create a directory named `environments` in the root of your project and create the following empty files:
 
 ```text
-myProject
-    environments
-        cha.json
-        development-cha.json
+myProject --> The root of your project
+    environments --> The directory you created
+        properties.chamaleon.json
+        template.chamaleon.json
+        local.environment.chamaleon.json
 ```
 
 You can see a sample on [Sample Gradle Project](../samples/gradle-project)
 
-### 3. Fill the `cha.json`
+> The json schemas for this files have been uploaded to [Schema store](https://www.schemastore.org/json/) so you can see
+> hints if the schema is valid or not and have auto-completions as well. Alternatively you can find them
+> here [Schemas](../schemas)
 
-This is the file that will be used to validate all the **environment json files** follow this structure
+### 3. Fill the `properties.chamaleon.json`
+
+This file will be used to select an environment. In this case `local`
+
+```json
+{
+  "selectedEnvironmentName": "local"
+}
+```
+
+### 4. Fill the `template.chamaleon.json`
+
+This file will be used only to validate that all the environments have the same structure
 
 ```json
 {
@@ -52,18 +62,17 @@ This is the file that will be used to validate all the **environment json files*
 }
 ```
 
-- **supportedPlatforms:** Can be any or all of this `android`, `wasm`, `jvm` or `ios`
+- **supportedPlatforms:** Can be one or all the supported platforms `(android, wasm, ios, jvm)`
 - **propertyDefinitions:** It's an array of property definition
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
-        - **propertyType:** Can be *String* or *Boolean* -> `required`
-        - **nullable:** If the property is nullable or not (default=false)-> `optional`
+        - **propertyType:** Can be `String` or `Boolean `-> `required`
+        - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
 
-### 4. Fill the `development-cha.json`
+### 5. Fill the `local.environment.chamaleon.json`
 
-Any json file named `anything-cha.json` inside the `environments` directory will be considered an environment.
-You can as many as you want with like `local-cha.json` or `production-cha.json`. For now we added
-`development-cha.json`. Let's add this content to it:
+This file is your first environment. Any json file with this suffix `.environment.chamaleon.json` inside the
+`environments` directory will be considered an environment. You can have as many as you want
 
 ```json
 [
@@ -79,39 +88,19 @@ You can as many as you want with like `local-cha.json` or `production-cha.json`.
 ]
 ```
 
-- **platformType:** Can be any or all of this `android`, `wasm`, `jvm` or `ios`
+- **platformType:** Can be any of the supported platforms `(android, wasm, ios, jvm)` -> `required`
 - **properties:** It's an array of property
     - **property:**
-        - **name:** The name of your property (cannot be an empty string) `required`
-        - **value:** The value of your property. Can be *String*, *Boolean* or *null* `optional if it's nullable`
+        - **name:** The name of your property (cannot be an empty string) -> `required`
+        - **value:** The value of your property. Can be `String`, `Boolean` or `null` -> `optional` if it's nullable
+          otherwise `required`
 
-## Using the plugin
+## 6. Using the plugin
 
 Now that you have applied the plugin and added the required files you should be able to do this on the
 `build.gradle.kts`
 
 ```kotlin
-plugins {
-    //... your plugins and the chamaleon plugin you applied before ^^^
-}
-
-chamaleon.environments // The environments are parsed and you can read the properties per environment and/or per platform
+chamaleon.selectedEnvironmentName // The currently selectedEnvironmentName
+chamaleon.environments // All the defined environments. You can search for one in particular or see it's properties
 ```
-
-## Selecting an environment
-
-If you want to set an environment as the selected one, you can do it by adding `cha.properties` file in
-`environments` with this content:
-
-```properties
-CHAMALEON_SELECTED_ENVIRONMENT=development-cha
-```
-
-> If you have a `production-cha.json` and want to test locally but avoid commiting it just add
-> `production-cha.json` to your `.gitignore` file
-
-## Using the json schemas
-
-The json schemas for `cha.json` and `yourenvironments-cha.json` have been uploaded to
-[Schema store](https://www.schemastore.org/json/) so you can see hints if the schema is valid or not. Alternatively you
-can find them here [Schemas](../schemas)

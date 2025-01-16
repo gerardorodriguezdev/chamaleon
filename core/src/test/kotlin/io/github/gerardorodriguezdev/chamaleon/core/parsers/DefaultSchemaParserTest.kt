@@ -11,54 +11,54 @@ import kotlin.test.assertIs
 class DefaultSchemaParserTest {
 
     @TempDir
-    lateinit var directory: File
+    lateinit var environmentsDirectory: File
 
-    private val defaultSchemaParser by lazy { DefaultSchemaParser(directory, TestData.SCHEMA_FILE) }
+    private val schemaFile by lazy { File(environmentsDirectory, "anyFileName") }
+    private val defaultSchemaParser by lazy { DefaultSchemaParser() }
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(directory.path)
+        val expectedSchemaParserResult = SchemaParserResult.Failure.FileNotFound(environmentsDirectory.absolutePath)
 
-        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult()
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN schema empty WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(directory.path)
+        val expectedSchemaParserResult = SchemaParserResult.Failure.FileIsEmpty(environmentsDirectory.absolutePath)
         createSchemaFile()
 
-        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult()
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN invalid schema file WHEN schemaParserResult THEN returns failure`() {
-        createSchemaFile(invalidSchemaJson)
+        createSchemaFile(invalidSchema)
 
-        val schemaParserResult = defaultSchemaParser.schemaParserResult()
+        val schemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertIs<SchemaParserResult.Failure.SerializationError>(schemaParserResult)
+        assertIs<SchemaParserResult.Failure.Serialization>(schemaParserResult)
     }
 
     @Test
     fun `GIVEN valid schema file WHEN schemaParserResult THEN returns schemaDto`() {
         val expectedSchemaParserResult = SchemaParserResult.Success(TestData.validCompleteSchema)
-        createSchemaFile(completeValidSchemaJson)
+        createSchemaFile(completeValidSchema)
 
-        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult()
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
         assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
     }
 
     private fun createSchemaFile(content: String? = null) {
-        if (!directory.exists()) {
-            directory.mkdirs()
+        if (!environmentsDirectory.exists()) {
+            environmentsDirectory.mkdirs()
         }
 
-        val schemaFile = File(directory, TestData.SCHEMA_FILE)
         schemaFile.createNewFile()
 
         content?.let { content ->
@@ -67,7 +67,7 @@ class DefaultSchemaParserTest {
     }
 
     private companion object {
-        val invalidSchemaJson =
+        val invalidSchema =
             //language=json
             """
                 {
@@ -76,7 +76,7 @@ class DefaultSchemaParserTest {
                 }
             """.trimIndent()
 
-        val completeValidSchemaJson =
+        val completeValidSchema =
             //language=json
             """
                 {

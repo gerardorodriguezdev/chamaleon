@@ -1,10 +1,10 @@
-package io.github.gerardorodriguezdev.chamaleon.core.models
+package io.github.gerardorodriguezdev.chamaleon.core.entities
 
-data class Schema(
+public data class Schema(
     val supportedPlatforms: Set<PlatformType>,
     val propertyDefinitions: Set<PropertyDefinition>,
 ) {
-    data class PropertyDefinition(
+    public data class PropertyDefinition(
         val name: String,
         val propertyType: PropertyType,
         val nullable: Boolean,
