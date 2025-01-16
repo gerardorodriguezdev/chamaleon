@@ -158,7 +158,9 @@ class DefaultEnvironmentsProcessorTest {
                                 properties = platformDto.properties.map { propertyDto ->
                                     if (propertyDto.name == "DOMAIN") {
                                         propertyDto.copy(value = null)
-                                    } else propertyDto
+                                    } else {
+                                        propertyDto
+                                    }
                                 }.toSet()
                             )
                         }.toSet()

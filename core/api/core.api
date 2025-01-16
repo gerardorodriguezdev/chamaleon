@@ -13,6 +13,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProc
 	public static final field PROPERTIES_FILE Ljava/lang/String;
 	public static final field SCHEMA_FILE Ljava/lang/String;
 	public final fun create ()Lio/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor;
+	public final fun environmentFileName (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult {
