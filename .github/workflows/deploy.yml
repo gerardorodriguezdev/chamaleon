@@ -20,6 +20,15 @@ jobs:
       - name: Build
         uses: ./.github/actions/setup-action
 
+      - name: Verify gradle plugin
+        run: |
+          ./gradlew :gradle-plugin:publishPlugins --validate-only \
+          -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} \
+          -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }} \
+
+      - name: Verify Jetbrains plugin
+        run: ./gradlew :intellij-plugin:verifyPlugin
+
       - name: Publish gradle plugin
         run: |
           ./gradlew :gradle-plugin:publishPlugins \
