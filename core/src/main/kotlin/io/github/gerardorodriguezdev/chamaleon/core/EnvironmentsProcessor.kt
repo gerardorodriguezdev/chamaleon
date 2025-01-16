@@ -74,7 +74,7 @@ public interface EnvironmentsProcessor {
     public companion object {
         public const val SCHEMA_FILE: String = "template.chamaleon.json"
         public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
-        internal const val ENVIRONMENT_FILE_SUFFIX: String = ".chamaleon.json"
+        internal const val ENVIRONMENT_FILE_SUFFIX: String = ".environment.chamaleon.json"
         public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
 
         public fun environmentFileName(environmentName: String): String =
@@ -345,13 +345,8 @@ internal class DefaultEnvironmentsProcessor(
     )
 
     internal companion object {
-        val restrictedFiles = listOf(
-            SCHEMA_FILE,
-            PROPERTIES_FILE
-        )
-        val environmentFileMatcher = { file: File ->
-            file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) && file.name !in restrictedFiles
-        }
+        val environmentFileMatcher =
+            { file: File -> file.name != ENVIRONMENT_FILE_SUFFIX && file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) }
         val environmentFileNameExtractor = { file: File -> file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
     }
 }

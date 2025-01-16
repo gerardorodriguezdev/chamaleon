@@ -248,23 +248,29 @@ class DefaultEnvironmentsProcessorTest {
 
     @Test
     fun `GIVEN environmentName WHEN environmentFileName THEN returns environment name`() {
-        val environmentFileName = EnvironmentsProcessor.environmentFileName("local")
-        assertEquals(localEnvironmentFileName, environmentFileName)
+        val environmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
+        assertEquals("local.environment.chamaleon.json", environmentFileName)
     }
 
     @ParameterizedTest
-    @MethodSource("fileNames")
-    fun `GIVEN file name WHEN matching THEN matches correctly`(expected: Boolean, fileName: String) {
-        val file = File(directory, fileName)
-        val actual = DefaultEnvironmentsProcessor.environmentFileMatcher(file)
+    @MethodSource("environmentFileMatcherTestData")
+    fun `GIVEN environment file name WHEN matching THEN matches correctly`(
+        expected: Boolean,
+        environmentFileName: String,
+    ) {
+        val environmentFile = File(directory, environmentFileName)
+        val actual = DefaultEnvironmentsProcessor.environmentFileMatcher(environmentFile)
         assertEquals(expected, actual)
     }
 
     @ParameterizedTest
-    @MethodSource("environmentNames")
-    fun `GIVEN file WHEN extracting environment name THEN extracts correctly`(expected: String, fileName: String) {
-        val file = File(directory, fileName)
-        val actual = DefaultEnvironmentsProcessor.environmentFileNameExtractor(file)
+    @MethodSource("environmentFileNameExtractorTestData")
+    fun `GIVEN environmentFile WHEN extracting environment name THEN extracts correctly`(
+        expected: String,
+        environmentFileName: String
+    ) {
+        val environmentFile = File(directory, environmentFileName)
+        val actual = DefaultEnvironmentsProcessor.environmentFileNameExtractor(environmentFile)
         assertEquals(expected, actual)
     }
 
@@ -282,24 +288,25 @@ class DefaultEnvironmentsProcessorTest {
             EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)
 
         @JvmStatic
-        fun fileNames(): List<Arguments> =
+        fun environmentFileMatcherTestData(): List<Arguments> =
             listOf(
                 // Valid
                 Arguments.of(true, localEnvironmentFileName),
                 Arguments.of(true, productionEnvironmentFileName),
 
                 // Invalid environment file name
-                Arguments.of(false, "local.chamaleon.jso"),
+                Arguments.of(false, "local.environment.chamaleon.jso"),
                 Arguments.of(false, "chamaleon.json"),
                 Arguments.of(false, "local.json"),
-
-                // Restricted file names
+                Arguments.of(false, "local.environment.json"),
+                Arguments.of(false, "local.chamaleon.json"),
+                Arguments.of(false, EnvironmentsProcessor.ENVIRONMENT_FILE_SUFFIX),
                 Arguments.of(false, EnvironmentsProcessor.SCHEMA_FILE),
                 Arguments.of(false, EnvironmentsProcessor.PROPERTIES_FILE),
             )
 
         @JvmStatic
-        fun environmentNames(): List<Arguments> =
+        fun environmentFileNameExtractorTestData(): List<Arguments> =
             listOf(
                 Arguments.of(LOCAL_ENVIRONMENT_NAME, localEnvironmentFileName),
                 Arguments.of(PRODUCTION_ENVIRONMENT_NAME, productionEnvironmentFileName),
