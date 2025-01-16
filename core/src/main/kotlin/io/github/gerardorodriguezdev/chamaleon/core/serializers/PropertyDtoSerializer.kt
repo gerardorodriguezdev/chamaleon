@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor

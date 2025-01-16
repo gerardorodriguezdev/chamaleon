@@ -20,17 +20,10 @@ jobs:
       - name: Build
         uses: ./.github/actions/setup-action
 
-      - name: Download core artifacts from master
-        uses: actions/download-artifact@v4
-        with:
-          name: core-master
-          path: ./core/build/libs
-
-      - name: Download gradle plugin artifacts from master
-        uses: actions/download-artifact@v4
-        with:
-          name: gradle-plugin-master
-          path: ./gradle-plugin/build/libs
+      - name: Publish to Jetbrains Marketplace
+        run: ./gradlew :intellij-plugin:publishPlugin
+        env:
+          JETBRAINS_PUBLISH_TOKEN: ${{ secrets.JETBRAINS_PUBLISH_TOKEN }}
 
       - name: Publish gradle plugin
         run: |
@@ -39,7 +32,7 @@ jobs:
           -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }} \
 
       - name: Publish to MavenCentral
-        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+        run: ./gradlew :core:publishAndReleaseToMavenCentral --no-configuration-cache
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
@@ -47,9 +40,10 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_CENTRAL_SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_CENTRAL_GPG_KEY_CONTENTS }}
 
-      - name: Upload artifacts
+      - name: Upload releases
         uses: softprops/action-gh-release@v2
         with:
           files: |
             ./gradle-plugin/build/libs/*.jar
             ./core/build/libs/*.jar
+            ./intellij-plugin/build/distributions/*.zip

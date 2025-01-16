@@ -18,4 +18,5 @@ dependencyResolutionManagement {
 include(
     ":core",
     ":gradle-plugin",
+    ":intellij-plugin",
 )

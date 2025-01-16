@@ -1,82 +1,263 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorException.*
-import io.github.gerardorodriguezdev.chamaleon.core.models.*
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.DefaultEnvironmentsParser
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.DefaultSchemaParser
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENT_FILE_SUFFIX
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure.*
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.entities.*
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.models.Result
+import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toFailure
+import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toSuccess
+import io.github.gerardorodriguezdev.chamaleon.core.models.isFailure
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.io.File
 
-class EnvironmentsProcessor(
-    val schemaParser: SchemaParser,
-    val environmentsParser: EnvironmentsParser,
-) {
-    constructor(directory: File) : this(
-        schemaParser = DefaultSchemaParser(directory, SCHEMA_FILE),
-        environmentsParser = DefaultEnvironmentsParser(directory),
-    )
+public interface EnvironmentsProcessor {
+    public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
+    public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
+    public fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
 
-    fun environments(): Set<Environment> {
-        val schemaParsingResult = schemaParser.schemaParserResult()
-        val schema = schemaParsingResult.schema()
+    public sealed interface EnvironmentsProcessorResult {
+        public data class Success(
+            val environmentsDirectoryPath: String,
+            val selectedEnvironmentName: String? = null,
+            val environments: Set<Environment>,
+        ) : EnvironmentsProcessorResult
 
-        val environmentsParserResult = environmentsParser.environmentsParserResult()
-        val environments = environmentsParserResult.environments()
+        public sealed interface Failure : EnvironmentsProcessorResult {
+            public data class SchemaFileNotFound(val environmentsDirectoryPath: String) : Failure
+            public data class SchemaFileIsEmpty(val environmentsDirectoryPath: String) : Failure
+            public data class SchemaSerialization(val throwable: Throwable) : Failure
+            public data class EnvironmentsSerialization(val throwable: Throwable) : Failure
+            public data class PropertiesSerialization(val throwable: Throwable) : Failure
+            public data class PlatformsNotEqualToSchema(val environmentName: String) : Failure
+            public data class PropertiesNotEqualToSchema(
+                val platformType: PlatformType,
+                val environmentName: String
+            ) : Failure
 
-        schema.verifyEnvironments(environments)
+            public data class PropertyTypeNotMatchSchema(
+                val propertyName: String,
+                val platformType: PlatformType,
+                val environmentName: String,
+                val propertyType: PropertyType,
+            ) : Failure
 
-        return environments
+            public data class NullPropertyNotNullableOnSchema(
+                val propertyName: String,
+                val platformType: PlatformType,
+                val environmentName: String,
+            ) : Failure
+
+            public data class SelectedEnvironmentInvalid(
+                val selectedEnvironmentName: String,
+                val environmentNames: String
+            ) : Failure
+        }
     }
 
-    private fun SchemaParserResult.schema(): Schema =
-        when (this) {
-            is SchemaParserResult.Success -> schema
-            is SchemaParserResult.Failure.FileNotFound -> throw SchemaFileNotFound(path)
-            is SchemaParserResult.Failure.FileIsEmpty -> throw SchemaFileIsEmpty(path)
-            is SchemaParserResult.Failure.SerializationError -> throw throwable
+    public companion object {
+        public const val SCHEMA_FILE: String = "template.chamaleon.json"
+        public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
+        internal const val ENVIRONMENT_FILE_SUFFIX: String = ".environment.chamaleon.json"
+        public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
+
+        public fun environmentFileName(environmentName: String): String =
+            "$environmentName$ENVIRONMENT_FILE_SUFFIX"
+
+        public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
+    }
+}
+
+@Suppress("TooManyFunctions")
+internal class DefaultEnvironmentsProcessor(
+    val schemaParser: SchemaParser = DefaultSchemaParser(),
+    val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(
+        environmentFileMatcher = environmentFileMatcher,
+        environmentNameExtractor = environmentFileNameExtractor,
+    ),
+    val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
+) : EnvironmentsProcessor {
+
+    override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
+        coroutineScope {
+            val filesParserResult = parseFiles(environmentsDirectory)
+            if (filesParserResult.isFailure()) return@coroutineScope filesParserResult.value
+
+            val (schema, environments, selectedEnvironmentName) = filesParserResult.value
+            val environmentsVerificationResult = verifyEnvironments(schema, environments, selectedEnvironmentName)
+            if (environmentsVerificationResult is Failure) return@coroutineScope environmentsVerificationResult
+
+            return@coroutineScope Success(
+                environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                selectedEnvironmentName = selectedEnvironmentName,
+                environments = environments,
+            )
         }
 
-    private fun EnvironmentsParserResult.environments(): Set<Environment> =
-        when (this) {
-            is EnvironmentsParserResult.Success -> environments
-            is EnvironmentsParserResult.Failure.SerializationError -> throw throwable
+    @Suppress("ReturnCount")
+    private suspend fun CoroutineScope.parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> {
+        val schemaParsing = async {
+            val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
+            val schemaParserResult = schemaParser.schemaParserResult(schemaFile)
+            schemaParserResult.schemaOrFailure()
         }
 
-    private fun Schema.verifyEnvironments(environments: Set<Environment>) {
+        val environmentsParsing = async {
+            val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
+            environmentsParserResult.environmentsOrFailure()
+        }
+
+        val propertiesParsing = async {
+            val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
+            val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
+            propertiesParserResult.selectedEnvironmentNameOrFailure()
+        }
+
+        val schemaParserResult = schemaParsing.await()
+        val environmentsParserResult = environmentsParsing.await()
+        val propertiesParserResult = propertiesParsing.await()
+
+        if (schemaParserResult.isFailure()) return schemaParserResult.value.toFailure()
+        if (environmentsParserResult.isFailure()) return environmentsParserResult.value.toFailure()
+        if (propertiesParserResult.isFailure()) return propertiesParserResult.value.toFailure()
+
+        return FilesParserResult(
+            schema = schemaParserResult.value,
+            environments = environmentsParserResult.value,
+            selectedEnvironmentName = propertiesParserResult.value,
+        ).toSuccess()
+    }
+
+    private fun SchemaParserResult.schemaOrFailure(): Result<Schema, Failure> =
+        when (this) {
+            is SchemaParserResult.Success -> schema.toSuccess()
+            is SchemaParserResult.Failure.FileNotFound -> SchemaFileNotFound(path).toFailure()
+            is SchemaParserResult.Failure.FileIsEmpty -> SchemaFileIsEmpty(path).toFailure()
+            is SchemaParserResult.Failure.Serialization -> SchemaSerialization(throwable).toFailure()
+        }
+
+    private fun EnvironmentsParserResult.environmentsOrFailure(): Result<Set<Environment>, Failure> =
+        when (this) {
+            is EnvironmentsParserResult.Success -> environments.toSuccess()
+            is EnvironmentsParserResult.Failure.Serialization -> EnvironmentsSerialization(throwable).toFailure()
+        }
+
+    private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(): Result<String?, Failure> =
+        when (this) {
+            is PropertiesParserResult.Success -> selectedEnvironmentName.toSuccess()
+            is PropertiesParserResult.Failure -> PropertiesSerialization(throwable).toFailure()
+        }
+
+    @Suppress("ReturnCount")
+    private suspend fun CoroutineScope.verifyEnvironments(
+        schema: Schema,
+        environments: Set<Environment>,
+        selectedEnvironmentName: String?,
+    ): Failure? {
+        val schemaVerification = async { schema.verifyEnvironments(environments) }
+        val selectedEnvironmentNameVerification =
+            async { selectedEnvironmentName?.verifyEnvironments(environments) }
+
+        val schemaVerificationResult = schemaVerification.await()
+        val selectedEnvironmentVerificationResult = selectedEnvironmentNameVerification.await()
+
+        if (schemaVerificationResult is Failure) return schemaVerificationResult
+        if (selectedEnvironmentVerificationResult is Failure) return selectedEnvironmentVerificationResult
+
+        return null
+    }
+
+    @Suppress("NestedBlockDepth", "ReturnCount")
+    private fun Schema.verifyEnvironments(environments: Set<Environment>): Failure? {
         environments.forEach { environment ->
-            verifyEnvironmentContainsAllPlatforms(environment)
+            val verificationResult = verifyEnvironmentContainsAllPlatforms(environment)
+            if (verificationResult is Failure) return verificationResult
 
             environment.platforms.forEach { platform ->
-                verifyPlatformContainsAllProperties(platform, environment.name)
+                val verificationResult = verifyPlatformContainsAllProperties(platform, environment.name)
+                if (verificationResult is Failure) return verificationResult
 
                 platform.properties.forEach { property ->
-                    verifyPropertyTypeIsCorrect(property, platform.platformType, environment.name)
+                    val verificationResult =
+                        verifyPropertyTypeIsCorrect(property, platform.platformType, environment.name)
+                    if (verificationResult is Failure) return verificationResult
                 }
             }
         }
+
+        return null
     }
 
-    private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment) {
+    private fun String.verifyEnvironments(environments: Set<Environment>): Failure? =
+        if (!environments.any { environment -> environment.name == this }) {
+            SelectedEnvironmentInvalid(
+                selectedEnvironmentName = this,
+                environmentNames = environments.joinToString { environment -> environment.name }
+            )
+        } else {
+            null
+        }
+
+    override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
+        coroutineScope {
+            val environmentsDirectoriesPaths = rootDirectory.environmentsDirectoriesPaths()
+
+            environmentsDirectoriesPaths
+                .map { environmentsDirectoryPath ->
+                    async {
+                        val environmentsDirectory = File(environmentsDirectoryPath)
+                        val environmentsProcessorResult = process(environmentsDirectory)
+                        environmentsProcessorResult
+                    }
+                }
+                .awaitAll()
+        }
+
+    override fun updateSelectedEnvironment(
+        environmentsDirectory: File,
+        newSelectedEnvironment: String?
+    ): Boolean =
+        propertiesParser.updateSelectedEnvironment(
+            propertiesFile = File(environmentsDirectory, PROPERTIES_FILE),
+            newSelectedEnvironment = newSelectedEnvironment,
+        )
+
+    private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment): Failure? {
         val platformTypes = environment.platforms.map { platform -> platform.platformType }
 
-        if (supportedPlatforms.size != platformTypes.size || !supportedPlatforms.containsAll(platformTypes)) {
-            throw PlatformsNotEqualToSchema(environment.name)
+        return if (supportedPlatforms.size != platformTypes.size || !supportedPlatforms.containsAll(platformTypes)) {
+            PlatformsNotEqualToSchema(environment.name)
+        } else {
+            null
         }
     }
 
-    private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String) {
+    private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String): Failure? {
         val propertyDefinitionNames = propertyDefinitions.map { propertyDefinition -> propertyDefinition.name }
         val propertyNames = platform.properties.map { property -> property.name }
 
-        if (propertyDefinitionNames.size != propertyNames.size || !propertyDefinitionNames.containsAll(propertyNames)) {
-            throw PropertiesNotEqualToSchema(platform.platformType, environmentName)
+        return if (
+            propertyDefinitionNames.size != propertyNames.size || !propertyDefinitionNames.containsAll(propertyNames)
+        ) {
+            PropertiesNotEqualToSchema(platform.platformType, environmentName)
+        } else {
+            null
         }
     }
 
@@ -84,11 +265,11 @@ class EnvironmentsProcessor(
         property: Property,
         platformType: PlatformType,
         environmentName: String,
-    ) {
+    ): Failure? {
         val propertyDefinitions =
             propertyDefinitions.first { propertyDefinition -> propertyDefinition.name == property.name }
 
-        when (property.value) {
+        return when (property.value) {
             null -> verifyNullPropertyValue(
                 propertyDefinition = propertyDefinitions,
                 propertyName = property.name,
@@ -111,15 +292,16 @@ class EnvironmentsProcessor(
         propertyName: String,
         platformType: PlatformType,
         environmentName: String,
-    ) {
+    ): Failure? =
         if (!propertyDefinition.nullable) {
-            throw NullPropertyNotNullableOnSchema(
+            NullPropertyNotNullableOnSchema(
                 propertyName = propertyName,
                 platformType = platformType,
                 environmentName = environmentName,
             )
+        } else {
+            null
         }
-    }
 
     private fun verifyPropertyType(
         propertyName: String,
@@ -127,16 +309,18 @@ class EnvironmentsProcessor(
         propertyDefinition: PropertyDefinition,
         platformType: PlatformType,
         environmentName: String
-    ) {
+    ): Failure? {
         val propertyType = propertyValue.toPropertyType()
 
-        if (propertyDefinition.propertyType != propertyType) {
-            throw PropertyTypeNotMatchSchema(
+        return if (propertyDefinition.propertyType != propertyType) {
+            PropertyTypeNotMatchSchema(
                 propertyName = propertyName,
                 platformType = platformType,
                 environmentName = environmentName,
                 propertyType = propertyType,
             )
+        } else {
+            null
         }
     }
 
@@ -146,44 +330,23 @@ class EnvironmentsProcessor(
             is BooleanProperty -> PropertyType.BOOLEAN
         }
 
-    sealed class EnvironmentsProcessorException(message: String) : Exception(message) {
-        class SchemaFileNotFound(directoryPath: String) :
-            EnvironmentsProcessorException("$SCHEMA_FILE not found on $directoryPath")
+    private fun File.environmentsDirectoriesPaths(): List<String> =
+        walkTopDown()
+            .filter { file -> file.isEnvironmentsDirectory }
+            .map { file -> file.absolutePath }
+            .toList()
 
-        class SchemaFileIsEmpty(directoryPath: String) :
-            EnvironmentsProcessorException("$SCHEMA_FILE on $directoryPath is empty")
+    private val File.isEnvironmentsDirectory: Boolean get() = isDirectory && name == ENVIRONMENTS_DIRECTORY_NAME
 
-        class PlatformsNotEqualToSchema(environmentName: String) :
-            EnvironmentsProcessorException("Platforms of environment $environmentName are not equal to schema")
+    private data class FilesParserResult(
+        val schema: Schema,
+        val environments: Set<Environment>,
+        val selectedEnvironmentName: String?,
+    )
 
-        class PropertiesNotEqualToSchema(platformType: PlatformType, environmentName: String) :
-            EnvironmentsProcessorException(
-                "Properties on platform $platformType for environment $environmentName are not equal to schema"
-            )
-
-        @Suppress("Indentation")
-        class PropertyTypeNotMatchSchema(
-            propertyName: String,
-            platformType: PlatformType,
-            environmentName: String,
-            propertyType: PropertyType,
-        ) : EnvironmentsProcessorException(
-            "Value of property $propertyName for platform $platformType " +
-                    "on environment $environmentName doesn't match propertyType $propertyType on schema"
-        )
-
-        @Suppress("Indentation")
-        class NullPropertyNotNullableOnSchema(
-            propertyName: String,
-            platformType: PlatformType,
-            environmentName: String,
-        ) : EnvironmentsProcessorException(
-            "Value on property $propertyName for platform $platformType on environment " +
-                    "$environmentName was null and is not marked as nullable on schema"
-        )
-    }
-
-    private companion object {
-        const val SCHEMA_FILE = "cha.json"
+    internal companion object {
+        val environmentFileMatcher =
+            { file: File -> file.name != ENVIRONMENT_FILE_SUFFIX && file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) }
+        val environmentFileNameExtractor = { file: File -> file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
     }
 }

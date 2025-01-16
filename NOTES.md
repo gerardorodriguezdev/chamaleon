@@ -1,11 +1,4 @@
-# GitHub workflow
-
-## How to contribute?
-
-- Create a branch from master
-- Add the code changes there
-- Send a PR to merge with master
-- If all good the maintainers will merge the PR
+# Notes
 
 ## How to release?
 

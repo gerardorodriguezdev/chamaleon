@@ -1,11 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.testing.TestData
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
@@ -52,19 +52,19 @@ class ChamaleonGradlePluginTest {
     }
 
     private fun createFiles() {
-        val environmentsDirectory = File(testDir, TestData.ENVIRONMENTS_DIRECTORY)
+        val environmentsDirectory = File(testDir, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
             .apply { mkdirs() }
 
-        val templateJsonFile = File(environmentsDirectory, TestData.SCHEMA_FILE)
-        templateJsonFile.writeText(templateJsonFileContent)
+        val templateFile = File(environmentsDirectory, EnvironmentsProcessor.SCHEMA_FILE)
+        templateFile.writeText(templateFileContent)
 
-        val localJsonFile = File(environmentsDirectory, TestData.LOCAL_ENVIRONMENT_FILE)
-        localJsonFile.writeText(localJsonFileContent)
+        val localEnvironmentFile = File(environmentsDirectory, localEnvironmentFileName)
+        localEnvironmentFile.writeText(localEnvironmentFileContent)
 
-        val productionJsonFile = File(environmentsDirectory, TestData.PRODUCTION_ENVIRONMENT_FILE)
-        productionJsonFile.writeText(productionJsonFileContent)
+        val productionEnvironmentFile = File(environmentsDirectory, productionEnvironmentFileName)
+        productionEnvironmentFile.writeText(productionEnvironmentFileContent)
 
-        val localPropertiesFile = File(environmentsDirectory, TestData.LOCAL_PROPERTIES_FILE)
+        val localPropertiesFile = File(environmentsDirectory, EnvironmentsProcessor.PROPERTIES_FILE)
         localPropertiesFile.writeText(localPropertiesFileContent)
     }
 
@@ -91,11 +91,13 @@ class ChamaleonGradlePluginTest {
     private companion object {
         const val EXPECTED_PROPERTY_NAME = "HOST"
 
-        const val LOCAL_ENVIRONMENT_NAME = "local-cha"
+        const val LOCAL_ENVIRONMENT_NAME = "local"
         const val LOCAL_ENVIRONMENT_HOST = "localhost"
+        val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
 
-        const val PRODUCTION_ENVIRONMENT_NAME = "production-cha"
+        const val PRODUCTION_ENVIRONMENT_NAME = "production"
         const val PRODUCTION_ENVIRONMENT_HOST = "otherhost"
+        val productionEnvironmentFileName = EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)
 
         val buildFileContent =
             //language=kotlin
@@ -105,7 +107,7 @@ class ChamaleonGradlePluginTest {
                 }
             """.trimIndent()
 
-        val templateJsonFileContent =
+        val templateFileContent =
             //language=json
             """
                 {
@@ -122,7 +124,7 @@ class ChamaleonGradlePluginTest {
                 }
             """.trimIndent()
 
-        val localJsonFileContent =
+        val localEnvironmentFileContent =
             //language=json
             """
                 [
@@ -138,7 +140,7 @@ class ChamaleonGradlePluginTest {
                 ]
             """.trimIndent()
 
-        val productionJsonFileContent =
+        val productionEnvironmentFileContent =
             //language=json
             """
                 [
@@ -155,9 +157,11 @@ class ChamaleonGradlePluginTest {
             """.trimIndent()
 
         val localPropertiesFileContent =
-            //language=properties
+            //language=json
             """
-                CHAMALEON_SELECTED_ENVIRONMENT=$LOCAL_ENVIRONMENT_NAME
+                {
+                  "selectedEnvironmentName": "local"
+                }
             """.trimIndent()
 
         val expectedEnvironments =

@@ -1,26 +1,39 @@
 # Chamaleon
 
+<img src="/assets/Logo.svg" alt="Chamaleon logo" width="100" height="100">
+
 Simplify the management of multiple environments for any Kotlin project
 
-## Features
+## What is Chamaleon?
 
-- Define multiple environments and switch between them
-- Keep the same structure of all your environments
-- Kotlin multiplatform support in mind from the creation
+It's a [Gradle plugin](gradle-plugin/README.md) that allows you to:
 
-## What problems do this solve?
+- Switch between environments easily `(qa, debug, prod, or anything really)`
+- Define multiple environments in a consistent way between different types of projects (even mobile apps or backend
+  services)
+- Use in any Kotlin project (multiplatform as well)
 
-If you have a kotlin multiplatform app or server that has *staging*, *debug*, *qa*, *production* or more variants, this
-plugin allows you to define in an easy way all the environment variables for each environment, check that each has the
-same structure and switch between them easily, so you don't have to pass which environment to select on the command line
-per task
+Additionally, there is an [Intellij Plugin](intellij-plugin/README.md) that makes it easier to switch environments
 
-For ease of use you should use both the [Gradle Plugin](gradle-plugin) and the [Intellij Plugin]()
+## How to use start?
 
-## Projects
+1. Install the [Gradle Plugin](gradle-plugin/README.md)
+2. (Optional) Install the [IntelliJ Plugin](intellij-plugin/README.md)
 
-The project is separated into 3 different projects:
+## What problems does it solve?
 
-- **core:** The actual code that makes the magic [Core library](core)
-- **gradle-plugin:** Gradle plugin to use Chamaleon [Gradle Plugin](gradle-plugin)
-- **intellij-plugin:** Intellij plugin to switch between the different environments [Intellij Plugin]()
+### Switching between environments
+
+If you have multiple environments like `staging, debug, qa, production` or some custom one, it becomes a pain to
+switch between them as you would usually need to pass some arguments to each `task` that you run or have multiple
+`run configurations` with those arguments saved there
+
+### Different way of working with environments between different projects
+
+If you a mobile app with multiple environments, you usually need to generate a file depending on which environment
+you want to configure, but for backend services you would need to expose the environment contents by environment
+variables, having 2 different ways when working with environments
+
+### Environment variables all over the place
+
+It's usually not explicit what the environment variables you need to run or configure a project

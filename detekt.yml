@@ -7,8 +7,18 @@ style:
   NewLineAtEndOfFile:
     active: false
 
+naming:
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]
+
 formatting:
   NoWildcardImports:
     active: false
   FinalNewline:
+    active: false
+
+Compose:
+  ModifierMissing:
+    active: false
+  ParameterNaming:
     active: false
