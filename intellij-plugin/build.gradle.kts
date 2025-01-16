@@ -35,12 +35,28 @@ kotlin {
                 module = "kotlinx-coroutines-core"
             )
         }
-        implementation(compose.desktop.currentOs) {
-            exclude(group = "org.jetbrains.kotlinx")
-            exclude(group = "org.jetbrains.compose.material")
+        listOf(
+            compose.desktop.linux_x64,
+            compose.desktop.linux_arm64,
+            compose.desktop.windows_x64,
+            compose.desktop.macos_x64,
+            compose.desktop.macos_arm64,
+        ).forEach { dependency ->
+            implementation(dependency) {
+                exclude(group = "org.jetbrains.kotlinx")
+                exclude(group = "org.jetbrains.compose.material")
+                exclude(
+                    group = "org.jetbrains.kotlinx",
+                    module = "kotlinx-coroutines-core"
+                )
+            }
         }
         implementation(libs.intellij.jewel) {
             exclude(group = "org.jetbrains.kotlinx")
+            exclude(
+                group = "org.jetbrains.kotlinx",
+                module = "kotlinx-coroutines-core"
+            )
         }
         implementation(libs.kmp.immutable) {
             exclude(group = "org.jetbrains.kotlinx")
@@ -79,8 +95,15 @@ intellijPlatform {
         }
     }
 
+    signing {
+        certificateChain = providers.environmentVariable("JETBRAINS_CERTIFICATE_CHAIN")
+        privateKey = providers.environmentVariable("JETBRAINS_PRIVATE_KEY")
+        password = providers.environmentVariable("JETBRAINS_PRIVATE_KEY_PASSWORD")
+    }
+
     publishing {
         token.set(providers.environmentVariable("JETBRAINS_PUBLISH_TOKEN"))
+        channels.set(listOf("beta"))
     }
 
     pluginVerification {

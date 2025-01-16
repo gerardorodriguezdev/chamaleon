@@ -5,7 +5,11 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <description>Simplify the management of multiple environments for any Kotlin project</description>
+    <description>
+        <![CDATA[
+        Simplify the management of multiple environments for any Kotlin project
+        ]]>
+    </description>
 
     <resource-bundle>messages.Bundle</resource-bundle>
 
@@ -14,6 +18,6 @@
                 factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
                 id="Chamaleon"
                 anchor="right"
-                icon="icons/pluginIcon"/>
+                icon="/images/expui/toolWindow/pluginIcon.svg"/>
     </extensions>
 </idea-plugin>
