@@ -102,6 +102,5 @@ If you want to set an environment as the selected one, you can do it by adding `
 
 ## Using the json schemas
 
-The json schemas for `template.chamaleon.json` and `yourenvironments.chamaleon.json` have been uploaded to
-[Schema store](https://www.schemastore.org/json/) so you can see hints if the schema is valid or not. Alternatively you
-can find them here [Schemas](../schemas)
+The json schemas have been uploaded to [Schema store](https://www.schemastore.org/json/) so you can see hints if the
+schema is valid or not. Alternatively you can find them here [Schemas](../schemas)
