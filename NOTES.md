@@ -11,9 +11,9 @@
 ## How to release?
 
 - Create a pr from master to release
-- Add release flag
+- Add release tag
 - When all checks are ok merge to master
-- In case any release patch needed to be done, merge into master
+- In case any release patch needed to be done, merge back into master
 - In master, bump [release version](/gradle/libs.versions.toml) in this file using semantic versioning
 
 ## How to update the jvm?
