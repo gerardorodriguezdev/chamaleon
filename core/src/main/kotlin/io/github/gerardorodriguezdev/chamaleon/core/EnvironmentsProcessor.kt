@@ -40,6 +40,7 @@ public interface EnvironmentsProcessor {
         ) : EnvironmentsProcessorResult
 
         public sealed interface Failure : EnvironmentsProcessorResult {
+            public data class EnvironmentsDirectoryNotFound(val environmentsDirectoryPath: String) : Failure
             public data class SchemaFileNotFound(val environmentsDirectoryPath: String) : Failure
             public data class SchemaFileIsEmpty(val environmentsDirectoryPath: String) : Failure
             public data class SchemaSerialization(val throwable: Throwable) : Failure
@@ -96,6 +97,10 @@ internal class DefaultEnvironmentsProcessor(
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         coroutineScope {
+            if (!environmentsDirectory.exists()) {
+                return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectory.absolutePath)
+            }
+
             val filesParserResult = parseFiles(environmentsDirectory)
             if (filesParserResult.isFailure()) return@coroutineScope filesParserResult.value
 

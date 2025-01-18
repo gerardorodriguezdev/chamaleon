@@ -24,6 +24,7 @@ import kotlin.test.assertTrue
 class DefaultEnvironmentsProcessorTest {
     @TempDir
     lateinit var directory: File
+    private val environmentsDirectory by lazy { createEnvironmentsDirectory() }
 
     private val schemaParser = FakeSchemaParser()
     private val environmentsParser = FakeEnvironmentsParser()
@@ -38,11 +39,20 @@ class DefaultEnvironmentsProcessorTest {
     @Nested
     inner class Process {
         @Test
+        fun `GIVEN environments directory not found WHEN process THEN returns failure`() = runTest {
+            environmentsDirectory.delete()
+
+            assertIs<EnvironmentsDirectoryNotFound>(
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
+            )
+        }
+
+        @Test
         fun `GIVEN schema parsing file not found WHEN process THEN returns failure`() = runTest {
             schemaParser.schemaParserResult = SchemaParserResult.Failure.FileNotFound("")
 
             assertIs<SchemaFileNotFound>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -51,7 +61,7 @@ class DefaultEnvironmentsProcessorTest {
             schemaParser.schemaParserResult = SchemaParserResult.Failure.FileIsEmpty("")
 
             assertIs<SchemaFileIsEmpty>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -60,7 +70,7 @@ class DefaultEnvironmentsProcessorTest {
             schemaParser.schemaParserResult = SchemaParserResult.Failure.Serialization(Exception())
 
             assertIs<SchemaSerialization>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -69,7 +79,7 @@ class DefaultEnvironmentsProcessorTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 
             assertIs<EnvironmentsSerialization>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -78,7 +88,7 @@ class DefaultEnvironmentsProcessorTest {
             propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
 
             assertIs<PropertiesSerialization>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -87,7 +97,7 @@ class DefaultEnvironmentsProcessorTest {
             propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
 
             assertIs<PropertiesSerialization>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -102,7 +112,7 @@ class DefaultEnvironmentsProcessorTest {
             )
 
             assertIs<PlatformsNotEqualToSchema>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -121,7 +131,7 @@ class DefaultEnvironmentsProcessorTest {
             )
 
             assertIs<PropertiesNotEqualToSchema>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -144,7 +154,7 @@ class DefaultEnvironmentsProcessorTest {
             )
 
             assertIs<PropertyTypeNotMatchSchema>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -169,7 +179,7 @@ class DefaultEnvironmentsProcessorTest {
             )
 
             assertIs<NullPropertyNotNullableOnSchema>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -179,7 +189,7 @@ class DefaultEnvironmentsProcessorTest {
                 PropertiesParserResult.Success(selectedEnvironmentName = "NonExisting")
 
             assertIs<SelectedEnvironmentInvalid>(
-                defaultEnvironmentsProcessor.process(directory)
+                defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
@@ -187,12 +197,12 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() =
             runTest {
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
-                    environmentsDirectoryPath = directory.absolutePath,
+                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
                     selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
                     environments = setOf(TestData.validCompleteEnvironment),
                 )
 
-                val environmentsProcessorResult = defaultEnvironmentsProcessor.process(directory)
+                val environmentsProcessorResult = defaultEnvironmentsProcessor.process(environmentsDirectory)
 
                 assertEquals(environmentsProcessorResult, expectedEnvironmentsProcessorResult)
             }
@@ -202,7 +212,7 @@ class DefaultEnvironmentsProcessorTest {
     inner class ProcessRecursively {
         @Test
         fun `GIVEN valid environments WHEN processRecursively THEN returns results list`() = runTest {
-            val environmentsDirectory = environmentsDirectory()
+            val environmentsDirectory = createEnvironmentsDirectory()
 
             val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
 
@@ -223,7 +233,7 @@ class DefaultEnvironmentsProcessorTest {
         @Test
         fun `GIVEN invalid environments WHEN processRecursively THEN returns results list`() = runTest {
             val expectedException = Exception()
-            environmentsDirectory()
+            createEnvironmentsDirectory()
             propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(expectedException)
 
             val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
@@ -276,7 +286,7 @@ class DefaultEnvironmentsProcessorTest {
         assertEquals(expected, actual)
     }
 
-    private fun environmentsDirectory(): File {
+    private fun createEnvironmentsDirectory(): File {
         val environmentsDirectory = File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
         environmentsDirectory.mkdir()
         return environmentsDirectory

@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 
-public interface ChamaleonExtension {
+public interface Extension {
     public val selectedEnvironmentName: Property<String?>
     public val environments: SetProperty<Environment>
 }

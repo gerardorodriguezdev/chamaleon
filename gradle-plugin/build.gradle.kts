@@ -21,6 +21,14 @@ dependencies {
     testImplementation(libs.kmp.test)
 }
 
+sourceSets {
+    main {
+        val sampleEnvironmentsDirectory = sampleEnvironmentsDirectory()
+        resources.srcDir(sampleEnvironmentsDirectory)
+        resources.include("**.chamaleon.json")
+    }
+}
+
 tasks {
     validatePlugins {
         enableStricterValidation = true
@@ -45,11 +53,13 @@ gradlePlugin {
                 "kotlin",
                 "kmp",
                 "kotlin multiplatform",
-
                 "environments",
                 "configuration",
             )
-            implementationClass = "io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin"
+            implementationClass = "io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin"
         }
     }
 }
+
+fun Project.sampleEnvironmentsDirectory(): Directory =
+    rootProject.layout.projectDirectory.dir("samples/gradle-project/environments")

@@ -1,32 +1,38 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Success
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
+import org.gradle.api.tasks.TaskProvider
 
-public class ChamaleonGradlePlugin : Plugin<Project> {
+public class GradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            val extension = extensions.create(EXTENSION_NAME, ChamaleonExtension::class.java)
+            createExtension()
+            registerInitTask()
+        }
+    }
 
-            val environmentsProcessorResult = environmentsProcessorResult()
+    private fun Project.createExtension(): Extension {
+        val extension = extensions.create(EXTENSION_NAME, Extension::class.java)
+        scanProject(extension)
+        return extension
+    }
 
-            when (environmentsProcessorResult) {
-                is EnvironmentsProcessorResult.Success -> {
-                    extension.environments.set(environmentsProcessorResult.environments)
-                    extension.selectedEnvironmentName.set(environmentsProcessorResult.selectedEnvironmentName)
-                }
+    private fun Project.scanProject(extension: Extension) {
+        val environmentsProcessorResult = environmentsProcessorResult()
 
-                is Failure -> throw ChamaleonGradlePluginException(
-                    message = environmentsProcessorResult.toErrorMessage()
-                )
-            }
+        when (environmentsProcessorResult) {
+            is Success -> handleSuccess(extension, environmentsProcessorResult)
+            is Failure -> handleFailure(environmentsProcessorResult)
         }
     }
 
@@ -38,12 +44,26 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.environmentsDirectory(): Directory =
-        layout.projectDirectory.dir(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+    private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
+
+    private fun handleSuccess(extension: Extension, success: Success) {
+        extension.environments.set(success.environments)
+        extension.selectedEnvironmentName.set(success.selectedEnvironmentName)
+    }
+
+    private fun handleFailure(failure: Failure) {
+        when (failure) {
+            is Failure.EnvironmentsDirectoryNotFound -> Unit
+            else -> throw GradlePluginException(
+                message = failure.toErrorMessage()
+            )
+        }
+    }
 
     @Suppress("Indentation")
     private fun Failure.toErrorMessage(): String =
         when (this) {
+            is Failure.EnvironmentsDirectoryNotFound -> "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
             is Failure.SchemaFileNotFound -> "'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'"
             is Failure.SchemaFileIsEmpty -> "'$SCHEMA_FILE' on '$environmentsDirectoryPath' is empty"
             is Failure.SchemaSerialization -> "Schema parsing failed with error '${throwable.message}'"
@@ -68,9 +88,15 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                         "[$environmentNames]"
         }
 
-    private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)
+    private class GradlePluginException(message: String) : IllegalStateException(message)
+
+    private fun Project.registerInitTask(): TaskProvider<InitTask> =
+        tasks.register(INIT_TASK_NAME, InitTask::class.java) {
+            environmentsDirectory.set(environmentsDirectory())
+        }
 
     private companion object {
         const val EXTENSION_NAME = "chamaleon"
+        const val INIT_TASK_NAME = "initChamaleon"
     }
 }

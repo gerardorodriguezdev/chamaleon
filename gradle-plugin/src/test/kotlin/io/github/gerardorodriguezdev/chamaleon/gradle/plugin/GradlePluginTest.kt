@@ -17,7 +17,7 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ChamaleonGradlePluginTest {
+class GradlePluginTest {
     @TempDir
     lateinit var testDir: File
 
@@ -83,9 +83,9 @@ class ChamaleonGradlePluginTest {
             .build()
             .apply(configuration)
 
-    private fun Project.extension(): ChamaleonExtension {
-        pluginManager.apply(ChamaleonGradlePlugin::class.java)
-        return extensions.findByType(ChamaleonExtension::class.java)!!
+    private fun Project.extension(): Extension {
+        pluginManager.apply(GradlePlugin::class.java)
+        return extensions.findByType(Extension::class.java)!!
     }
 
     private companion object {
