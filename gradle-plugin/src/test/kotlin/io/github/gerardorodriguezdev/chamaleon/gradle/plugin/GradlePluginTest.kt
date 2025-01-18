@@ -6,6 +6,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.SampleResources.writeAll
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
@@ -19,7 +20,7 @@ import kotlin.test.assertEquals
 
 class GradlePluginTest {
     @TempDir
-    lateinit var testDir: File
+    lateinit var directory: File
 
     @BeforeEach
     fun setUp() {
@@ -47,31 +48,20 @@ class GradlePluginTest {
     }
 
     private fun createBuildFiles() {
-        val buildFile = File(testDir, "build.gradle.kts")
+        val buildFile = File(directory, BUILD_FILE_NAME)
         buildFile.writeText(buildFileContent)
     }
 
     private fun createFiles() {
-        val environmentsDirectory = File(testDir, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
-            .apply { mkdirs() }
-
-        val templateFile = File(environmentsDirectory, EnvironmentsProcessor.SCHEMA_FILE)
-        templateFile.writeText(templateFileContent)
-
-        val localEnvironmentFile = File(environmentsDirectory, localEnvironmentFileName)
-        localEnvironmentFile.writeText(localEnvironmentFileContent)
-
-        val productionEnvironmentFile = File(environmentsDirectory, productionEnvironmentFileName)
-        productionEnvironmentFile.writeText(productionEnvironmentFileContent)
-
-        val localPropertiesFile = File(environmentsDirectory, EnvironmentsProcessor.PROPERTIES_FILE)
-        localPropertiesFile.writeText(localPropertiesFileContent)
+        val environmentsDirectory =
+            File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME).apply { mkdirs() }
+        SampleResources.resources.writeAll(environmentsDirectory)
     }
 
     private fun buildResult(): BuildResult =
         GradleRunner
             .create()
-            .withProjectDir(testDir)
+            .withProjectDir(directory)
             .withPluginClasspath()
             .withArguments("help")
             .build()
@@ -79,7 +69,7 @@ class GradlePluginTest {
     private fun buildProject(configuration: Project.() -> Unit = {}): Project =
         ProjectBuilder
             .builder()
-            .withProjectDir(testDir)
+            .withProjectDir(directory)
             .build()
             .apply(configuration)
 
@@ -89,16 +79,15 @@ class GradlePluginTest {
     }
 
     private companion object {
-        const val EXPECTED_PROPERTY_NAME = "HOST"
-
         const val LOCAL_ENVIRONMENT_NAME = "local"
-        const val LOCAL_ENVIRONMENT_HOST = "localhost"
-        val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
+        const val LOCAL_ENVIRONMENT_PROPERTY_VALUE = "YourPropertyValueForLocalEnvironment"
 
         const val PRODUCTION_ENVIRONMENT_NAME = "production"
-        const val PRODUCTION_ENVIRONMENT_HOST = "otherhost"
-        val productionEnvironmentFileName = EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)
+        const val PRODUCTION_ENVIRONMENT_PROPERTY_VALUE = "YourPropertyValueForProductionEnvironment"
 
+        const val EXPECTED_PROPERTY_NAME = "YourPropertyName"
+
+        const val BUILD_FILE_NAME = "build.gradle.kts"
         val buildFileContent =
             //language=kotlin
             """
@@ -107,78 +96,21 @@ class GradlePluginTest {
                 }
             """.trimIndent()
 
-        val templateFileContent =
-            //language=json
-            """
-                {
-                  "supportedPlatforms": [
-                    "android"
-                  ],
-                  "propertyDefinitions": [
-                    {
-                      "name": "HOST",
-                      "propertyType": "String",
-                      "nullable": false
-                    }
-                  ]
-                }
-            """.trimIndent()
-
-        val localEnvironmentFileContent =
-            //language=json
-            """
-                [
-                  {
-                    "platformType": "android",
-                    "properties": [
-                      {
-                        "name": "HOST",
-                        "value": "localhost"
-                      }
-                    ]
-                  }
-                ]
-            """.trimIndent()
-
-        val productionEnvironmentFileContent =
-            //language=json
-            """
-                [
-                  {
-                    "platformType": "android",
-                    "properties": [
-                      {
-                        "name": "HOST",
-                        "value": "otherhost"
-                      }
-                    ]
-                  }
-                ]
-            """.trimIndent()
-
-        val localPropertiesFileContent =
-            //language=json
-            """
-                {
-                  "selectedEnvironmentName": "local"
-                }
-            """.trimIndent()
-
         val expectedEnvironments =
             setOf(
                 Environment(
-                    name = LOCAL_ENVIRONMENT_NAME,
-                    platforms = setOf(expectedPlatform(LOCAL_ENVIRONMENT_HOST)),
+                    name = PRODUCTION_ENVIRONMENT_NAME,
+                    platforms = setOf(expectedPlatform(PRODUCTION_ENVIRONMENT_PROPERTY_VALUE)),
                 ),
                 Environment(
-                    name = PRODUCTION_ENVIRONMENT_NAME,
-                    platforms = setOf(expectedPlatform(PRODUCTION_ENVIRONMENT_HOST)),
+                    name = LOCAL_ENVIRONMENT_NAME,
+                    platforms = setOf(expectedPlatform(LOCAL_ENVIRONMENT_PROPERTY_VALUE)),
                 ),
             )
 
         private fun expectedPlatform(value: String): Platform =
             Platform(
-                platformType = PlatformType.ANDROID,
+                platformType = PlatformType.JVM,
                 properties = setOf(
                     Property(name = EXPECTED_PROPERTY_NAME, value = StringProperty(value)),
                 )
