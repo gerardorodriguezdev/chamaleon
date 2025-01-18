@@ -1,10 +1,10 @@
 {
   "supportedPlatforms": [
-    "android"
+    "jvm"
   ],
   "propertyDefinitions": [
     {
-      "name": "HOST",
+      "name": "YourPropertyName",
       "propertyType": "String",
       "nullable": false
     }
