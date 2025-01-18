@@ -39,7 +39,9 @@ internal object SampleResources {
         val fileContent: String,
     ) {
         fun writeContent(environmentsDirectory: File) {
-            File(environmentsDirectory, fileName).writeText(fileContent)
+            val file = File(environmentsDirectory, fileName)
+            if (file.exists()) return
+            file.writeText(fileContent)
         }
     }
 }
