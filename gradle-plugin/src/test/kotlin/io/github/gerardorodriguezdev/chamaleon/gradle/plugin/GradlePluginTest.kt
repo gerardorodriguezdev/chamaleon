@@ -25,21 +25,24 @@ class GradlePluginTest {
     @BeforeEach
     fun setUp() {
         createBuildFiles()
-        createFiles()
     }
 
     @Test
     fun `GIVEN plugin is applied to project WHEN task is executed THEN build is successful`() {
-        val buildResult = buildResult()
+        createEnvironmentsFiles()
+
+        val buildResult = helpTaskBuildResult()
 
         assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.task(":help")?.outcome)
     }
 
     @Test
     fun `GIVEN plugin is applied to project WHEN project is configured THEN valid extension is returned`() {
-        val project = buildProject()
-        val extension = project.extension()
+        createEnvironmentsFiles()
 
+        val project = buildProject()
+
+        val extension = project.extension()
         assertEquals(expected = expectedEnvironments, actual = extension.environments.get())
         assertEquals(
             expected = LOCAL_ENVIRONMENT_NAME,
@@ -47,23 +50,47 @@ class GradlePluginTest {
         )
     }
 
+    @Test
+    fun `GIVEN plugin is applied to project WHEN createSampleTask is executed THEN creates sample files`() {
+        val buildResult = createSampleTaskBuildResult()
+
+        assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.task(":chamaleonCreateSample")?.outcome)
+        val environmentsDirectory = environmentsDirectory()
+        val environmentsFiles = environmentsDirectory.listFiles()
+        assertEquals(expected = environmentsFiles.size, actual = SampleResources.resources.size)
+        environmentsFiles.forEach { file ->
+            val resource = SampleResources.resources.first { resource -> resource.fileName == file.name }
+            assertEquals(expected = resource.fileContent, actual = file.readText())
+        }
+    }
+
     private fun createBuildFiles() {
         val buildFile = File(directory, BUILD_FILE_NAME)
         buildFile.writeText(buildFileContent)
     }
 
-    private fun createFiles() {
-        val environmentsDirectory =
-            File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME).apply { mkdirs() }
+    private fun createEnvironmentsFiles() {
+        val environmentsDirectory = environmentsDirectory()
+        environmentsDirectory.mkdir()
         SampleResources.resources.writeAll(environmentsDirectory)
     }
 
-    private fun buildResult(): BuildResult =
+    private fun environmentsDirectory(): File = File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+
+    private fun helpTaskBuildResult(): BuildResult =
         GradleRunner
             .create()
             .withProjectDir(directory)
             .withPluginClasspath()
             .withArguments("help")
+            .build()
+
+    private fun createSampleTaskBuildResult(): BuildResult =
+        GradleRunner
+            .create()
+            .withProjectDir(directory)
+            .withPluginClasspath()
+            .withArguments(GradlePlugin.CREATE_SAMPLE_TASK_NAME)
             .build()
 
     private fun buildProject(configuration: Project.() -> Unit = {}): Project =
@@ -72,11 +99,6 @@ class GradlePluginTest {
             .withProjectDir(directory)
             .build()
             .apply(configuration)
-
-    private fun Project.extension(): Extension {
-        pluginManager.apply(GradlePlugin::class.java)
-        return extensions.findByType(Extension::class.java)!!
-    }
 
     private companion object {
         const val LOCAL_ENVIRONMENT_NAME = "local"
@@ -115,5 +137,10 @@ class GradlePluginTest {
                     Property(name = EXPECTED_PROPERTY_NAME, value = StringProperty(value)),
                 )
             )
+
+        private fun Project.extension(): Extension {
+            pluginManager.apply(GradlePlugin::class.java)
+            return extensions.findByType(Extension::class.java)!!
+        }
     }
 }

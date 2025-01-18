@@ -95,7 +95,7 @@ public class GradlePlugin : Plugin<Project> {
             environmentsDirectory.set(environmentsDirectory())
         }
 
-    private companion object {
+    internal companion object {
         const val EXTENSION_NAME = "chamaleon"
         const val CREATE_SAMPLE_TASK_NAME = "chamaleonCreateSample"
     }
