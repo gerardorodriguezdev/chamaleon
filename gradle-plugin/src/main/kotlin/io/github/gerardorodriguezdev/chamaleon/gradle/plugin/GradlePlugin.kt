@@ -92,11 +92,20 @@ public class GradlePlugin : Plugin<Project> {
 
     private fun Project.registerCreateSampleTask(): TaskProvider<CreateSampleTask> =
         tasks.register(CREATE_SAMPLE_TASK_NAME, CreateSampleTask::class.java) {
-            environmentsDirectory.set(environmentsDirectory())
+            val createSampleCommandLineArgument = providers.gradleProperty(CREATE_SAMPLE_COMMAND_LINE_ARGUMENT).orNull
+
+            environmentsDirectory.set(
+                if (createSampleCommandLineArgument != null) {
+                    layout.projectDirectory.dir(createSampleCommandLineArgument)
+                } else {
+                    environmentsDirectory()
+                }
+            )
         }
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
         const val CREATE_SAMPLE_TASK_NAME = "chamaleonCreateSample"
+        const val CREATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleonSampleOutputDirectory"
     }
 }
