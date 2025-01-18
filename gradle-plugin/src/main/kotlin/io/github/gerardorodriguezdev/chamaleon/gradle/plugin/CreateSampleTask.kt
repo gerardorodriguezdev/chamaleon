@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 @CacheableTask
-public abstract class InitTask : DefaultTask() {
+public abstract class CreateSampleTask : DefaultTask() {
     private val fileNames = listOf(
         EnvironmentsProcessor.SCHEMA_FILE,
         EnvironmentsProcessor.PROPERTIES_FILE,
@@ -21,7 +21,7 @@ public abstract class InitTask : DefaultTask() {
     public abstract val environmentsDirectory: DirectoryProperty
 
     @TaskAction
-    public fun generateSampleConfigurationFiles() {
+    public fun createSample() {
         val environmentsDirectory = environmentsDirectory.get().asFile
 
         fileNames.forEach { fileName ->

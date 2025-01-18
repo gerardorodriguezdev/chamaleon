@@ -17,7 +17,7 @@ public class GradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             createExtension()
-            registerInitTask()
+            registerCreateSampleTask()
         }
     }
 
@@ -90,13 +90,13 @@ public class GradlePlugin : Plugin<Project> {
 
     private class GradlePluginException(message: String) : IllegalStateException(message)
 
-    private fun Project.registerInitTask(): TaskProvider<InitTask> =
-        tasks.register(INIT_TASK_NAME, InitTask::class.java) {
+    private fun Project.registerCreateSampleTask(): TaskProvider<CreateSampleTask> =
+        tasks.register(CREATE_SAMPLE_TASK_NAME, CreateSampleTask::class.java) {
             environmentsDirectory.set(environmentsDirectory())
         }
 
     private companion object {
         const val EXTENSION_NAME = "chamaleon"
-        const val INIT_TASK_NAME = "initChamaleon"
+        const val CREATE_SAMPLE_TASK_NAME = "chamaleonCreateSample"
     }
 }
