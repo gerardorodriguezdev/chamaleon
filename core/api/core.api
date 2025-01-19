@@ -22,6 +22,17 @@ public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/Env
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure : io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult {
 }
 
+public final class io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure$EnvironmentsDirectoryNotFound : io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lio/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure$EnvironmentsDirectoryNotFound;
+	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure$EnvironmentsDirectoryNotFound;Ljava/lang/String;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure$EnvironmentsDirectoryNotFound;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnvironmentsDirectoryPath ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure$EnvironmentsSerialization : io/github/gerardorodriguezdev/chamaleon/core/EnvironmentsProcessor$EnvironmentsProcessorResult$Failure {
 	public fun <init> (Ljava/lang/Throwable;)V
 	public final fun component1 ()Ljava/lang/Throwable;
