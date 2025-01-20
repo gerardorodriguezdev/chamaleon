@@ -12,53 +12,63 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefi
 
 object TestData {
     const val ENVIRONMENT_NAME = "local"
+    const val HOST_PROPERTY_NAME = "HOST"
+    const val DOMAIN_PROPERTY_NAME = "DOMAIN"
+    const val IS_DEBUG_PROPERTY_NAME = "IS_DEBUG"
+    const val IS_PRODUCTION_PROPERTY_NAME = "IS_PRODUCTION"
+
+    val allPlatforms = setOf(
+        WASM,
+        ANDROID,
+        JVM,
+        IOS,
+    )
 
     val validCompleteSchema = Schema(
-        supportedPlatforms = setOf(
-            WASM,
-            ANDROID,
-            JVM,
-            IOS,
-        ),
+        supportedPlatforms = allPlatforms,
         propertyDefinitions = setOf(
             PropertyDefinition(
-                name = "HOST",
+                name = HOST_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = true,
+                supportedPlatforms = emptySet(),
             ),
             PropertyDefinition(
-                name = "DOMAIN",
+                name = DOMAIN_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = false,
+                supportedPlatforms = emptySet(),
             ),
             PropertyDefinition(
-                name = "IS_DEBUG",
+                name = IS_DEBUG_PROPERTY_NAME,
                 propertyType = PropertyType.BOOLEAN,
                 nullable = true,
+                supportedPlatforms = emptySet(),
             ),
             PropertyDefinition(
-                name = "IS_PRODUCTION",
+                name = IS_PRODUCTION_PROPERTY_NAME,
                 propertyType = PropertyType.BOOLEAN,
                 nullable = false,
+                supportedPlatforms = emptySet(),
             )
         )
     )
 
     private val validCompleteProperties = setOf(
         Property(
-            name = "HOST",
+            name = HOST_PROPERTY_NAME,
             value = null,
         ),
         Property(
-            name = "DOMAIN",
+            name = DOMAIN_PROPERTY_NAME,
             value = StringProperty("www.domain.com"),
         ),
         Property(
-            name = "IS_DEBUG",
+            name = IS_DEBUG_PROPERTY_NAME,
             value = null,
         ),
         Property(
-            name = "IS_PRODUCTION",
+            name = IS_PRODUCTION_PROPERTY_NAME,
             value = BooleanProperty(true),
         ),
     )

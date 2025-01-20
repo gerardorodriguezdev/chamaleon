@@ -75,6 +75,19 @@ class DefaultEnvironmentsProcessorTest {
         }
 
         @Test
+        fun `GIVEN schema parsing property uses unsupported platforms error WHEN process THEN returns failure`() =
+            runTest {
+                schemaParser.schemaParserResult = SchemaParserResult.Failure.PropertyContainsUnsupportedPlatforms(
+                    path = "",
+                    propertyName = "",
+                )
+
+                assertIs<PropertyOnSchemaContainsUnsupportedPlatforms>(
+                    defaultEnvironmentsProcessor.process(environmentsDirectory)
+                )
+            }
+
+        @Test
         fun `GIVEN environments parsing serialization error WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 

@@ -44,6 +44,11 @@ public interface EnvironmentsProcessor {
             public data class SchemaFileNotFound(val environmentsDirectoryPath: String) : Failure
             public data class SchemaFileIsEmpty(val environmentsDirectoryPath: String) : Failure
             public data class SchemaSerialization(val throwable: Throwable) : Failure
+            public data class PropertyOnSchemaContainsUnsupportedPlatforms(
+                val environmentsDirectoryPath: String,
+                val propertyName: String,
+            ) : Failure
+
             public data class EnvironmentsSerialization(val throwable: Throwable) : Failure
             public data class PropertiesSerialization(val throwable: Throwable) : Failure
             public data class PlatformsNotEqualToSchema(val environmentName: String) : Failure
@@ -155,6 +160,11 @@ internal class DefaultEnvironmentsProcessor(
             is SchemaParserResult.Failure.FileNotFound -> SchemaFileNotFound(path).toFailure()
             is SchemaParserResult.Failure.FileIsEmpty -> SchemaFileIsEmpty(path).toFailure()
             is SchemaParserResult.Failure.Serialization -> SchemaSerialization(throwable).toFailure()
+            is SchemaParserResult.Failure.PropertyContainsUnsupportedPlatforms ->
+                PropertyOnSchemaContainsUnsupportedPlatforms(
+                    environmentsDirectoryPath = path,
+                    propertyName = propertyName,
+                ).toFailure()
         }
 
     private fun EnvironmentsParserResult.environmentsOrFailure(): Result<Set<Environment>, Failure> =
@@ -246,7 +256,10 @@ internal class DefaultEnvironmentsProcessor(
     private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment): Failure? {
         val platformTypes = environment.platforms.map { platform -> platform.platformType }
 
-        return if (supportedPlatforms.size != platformTypes.size || !supportedPlatforms.containsAll(platformTypes)) {
+        return if (this@verifyEnvironmentContainsAllPlatforms.supportedPlatforms.size != platformTypes.size || !this@verifyEnvironmentContainsAllPlatforms.supportedPlatforms.containsAll(
+                platformTypes
+            )
+        ) {
             PlatformsNotEqualToSchema(environment.name)
         } else {
             null
