@@ -106,6 +106,6 @@ public class GradlePlugin : Plugin<Project> {
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
         const val CREATE_SAMPLE_TASK_NAME = "chamaleonCreateSample"
-        const val CREATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleonSampleOutputDirectory"
+        const val CREATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sample.output.directory"
     }
 }
