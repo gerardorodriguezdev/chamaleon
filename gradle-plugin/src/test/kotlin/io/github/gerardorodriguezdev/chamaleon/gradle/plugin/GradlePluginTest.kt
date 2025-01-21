@@ -7,6 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.SampleResources.writeAll
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -34,7 +35,7 @@ class GradlePluginTest {
 
         val buildResult = helpTaskBuildResult()
 
-        assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.task(":help")?.outcome)
+        assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.outcomeOfTask(HELP_TASK_NAME))
     }
 
     @Test
@@ -57,7 +58,7 @@ class GradlePluginTest {
 
         assertEquals(
             expected = TaskOutcome.SUCCESS,
-            actual = buildResult.task(":$GENERATE_SAMPLE_TASK_NAME")?.outcome
+            actual = buildResult.outcomeOfTask(GENERATE_SAMPLE_TASK_NAME)
         )
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
@@ -66,6 +67,34 @@ class GradlePluginTest {
             val resource = SampleResources.resources.first { resource -> resource.fileName == file.name }
             assertEquals(expected = resource.fileContent, actual = file.readText())
         }
+    }
+
+    @Test
+    fun `GIVEN plugin is applied to project WHEN selectEnvironment is executed THEN selects new environment`() {
+        createEnvironmentsFiles()
+
+        val buildResult = selectEnvironmentTaskBuildResult(
+            listOf(
+                SELECT_ENVIRONMENT_TASK_NAME,
+                commandLineArgument(
+                    key = GradlePlugin.SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT,
+                    value = PRODUCTION_ENVIRONMENT_NAME,
+                )
+            )
+        )
+
+        assertEquals(
+            expected = TaskOutcome.SUCCESS,
+            actual = buildResult.outcomeOfTask(SELECT_ENVIRONMENT_TASK_NAME),
+        )
+        val environmentsDirectory = environmentsDirectory()
+        val environmentsFiles = environmentsDirectory.listFiles()
+        val propertiesFile = environmentsFiles.first { file -> file.name == EnvironmentsProcessor.PROPERTIES_FILE }
+        val propertiesFileContent = propertiesFile.readText()
+        assertEquals(
+            expected = propertiesFileContentWithProductionEnvironmentSelected,
+            actual = propertiesFileContent,
+        )
     }
 
     private fun createBuildFiles() {
@@ -86,15 +115,23 @@ class GradlePluginTest {
             .create()
             .withProjectDir(directory)
             .withPluginClasspath()
-            .withArguments("help")
+            .withArguments(HELP_TASK_NAME)
             .build()
 
-    private fun generateSampleTaskBuildResult(): BuildResult =
+    private fun generateSampleTaskBuildResult(arguments: List<String> = listOf(GENERATE_SAMPLE_TASK_NAME)): BuildResult =
         GradleRunner
             .create()
             .withProjectDir(directory)
             .withPluginClasspath()
-            .withArguments(GENERATE_SAMPLE_TASK_NAME)
+            .withArguments(arguments)
+            .build()
+
+    private fun selectEnvironmentTaskBuildResult(arguments: List<String> = listOf(SELECT_ENVIRONMENT_TASK_NAME)): BuildResult =
+        GradleRunner
+            .create()
+            .withProjectDir(directory)
+            .withPluginClasspath()
+            .withArguments(arguments)
             .build()
 
     private fun buildProject(configuration: Project.() -> Unit = {}): Project =
@@ -113,12 +150,22 @@ class GradlePluginTest {
 
         const val EXPECTED_PROPERTY_NAME = "YourPropertyName"
 
+        const val HELP_TASK_NAME = "help"
+
         const val BUILD_FILE_NAME = "build.gradle.kts"
         val buildFileContent =
             //language=kotlin
             """
                 plugins {
                     id("io.github.gerardorodriguezdev.chamaleon")
+                }
+            """.trimIndent()
+
+        val propertiesFileContentWithProductionEnvironmentSelected =
+            //language=JSON
+            """
+                {
+                  "selectedEnvironmentName": "production"
                 }
             """.trimIndent()
 
@@ -146,5 +193,11 @@ class GradlePluginTest {
             pluginManager.apply(GradlePlugin::class.java)
             return extensions.findByType(Extension::class.java)!!
         }
+
+        private fun BuildResult.outcomeOfTask(taskName: String): TaskOutcome? = task(taskPath(taskName))?.outcome
+
+        private fun commandLineArgument(key: String, value: String): String = "-P$key=$value"
+
+        private fun taskPath(taskName: String): String = ":$taskName"
     }
 }

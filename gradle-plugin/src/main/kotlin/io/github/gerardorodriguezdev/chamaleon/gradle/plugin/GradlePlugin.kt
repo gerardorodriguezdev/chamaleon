@@ -10,14 +10,18 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Enviro
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
 public class GradlePlugin : Plugin<Project> {
+    private val environmentsProcessor = EnvironmentsProcessor.create()
+
     override fun apply(target: Project) {
         with(target) {
             createExtension()
             registerGenerateSampleTask()
+            registerSelectEnvironmentTask()
         }
     }
 
@@ -37,7 +41,6 @@ public class GradlePlugin : Plugin<Project> {
     }
 
     private fun Project.environmentsProcessorResult(): EnvironmentsProcessorResult {
-        val environmentsProcessor = EnvironmentsProcessor.create()
         return runBlocking {
             val environmentsDirectory = environmentsDirectory()
             environmentsProcessor.process(environmentsDirectory.asFile)
@@ -91,8 +94,6 @@ public class GradlePlugin : Plugin<Project> {
                         "[$environmentNames]"
         }
 
-    private class GradlePluginException(message: String) : IllegalStateException(message)
-
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
         tasks.register(GENERATE_SAMPLE_TASK_NAME, GenerateSampleTask::class.java) {
             val generateSampleCommandLineArgument =
@@ -107,9 +108,33 @@ public class GradlePlugin : Plugin<Project> {
             )
         }
 
+    private fun Project.registerSelectEnvironmentTask(): TaskProvider<Task> =
+        tasks.register(SELECT_ENVIRONMENT_TASK_NAME) {
+            val newSelectedEnvironment = providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
+            val environmentsDirectory = environmentsDirectory()
+
+            doLast {
+                val updateSelectedEnvironmentResult = environmentsProcessor.updateSelectedEnvironment(
+                    environmentsDirectory = environmentsDirectory.asFile,
+                    newSelectedEnvironment = newSelectedEnvironment
+                )
+
+                if (!updateSelectedEnvironmentResult) {
+                    throw GradlePluginException(
+                        message = "Error updating selected environment '$newSelectedEnvironment' on environments directory $environmentsDirectory"
+                    )
+                }
+            }
+        }
+
+    private class GradlePluginException(message: String) : IllegalStateException(message)
+
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
         const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
-        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sample.output.directory"
+        const val SELECT_ENVIRONMENT_TASK_NAME = "chamaleonSelectEnvironment"
+
+        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sampleOutputDirectory"
+        const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.newSelectedEnvironment"
     }
 }
