@@ -1,14 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
-import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.DOMAIN_PROPERTY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.HOST_PROPERTY_NAME
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -72,29 +66,8 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN valid schema file with supported platforms WHEN schemaParserResult THEN returns schemaDto`() {
-        val expectedSchemaParserResult = SchemaParserResult.Success(
-            Schema(
-                supportedPlatforms = setOf(
-                    PlatformType.ANDROID,
-                    PlatformType.JVM,
-                ),
-                propertyDefinitions = setOf(
-                    PropertyDefinition(
-                        name = HOST_PROPERTY_NAME,
-                        propertyType = PropertyType.STRING,
-                        nullable = true,
-                        supportedPlatforms = setOf(PlatformType.ANDROID)
-                    ),
-                    PropertyDefinition(
-                        name = DOMAIN_PROPERTY_NAME,
-                        propertyType = PropertyType.STRING,
-                        nullable = false,
-                        supportedPlatforms = emptySet(),
-                    ),
-                )
-            )
-        )
-        createSchemaFile(validSchemaWithSupportedPlatforms)
+        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.validSchemaWithRestrictedPlatform)
+        createSchemaFile(validSchemaWithRestrictedPlatforms)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -179,7 +152,7 @@ class DefaultSchemaParserTest {
                 }
             """.trimIndent()
 
-        val validSchemaWithSupportedPlatforms =
+        val validSchemaWithRestrictedPlatforms =
             //language=JSON
             """
                 {

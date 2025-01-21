@@ -54,6 +54,27 @@ object TestData {
         )
     )
 
+    val validSchemaWithRestrictedPlatform = Schema(
+        supportedPlatforms = setOf(
+            ANDROID,
+            JVM,
+        ),
+        propertyDefinitions = setOf(
+            PropertyDefinition(
+                name = HOST_PROPERTY_NAME,
+                propertyType = PropertyType.STRING,
+                nullable = true,
+                supportedPlatforms = setOf(ANDROID)
+            ),
+            PropertyDefinition(
+                name = DOMAIN_PROPERTY_NAME,
+                propertyType = PropertyType.STRING,
+                nullable = false,
+                supportedPlatforms = emptySet(),
+            ),
+        )
+    )
+
     val validCompleteProperties = setOf(
         Property(
             name = HOST_PROPERTY_NAME,
