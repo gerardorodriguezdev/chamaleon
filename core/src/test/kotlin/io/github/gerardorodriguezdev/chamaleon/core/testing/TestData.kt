@@ -54,7 +54,7 @@ object TestData {
         )
     )
 
-    private val validCompleteProperties = setOf(
+    val validCompleteProperties = setOf(
         Property(
             name = HOST_PROPERTY_NAME,
             value = null,

@@ -256,28 +256,38 @@ internal class DefaultEnvironmentsProcessor(
     private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment): Failure? {
         val platformTypes = environment.platforms.map { platform -> platform.platformType }
 
-        return if (this@verifyEnvironmentContainsAllPlatforms.supportedPlatforms.size != platformTypes.size || !this@verifyEnvironmentContainsAllPlatforms.supportedPlatforms.containsAll(
-                platformTypes
-            )
-        ) {
-            PlatformsNotEqualToSchema(environment.name)
-        } else {
-            null
-        }
+        return if (!containsAll(platformTypes)) PlatformsNotEqualToSchema(environment.name) else null
     }
+
+    private fun Schema.containsAll(platformTypes: List<PlatformType>): Boolean =
+        supportedPlatforms.size == platformTypes.size && supportedPlatforms.containsAll(platformTypes)
 
     private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String): Failure? {
-        val propertyDefinitionNames = propertyDefinitions.map { propertyDefinition -> propertyDefinition.name }
-        val propertyNames = platform.properties.map { property -> property.name }
+        val propertiesNotEqualToSchema = PropertiesNotEqualToSchema(platform.platformType, environmentName)
+        if (isPlatformNotSupported(platform)) return propertiesNotEqualToSchema
+        if (platformHasMorePropertiesThanSchema(platform)) return propertiesNotEqualToSchema
 
-        return if (
-            propertyDefinitionNames.size != propertyNames.size || !propertyDefinitionNames.containsAll(propertyNames)
-        ) {
-            PropertiesNotEqualToSchema(platform.platformType, environmentName)
-        } else {
-            null
+        propertyDefinitions.forEach { propertyDefinition ->
+            if (!propertyDefinition.verify(platform)) return propertiesNotEqualToSchema
         }
+
+        return null
     }
+
+    private fun PropertyDefinition.verify(platform: Platform): Boolean {
+        val isPlatformSupported = supportedPlatforms.isEmpty() || supportedPlatforms.contains(platform.platformType)
+        val isPropertyPresent = platform.properties.contains(this)
+        return isPlatformSupported == isPropertyPresent
+    }
+
+    private fun Schema.isPlatformNotSupported(platform: Platform): Boolean =
+        platform.platformType !in supportedPlatforms
+
+    private fun Schema.platformHasMorePropertiesThanSchema(platform: Platform): Boolean =
+        propertyDefinitions.size < platform.properties.size
+
+    private fun Set<Property>.contains(propertyDefinition: PropertyDefinition): Boolean =
+        any { property -> property.name == propertyDefinition.name }
 
     private fun Schema.verifyPropertyTypeIsCorrect(
         property: Property,
