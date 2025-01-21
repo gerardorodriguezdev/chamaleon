@@ -8,12 +8,12 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-public abstract class CreateSampleTask : DefaultTask() {
+public abstract class GenerateSampleTask : DefaultTask() {
     @get:OutputDirectory
     public abstract val environmentsDirectory: DirectoryProperty
 
     @TaskAction
-    public fun createSample() {
+    public fun generateSample() {
         val environmentsDirectory = environmentsDirectory.get().asFile
         SampleResources.resources.writeAll(environmentsDirectory)
     }

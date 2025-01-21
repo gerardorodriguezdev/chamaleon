@@ -6,6 +6,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.SampleResources.writeAll
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -51,10 +52,13 @@ class GradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project WHEN createSampleTask is executed THEN creates sample files`() {
-        val buildResult = createSampleTaskBuildResult()
+    fun `GIVEN plugin is applied to project WHEN generateSampleTask is executed THEN generates sample files`() {
+        val buildResult = generateSampleTaskBuildResult()
 
-        assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.task(":chamaleonCreateSample")?.outcome)
+        assertEquals(
+            expected = TaskOutcome.SUCCESS,
+            actual = buildResult.task(":$GENERATE_SAMPLE_TASK_NAME")?.outcome
+        )
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
         assertEquals(expected = environmentsFiles.size, actual = SampleResources.resources.size)
@@ -85,12 +89,12 @@ class GradlePluginTest {
             .withArguments("help")
             .build()
 
-    private fun createSampleTaskBuildResult(): BuildResult =
+    private fun generateSampleTaskBuildResult(): BuildResult =
         GradleRunner
             .create()
             .withProjectDir(directory)
             .withPluginClasspath()
-            .withArguments(GradlePlugin.CREATE_SAMPLE_TASK_NAME)
+            .withArguments(GENERATE_SAMPLE_TASK_NAME)
             .build()
 
     private fun buildProject(configuration: Project.() -> Unit = {}): Project =

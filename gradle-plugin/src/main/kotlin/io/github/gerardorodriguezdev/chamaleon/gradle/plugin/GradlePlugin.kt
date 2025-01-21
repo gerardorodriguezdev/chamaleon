@@ -17,7 +17,7 @@ public class GradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             createExtension()
-            registerCreateSampleTask()
+            registerGenerateSampleTask()
         }
     }
 
@@ -93,13 +93,14 @@ public class GradlePlugin : Plugin<Project> {
 
     private class GradlePluginException(message: String) : IllegalStateException(message)
 
-    private fun Project.registerCreateSampleTask(): TaskProvider<CreateSampleTask> =
-        tasks.register(CREATE_SAMPLE_TASK_NAME, CreateSampleTask::class.java) {
-            val createSampleCommandLineArgument = providers.gradleProperty(CREATE_SAMPLE_COMMAND_LINE_ARGUMENT).orNull
+    private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
+        tasks.register(GENERATE_SAMPLE_TASK_NAME, GenerateSampleTask::class.java) {
+            val generateSampleCommandLineArgument =
+                providers.gradleProperty(GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT).orNull
 
             environmentsDirectory.set(
-                if (createSampleCommandLineArgument != null) {
-                    layout.projectDirectory.dir(createSampleCommandLineArgument)
+                if (generateSampleCommandLineArgument != null) {
+                    layout.projectDirectory.dir(generateSampleCommandLineArgument)
                 } else {
                     environmentsDirectory()
                 }
@@ -108,7 +109,7 @@ public class GradlePlugin : Plugin<Project> {
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
-        const val CREATE_SAMPLE_TASK_NAME = "chamaleonCreateSample"
-        const val CREATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sample.output.directory"
+        const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
+        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sample.output.directory"
     }
 }
