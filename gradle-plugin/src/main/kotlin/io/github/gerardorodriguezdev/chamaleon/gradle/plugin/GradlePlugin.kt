@@ -75,6 +75,9 @@ public class GradlePlugin : Plugin<Project> {
             is Failure.PropertiesNotEqualToSchema ->
                 "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
 
+            is Failure.PropertyOnSchemaContainsUnsupportedPlatforms ->
+                "Property $propertyName on schema on $environmentsDirectoryPath contains unsupported platforms"
+
             is Failure.PropertyTypeNotMatchSchema ->
                 "Value of property '$propertyName' for platform '$platformType' " +
                         "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
