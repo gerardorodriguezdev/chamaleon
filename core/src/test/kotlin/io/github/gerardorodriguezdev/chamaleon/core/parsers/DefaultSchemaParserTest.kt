@@ -23,7 +23,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
+        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
     }
 
     @Test
@@ -33,7 +33,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
+        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
     }
 
     @Test
@@ -61,7 +61,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
+        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
     }
 
     @Test
@@ -71,7 +71,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expectedSchemaParserResult, actualSchemaParserResult)
+        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
     }
 
     private fun createSchemaFile(content: String? = null) {

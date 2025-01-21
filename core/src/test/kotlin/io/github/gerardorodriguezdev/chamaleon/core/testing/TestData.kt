@@ -16,6 +16,7 @@ object TestData {
     const val DOMAIN_PROPERTY_NAME = "DOMAIN"
     const val IS_DEBUG_PROPERTY_NAME = "IS_DEBUG"
     const val IS_PRODUCTION_PROPERTY_NAME = "IS_PRODUCTION"
+    const val DOMAIN = "www.domain.com"
 
     val allPlatforms = setOf(
         WASM,
@@ -31,7 +32,17 @@ object TestData {
 
     val domainProperty = Property(
         name = DOMAIN_PROPERTY_NAME,
-        value = StringProperty("www.domain.com"),
+        value = StringProperty(DOMAIN),
+    )
+
+    val debugProperty = Property(
+        name = IS_DEBUG_PROPERTY_NAME,
+        value = null,
+    )
+
+    val productionProperty = Property(
+        name = IS_PRODUCTION_PROPERTY_NAME,
+        value = BooleanProperty(true),
     )
 
     val validCompleteSchema = Schema(
@@ -86,22 +97,10 @@ object TestData {
     )
 
     val validCompleteProperties = setOf(
-        Property(
-            name = HOST_PROPERTY_NAME,
-            value = null,
-        ),
-        Property(
-            name = DOMAIN_PROPERTY_NAME,
-            value = StringProperty("www.domain.com"),
-        ),
-        Property(
-            name = IS_DEBUG_PROPERTY_NAME,
-            value = null,
-        ),
-        Property(
-            name = IS_PRODUCTION_PROPERTY_NAME,
-            value = BooleanProperty(true),
-        ),
+        hostProperty,
+        domainProperty,
+        debugProperty,
+        productionProperty,
     )
 
     val validCompleteEnvironment = Environment(

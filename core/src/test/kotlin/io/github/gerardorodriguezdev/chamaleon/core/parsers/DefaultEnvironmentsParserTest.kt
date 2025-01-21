@@ -31,7 +31,7 @@ class DefaultEnvironmentsParserTest {
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
-        assertEquals(expectedEnvironmentsParserResult, actualEnvironmentsParserResult)
+        assertEquals(expected = expectedEnvironmentsParserResult, actual = actualEnvironmentsParserResult)
     }
 
     @Test
@@ -41,7 +41,7 @@ class DefaultEnvironmentsParserTest {
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
-        assertEquals(expectedEnvironmentsParserResult, actualEnvironmentsParserResult)
+        assertEquals(expected = expectedEnvironmentsParserResult, actual = actualEnvironmentsParserResult)
     }
 
     @Test
@@ -61,7 +61,7 @@ class DefaultEnvironmentsParserTest {
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
-        assertEquals(expectedEnvironmentsParserResult, actualEnvironmentsParserResult)
+        assertEquals(expected = expectedEnvironmentsParserResult, actual = actualEnvironmentsParserResult)
     }
 
     private fun createEnvironmentsFile(content: String? = null) {

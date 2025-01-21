@@ -29,7 +29,7 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -39,7 +39,7 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -49,7 +49,7 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -59,7 +59,7 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -74,7 +74,7 @@ class DefaultPropertiesParserTest {
         assertTrue { propertiesFileUpdated }
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
-        assertEquals(SELECTED_ENVIRONMENT, newSelectedEnvironmentName)
+        assertEquals(expected = SELECTED_ENVIRONMENT, actual = newSelectedEnvironmentName)
     }
 
     @Test

@@ -40,7 +40,7 @@ class PropertySerializerTest {
 
             val actualJson = Json.encodeToString(propertyDto)
 
-            assertEquals(expectedJson, actualJson)
+            assertEquals(expected = expectedJson, actual = actualJson)
         }
 
         @Test
@@ -51,7 +51,7 @@ class PropertySerializerTest {
 
             val actualJson = Json.encodeToString(propertyDto)
 
-            assertEquals(expectedJson, actualJson)
+            assertEquals(expected = expectedJson, actual = actualJson)
         }
 
         @Test
@@ -62,7 +62,7 @@ class PropertySerializerTest {
 
             val actualJson = Json.encodeToString(propertyDto)
 
-            assertEquals(expectedJson, actualJson)
+            assertEquals(expected = expectedJson, actual = actualJson)
         }
     }
 
@@ -161,7 +161,7 @@ class PropertySerializerTest {
 
             val actualPropertyDto = Json.decodeFromString<PropertyDto>(json)
 
-            assertEquals(expectedPropertyDto, actualPropertyDto)
+            assertEquals(expected = expectedPropertyDto, actual = actualPropertyDto)
         }
 
         @Test
@@ -178,7 +178,7 @@ class PropertySerializerTest {
 
             val actualPropertyDto = Json.decodeFromString<PropertyDto>(json)
 
-            assertEquals(expectedPropertyDto, actualPropertyDto)
+            assertEquals(expected = expectedPropertyDto, actual = actualPropertyDto)
         }
 
         @Test
@@ -195,7 +195,7 @@ class PropertySerializerTest {
 
             val actualPropertyDto = Json.decodeFromString<PropertyDto>(json)
 
-            assertEquals(expectedPropertyDto, actualPropertyDto)
+            assertEquals(expected = expectedPropertyDto, actual = actualPropertyDto)
         }
     }
 }
