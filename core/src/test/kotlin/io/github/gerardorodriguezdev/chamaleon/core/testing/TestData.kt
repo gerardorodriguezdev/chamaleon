@@ -24,6 +24,16 @@ object TestData {
         IOS,
     )
 
+    val hostProperty = Property(
+        name = HOST_PROPERTY_NAME,
+        value = null,
+    )
+
+    val domainProperty = Property(
+        name = DOMAIN_PROPERTY_NAME,
+        value = StringProperty("www.domain.com"),
+    )
+
     val validCompleteSchema = Schema(
         supportedPlatforms = allPlatforms,
         propertyDefinitions = setOf(
@@ -112,6 +122,25 @@ object TestData {
             Platform(
                 platformType = IOS,
                 properties = validCompleteProperties
+            ),
+        )
+    )
+
+    val validEnvironmentWithRestrictedPlatform = Environment(
+        name = ENVIRONMENT_NAME,
+        platforms = setOf(
+            Platform(
+                platformType = ANDROID,
+                properties = setOf(
+                    hostProperty,
+                    domainProperty,
+                )
+            ),
+            Platform(
+                platformType = JVM,
+                properties = setOf(
+                    domainProperty
+                )
             ),
         )
     )

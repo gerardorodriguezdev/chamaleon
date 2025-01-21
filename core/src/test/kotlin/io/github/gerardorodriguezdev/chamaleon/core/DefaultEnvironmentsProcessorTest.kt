@@ -1,11 +1,18 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure.*
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.ANDROID
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.JVM
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.ENVIRONMENT_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.domainProperty
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.hostProperty
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentsParser
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakePropertiesParser
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeSchemaParser
@@ -149,6 +156,39 @@ class DefaultEnvironmentsProcessorTest {
         }
 
         @Test
+        fun `GIVEN platform with forbidden property definition WHEN process THEN returns environments`() =
+            runTest {
+                schemaParser.schemaParserResult = SchemaParserResult.Success(TestData.validSchemaWithRestrictedPlatform)
+                environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
+                    setOf(
+                        Environment(
+                            name = ENVIRONMENT_NAME,
+                            platforms = setOf(
+                                Platform(
+                                    platformType = ANDROID,
+                                    properties = setOf(
+                                        hostProperty,
+                                        domainProperty,
+                                    )
+                                ),
+                                Platform(
+                                    platformType = JVM,
+                                    properties = setOf(
+                                        hostProperty,
+                                        domainProperty
+                                    )
+                                ),
+                            )
+                        )
+                    )
+                )
+
+                assertIs<PropertiesNotEqualToSchema>(
+                    defaultEnvironmentsProcessor.process(environmentsDirectory)
+                )
+            }
+
+        @Test
         fun `GIVEN property has incorrect type from schema WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                 environments = setOf(
@@ -207,17 +247,35 @@ class DefaultEnvironmentsProcessorTest {
         }
 
         @Test
+        fun `GIVEN valid schema and environments with omitted property WHEN process THEN returns environments`() =
+            runTest {
+                schemaParser.schemaParserResult = SchemaParserResult.Success(TestData.validSchemaWithRestrictedPlatform)
+                val validEnvironments = setOf(TestData.validEnvironmentWithRestrictedPlatform)
+                environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(validEnvironments)
+
+                val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
+                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                    selectedEnvironmentName = ENVIRONMENT_NAME,
+                    environments = validEnvironments,
+                )
+
+                val environmentsProcessorResult = defaultEnvironmentsProcessor.process(environmentsDirectory)
+
+                assertEquals(expected = expectedEnvironmentsProcessorResult, actual = environmentsProcessorResult)
+            }
+
+        @Test
         fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() =
             runTest {
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
                     environmentsDirectoryPath = environmentsDirectory.absolutePath,
-                    selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
+                    selectedEnvironmentName = ENVIRONMENT_NAME,
                     environments = setOf(TestData.validCompleteEnvironment),
                 )
 
                 val environmentsProcessorResult = defaultEnvironmentsProcessor.process(environmentsDirectory)
 
-                assertEquals(environmentsProcessorResult, expectedEnvironmentsProcessorResult)
+                assertEquals(expected = expectedEnvironmentsProcessorResult, actual = environmentsProcessorResult)
             }
     }
 
@@ -230,7 +288,7 @@ class DefaultEnvironmentsProcessorTest {
             val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
 
             assertEquals(
-                listOf(
+                expected = listOf(
                     EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
                         environmentsDirectoryPath = environmentsDirectory.absolutePath,
                         selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
@@ -239,7 +297,7 @@ class DefaultEnvironmentsProcessorTest {
                         )
                     )
                 ),
-                environmentsProcessorResults,
+                actual = environmentsProcessorResults,
             )
         }
 
@@ -252,8 +310,8 @@ class DefaultEnvironmentsProcessorTest {
             val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
 
             assertEquals(
-                listOf(PropertiesSerialization(expectedException)),
-                environmentsProcessorResults,
+                expected = listOf(PropertiesSerialization(expectedException)),
+                actual = environmentsProcessorResults,
             )
         }
     }
@@ -274,7 +332,7 @@ class DefaultEnvironmentsProcessorTest {
     @Test
     fun `GIVEN environmentName WHEN environmentFileName THEN returns environment name`() {
         val environmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
-        assertEquals("local.environment.chamaleon.json", environmentFileName)
+        assertEquals(expected = "local.environment.chamaleon.json", actual = environmentFileName)
     }
 
     @ParameterizedTest
@@ -285,7 +343,7 @@ class DefaultEnvironmentsProcessorTest {
     ) {
         val environmentFile = File(directory, environmentFileName)
         val actual = DefaultEnvironmentsProcessor.environmentFileMatcher(environmentFile)
-        assertEquals(expected, actual)
+        assertEquals(expected = expected, actual = actual)
     }
 
     @ParameterizedTest
@@ -296,7 +354,7 @@ class DefaultEnvironmentsProcessorTest {
     ) {
         val environmentFile = File(directory, environmentFileName)
         val actual = DefaultEnvironmentsProcessor.environmentFileNameExtractor(environmentFile)
-        assertEquals(expected, actual)
+        assertEquals(expected = expected, actual = actual)
     }
 
     private fun createEnvironmentsDirectory(): File {
