@@ -125,8 +125,8 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN environment is missing platform from schema WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                 environments = setOf(
-                    TestData.validCompleteEnvironment.copy(
-                        platforms = TestData.validCompleteEnvironment.platforms.drop(1).toSet()
+                    TestData.environment.copy(
+                        platforms = TestData.environment.platforms.drop(1).toSet()
                     )
                 )
             )
@@ -140,8 +140,8 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN platform is missing property from schema WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                 environments = setOf(
-                    TestData.validCompleteEnvironment.copy(
-                        platforms = TestData.validCompleteEnvironment.platforms.map { platformDto ->
+                    TestData.environment.copy(
+                        platforms = TestData.environment.platforms.map { platformDto ->
                             platformDto.copy(
                                 properties = platformDto.properties.drop(1).toSet()
                             )
@@ -158,7 +158,7 @@ class DefaultEnvironmentsProcessorTest {
         @Test
         fun `GIVEN platform with forbidden property definition WHEN process THEN returns environments`() =
             runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Success(TestData.validSchemaWithRestrictedPlatform)
+                schemaParser.schemaParserResult = SchemaParserResult.Success(TestData.schemaWithRestrictedPlatform)
                 environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                     setOf(
                         Environment(
@@ -192,8 +192,8 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN property has incorrect type from schema WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                 environments = setOf(
-                    TestData.validCompleteEnvironment.copy(
-                        platforms = TestData.validCompleteEnvironment.platforms.map { platformDto ->
+                    TestData.environment.copy(
+                        platforms = TestData.environment.platforms.map { platformDto ->
                             platformDto.copy(
                                 properties = platformDto.properties.map { propertyDto ->
                                     propertyDto.copy(
@@ -215,8 +215,8 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN non null property definition is null WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                 environments = setOf(
-                    TestData.validCompleteEnvironment.copy(
-                        platforms = TestData.validCompleteEnvironment.platforms.map { platformDto ->
+                    TestData.environment.copy(
+                        platforms = TestData.environment.platforms.map { platformDto ->
                             platformDto.copy(
                                 properties = platformDto.properties.map { propertyDto ->
                                     if (propertyDto.name == "DOMAIN") {
@@ -249,8 +249,8 @@ class DefaultEnvironmentsProcessorTest {
         @Test
         fun `GIVEN valid schema and environments with omitted property WHEN process THEN returns environments`() =
             runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Success(TestData.validSchemaWithRestrictedPlatform)
-                val validEnvironments = setOf(TestData.validEnvironmentWithRestrictedPlatform)
+                schemaParser.schemaParserResult = SchemaParserResult.Success(TestData.schemaWithRestrictedPlatform)
+                val validEnvironments = setOf(TestData.environmentWithRestrictedPlatform)
                 environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(validEnvironments)
 
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
@@ -270,7 +270,7 @@ class DefaultEnvironmentsProcessorTest {
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
                     environmentsDirectoryPath = environmentsDirectory.absolutePath,
                     selectedEnvironmentName = ENVIRONMENT_NAME,
-                    environments = setOf(TestData.validCompleteEnvironment),
+                    environments = setOf(TestData.environment),
                 )
 
                 val environmentsProcessorResult = defaultEnvironmentsProcessor.process(environmentsDirectory)
@@ -293,7 +293,7 @@ class DefaultEnvironmentsProcessorTest {
                         environmentsDirectoryPath = environmentsDirectory.absolutePath,
                         selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
                         environments = setOf(
-                            TestData.validCompleteEnvironment
+                            TestData.environment
                         )
                     )
                 ),

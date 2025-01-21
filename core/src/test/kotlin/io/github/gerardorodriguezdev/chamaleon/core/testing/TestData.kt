@@ -45,7 +45,7 @@ object TestData {
         value = BooleanProperty(true),
     )
 
-    val validCompleteSchema = Schema(
+    val schema = Schema(
         supportedPlatforms = allPlatforms,
         propertyDefinitions = setOf(
             PropertyDefinition(
@@ -75,7 +75,7 @@ object TestData {
         )
     )
 
-    val validSchemaWithRestrictedPlatform = Schema(
+    val schemaWithRestrictedPlatform = Schema(
         supportedPlatforms = setOf(
             ANDROID,
             JVM,
@@ -96,36 +96,44 @@ object TestData {
         )
     )
 
-    val validCompleteProperties = setOf(
+    val properties = setOf(
         hostProperty,
         domainProperty,
         debugProperty,
         productionProperty,
     )
 
-    val validCompleteEnvironment = Environment(
+    val wasmPlatform = Platform(
+        platformType = WASM,
+        properties = properties
+    )
+
+    val androidPlatform = Platform(
+        platformType = ANDROID,
+        properties = properties
+    )
+
+    val jvmPlatform = Platform(
+        platformType = JVM,
+        properties = properties
+    )
+
+    val iosPlatform = Platform(
+        platformType = IOS,
+        properties = properties
+    )
+
+    val environment = Environment(
         name = ENVIRONMENT_NAME,
         platforms = setOf(
-            Platform(
-                platformType = WASM,
-                properties = validCompleteProperties
-            ),
-            Platform(
-                platformType = ANDROID,
-                properties = validCompleteProperties
-            ),
-            Platform(
-                platformType = JVM,
-                properties = validCompleteProperties
-            ),
-            Platform(
-                platformType = IOS,
-                properties = validCompleteProperties
-            ),
+            wasmPlatform,
+            androidPlatform,
+            jvmPlatform,
+            iosPlatform,
         )
     )
 
-    val validEnvironmentWithRestrictedPlatform = Environment(
+    val environmentWithRestrictedPlatform = Environment(
         name = ENVIRONMENT_NAME,
         platforms = setOf(
             Platform(

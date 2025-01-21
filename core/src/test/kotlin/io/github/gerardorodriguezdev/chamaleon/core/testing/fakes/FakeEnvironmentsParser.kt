@@ -9,7 +9,7 @@ class FakeEnvironmentsParser(
     var environmentsParserResult: EnvironmentsParserResult =
         EnvironmentsParserResult.Success(
             environments = setOf(
-                TestData.validCompleteEnvironment
+                TestData.environment
             )
         ),
 ) : EnvironmentsParser {

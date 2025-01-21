@@ -56,7 +56,7 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN complete valid schema file WHEN schemaParserResult THEN returns schemaDto`() {
-        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.validCompleteSchema)
+        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.schema)
         createSchemaFile(completeValidSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
@@ -66,7 +66,7 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN valid schema file with supported platforms WHEN schemaParserResult THEN returns schemaDto`() {
-        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.validSchemaWithRestrictedPlatform)
+        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.schemaWithRestrictedPlatform)
         createSchemaFile(validSchemaWithRestrictedPlatforms)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)

@@ -56,7 +56,7 @@ class DefaultEnvironmentsParserTest {
     @Test
     fun `GIVEN valid complete environments WHEN environmentsParserResult THEN returns environments`() {
         val expectedEnvironmentsParserResult =
-            EnvironmentsParserResult.Success(environments = setOf(TestData.validCompleteEnvironment))
+            EnvironmentsParserResult.Success(environments = setOf(TestData.environment))
         createEnvironmentsFile(completeValidEnvironments)
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)

@@ -7,4 +7,16 @@ import org.gradle.api.provider.SetProperty
 public interface Extension {
     public val selectedEnvironmentName: Property<String?>
     public val environments: SetProperty<Environment>
+
+    public fun environment(name: String): Environment =
+        environments.get().first { environment -> environment.name == name }
+
+    public fun environmentOrNull(name: String): Environment? =
+        environments.get().firstOrNull { environment -> environment.name == name }
+
+    public fun selectedEnvironment(): Environment =
+        environments.get().first { environment -> environment.name == selectedEnvironmentName.get() }
+
+    public fun selectedEnvironmentOrNull(): Environment? =
+        environments.get().firstOrNull { environment -> environment.name == selectedEnvironmentName.get() }
 }
