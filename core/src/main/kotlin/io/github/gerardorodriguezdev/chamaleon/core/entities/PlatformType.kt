@@ -1,19 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.core.entities
 
-import kotlinx.serialization.SerialName
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.PlatformTypeSerializer
 import kotlinx.serialization.Serializable
 
-@Serializable
-public enum class PlatformType {
-    @SerialName("android")
-    ANDROID,
-
-    @SerialName("wasm")
-    WASM,
-
-    @SerialName("ios")
-    IOS,
-
-    @SerialName("jvm")
-    JVM
+@Serializable(with = PlatformTypeSerializer::class)
+public enum class PlatformType(public val serialName: String) {
+    ANDROID("android"),
+    WASM("wasm"),
+    IOS("ios"),
+    JVM("jvm");
 }
