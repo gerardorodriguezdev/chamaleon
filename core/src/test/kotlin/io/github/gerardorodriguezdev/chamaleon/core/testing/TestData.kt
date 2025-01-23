@@ -11,7 +11,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 
 object TestData {
-    const val ENVIRONMENT_NAME = "local"
+    const val LOCAL_ENVIRONMENT_NAME = "local"
+    const val PRODUCTION_ENVIRONMENT_NAME = "production"
     const val HOST_PROPERTY_NAME = "HOST"
     const val DOMAIN_PROPERTY_NAME = "DOMAIN"
     const val IS_DEBUG_PROPERTY_NAME = "IS_DEBUG"
@@ -124,7 +125,7 @@ object TestData {
     )
 
     val environment = Environment(
-        name = ENVIRONMENT_NAME,
+        name = LOCAL_ENVIRONMENT_NAME,
         platforms = setOf(
             wasmPlatform,
             androidPlatform,
@@ -134,7 +135,7 @@ object TestData {
     )
 
     val environmentWithRestrictedPlatform = Environment(
-        name = ENVIRONMENT_NAME,
+        name = LOCAL_ENVIRONMENT_NAME,
         platforms = setOf(
             Platform(
                 platformType = ANDROID,

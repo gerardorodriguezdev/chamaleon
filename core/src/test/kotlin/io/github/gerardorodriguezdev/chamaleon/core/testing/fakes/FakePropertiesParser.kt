@@ -7,7 +7,7 @@ import java.io.File
 
 class FakePropertiesParser(
     var propertiesParserResult: PropertiesParserResult = PropertiesParserResult.Success(
-        TestData.ENVIRONMENT_NAME,
+        TestData.LOCAL_ENVIRONMENT_NAME,
     ),
     var updateSelectedEnvironmentResult: Boolean = false,
 ) : PropertiesParser {

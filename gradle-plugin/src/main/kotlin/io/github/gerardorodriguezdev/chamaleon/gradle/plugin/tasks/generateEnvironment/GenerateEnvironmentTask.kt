@@ -12,6 +12,7 @@ import org.gradle.api.tasks.TaskAction
 //TODO: Maybe enable adding single prop per string?
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
+
     @get:Input
     public abstract val generateEnvironmentCommands: Property<List<String>>
 

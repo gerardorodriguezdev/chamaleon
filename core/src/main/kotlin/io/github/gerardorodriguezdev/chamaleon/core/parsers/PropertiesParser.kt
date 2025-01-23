@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -42,21 +43,11 @@ internal class DefaultPropertiesParser : PropertiesParser {
     override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
             val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
-            val propertiesFileContent = prettyJson.encodeToString(propertiesDto)
+            val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
             return true
         } catch (_: Exception) {
             return false
-        }
-    }
-
-    private companion object {
-        const val INDENTATION = "  "
-
-        @OptIn(ExperimentalSerializationApi::class)
-        val prettyJson = Json {
-            prettyPrint = true
-            prettyPrintIndent = INDENTATION
         }
     }
 }

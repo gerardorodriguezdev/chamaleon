@@ -10,7 +10,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.E
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
-import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.ENVIRONMENT_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.PRODUCTION_ENVIRONMENT_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.domainProperty
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.hostProperty
 import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentsParser
@@ -162,7 +163,7 @@ class DefaultEnvironmentsProcessorTest {
                 environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(
                     setOf(
                         Environment(
-                            name = ENVIRONMENT_NAME,
+                            name = LOCAL_ENVIRONMENT_NAME,
                             platforms = setOf(
                                 Platform(
                                     platformType = ANDROID,
@@ -255,7 +256,7 @@ class DefaultEnvironmentsProcessorTest {
 
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
                     environmentsDirectoryPath = environmentsDirectory.absolutePath,
-                    selectedEnvironmentName = ENVIRONMENT_NAME,
+                    selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = validEnvironments,
                 )
 
@@ -269,7 +270,7 @@ class DefaultEnvironmentsProcessorTest {
             runTest {
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
                     environmentsDirectoryPath = environmentsDirectory.absolutePath,
-                    selectedEnvironmentName = ENVIRONMENT_NAME,
+                    selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = setOf(TestData.environment),
                 )
 
@@ -291,7 +292,7 @@ class DefaultEnvironmentsProcessorTest {
                 expected = listOf(
                     EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
                         environmentsDirectoryPath = environmentsDirectory.absolutePath,
-                        selectedEnvironmentName = TestData.ENVIRONMENT_NAME,
+                        selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                         environments = setOf(
                             TestData.environment
                         )
@@ -323,16 +324,29 @@ class DefaultEnvironmentsProcessorTest {
         val updateSelectedEnvironmentResult =
             defaultEnvironmentsProcessor.updateSelectedEnvironment(
                 environmentsDirectory = directory,
-                newSelectedEnvironment = TestData.ENVIRONMENT_NAME,
+                newSelectedEnvironment = LOCAL_ENVIRONMENT_NAME,
             )
 
-        assertTrue { updateSelectedEnvironmentResult }
+        assertTrue(updateSelectedEnvironmentResult)
     }
 
     @Test
     fun `GIVEN environmentName WHEN environmentFileName THEN returns environment name`() {
         val environmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
         assertEquals(expected = "local.environment.chamaleon.json", actual = environmentFileName)
+    }
+
+    @Test
+    fun `WHEN addEnvironmentResult THEN returns true`() {
+        environmentsParser.addEnvironmentsResult = true
+
+        val updateSelectedEnvironmentResult =
+            defaultEnvironmentsProcessor.addEnvironments(
+                environmentsDirectory = directory,
+                environments = emptySet(),
+            )
+
+        assertTrue(updateSelectedEnvironmentResult)
     }
 
     @ParameterizedTest
@@ -353,7 +367,7 @@ class DefaultEnvironmentsProcessorTest {
         environmentFileName: String
     ) {
         val environmentFile = File(directory, environmentFileName)
-        val actual = DefaultEnvironmentsProcessor.environmentFileNameExtractor(environmentFile)
+        val actual = DefaultEnvironmentsProcessor.environmentNameExtractor(environmentFile)
         assertEquals(expected = expected, actual = actual)
     }
 
@@ -364,8 +378,6 @@ class DefaultEnvironmentsProcessorTest {
     }
 
     companion object {
-        private const val LOCAL_ENVIRONMENT_NAME = "local"
-        private const val PRODUCTION_ENVIRONMENT_NAME = "production"
         private val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
         private val productionEnvironmentFileName =
             EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)

@@ -31,6 +31,7 @@ public interface EnvironmentsProcessor {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
     public fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
+    public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
 
     public sealed interface EnvironmentsProcessorResult {
         public data class Success(
@@ -95,7 +96,8 @@ internal class DefaultEnvironmentsProcessor(
     val schemaParser: SchemaParser = DefaultSchemaParser(),
     val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(
         environmentFileMatcher = environmentFileMatcher,
-        environmentNameExtractor = environmentFileNameExtractor,
+        environmentNameExtractor = environmentNameExtractor,
+        environmentFileNameExtractor = environmentFileNameExtractor,
     ),
     val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
 ) : EnvironmentsProcessor {
@@ -119,6 +121,33 @@ internal class DefaultEnvironmentsProcessor(
                 environments = environments,
             )
         }
+
+    override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
+        coroutineScope {
+            val environmentsDirectoriesPaths = rootDirectory.environmentsDirectoriesPaths()
+
+            environmentsDirectoriesPaths
+                .map { environmentsDirectoryPath ->
+                    async {
+                        val environmentsDirectory = File(environmentsDirectoryPath)
+                        val environmentsProcessorResult = process(environmentsDirectory)
+                        environmentsProcessorResult
+                    }
+                }
+                .awaitAll()
+        }
+
+    override fun updateSelectedEnvironment(
+        environmentsDirectory: File,
+        newSelectedEnvironment: String?
+    ): Boolean =
+        propertiesParser.updateSelectedEnvironment(
+            propertiesFile = File(environmentsDirectory, PROPERTIES_FILE),
+            newSelectedEnvironment = newSelectedEnvironment,
+        )
+
+    override fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean =
+        environmentsParser.addEnvironments(environmentsDirectory, environments)
 
     @Suppress("ReturnCount")
     private suspend fun CoroutineScope.parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> {
@@ -228,30 +257,6 @@ internal class DefaultEnvironmentsProcessor(
         } else {
             null
         }
-
-    override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
-        coroutineScope {
-            val environmentsDirectoriesPaths = rootDirectory.environmentsDirectoriesPaths()
-
-            environmentsDirectoriesPaths
-                .map { environmentsDirectoryPath ->
-                    async {
-                        val environmentsDirectory = File(environmentsDirectoryPath)
-                        val environmentsProcessorResult = process(environmentsDirectory)
-                        environmentsProcessorResult
-                    }
-                }
-                .awaitAll()
-        }
-
-    override fun updateSelectedEnvironment(
-        environmentsDirectory: File,
-        newSelectedEnvironment: String?
-    ): Boolean =
-        propertiesParser.updateSelectedEnvironment(
-            propertiesFile = File(environmentsDirectory, PROPERTIES_FILE),
-            newSelectedEnvironment = newSelectedEnvironment,
-        )
 
     private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment): Failure? {
         val platformTypes = environment.platforms.map { platform -> platform.platformType }
@@ -373,8 +378,11 @@ internal class DefaultEnvironmentsProcessor(
     )
 
     internal companion object {
-        val environmentFileMatcher =
+        val environmentFileMatcher: (file: File) -> Boolean =
             { file: File -> file.name != ENVIRONMENT_FILE_SUFFIX && file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) }
-        val environmentFileNameExtractor = { file: File -> file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
+        val environmentNameExtractor: (file: File) -> String =
+            { file: File -> file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
+        val environmentFileNameExtractor: (String) -> String =
+            { environmentName -> EnvironmentsProcessor.environmentFileName(environmentName) }
     }
 }
