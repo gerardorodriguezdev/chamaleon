@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.kmp.coroutines)
     testImplementation(gradleTestKit())
     testImplementation(libs.kmp.test)
+    testImplementation(libs.jvm.test.parameterized)
 }
 
 sourceSets {

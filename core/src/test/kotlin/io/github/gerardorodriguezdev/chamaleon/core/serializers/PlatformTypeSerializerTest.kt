@@ -10,11 +10,11 @@ import kotlin.test.assertEquals
 internal class PlatformTypeSerializerTest {
 
     @ParameterizedTest
-    @MethodSource("serializationTestData")
-    fun `GIVEN valid platform type WHEN serialize THEN returns string`(serializationTestData: SerializationTestData) {
-        val actualPlatformTypeString = Json.encodeToString(serializationTestData.platformType)
+    @MethodSource("serializationTestCases")
+    fun `GIVEN valid platform type WHEN serialize THEN returns string`(serializationTestCase: SerializationTestCase) {
+        val actualPlatformTypeString = Json.encodeToString(serializationTestCase.platformType)
 
-        assertEquals(expected = serializationTestData.expectedPlatformTypeString, actual = actualPlatformTypeString)
+        assertEquals(expected = serializationTestCase.expectedPlatformTypeString, actual = actualPlatformTypeString)
     }
 
     @ParameterizedTest
@@ -26,10 +26,10 @@ internal class PlatformTypeSerializerTest {
     }
 
     @ParameterizedTest
-    @MethodSource("deserializationTestData")
-    fun `GIVEN valid string WHEN deserialize THEN returns platform type`(deserializationTestData: DeserializationTestData) {
-        val actualPlatformType = Json.decodeFromString<PlatformType>(deserializationTestData.platformTypeString)
-        assertEquals(expected = deserializationTestData.expectedPlatformType, actual = actualPlatformType)
+    @MethodSource("deserializationTestCases")
+    fun `GIVEN valid string WHEN deserialize THEN returns platform type`(deserializationTestCase: DeserializationTestCase) {
+        val actualPlatformType = Json.decodeFromString<PlatformType>(deserializationTestCase.platformTypeString)
+        assertEquals(expected = deserializationTestCase.expectedPlatformType, actual = actualPlatformType)
     }
 
     internal companion object {
@@ -38,11 +38,11 @@ internal class PlatformTypeSerializerTest {
         private fun PlatformType.wrapPlatformInQuotes(): String = serialName.wrapInQuotes()
 
         @JvmStatic
-        fun serializationTestData(): List<SerializationTestData> =
+        fun serializationTestCases(): List<SerializationTestCase> =
             PlatformType.entries.map { platformType -> platformType.toSerializationTestData() }
 
         @JvmStatic
-        fun deserializationTestData(): List<DeserializationTestData> =
+        fun deserializationTestCases(): List<DeserializationTestCase> =
             PlatformType.entries.map { platformType -> platformType.toDeserializationTestData() }
 
         @JvmStatic
@@ -56,24 +56,24 @@ internal class PlatformTypeSerializerTest {
                 "jv".wrapInQuotes(),
             )
 
-        private fun PlatformType.toSerializationTestData(): SerializationTestData =
-            SerializationTestData(
+        private fun PlatformType.toSerializationTestData(): SerializationTestCase =
+            SerializationTestCase(
                 platformType = this,
                 expectedPlatformTypeString = wrapPlatformInQuotes(),
             )
 
-        private fun PlatformType.toDeserializationTestData(): DeserializationTestData =
-            DeserializationTestData(
+        private fun PlatformType.toDeserializationTestData(): DeserializationTestCase =
+            DeserializationTestCase(
                 expectedPlatformType = this,
                 platformTypeString = this.wrapPlatformInQuotes(),
             )
 
-        data class SerializationTestData(
+        data class SerializationTestCase(
             val platformType: PlatformType,
             val expectedPlatformTypeString: String,
         )
 
-        data class DeserializationTestData(
+        data class DeserializationTestCase(
             val platformTypeString: String,
             val expectedPlatformType: PlatformType,
         )
