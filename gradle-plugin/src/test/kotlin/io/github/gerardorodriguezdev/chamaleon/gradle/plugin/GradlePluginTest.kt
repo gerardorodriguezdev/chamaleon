@@ -8,7 +8,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.SampleResources.writeAll
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources.writeAll
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult

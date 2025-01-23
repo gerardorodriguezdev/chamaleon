@@ -1,6 +1,7 @@
-package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
+package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks
 
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.SampleResources.writeAll
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources.writeAll
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.CacheableTask

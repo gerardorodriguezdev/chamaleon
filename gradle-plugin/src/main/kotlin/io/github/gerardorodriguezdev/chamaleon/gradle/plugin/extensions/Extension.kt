@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
+package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import org.gradle.api.provider.Property

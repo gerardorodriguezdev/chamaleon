@@ -7,6 +7,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Plugin
 import org.gradle.api.Project
