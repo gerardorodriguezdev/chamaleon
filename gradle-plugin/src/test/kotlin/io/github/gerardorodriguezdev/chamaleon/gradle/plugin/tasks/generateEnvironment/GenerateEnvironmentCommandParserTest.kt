@@ -24,40 +24,33 @@ internal class GenerateEnvironmentCommandParserTest {
         const val PRODUCTION_ENVIRONMENT_NAME = "production"
         const val HOST_PROPERTY_NAME = "host"
         const val HOST_PROPERTY_VALUE = "productionhost"
-
-        val VALID_COMMAND =
-            """
-                chamaleonEnvironment="$PRODUCTION_ENVIRONMENT_NAME.jvm.properties[$HOST_PROPERTY_NAME=$HOST_PROPERTY_VALUE]"
-            """.trimIndent()
+        const val VALID_COMMAND =
+            "$PRODUCTION_ENVIRONMENT_NAME.jvm.properties[$HOST_PROPERTY_NAME=$HOST_PROPERTY_VALUE]"
 
         @JvmStatic
         fun testCases(): List<GenerateEnvironmentCommandTestCase> =
             listOf(
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.properties[name=value,name=value""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvmproperties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironment="jvm.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironment=".jvm.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""="production.jvm.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironment"production.jvm.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonnvironment="production.jvm.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironment=production.jvm.properties[name=value,name=value]"""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.properties""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.properties["""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.properties[]""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.properties[,]""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironmen="production.jvm.properties[name=value,name=value]""""),
-                invalidCommandTestCase("""chamaleonEnvironment="production.jvm.properties name=value,name=value """"),
+                // Invalid command
+                invalidCommandTestCase("production.jvm.properties[host=productionhost,isDebug=true"),
+                invalidCommandTestCase("production.jvm.properties[hostproductionhost]"),
+                invalidCommandTestCase("production.jvm.propertieshostproductionhost]"),
+                invalidCommandTestCase("production.jvm.properties"),
+                invalidCommandTestCase("production.jvm.properties["),
+                invalidCommandTestCase("production.jvm.[host=productionhost,isDebug=true]"),
+                invalidCommandTestCase("production.jvm..[host=productionhost,isDebug=true]"),
+                invalidCommandTestCase("..jvm.properties[host=productionhost,isDebug=true]"),
+                invalidCommandTestCase(".jvm.properties[host=productionhost,isDebug=true]"),
+                invalidCommandTestCase("production.jvm.other[host=productionhost,isDebug=true]"),
+                invalidCommandTestCase("production.jvm.properties[=productionhost]"),
+                invalidCommandTestCase("production.jvm.properties[host=]"),
 
                 // Invalid platform type
                 invalidPlatformTypeTestCase(
-                    command = """chamaleonEnvironment="production..properties[name=value,name=value]"""",
+                    command = "production..properties[name=value,name=value]",
                     platformTypeString = "",
                 ),
                 invalidPlatformTypeTestCase(
-                    command = """chamaleonEnvironment="production.jv.properties[name=value,name=value]"""",
+                    command = "production.jv.properties[name=value,name=value]",
                     platformTypeString = "jv",
                 ),
 
@@ -97,7 +90,10 @@ internal class GenerateEnvironmentCommandParserTest {
         ): GenerateEnvironmentCommandTestCase =
             GenerateEnvironmentCommandTestCase(
                 command = command,
-                expectedResult = Failure.InvalidPlatformType(platformTypeString),
+                expectedResult = Failure.InvalidPlatformType(
+                    command = command,
+                    platformTypeString = platformTypeString,
+                ),
             )
 
         data class GenerateEnvironmentCommandTestCase(
