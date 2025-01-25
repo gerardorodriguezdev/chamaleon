@@ -9,6 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Enviro
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -24,6 +25,7 @@ public class GradlePlugin : Plugin<Project> {
             createExtension()
             registerGenerateSampleTask()
             registerSelectEnvironmentTask()
+            registerGenerateEnvironmentTask()
         }
     }
 
@@ -129,14 +131,26 @@ public class GradlePlugin : Plugin<Project> {
             }
         }
 
+    private fun Project.registerGenerateEnvironmentTask(): TaskProvider<GenerateEnvironmentTask> =
+        tasks.register(GENERATE_ENVIRONMENT_TASK_NAME, GenerateEnvironmentTask::class.java) {
+            val environmentsDirectory = environmentsDirectory()
+            val generateEnvironmentCommands =
+                providers.gradlePropertiesPrefixedBy(GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
+
+            this.environmentsDirectory.set(environmentsDirectory)
+            this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
+        }
+
     private class GradlePluginException(message: String) : IllegalStateException(message)
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
         const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
         const val SELECT_ENVIRONMENT_TASK_NAME = "chamaleonSelectEnvironment"
+        const val GENERATE_ENVIRONMENT_TASK_NAME = "chamaleonGenerateEnvironment"
 
         const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sampleOutputDirectory"
         const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.newSelectedEnvironment"
+        const val GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.environment"
     }
 }
