@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-public class PlatformTypeSerializer : KSerializer<PlatformType> {
+internal class PlatformTypeSerializer : KSerializer<PlatformType> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("PlatformType", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: PlatformType) {
