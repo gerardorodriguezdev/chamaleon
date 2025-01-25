@@ -43,7 +43,7 @@ println(myPropertyValue)
 
 Is as simple as that to get started :)
 
-## Files descriptions
+## Files
 
 > The json schemas for this files have been uploaded to [Schema store](https://www.schemastore.org/json/) so you can see
 > hints if the schema is valid or not and have auto-completions as well. Alternatively you can find them
@@ -195,6 +195,17 @@ environmentName.platformType.properties[propertyName=propertyValue,otherProperty
 ```
 
 After running this task, your production environment file will be generated on your module's root
+
+> If you want to create an environment with more than one platform, you can run the same command with each of the
+> additional platforms, and they will be merged in the environment
+>
+> ./gradlew :chamaleonGenerateEnvironment
+>
+> -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"
+>
+> -Pchamaleon.environment="myProductionEnvironment.android.properties[mySecretName=mySecretValue]"
+>
+> This would create an environment with `jvm` and `android` platforms
 
 #### 3. Select the production environment file on CI from the command line
 
