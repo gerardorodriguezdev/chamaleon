@@ -4,20 +4,20 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentCommandParser.GenerateEnvironmentCommandParserResult
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentCommandParser.GenerateEnvironmentCommandParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentCommandParser.GenerateEnvironmentCommandParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
 
-internal class GenerateEnvironmentCommandParserTest {
+internal class DefaultCommandParserTest {
 
     @ParameterizedTest
     @MethodSource("testCases")
-    fun `GIVEN command WHEN parse THEN returns result`(generateEnvironmentCommandTestCase: GenerateEnvironmentCommandTestCase) {
-        val parsingResult = GenerateEnvironmentCommandParser().parse(generateEnvironmentCommandTestCase.command)
-        assertEquals(expected = generateEnvironmentCommandTestCase.expectedResult, actual = parsingResult)
+    fun `GIVEN command WHEN parse THEN returns result`(commandParserTestCase: CommandParserTestCase) {
+        val parsingResult = DefaultCommandParser().parse(commandParserTestCase.command)
+        assertEquals(expected = commandParserTestCase.expectedResult, actual = parsingResult)
     }
 
     internal companion object {
@@ -28,7 +28,7 @@ internal class GenerateEnvironmentCommandParserTest {
             "$PRODUCTION_ENVIRONMENT_NAME.jvm.properties[$HOST_PROPERTY_NAME=$HOST_PROPERTY_VALUE]"
 
         @JvmStatic
-        fun testCases(): List<GenerateEnvironmentCommandTestCase> =
+        fun testCases(): List<CommandParserTestCase> =
             listOf(
                 // Invalid command
                 invalidCommandTestCase("production.jvm.properties[host=productionhost,isDebug=true"),
@@ -55,7 +55,7 @@ internal class GenerateEnvironmentCommandParserTest {
                 ),
 
                 // Valid case
-                GenerateEnvironmentCommandTestCase(
+                CommandParserTestCase(
                     command = VALID_COMMAND,
                     expectedResult = Success(
                         environment = Environment(
@@ -78,8 +78,8 @@ internal class GenerateEnvironmentCommandParserTest {
                 ),
             )
 
-        private fun invalidCommandTestCase(invalidCommand: String): GenerateEnvironmentCommandTestCase =
-            GenerateEnvironmentCommandTestCase(
+        private fun invalidCommandTestCase(invalidCommand: String): CommandParserTestCase =
+            CommandParserTestCase(
                 command = invalidCommand,
                 expectedResult = Failure.InvalidCommand(invalidCommand),
             )
@@ -87,8 +87,8 @@ internal class GenerateEnvironmentCommandParserTest {
         private fun invalidPlatformTypeTestCase(
             command: String,
             platformTypeString: String
-        ): GenerateEnvironmentCommandTestCase =
-            GenerateEnvironmentCommandTestCase(
+        ): CommandParserTestCase =
+            CommandParserTestCase(
                 command = command,
                 expectedResult = Failure.InvalidPlatformType(
                     command = command,
@@ -96,10 +96,9 @@ internal class GenerateEnvironmentCommandParserTest {
                 ),
             )
 
-        data class GenerateEnvironmentCommandTestCase(
+        data class CommandParserTestCase(
             val command: String,
-            val expectedResult: GenerateEnvironmentCommandParserResult,
+            val expectedResult: CommandParserResult,
         )
     }
-
 }

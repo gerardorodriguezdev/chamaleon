@@ -5,12 +5,26 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentCommandParser.GenerateEnvironmentCommandParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentCommandParser.GenerateEnvironmentCommandParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
 
-internal class GenerateEnvironmentCommandParser {
+internal interface CommandParser {
+    fun parse(command: String): CommandParserResult
 
-    fun parse(command: String): GenerateEnvironmentCommandParserResult {
+    sealed interface CommandParserResult {
+        data class Success(val environment: Environment) : CommandParserResult
+
+        sealed interface Failure : CommandParserResult {
+            data class InvalidCommand(val command: String) : Failure
+            data class InvalidPlatformType(val command: String, val platformTypeString: String) : Failure
+        }
+    }
+}
+
+internal class DefaultCommandParser : CommandParser {
+
+    override fun parse(command: String): CommandParserResult {
         val regexResult = regex.find(command) ?: return Failure.InvalidCommand(command)
 
         val (environmentNameString, platformTypeString, propertiesString) = regexResult.destructured
@@ -74,15 +88,6 @@ internal class GenerateEnvironmentCommandParser {
     }
 
     private fun List<String>.secondOrNull(): String? = getOrNull(1)
-
-    sealed interface GenerateEnvironmentCommandParserResult {
-        data class Success(val environment: Environment) : GenerateEnvironmentCommandParserResult
-
-        sealed interface Failure : GenerateEnvironmentCommandParserResult {
-            data class InvalidCommand(val command: String) : Failure
-            data class InvalidPlatformType(val command: String, val platformTypeString: String) : Failure
-        }
-    }
 
     companion object {
         val regex = "(.*?)\\.(.*?)\\.properties\\[(.*?)]".toRegex()
