@@ -35,7 +35,7 @@ class GradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project WHEN task is executed THEN build is successful`() {
+    fun `GIVEN plugin is applied WHEN task is executed THEN build is successful`() {
         createEnvironmentsFiles()
 
         val buildResult = helpTaskBuildResult()
@@ -44,7 +44,7 @@ class GradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project WHEN project is configured THEN valid extension is returned`() {
+    fun `GIVEN plugin is applied WHEN project is configured THEN valid extension is returned`() {
         createEnvironmentsFiles()
 
         val project = buildProject()
@@ -58,7 +58,7 @@ class GradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project WHEN generateSampleTask is executed THEN generates sample files`() {
+    fun `GIVEN plugin is applied WHEN generateSampleTask is executed THEN generates sample files`() {
         val buildResult = generateSampleTaskBuildResult()
 
         assertEquals(
@@ -75,7 +75,7 @@ class GradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project WHEN generateEnvironmentTask is executed THEN generates environment files`() {
+    fun `GIVEN plugin is applied WHEN generateEnvironmentTask is executed THEN generates environment files`() {
         createSchemaFile()
 
         val buildResult = generateEnvironmentTaskBuildResult()
@@ -98,7 +98,7 @@ class GradlePluginTest {
     }
 
     @Test
-    fun `GIVEN plugin is applied to project WHEN selectEnvironment is executed THEN selects new environment`() {
+    fun `GIVEN plugin is applied WHEN selectEnvironment is executed THEN selects new environment`() {
         createEnvironmentsFiles()
 
         val buildResult = selectEnvironmentTaskBuildResult()

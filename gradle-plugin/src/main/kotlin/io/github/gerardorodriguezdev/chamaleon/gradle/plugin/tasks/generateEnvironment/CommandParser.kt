@@ -38,6 +38,7 @@ internal interface CommandParser {
 
 internal class DefaultCommandParser : CommandParser {
 
+    @Suppress("ReturnCount")
     override fun parse(command: String): CommandParserResult {
         val regexResult = regex.find(command) ?: return Failure.InvalidCommand(command)
 
@@ -77,6 +78,7 @@ internal class DefaultCommandParser : CommandParser {
 
     private fun String.propertyStrings(): List<String> = split(",")
 
+    @Suppress("ReturnCount")
     private fun String.toProperty(): Property? {
         val propertyStringPair = split("=")
 

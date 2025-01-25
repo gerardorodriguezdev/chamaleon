@@ -267,6 +267,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun Schema.containsAll(platformTypes: List<PlatformType>): Boolean =
         supportedPlatforms.size == platformTypes.size && supportedPlatforms.containsAll(platformTypes)
 
+    @Suppress("ReturnCount")
     private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String): Failure? {
         val propertiesNotEqualToSchema = PropertiesNotEqualToSchema(platform.platformType, environmentName)
         if (isPlatformNotSupported(platform)) return propertiesNotEqualToSchema

@@ -17,6 +17,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
+@Suppress("TooManyFunctions")
 public class GradlePlugin : Plugin<Project> {
     private val environmentsProcessor = EnvironmentsProcessor.create()
 
@@ -70,7 +71,8 @@ public class GradlePlugin : Plugin<Project> {
     @Suppress("Indentation")
     private fun Failure.toErrorMessage(): String =
         when (this) {
-            is Failure.EnvironmentsDirectoryNotFound -> "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
+            is Failure.EnvironmentsDirectoryNotFound ->
+                "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
             is Failure.SchemaFileNotFound -> "'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'"
             is Failure.SchemaFileIsEmpty -> "'$SCHEMA_FILE' on '$environmentsDirectoryPath' is empty"
             is Failure.SchemaSerialization -> "Schema parsing failed with error '${throwable.message}'"
@@ -124,8 +126,10 @@ public class GradlePlugin : Plugin<Project> {
                 )
 
                 if (!updateSelectedEnvironmentResult) {
+                    @Suppress("Indentation")
                     throw GradlePluginException(
-                        message = "Error updating selected environment '$newSelectedEnvironment' on environments directory $environmentsDirectory"
+                        message = "Error updating selected environment '$newSelectedEnvironment' on environments " +
+                                "directory $environmentsDirectory"
                     )
                 }
             }

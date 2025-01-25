@@ -60,6 +60,7 @@ internal class DefaultEnvironmentsParser(
         return Success(environments = environments.toSet())
     }
 
+    @Suppress("ReturnCount")
     override fun addEnvironments(
         environmentsDirectory: File,
         environments: Set<Environment>,

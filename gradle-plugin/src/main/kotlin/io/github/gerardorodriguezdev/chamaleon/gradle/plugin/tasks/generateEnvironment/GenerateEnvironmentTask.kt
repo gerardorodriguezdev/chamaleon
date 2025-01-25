@@ -44,7 +44,8 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
     private fun CommandsProcessorResult.Failure.toMessage(): String =
         when (this) {
             is CommandsProcessorResult.Failure.InvalidCommand -> "Command '$command' is not valid"
-            is CommandsProcessorResult.Failure.InvalidPlatformType -> "Platform type '$platformTypeString' on $command is not valid"
+            is CommandsProcessorResult.Failure.InvalidPlatformType ->
+                "Platform type '$platformTypeString' on $command is not valid"
         }
 
     private fun generateEnvironments(environmentsDirectory: File, environments: Set<Environment>) {
