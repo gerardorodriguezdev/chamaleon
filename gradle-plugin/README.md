@@ -155,9 +155,6 @@ You can easily integrate with other solutions that generate your files as well
 
 ```kotlin
 tasks.named<JavaExec>("run") {
-    dependsOn(tasks.named<Jar>("jvmJar"))
-    classpath(tasks.named<Jar>("jvmJar"))
-
     // This will bring the environment selected on `properties.chamaleon.json` file
     val selectedEnvironment = chamaleon.selectedEnvironment()
 
