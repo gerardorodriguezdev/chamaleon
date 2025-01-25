@@ -19,11 +19,5 @@
                 id="Chamaleon"
                 anchor="right"
                 icon="/images/expui/toolWindow/pluginIcon.svg"/>
-        <fileType
-                name="Chamaleon"
-                implementationClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.fileTypes.ChamaleonFileType"
-                fileNames="template.chamaleon.json;properties.chamaleon.json"
-                patterns="*.environment.chamaleon.json"
-        />
     </extensions>
 </idea-plugin>
