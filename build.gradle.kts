@@ -25,3 +25,7 @@ tasks.withType<Detekt> detekt@{
     setSource(files(project.projectDir))
     exclude("**/build/**")
 }
+
+tasks.register("releaseVersion") {
+    println(libs.versions.release.get())
+}
