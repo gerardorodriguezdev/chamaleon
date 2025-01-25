@@ -28,7 +28,7 @@ myModule --> The root of your module
         production.environment.chamaleon.json
 ```
 
-The plugin will see this files and extract your environments properties
+The plugin will see these files and extract your environments properties
 
 You can see a sample on [Sample Gradle Project](../samples/gradle-project)
 
@@ -37,16 +37,18 @@ You can see a sample on [Sample Gradle Project](../samples/gradle-project)
 ```kotlin
 val myPropertyValue = chamaleon.selectedEnvironment().jvmPlatform().propertyStringValue("YourPropertyName")
 
-// When building the project this should print `YourPropertyValueForLocalEnvironment`
+// When building the project, this should print `YourPropertyValueForLocalEnvironment`
 println(myPropertyValue)
 ```
 
-Is as simple as that to get started :)
+It is as simple as that to get started :)
 
 ## Files
 
-> The json schemas for this files have been uploaded to [Schema store](https://www.schemastore.org/json/) so you can see
-> hints if the schema is valid or not and have auto-completions as well. Alternatively you can find them
+> The JSON schemas for these files have been uploaded to [Schema store](https://www.schemastore.org/json/) so you can
+> see
+> hints if the schema is valid or not and have auto-completions as well.
+> Alternatively, you can find them
 > here [Schemas](../schemas)
 
 ### `properties.chamaleon.json` file
@@ -85,11 +87,12 @@ This file will be used only to validate that all the environments have the same 
         - **propertyType:** Can be `String` or `Boolean `-> `required`
         - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
       - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
-        template for this property only. Only read if is not empty  (default=[])-> `optional`
+        template for this property only.
+        Only read if is not empty (default=[])-> `optional`
 
 ### `local.environment.chamaleon.json` file
 
-Any json file with this suffix `.environment.chamaleon.json` inside the `environments` directory will be considered an
+Any JSON file with this suffix `.environment.chamaleon.json` inside the `environments` directory will be considered an
 environment. You can have as many as you want like `myEnvironmentName.environment.chamaleon.json`
 
 ```json
@@ -149,15 +152,12 @@ targetConfigs {
 }
 ```
 
-You can easily integrate with other solutions that generate your files as well
+You can integrate with other solutions that generate your files as well
 
 ### Using properties on a server like [Ktor](https://github.com/ktorio/ktor)
 
 ```kotlin
 tasks.named<JavaExec>("run") {
-    dependsOn(tasks.named<Jar>("jvmJar"))
-    classpath(tasks.named<Jar>("jvmJar"))
-
     // This will bring the environment selected on `properties.chamaleon.json` file
     val selectedEnvironment = chamaleon.selectedEnvironment()
 
@@ -173,17 +173,21 @@ tasks.named<JavaExec>("run") {
 ### Working locally and on CI
 
 Usually when working locally you would have some `local` or `staging` environment, and on CI you would have a
-`production` environment that contains all your secrets. These are the steps to setup your workflow on CI:
+`production` environment that contains all your secrets.
+These are the steps to set up your workflow on CI:
 
-#### 1. Add your production environment file to .gitignore
+#### 1. Add your production environment file and your properties file to .gitignore
 
-Add `myProductionEnvironment.environment.chamaleon.json` to `.gitignore` in your root project, so you are sure you'll
-never commit this file to your repository
+Add `myProductionEnvironment.environment.chamaleon.json` and `properties.chamaleon.json` to `.gitignore` in your root
+project.
+This way you would avoid commiting your secrets on `myProductionEnvironment` and avoid `properties` pointing
+to an environment that is not production when you are trying to deploy
 
 #### 2. Create the production environment file with your secrets on CI only from the command line
 
 You would need to generate your production environment file programmatically, as it would need to accept your CI
-secrets. Here is an example on how to do it:
+secrets.
+Here is an example of how to do it:
 
 `./gradlew :chamaleonGenerateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"`
 
@@ -213,7 +217,9 @@ Finally, the only remaining thing to do is to select the generated environment l
 
 `./gradlew :chamaleonSelectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment`
 
-#### Complete example on Github Actions
+It will create or update the `properties.chamaleon.json` file to point to your `myProductionEnvironment`
+
+#### Complete example of GitHub Actions
 
 ```yaml
     - name: Generate and select production environment # Your step name
