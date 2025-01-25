@@ -28,13 +28,6 @@ kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
-        implementation(libs.jvm.coroutines) {
-            exclude(group = "org.jetbrains.kotlinx")
-            exclude(
-                group = "org.jetbrains.kotlinx",
-                module = "kotlinx-coroutines-core"
-            )
-        }
         listOf(
             compose.desktop.linux_x64,
             compose.desktop.linux_arm64,
@@ -45,29 +38,17 @@ kotlin {
             implementation(dependency) {
                 exclude(group = "org.jetbrains.kotlinx")
                 exclude(group = "org.jetbrains.compose.material")
-                exclude(
-                    group = "org.jetbrains.kotlinx",
-                    module = "kotlinx-coroutines-core"
-                )
             }
         }
-        implementation(libs.intellij.jewel) {
+        implementation(libs.intellij.jewel)
+        implementation(libs.jvm.coroutines) {
             exclude(group = "org.jetbrains.kotlinx")
-            exclude(
-                group = "org.jetbrains.kotlinx",
-                module = "kotlinx-coroutines-core"
-            )
         }
         implementation(libs.kmp.immutable) {
             exclude(group = "org.jetbrains.kotlinx")
         }
-
         implementation(projects.core) {
             exclude(group = "org.jetbrains.kotlinx")
-            exclude(
-                group = "org.jetbrains.kotlinx",
-                module = "kotlinx-coroutines-core"
-            )
         }
 
         testImplementation(libs.kmp.test)

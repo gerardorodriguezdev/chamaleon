@@ -17,7 +17,7 @@ Additionally, there is an [Intellij Plugin](intellij-plugin/README.md) that make
 
 ## How to use start?
 
-1. Install the [Gradle Plugin](gradle-plugin/README.md)
+1. Set up the [Gradle Plugin](gradle-plugin/README.md)
 2. (Optional) Install the [IntelliJ Plugin](intellij-plugin/README.md)
 
 ## What problems does it solve?

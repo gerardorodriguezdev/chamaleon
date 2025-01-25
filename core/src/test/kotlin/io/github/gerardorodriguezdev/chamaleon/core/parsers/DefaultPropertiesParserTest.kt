@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.*
@@ -29,7 +30,7 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -39,17 +40,17 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
     fun `GIVEN valid properties file WHEN propertiesParserResult THEN returns selected environment`() {
-        val expectedPropertiesParserResult = Success(SELECTED_ENVIRONMENT)
+        val expectedPropertiesParserResult = Success(TestData.LOCAL_ENVIRONMENT_NAME)
         createPropertiesFile(validPropertiesFile)
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -59,7 +60,7 @@ class DefaultPropertiesParserTest {
 
         val actualPropertiesParserResult = defaultPropertiesParser.propertiesParserResult(propertiesFile)
 
-        assertEquals(expectedPropertiesParserResult, actualPropertiesParserResult)
+        assertEquals(expected = expectedPropertiesParserResult, actual = actualPropertiesParserResult)
     }
 
     @Test
@@ -68,13 +69,13 @@ class DefaultPropertiesParserTest {
 
         val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
             propertiesFile = propertiesFile,
-            newSelectedEnvironment = SELECTED_ENVIRONMENT,
+            newSelectedEnvironment = TestData.LOCAL_ENVIRONMENT_NAME,
         )
 
-        assertTrue { propertiesFileUpdated }
+        assertTrue(propertiesFileUpdated)
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
-        assertEquals(SELECTED_ENVIRONMENT, newSelectedEnvironmentName)
+        assertEquals(expected = TestData.LOCAL_ENVIRONMENT_NAME, actual = newSelectedEnvironmentName)
     }
 
     @Test
@@ -86,7 +87,7 @@ class DefaultPropertiesParserTest {
             newSelectedEnvironment = null,
         )
 
-        assertTrue { propertiesFileUpdated }
+        assertTrue(propertiesFileUpdated)
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
         assertNull(newSelectedEnvironmentName)
@@ -101,7 +102,7 @@ class DefaultPropertiesParserTest {
             newSelectedEnvironment = null,
         )
 
-        assertTrue { propertiesFileUpdated }
+        assertTrue(propertiesFileUpdated)
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
         assertNull(newSelectedEnvironmentName)
@@ -120,7 +121,6 @@ class DefaultPropertiesParserTest {
     }
 
     private companion object {
-        const val SELECTED_ENVIRONMENT = "local"
         const val EMPTY_PROPERTIES_FILE = ""
 
         val invalidPropertiesFile =

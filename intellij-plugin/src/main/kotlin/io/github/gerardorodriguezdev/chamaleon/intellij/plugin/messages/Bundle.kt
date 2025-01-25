@@ -14,6 +14,8 @@ object Bundle {
 
     val environmentSelectionWindowName by messageDelegate("environment.selection.window.name")
 
+    val fileTypeForChamaleonConfigFiles by messageDelegate("fileType.for.chamaleon.config.files")
+
     @get:Composable
     val environmentsDirectoryPath by rememberedMessageDelegate("environments.directory.path")
 

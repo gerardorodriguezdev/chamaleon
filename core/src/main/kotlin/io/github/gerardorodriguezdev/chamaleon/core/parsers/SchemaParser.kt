@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
@@ -20,6 +21,10 @@ public interface SchemaParser {
             public data class FileNotFound(val path: String) : Failure
             public data class FileIsEmpty(val path: String) : Failure
             public data class Serialization(val throwable: Throwable) : Failure
+            public data class PropertyContainsUnsupportedPlatforms(
+                val path: String,
+                val propertyName: String,
+            ) : Failure
         }
     }
 }
@@ -34,15 +39,36 @@ internal class DefaultSchemaParser : SchemaParser {
 
         return try {
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
+
+            val verificationResult = schemaDto.verify(path = schemaFile.parent)
+            if (verificationResult != null) return verificationResult
+
             SchemaParserResult.Success(schemaDto.toSchema())
         } catch (exception: SerializationException) {
             Failure.Serialization(exception)
         }
     }
 
+    private fun SchemaDto.verify(path: String): Failure? {
+        propertyDefinitionDtos
+            .forEach { propertyDefinitionDto ->
+                if (propertyDefinitionDto.containsUnsupportedPlatforms(this@verify.supportedPlatforms)) {
+                    return Failure.PropertyContainsUnsupportedPlatforms(
+                        path = path,
+                        propertyName = propertyDefinitionDto.name,
+                    )
+                }
+            }
+
+        return null
+    }
+
+    private fun PropertyDefinitionDto.containsUnsupportedPlatforms(supportedPlatforms: Set<PlatformType>): Boolean =
+        this.supportedPlatforms.isNotEmpty() && !supportedPlatforms.containsAll(this.supportedPlatforms)
+
     private fun SchemaDto.toSchema(): Schema =
         Schema(
-            supportedPlatforms = supportedPlatforms,
+            supportedPlatforms = this@toSchema.supportedPlatforms,
             propertyDefinitions = propertyDefinitionDtos.toPropertyDefinitions(),
         )
 
@@ -52,6 +78,7 @@ internal class DefaultSchemaParser : SchemaParser {
                 name = propertyDefinitionDto.name,
                 propertyType = propertyDefinitionDto.propertyType,
                 nullable = propertyDefinitionDto.nullable,
+                supportedPlatforms = propertyDefinitionDto.supportedPlatforms,
             )
         }.toSet()
 }

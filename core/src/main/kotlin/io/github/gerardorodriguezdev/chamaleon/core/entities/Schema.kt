@@ -8,5 +8,6 @@ public data class Schema(
         val name: String,
         val propertyType: PropertyType,
         val nullable: Boolean,
+        val supportedPlatforms: Set<PlatformType>,
     )
 }

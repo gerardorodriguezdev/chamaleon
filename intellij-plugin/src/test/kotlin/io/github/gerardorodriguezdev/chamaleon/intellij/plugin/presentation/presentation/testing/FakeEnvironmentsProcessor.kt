@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.pre
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import java.io.File
 
 class FakeEnvironmentsProcessor(
@@ -10,6 +11,7 @@ class FakeEnvironmentsProcessor(
         TestData.successEnvironmentsProcessorResult
     ),
     var updateSelectedEnvironmentResult: Boolean = true,
+    var addEnvironmentResult: Boolean = true,
 ) : EnvironmentsProcessor {
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
@@ -22,4 +24,9 @@ class FakeEnvironmentsProcessor(
         environmentsDirectory: File,
         newSelectedEnvironment: String?
     ): Boolean = updateSelectedEnvironmentResult
+
+    override fun addEnvironments(
+        environmentsDirectory: File,
+        environments: Set<Environment>
+    ): Boolean = addEnvironmentResult
 }

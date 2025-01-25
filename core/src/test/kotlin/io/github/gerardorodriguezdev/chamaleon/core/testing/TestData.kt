@@ -11,76 +11,144 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 
 object TestData {
-    const val ENVIRONMENT_NAME = "local"
+    const val LOCAL_ENVIRONMENT_NAME = "local"
+    const val PRODUCTION_ENVIRONMENT_NAME = "production"
+    const val HOST_PROPERTY_NAME = "HOST"
+    const val DOMAIN_PROPERTY_NAME = "DOMAIN"
+    const val IS_DEBUG_PROPERTY_NAME = "IS_DEBUG"
+    const val IS_PRODUCTION_PROPERTY_NAME = "IS_PRODUCTION"
+    const val DOMAIN = "www.domain.com"
 
-    val validCompleteSchema = Schema(
-        supportedPlatforms = setOf(
-            WASM,
-            ANDROID,
-            JVM,
-            IOS,
-        ),
+    val allPlatforms = setOf(
+        WASM,
+        ANDROID,
+        JVM,
+        IOS,
+    )
+
+    val hostProperty = Property(
+        name = HOST_PROPERTY_NAME,
+        value = null,
+    )
+
+    val domainProperty = Property(
+        name = DOMAIN_PROPERTY_NAME,
+        value = StringProperty(DOMAIN),
+    )
+
+    val debugProperty = Property(
+        name = IS_DEBUG_PROPERTY_NAME,
+        value = null,
+    )
+
+    val productionProperty = Property(
+        name = IS_PRODUCTION_PROPERTY_NAME,
+        value = BooleanProperty(true),
+    )
+
+    val schema = Schema(
+        supportedPlatforms = allPlatforms,
         propertyDefinitions = setOf(
             PropertyDefinition(
-                name = "HOST",
+                name = HOST_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = true,
+                supportedPlatforms = emptySet(),
             ),
             PropertyDefinition(
-                name = "DOMAIN",
+                name = DOMAIN_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = false,
+                supportedPlatforms = emptySet(),
             ),
             PropertyDefinition(
-                name = "IS_DEBUG",
+                name = IS_DEBUG_PROPERTY_NAME,
                 propertyType = PropertyType.BOOLEAN,
                 nullable = true,
+                supportedPlatforms = emptySet(),
             ),
             PropertyDefinition(
-                name = "IS_PRODUCTION",
+                name = IS_PRODUCTION_PROPERTY_NAME,
                 propertyType = PropertyType.BOOLEAN,
                 nullable = false,
+                supportedPlatforms = emptySet(),
             )
         )
     )
 
-    private val validCompleteProperties = setOf(
-        Property(
-            name = "HOST",
-            value = null,
+    val schemaWithRestrictedPlatform = Schema(
+        supportedPlatforms = setOf(
+            ANDROID,
+            JVM,
         ),
-        Property(
-            name = "DOMAIN",
-            value = StringProperty("www.domain.com"),
-        ),
-        Property(
-            name = "IS_DEBUG",
-            value = null,
-        ),
-        Property(
-            name = "IS_PRODUCTION",
-            value = BooleanProperty(true),
-        ),
+        propertyDefinitions = setOf(
+            PropertyDefinition(
+                name = HOST_PROPERTY_NAME,
+                propertyType = PropertyType.STRING,
+                nullable = true,
+                supportedPlatforms = setOf(ANDROID)
+            ),
+            PropertyDefinition(
+                name = DOMAIN_PROPERTY_NAME,
+                propertyType = PropertyType.STRING,
+                nullable = false,
+                supportedPlatforms = emptySet(),
+            ),
+        )
     )
 
-    val validCompleteEnvironment = Environment(
-        name = ENVIRONMENT_NAME,
+    val properties = setOf(
+        hostProperty,
+        domainProperty,
+        debugProperty,
+        productionProperty,
+    )
+
+    val wasmPlatform = Platform(
+        platformType = WASM,
+        properties = properties
+    )
+
+    val androidPlatform = Platform(
+        platformType = ANDROID,
+        properties = properties
+    )
+
+    val jvmPlatform = Platform(
+        platformType = JVM,
+        properties = properties
+    )
+
+    val iosPlatform = Platform(
+        platformType = IOS,
+        properties = properties
+    )
+
+    val environment = Environment(
+        name = LOCAL_ENVIRONMENT_NAME,
+        platforms = setOf(
+            wasmPlatform,
+            androidPlatform,
+            jvmPlatform,
+            iosPlatform,
+        )
+    )
+
+    val environmentWithRestrictedPlatform = Environment(
+        name = LOCAL_ENVIRONMENT_NAME,
         platforms = setOf(
             Platform(
-                platformType = WASM,
-                properties = validCompleteProperties
-            ),
-            Platform(
                 platformType = ANDROID,
-                properties = validCompleteProperties
+                properties = setOf(
+                    hostProperty,
+                    domainProperty,
+                )
             ),
             Platform(
                 platformType = JVM,
-                properties = validCompleteProperties
-            ),
-            Platform(
-                platformType = IOS,
-                properties = validCompleteProperties
+                properties = setOf(
+                    domainProperty
+                )
             ),
         )
     )

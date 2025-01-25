@@ -36,6 +36,19 @@
           },
           "nullable": {
             "type": "boolean"
+          },
+          "supportedPlatforms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "android",
+                "wasm",
+                "jvm",
+                "ios"
+              ]
+            },
+            "uniqueItems": true
           }
         },
         "required": [

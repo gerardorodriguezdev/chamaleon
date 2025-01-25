@@ -1,10 +1,10 @@
 [
   {
-    "platformType": "android",
+    "platformType": "jvm",
     "properties": [
       {
-        "name": "HOST",
-        "value": "localhost"
+        "name": "YourPropertyName",
+        "value": "YourPropertyValueForLocalEnvironment"
       }
     ]
   }

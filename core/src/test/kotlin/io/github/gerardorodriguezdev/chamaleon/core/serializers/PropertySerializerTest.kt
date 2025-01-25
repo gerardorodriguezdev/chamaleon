@@ -4,7 +4,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.junit.jupiter.api.Nested
@@ -41,7 +40,7 @@ class PropertySerializerTest {
 
             val actualJson = Json.encodeToString(propertyDto)
 
-            assertEquals(expectedJson, actualJson)
+            assertEquals(expected = expectedJson, actual = actualJson)
         }
 
         @Test
@@ -52,7 +51,7 @@ class PropertySerializerTest {
 
             val actualJson = Json.encodeToString(propertyDto)
 
-            assertEquals(expectedJson, actualJson)
+            assertEquals(expected = expectedJson, actual = actualJson)
         }
 
         @Test
@@ -63,7 +62,7 @@ class PropertySerializerTest {
 
             val actualJson = Json.encodeToString(propertyDto)
 
-            assertEquals(expectedJson, actualJson)
+            assertEquals(expected = expectedJson, actual = actualJson)
         }
     }
 
@@ -162,7 +161,7 @@ class PropertySerializerTest {
 
             val actualPropertyDto = Json.decodeFromString<PropertyDto>(json)
 
-            assertEquals(expectedPropertyDto, actualPropertyDto)
+            assertEquals(expected = expectedPropertyDto, actual = actualPropertyDto)
         }
 
         @Test
@@ -179,7 +178,7 @@ class PropertySerializerTest {
 
             val actualPropertyDto = Json.decodeFromString<PropertyDto>(json)
 
-            assertEquals(expectedPropertyDto, actualPropertyDto)
+            assertEquals(expected = expectedPropertyDto, actual = actualPropertyDto)
         }
 
         @Test
@@ -196,7 +195,7 @@ class PropertySerializerTest {
 
             val actualPropertyDto = Json.decodeFromString<PropertyDto>(json)
 
-            assertEquals(expectedPropertyDto, actualPropertyDto)
+            assertEquals(expected = expectedPropertyDto, actual = actualPropertyDto)
         }
     }
 }
