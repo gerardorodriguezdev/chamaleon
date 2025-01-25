@@ -10,11 +10,9 @@
 
 ## How to release?
 
-- Create a pr from master to release
-- Add release tag
-- When all checks are ok merge to master
-- In case any release patch needed to be done, merge back into master
-- In master, bump [release version](/gradle/libs.versions.toml) in this file using semantic versioning
+- After the last commit for the release has been merged add a git tag for it
+- Wait for the deployment to succeed
+- Bump [release version](/gradle/libs.versions.toml) in this file using semantic versioning
 
 ## How to update the jvm?
 
