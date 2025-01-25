@@ -17,5 +17,4 @@ class ChamaleonFileType private constructor() : LanguageFileType(JsonLanguage.IN
     override fun getDefaultExtension(): @NlsSafe String = "json"
 
     override fun getIcon(): Icon? = Icons.pluginIcon
-
 }

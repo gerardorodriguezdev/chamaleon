@@ -8,5 +8,5 @@ public enum class PlatformType(public val serialName: String) {
     ANDROID("android"),
     WASM("wasm"),
     IOS("ios"),
-    JVM("jvm");
+    JVM("jvm")
 }

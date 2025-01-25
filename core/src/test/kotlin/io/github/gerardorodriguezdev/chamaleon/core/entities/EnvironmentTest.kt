@@ -53,5 +53,4 @@ class EnvironmentTest {
         val actual = TestData.environment.copy(platforms = emptySet()).jvmPlatformOrNull()
         assertEquals(expected = null, actual = actual)
     }
-
 }

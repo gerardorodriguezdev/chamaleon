@@ -98,5 +98,4 @@ class DefaultCommandsProcessorTest {
             environment = mergedEnvironment,
         )
     }
-
 }

@@ -27,7 +27,9 @@ internal class PlatformTypeSerializerTest {
 
     @ParameterizedTest
     @MethodSource("deserializationTestCases")
-    fun `GIVEN valid string WHEN deserialize THEN returns platform type`(deserializationTestCase: DeserializationTestCase) {
+    fun `GIVEN valid string WHEN deserialize THEN returns platform type`(
+        deserializationTestCase: DeserializationTestCase
+    ) {
         val actualPlatformType = Json.decodeFromString<PlatformType>(deserializationTestCase.platformTypeString)
         assertEquals(expected = deserializationTestCase.expectedPlatformType, actual = actualPlatformType)
     }
