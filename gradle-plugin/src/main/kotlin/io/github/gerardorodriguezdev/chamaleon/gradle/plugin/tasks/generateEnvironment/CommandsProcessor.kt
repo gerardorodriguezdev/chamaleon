@@ -3,19 +3,19 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandProcessorResult
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandProcessorResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult.Success
 
 internal interface CommandsProcessor {
-    fun process(commands: List<String>): CommandProcessorResult
+    fun process(commands: List<String>): CommandsProcessorResult
 
-    sealed interface CommandProcessorResult {
+    sealed interface CommandsProcessorResult {
         data class Success(
             val environments: Set<Environment>,
-        ) : CommandProcessorResult
+        ) : CommandsProcessorResult
 
-        sealed interface Failure : CommandProcessorResult {
+        sealed interface Failure : CommandsProcessorResult {
             data class InvalidCommand(val command: String) : Failure
             data class InvalidPlatformType(val command: String, val platformTypeString: String) : Failure
         }
@@ -32,7 +32,7 @@ internal class DefaultCommandsProcessor(
     private val commandParser: CommandParser,
 ) : CommandsProcessor {
 
-    override fun process(commands: List<String>): CommandProcessorResult {
+    override fun process(commands: List<String>): CommandsProcessorResult {
         val environments = commands
             .map { command ->
                 val commandParserResult = commandParser.parse(command)
