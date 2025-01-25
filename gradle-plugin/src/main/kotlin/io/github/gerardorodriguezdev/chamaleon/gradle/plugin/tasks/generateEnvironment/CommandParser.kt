@@ -20,6 +20,20 @@ internal interface CommandParser {
             data class InvalidPlatformType(val command: String, val platformTypeString: String) : Failure
         }
     }
+
+    companion object {
+        fun generateCommand(
+            environmentName: String,
+            platformType: PlatformType,
+            properties: List<Property>,
+        ): String =
+            "$environmentName.${platformType.serialName}.properties[${properties.toStringPairs()}]"
+
+        private fun List<Property>.toStringPairs(): String =
+            joinToString(separator = "=") { property -> property.toStringPair() }
+
+        private fun Property.toStringPair(): String = "$name=$value"
+    }
 }
 
 internal class DefaultCommandParser : CommandParser {

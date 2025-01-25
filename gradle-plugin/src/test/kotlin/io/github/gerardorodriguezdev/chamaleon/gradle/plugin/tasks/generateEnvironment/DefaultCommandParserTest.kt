@@ -9,6 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvir
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class DefaultCommandParserTest {
@@ -18,6 +19,21 @@ internal class DefaultCommandParserTest {
     fun `GIVEN command WHEN parse THEN returns result`(commandParserTestCase: CommandParserTestCase) {
         val parsingResult = DefaultCommandParser().parse(commandParserTestCase.command)
         assertEquals(expected = commandParserTestCase.expectedResult, actual = parsingResult)
+    }
+
+    @Test
+    fun `WHEN generateCommand THEN returns command`() {
+        val result = CommandParser.generateCommand(
+            environmentName = PRODUCTION_ENVIRONMENT_NAME,
+            platformType = PlatformType.JVM,
+            properties = listOf(
+                Platform.Property(
+                    name = HOST_PROPERTY_NAME,
+                    value = PropertyValue.StringProperty(HOST_PROPERTY_VALUE),
+                )
+            )
+        )
+        assertEquals(expected = VALID_COMMAND, actual = result)
     }
 
     internal companion object {

@@ -6,11 +6,14 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources.writeAll
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
@@ -72,18 +75,33 @@ class GradlePluginTest {
     }
 
     @Test
+    fun `GIVEN plugin is applied to project WHEN generateEnvironmentTask is executed THEN generates environment files`() {
+        createSchemaFile()
+
+        val buildResult = generateEnvironmentTaskBuildResult()
+
+        assertEquals(
+            expected = TaskOutcome.SUCCESS,
+            actual = buildResult.outcomeOfTask(GENERATE_ENVIRONMENT_TASK_NAME)
+        )
+        val environmentsDirectory = environmentsDirectory()
+        val environmentsFiles = environmentsDirectory.listFiles()
+        assertEquals(expected = environmentsFiles.size, actual = 2)
+
+        val localEnvironmentFile =
+            environmentsFiles.first { file -> file.name == SampleResources.localEnvironmentResource.fileName }
+        val localEnvironmentFileContent = localEnvironmentFile.readText()
+        assertEquals(
+            expected = SampleResources.localEnvironmentResource.fileContent,
+            actual = localEnvironmentFileContent,
+        )
+    }
+
+    @Test
     fun `GIVEN plugin is applied to project WHEN selectEnvironment is executed THEN selects new environment`() {
         createEnvironmentsFiles()
 
-        val buildResult = selectEnvironmentTaskBuildResult(
-            listOf(
-                SELECT_ENVIRONMENT_TASK_NAME,
-                commandLineArgument(
-                    key = GradlePlugin.SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT,
-                    value = PRODUCTION_ENVIRONMENT_NAME,
-                )
-            )
-        )
+        val buildResult = selectEnvironmentTaskBuildResult()
 
         assertEquals(
             expected = TaskOutcome.SUCCESS,
@@ -104,6 +122,12 @@ class GradlePluginTest {
         buildFile.writeText(buildFileContent)
     }
 
+    private fun createSchemaFile() {
+        val environmentsDirectory = environmentsDirectory()
+        environmentsDirectory.mkdir()
+        SampleResources.schemaResource.writeContent(environmentsDirectory)
+    }
+
     private fun createEnvironmentsFiles() {
         val environmentsDirectory = environmentsDirectory()
         environmentsDirectory.mkdir()
@@ -120,28 +144,60 @@ class GradlePluginTest {
             .withArguments(HELP_TASK_NAME)
             .build()
 
-    private fun generateSampleTaskBuildResult(arguments: List<String> = listOf(GENERATE_SAMPLE_TASK_NAME)): BuildResult =
+    private fun generateSampleTaskBuildResult(): BuildResult =
         GradleRunner
             .create()
             .withProjectDir(directory)
             .withPluginClasspath()
-            .withArguments(arguments)
+            .withArguments(GENERATE_SAMPLE_TASK_NAME)
             .build()
 
-    private fun selectEnvironmentTaskBuildResult(arguments: List<String> = listOf(SELECT_ENVIRONMENT_TASK_NAME)): BuildResult =
+    private fun generateEnvironmentTaskBuildResult(): BuildResult =
         GradleRunner
             .create()
             .withProjectDir(directory)
             .withPluginClasspath()
-            .withArguments(arguments)
+            .withArguments(
+                listOf(
+                    GENERATE_ENVIRONMENT_TASK_NAME,
+                    commandLineArgument(
+                        key = GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT,
+                        value = CommandParser.generateCommand(
+                            environmentName = LOCAL_ENVIRONMENT_NAME,
+                            platformType = PlatformType.JVM,
+                            properties = listOf(
+                                Property(
+                                    name = PROPERTY_NAME,
+                                    value = StringProperty(LOCAL_ENVIRONMENT_PROPERTY_VALUE)
+                                )
+                            )
+                        )
+                    )
+                ),
+            )
             .build()
 
-    private fun buildProject(configuration: Project.() -> Unit = {}): Project =
+    private fun selectEnvironmentTaskBuildResult(): BuildResult =
+        GradleRunner
+            .create()
+            .withProjectDir(directory)
+            .withPluginClasspath()
+            .withArguments(
+                listOf(
+                    SELECT_ENVIRONMENT_TASK_NAME,
+                    commandLineArgument(
+                        key = GradlePlugin.SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT,
+                        value = PRODUCTION_ENVIRONMENT_NAME,
+                    )
+                )
+            )
+            .build()
+
+    private fun buildProject(): Project =
         ProjectBuilder
             .builder()
             .withProjectDir(directory)
             .build()
-            .apply(configuration)
 
     private companion object {
         const val LOCAL_ENVIRONMENT_NAME = "local"
@@ -150,7 +206,7 @@ class GradlePluginTest {
         const val PRODUCTION_ENVIRONMENT_NAME = "production"
         const val PRODUCTION_ENVIRONMENT_PROPERTY_VALUE = "YourPropertyValueForProductionEnvironment"
 
-        const val EXPECTED_PROPERTY_NAME = "YourPropertyName"
+        const val PROPERTY_NAME = "YourPropertyName"
 
         const val HELP_TASK_NAME = "help"
 
@@ -187,7 +243,7 @@ class GradlePluginTest {
             Platform(
                 platformType = PlatformType.JVM,
                 properties = setOf(
-                    Property(name = EXPECTED_PROPERTY_NAME, value = StringProperty(value)),
+                    Property(name = PROPERTY_NAME, value = StringProperty(value)),
                 )
             )
 
