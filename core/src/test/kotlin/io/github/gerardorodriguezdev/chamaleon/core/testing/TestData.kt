@@ -20,10 +20,11 @@ object TestData {
     const val DOMAIN = "www.domain.com"
 
     val allPlatforms = setOf(
-        WASM,
         ANDROID,
+        WASM,
+        JS,
         JVM,
-        IOS,
+        NATIVE,
     )
 
     val hostProperty = Property(
@@ -109,6 +110,11 @@ object TestData {
         properties = properties
     )
 
+    val jsPlatform = Platform(
+        platformType = JS,
+        properties = properties
+    )
+
     val androidPlatform = Platform(
         platformType = ANDROID,
         properties = properties
@@ -119,18 +125,19 @@ object TestData {
         properties = properties
     )
 
-    val iosPlatform = Platform(
-        platformType = IOS,
+    val nativePlatform = Platform(
+        platformType = NATIVE,
         properties = properties
     )
 
     val environment = Environment(
         name = LOCAL_ENVIRONMENT_NAME,
         platforms = setOf(
-            wasmPlatform,
             androidPlatform,
+            wasmPlatform,
+            jsPlatform,
             jvmPlatform,
-            iosPlatform,
+            nativePlatform,
         )
     )
 

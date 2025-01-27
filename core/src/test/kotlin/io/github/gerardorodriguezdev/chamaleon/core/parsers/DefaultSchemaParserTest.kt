@@ -118,16 +118,16 @@ class DefaultSchemaParserTest {
                   ]
                 }
             """.trimIndent()
-
         val completeValidSchema =
             //language=json
             """
                 {
                   "supportedPlatforms": [
-                    "wasm",
                     "android",
+                    "wasm",
+                    "js",
                     "jvm",
-                    "ios"
+                    "native"
                   ],
                   "propertyDefinitions": [
                     {

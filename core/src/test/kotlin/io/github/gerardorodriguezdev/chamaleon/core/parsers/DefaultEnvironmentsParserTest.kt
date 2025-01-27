@@ -156,6 +156,27 @@ class DefaultEnvironmentsParserTest {
             """
                 [
                   {
+                    "platformType": "android",
+                    "properties": [
+                      {
+                        "name": "HOST",
+                        "value": null
+                      },
+                      {
+                        "name": "DOMAIN",
+                        "value": "www.domain.com"
+                      },
+                      {
+                        "name": "IS_DEBUG",
+                        "value": null
+                      },
+                      {
+                        "name": "IS_PRODUCTION",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
                     "platformType": "wasm",
                     "properties": [
                       {
@@ -177,7 +198,7 @@ class DefaultEnvironmentsParserTest {
                     ]
                   },
                   {
-                    "platformType": "android",
+                    "platformType": "js",
                     "properties": [
                       {
                         "name": "HOST",
@@ -219,7 +240,7 @@ class DefaultEnvironmentsParserTest {
                     ]
                   },
                   {
-                    "platformType": "ios",
+                    "platformType": "native",
                     "properties": [
                       {
                         "name": "HOST",
@@ -247,6 +268,19 @@ class DefaultEnvironmentsParserTest {
             """
                 [
                   {
+                    "platformType": "android",
+                    "properties": [
+                      {
+                        "name": "DOMAIN",
+                        "value": "www.domain.com"
+                      },
+                      {
+                        "name": "IS_PRODUCTION",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
                     "platformType": "wasm",
                     "properties": [
                       {
@@ -260,7 +294,7 @@ class DefaultEnvironmentsParserTest {
                     ]
                   },
                   {
-                    "platformType": "android",
+                    "platformType": "js",
                     "properties": [
                       {
                         "name": "DOMAIN",
@@ -286,7 +320,7 @@ class DefaultEnvironmentsParserTest {
                     ]
                   },
                   {
-                    "platformType": "ios",
+                    "platformType": "native",
                     "properties": [
                       {
                         "name": "DOMAIN",

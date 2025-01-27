@@ -199,10 +199,12 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/entities/Environ
 	public final fun getName ()Ljava/lang/String;
 	public final fun getPlatforms ()Ljava/util/Set;
 	public fun hashCode ()I
-	public final fun iosPlatform ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
-	public final fun iosPlatformOrNull ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
+	public final fun jsPlatform ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
+	public final fun jsPlatformOrNull ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
 	public final fun jvmPlatform ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
 	public final fun jvmPlatformOrNull ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
+	public final fun nativePlatform ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
+	public final fun nativePlatformOrNull ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
 	public fun toString ()Ljava/lang/String;
 	public final fun wasmPlatform ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
 	public final fun wasmPlatformOrNull ()Lio/github/gerardorodriguezdev/chamaleon/core/entities/Platform;
@@ -241,8 +243,9 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/entities/Platfor
 public final class io/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType : java/lang/Enum {
 	public static final field ANDROID Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType$Companion;
-	public static final field IOS Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
+	public static final field JS Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 	public static final field JVM Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
+	public static final field NATIVE Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 	public static final field WASM Lio/github/gerardorodriguezdev/chamaleon/core/entities/PlatformType;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun getSerialName ()Ljava/lang/String;

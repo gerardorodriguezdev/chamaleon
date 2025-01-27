@@ -2,5 +2,11 @@
 
 IntelliJ plugin for [Chamaleon](../README.md)
 
+## Features
+
+- Select between your different environments
+- Scan all your available environments
+- Show where they are in your project
+
 > This plugin is hosted on
 > the [Jetbrains Marketplace](https://plugins.jetbrains.com/plugin/26310-chamaleon)
