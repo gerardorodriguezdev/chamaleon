@@ -8,6 +8,12 @@
     <description>
         <![CDATA[
         Simplify the management of multiple environments for any Kotlin project
+
+        <ul>
+            <li>Select between your different environments</li>
+            <li>Scan all your available environments</li>
+            <li>Show where they are in your project</li>
+        </ul>
         ]]>
     </description>
 
