@@ -9,8 +9,9 @@
         "enum": [
           "android",
           "wasm",
+          "js",
           "jvm",
-          "ios"
+          "native"
         ],
         "minLength": 1
       },
@@ -44,8 +45,9 @@
               "enum": [
                 "android",
                 "wasm",
+                "js",
                 "jvm",
-                "ios"
+                "native"
               ]
             },
             "uniqueItems": true

@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 public enum class PlatformType(public val serialName: String) {
     ANDROID("android"),
     WASM("wasm"),
-    IOS("ios"),
+    JS("js"),
+    NATIVE("native"),
     JVM("jvm")
 }

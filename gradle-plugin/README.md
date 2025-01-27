@@ -84,7 +84,7 @@ This file will be used only to validate that all the environments have the same 
 }
 ```
 
-- **supportedPlatforms:** Can be one or all the supported platforms `(android, wasm, ios, jvm)`
+- **supportedPlatforms:** Can be one or all the supported platforms `(android, wasm, js, jvm, native)`
 - **propertyDefinitions:** It's an array of property definition
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
@@ -113,7 +113,7 @@ environment. You can have as many as you want like `myEnvironmentName.environmen
 ]
 ```
 
-- **platformType:** Can be any of the supported platforms `(android, wasm, ios, jvm)` -> `required`
+- **platformType:** Can be any of the supported platforms `(android, wasm, js, jvm, native)` -> `required`
 - **properties:** It's an array of property
     - **property:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
