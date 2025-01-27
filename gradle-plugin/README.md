@@ -2,6 +2,10 @@
 
 Gradle plugin for [Chamaleon](../README.md)
 
+## Features
+
+- Use your declared environments and their properties inside your Gradle build
+
 ## Quick start
 
 ### 1. Apply the plugin in your module's `build.gradle.kts` file
