@@ -12,7 +12,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.Envi
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentSelection
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.jewel.bridge.addComposeTab
-import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import java.io.File
 
 class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
@@ -25,7 +24,6 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
         },
     )
 
-    @OptIn(ExperimentalJewelApi::class)
     override fun createToolWindowContent(
         project: Project,
         toolWindow: ToolWindow

@@ -33,7 +33,7 @@ switch between them as you would usually need to pass some arguments to each `ta
 If you have a mobile app with multiple environments, you usually need to generate a file depending on which environment
 you want to configure.
 However, for backend services you would need to expose the environment contents by environment
-variables, having 2 different ways when working with environments
+variables, having two different ways when working with environments
 
 ### Environment variables all over the place
 

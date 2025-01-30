@@ -21,7 +21,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -150,38 +149,39 @@ internal class DefaultEnvironmentsProcessor(
         environmentsParser.addEnvironments(environmentsDirectory, environments)
 
     @Suppress("ReturnCount")
-    private suspend fun CoroutineScope.parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> {
-        val schemaParsing = async {
-            val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
-            val schemaParserResult = schemaParser.schemaParserResult(schemaFile)
-            schemaParserResult.schemaOrFailure()
+    private suspend fun parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> =
+        coroutineScope {
+            val schemaParsing = async {
+                val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
+                val schemaParserResult = schemaParser.schemaParserResult(schemaFile)
+                schemaParserResult.schemaOrFailure()
+            }
+
+            val environmentsParsing = async {
+                val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
+                environmentsParserResult.environmentsOrFailure()
+            }
+
+            val propertiesParsing = async {
+                val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
+                val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
+                propertiesParserResult.selectedEnvironmentNameOrFailure()
+            }
+
+            val schemaParserResult = schemaParsing.await()
+            val environmentsParserResult = environmentsParsing.await()
+            val propertiesParserResult = propertiesParsing.await()
+
+            if (schemaParserResult.isFailure()) return@coroutineScope schemaParserResult.value.toFailure()
+            if (environmentsParserResult.isFailure()) return@coroutineScope environmentsParserResult.value.toFailure()
+            if (propertiesParserResult.isFailure()) return@coroutineScope propertiesParserResult.value.toFailure()
+
+            return@coroutineScope FilesParserResult(
+                schema = schemaParserResult.value,
+                environments = environmentsParserResult.value,
+                selectedEnvironmentName = propertiesParserResult.value,
+            ).toSuccess()
         }
-
-        val environmentsParsing = async {
-            val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
-            environmentsParserResult.environmentsOrFailure()
-        }
-
-        val propertiesParsing = async {
-            val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
-            val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
-            propertiesParserResult.selectedEnvironmentNameOrFailure()
-        }
-
-        val schemaParserResult = schemaParsing.await()
-        val environmentsParserResult = environmentsParsing.await()
-        val propertiesParserResult = propertiesParsing.await()
-
-        if (schemaParserResult.isFailure()) return schemaParserResult.value.toFailure()
-        if (environmentsParserResult.isFailure()) return environmentsParserResult.value.toFailure()
-        if (propertiesParserResult.isFailure()) return propertiesParserResult.value.toFailure()
-
-        return FilesParserResult(
-            schema = schemaParserResult.value,
-            environments = environmentsParserResult.value,
-            selectedEnvironmentName = propertiesParserResult.value,
-        ).toSuccess()
-    }
 
     private fun SchemaParserResult.schemaOrFailure(): Result<Schema, Failure> =
         when (this) {
@@ -209,38 +209,44 @@ internal class DefaultEnvironmentsProcessor(
         }
 
     @Suppress("ReturnCount")
-    private suspend fun CoroutineScope.verifyEnvironments(
+    private suspend fun verifyEnvironments(
         schema: Schema,
         environments: Set<Environment>,
         selectedEnvironmentName: String?,
-    ): Failure? {
-        val schemaVerification = async { schema.verifyEnvironments(environments) }
-        val selectedEnvironmentNameVerification =
-            async { selectedEnvironmentName?.verifyEnvironments(environments) }
+    ): Failure? =
+        coroutineScope {
+            val schemaVerification = async { schema.verifyEnvironments(environments) }
+            val selectedEnvironmentNameVerification =
+                async { selectedEnvironmentName?.verifyEnvironments(environments) }
 
-        val schemaVerificationResult = schemaVerification.await()
-        val selectedEnvironmentVerificationResult = selectedEnvironmentNameVerification.await()
+            val schemaVerificationResult = schemaVerification.await()
+            val selectedEnvironmentVerificationResult = selectedEnvironmentNameVerification.await()
 
-        if (schemaVerificationResult is Failure) return schemaVerificationResult
-        if (selectedEnvironmentVerificationResult is Failure) return selectedEnvironmentVerificationResult
+            if (schemaVerificationResult is Failure) return@coroutineScope schemaVerificationResult
+            if (selectedEnvironmentVerificationResult is Failure) return@coroutineScope selectedEnvironmentVerificationResult
 
-        return null
-    }
+            return@coroutineScope null
+        }
 
     @Suppress("NestedBlockDepth", "ReturnCount")
     private fun Schema.verifyEnvironments(environments: Set<Environment>): Failure? {
         environments.forEach { environment ->
-            val verificationResult = verifyEnvironmentContainsAllPlatforms(environment)
-            if (verificationResult is Failure) return verificationResult
+            val verifyEnvironmentContainsAllPlatformsResult = verifyEnvironmentContainsAllPlatforms(environment)
+            if (verifyEnvironmentContainsAllPlatformsResult is Failure) {
+                return verifyEnvironmentContainsAllPlatformsResult
+            }
 
             environment.platforms.forEach { platform ->
-                val verificationResult = verifyPlatformContainsAllProperties(platform, environment.name)
-                if (verificationResult is Failure) return verificationResult
+                val verifyPlatformContainsAllPropertiesResult =
+                    verifyPlatformContainsAllProperties(platform, environment.name)
+                if (verifyPlatformContainsAllPropertiesResult is Failure) {
+                    return verifyPlatformContainsAllPropertiesResult
+                }
 
                 platform.properties.forEach { property ->
-                    val verificationResult =
+                    val verifyPropertyTypeIsCorrectResult =
                         verifyPropertyTypeIsCorrect(property, platform.platformType, environment.name)
-                    if (verificationResult is Failure) return verificationResult
+                    if (verifyPropertyTypeIsCorrectResult is Failure) return verifyPropertyTypeIsCorrectResult
                 }
             }
         }

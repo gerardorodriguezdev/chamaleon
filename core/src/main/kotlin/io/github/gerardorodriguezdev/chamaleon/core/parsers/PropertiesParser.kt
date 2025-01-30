@@ -5,7 +5,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.Pro
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -38,7 +37,6 @@ internal class DefaultPropertiesParser : PropertiesParser {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     @Suppress("ReturnCount")
     override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
