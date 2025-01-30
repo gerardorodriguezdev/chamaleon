@@ -16,7 +16,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefi
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toFailure
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toSuccess
-import io.github.gerardorodriguezdev.chamaleon.core.models.isFailure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
@@ -108,9 +107,11 @@ internal class DefaultEnvironmentsProcessor(
             }
 
             val filesParserResult = parseFiles(environmentsDirectory)
-            if (filesParserResult.isFailure()) return@coroutineScope filesParserResult.value
+            if (filesParserResult.isFailure()) {
+                return@coroutineScope filesParserResult.failureValue()
+            }
 
-            val (schema, environments, selectedEnvironmentName) = filesParserResult.value
+            val (schema, environments, selectedEnvironmentName) = filesParserResult.successValue()
             val environmentsVerificationResult = verifyEnvironments(schema, environments, selectedEnvironmentName)
             if (environmentsVerificationResult is Failure) return@coroutineScope environmentsVerificationResult
 
@@ -172,14 +173,20 @@ internal class DefaultEnvironmentsProcessor(
             val environmentsParserResult = environmentsParsing.await()
             val propertiesParserResult = propertiesParsing.await()
 
-            if (schemaParserResult.isFailure()) return@coroutineScope schemaParserResult.value.toFailure()
-            if (environmentsParserResult.isFailure()) return@coroutineScope environmentsParserResult.value.toFailure()
-            if (propertiesParserResult.isFailure()) return@coroutineScope propertiesParserResult.value.toFailure()
+            if (schemaParserResult.isFailure()) {
+                return@coroutineScope schemaParserResult.failureValue().toFailure()
+            }
+            if (environmentsParserResult.isFailure()) {
+                return@coroutineScope environmentsParserResult.failureValue().toFailure()
+            }
+            if (propertiesParserResult.isFailure()) {
+                return@coroutineScope propertiesParserResult.failureValue().toFailure()
+            }
 
             return@coroutineScope FilesParserResult(
-                schema = schemaParserResult.value,
-                environments = environmentsParserResult.value,
-                selectedEnvironmentName = propertiesParserResult.value,
+                schema = schemaParserResult.successValue(),
+                environments = environmentsParserResult.successValue(),
+                selectedEnvironmentName = propertiesParserResult.successValue(),
             ).toSuccess()
         }
 
@@ -223,7 +230,9 @@ internal class DefaultEnvironmentsProcessor(
             val selectedEnvironmentVerificationResult = selectedEnvironmentNameVerification.await()
 
             if (schemaVerificationResult is Failure) return@coroutineScope schemaVerificationResult
-            if (selectedEnvironmentVerificationResult is Failure) return@coroutineScope selectedEnvironmentVerificationResult
+            if (selectedEnvironmentVerificationResult is Failure) {
+                return@coroutineScope selectedEnvironmentVerificationResult
+            }
 
             return@coroutineScope null
         }
