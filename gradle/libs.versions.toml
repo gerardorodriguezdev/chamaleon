@@ -18,7 +18,7 @@ kmp-binary-compability-validator = "0.17.0"
 jvm-test-parameterized = "5.11.0"
 
 # Releases
-release = "1.0.6"
+release = "1.0.7"
 
 [libraries]
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
