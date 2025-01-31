@@ -9,7 +9,7 @@ import kotlin.reflect.KProperty
 
 private const val BUNDLE = "messages.Bundle"
 
-object Bundle {
+internal object Bundle {
     private val INSTANCE = DynamicBundle(Bundle::class.java, BUNDLE)
 
     val environmentSelectionWindowName by messageDelegate("environment.selection.window.name")

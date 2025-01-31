@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import org.jetbrains.jewel.bridge.addComposeTab
 import java.io.File
 
-class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
+internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
         environmentsProcessor = EnvironmentsProcessor.create(),
         uiDispatcher = Dispatchers.EDT,

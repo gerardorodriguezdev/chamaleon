@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,14 +12,11 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.messages.Bundle
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.jewel.bridge.toComposeColor
 import org.jetbrains.jewel.ui.component.Dropdown
-import org.jetbrains.jewel.ui.component.IconActionButton
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EnvironmentCard(
+internal fun EnvironmentCard(
     state: EnvironmentCardState,
     onSelectedEnvironmentChanged: (newSelectedEnvironment: String?) -> Unit,
 ) {
@@ -62,24 +58,16 @@ fun EnvironmentCard(
                 Text(state.selectedEnvironment.orEmpty())
             }
 
-            //TODO: Refactor
-            Tooltip(
-                tooltip = {
-                    Text(text = Bundle.removeSelectedEnvironment)
-                },
-                content = {
-                    IconActionButton(
-                        key = AllIconsKeys.Actions.Close,
-                        onClick = { onSelectedEnvironmentChanged(null) },
-                        contentDescription = Bundle.removeSelectedEnvironment,
-                    )
-                }
+            TooltipIconButton(
+                iconKey = AllIconsKeys.Actions.Close,
+                tooltip = Bundle.removeSelectedEnvironment,
+                onClick = { onSelectedEnvironmentChanged(null) },
             )
         }
     }
 }
 
-data class EnvironmentCardState(
+internal data class EnvironmentCardState(
     val environmentsDirectoryPath: String,
     val selectedEnvironment: String?,
     val environments: ImmutableList<String>,

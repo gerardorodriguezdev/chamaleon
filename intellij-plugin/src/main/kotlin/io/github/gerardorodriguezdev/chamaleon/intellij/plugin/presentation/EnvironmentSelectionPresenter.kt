@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
-class EnvironmentSelectionPresenter(
+internal class EnvironmentSelectionPresenter(
     private val environmentsProcessor: EnvironmentsProcessor,
     private val uiDispatcher: CoroutineContext,
     ioDispatcher: CoroutineContext,

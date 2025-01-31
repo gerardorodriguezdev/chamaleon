@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,18 +12,20 @@ import androidx.compose.ui.unit.dp
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.messages.Bundle
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCard
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionConstants.horizontalPadding
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionConstants.verticalScrollBarWidth
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
-import org.jetbrains.jewel.ui.component.*
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.VerticalScrollbar
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @OptIn(ExperimentalJewelApi::class)
 @Composable
-fun EnvironmentSelectionWindow(
+internal fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionState,
     onRefreshClicked: () -> Unit,
     onCreateEnvironmentClicked: () -> Unit,
@@ -76,7 +77,6 @@ private fun Content(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Toolbar(
     onRefreshClicked: () -> Unit,
@@ -88,31 +88,16 @@ private fun Toolbar(
             .padding(horizontal = horizontalPadding),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        //TODO: Refactor
-        Tooltip(
-            tooltip = {
-                Text(text = Bundle.refreshEnvironments)
-            },
-            content = {
-                IconActionButton(
-                    key = AllIconsKeys.Actions.Refresh,
-                    onClick = onRefreshClicked,
-                    contentDescription = Bundle.refreshEnvironments,
-                )
-            })
+        TooltipIconButton(
+            iconKey = AllIconsKeys.Actions.Refresh,
+            tooltip = Bundle.refreshEnvironments,
+            onClick = onRefreshClicked,
+        )
 
-        //TODO: Refactor
-        Tooltip(
-            tooltip = {
-                Text(text = Bundle.createEnvironment)
-            },
-            content = {
-                IconActionButton(
-                    key = AllIconsKeys.Actions.AddFile,
-                    onClick = onCreateEnvironmentClicked,
-                    contentDescription = remember { Bundle.createEnvironment },
-                )
-            }
+        TooltipIconButton(
+            iconKey = AllIconsKeys.Actions.AddFile,
+            tooltip = remember { Bundle.createEnvironment },
+            onClick = onCreateEnvironmentClicked,
         )
     }
 }
@@ -166,12 +151,12 @@ private fun ColumnScope.EnvironmentCards(
     }
 }
 
-object EnvironmentSelectionConstants {
+internal object EnvironmentSelectionConstants {
     val horizontalPadding = 12.dp
     val verticalScrollBarWidth = 12.dp
 }
 
-data class EnvironmentSelectionState(
+internal data class EnvironmentSelectionState(
     val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
     val isLoading: Boolean = false,
 )
