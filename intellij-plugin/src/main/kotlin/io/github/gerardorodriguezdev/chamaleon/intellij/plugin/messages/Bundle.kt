@@ -18,6 +18,11 @@ object Bundle {
 
     val createEnvironment by messageDelegate("create.environment")
 
+    val cancel by messageDelegate("cancel")
+    val previous by messageDelegate("previous")
+    val next by messageDelegate("next")
+    val finish by messageDelegate("finish")
+
     @get:Composable
     val environmentsDirectoryPath by rememberedMessageDelegate("environments.directory.path")
 

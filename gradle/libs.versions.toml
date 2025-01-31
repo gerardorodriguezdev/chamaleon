@@ -15,6 +15,7 @@ kmp-coroutines = "1.10.1"
 intellij-jewel = "0.25.0"
 kmp-immutable = "0.3.8"
 kmp-binary-compability-validator = "0.17.0"
+kmp-navigation = "2.8.0-alpha10"
 jvm-test-parameterized = "5.11.4"
 
 # Releases
@@ -31,6 +32,7 @@ kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin"
 intellij-jewel = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge-233", version.ref = "intellij-jewel" }
 jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
 jvm-test-parameterized = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jvm-test-parameterized" }
+kmp-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "kmp-navigation" }
 
 [plugins]
 kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
