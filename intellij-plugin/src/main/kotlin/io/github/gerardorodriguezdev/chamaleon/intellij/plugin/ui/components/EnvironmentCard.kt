@@ -1,5 +1,6 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,8 +15,10 @@ import org.jetbrains.jewel.bridge.toComposeColor
 import org.jetbrains.jewel.ui.component.Dropdown
 import org.jetbrains.jewel.ui.component.IconActionButton
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EnvironmentCard(
     state: EnvironmentCardState,
@@ -59,10 +62,18 @@ fun EnvironmentCard(
                 Text(state.selectedEnvironment.orEmpty())
             }
 
-            IconActionButton(
-                key = AllIconsKeys.Actions.Close,
-                onClick = { onSelectedEnvironmentChanged(null) },
-                contentDescription = Bundle.removeSelectedEnvironment,
+            //TODO: Refactor
+            Tooltip(
+                tooltip = {
+                    Text(text = Bundle.removeSelectedEnvironment)
+                },
+                content = {
+                    IconActionButton(
+                        key = AllIconsKeys.Actions.Close,
+                        onClick = { onSelectedEnvironmentChanged(null) },
+                        contentDescription = Bundle.removeSelectedEnvironment,
+                    )
+                }
             )
         }
     }

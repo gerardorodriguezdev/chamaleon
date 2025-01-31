@@ -9,7 +9,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.messages.Bundle
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.EnvironmentSelectionPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentSelection
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.jewel.bridge.addComposeTab
 import java.io.File
@@ -31,10 +31,13 @@ class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
         project.scanProject()
 
         toolWindow.addComposeTab(Bundle.environmentSelectionWindowName) {
-            EnvironmentSelection(
+            EnvironmentSelectionWindow(
                 state = environmentSelectionPresenter.state.value,
                 onRefreshClicked = {
                     project.scanProject()
+                },
+                onCreateEnvironmentClicked = {
+                    EnvironmentCreationDialog().show()
                 },
                 onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
                     project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)

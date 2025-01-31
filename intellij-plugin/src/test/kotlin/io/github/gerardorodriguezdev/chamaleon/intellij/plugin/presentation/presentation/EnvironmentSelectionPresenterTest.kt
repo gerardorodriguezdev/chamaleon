@@ -3,8 +3,8 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.pre
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.presentation.testing.FakeEnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.presentation.testing.TestData
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentCardState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.EnvironmentSelectionState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
