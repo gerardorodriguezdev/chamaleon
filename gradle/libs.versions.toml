@@ -28,6 +28,7 @@ kmp-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ver
 kmp-test-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kmp-coroutines" }
 kmp-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kmp-immutable" }
 kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+intellij-jewel-ui = { module = "org.jetbrains.jewel:jewel-ui-233", version.ref = "intellij-jewel" }
 intellij-jewel-laf = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge-233", version.ref = "intellij-jewel" }
 intellij-jewel-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-233", version.ref = "intellij-jewel" }
 jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
