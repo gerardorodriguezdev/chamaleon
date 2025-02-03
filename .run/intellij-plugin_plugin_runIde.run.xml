@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="intellij-plugin:buildPlugin" type="GradleRunConfiguration" factoryName="Gradle"
-                   folderName="Intellij plugin">
+    <configuration default="false" name="intellij-plugin:plugin:runIde" type="GradleRunConfiguration"
+                   factoryName="Gradle" folderName="Intellij plugin">
         <ExternalSystemSettings>
             <option name="executionName"/>
             <option name="externalProjectPath" value="$PROJECT_DIR$"/>
@@ -11,7 +11,7 @@
             </option>
             <option name="taskNames">
                 <list>
-                    <option value="intellij-plugin:buildPlugin"/>
+                    <option value="intellij-plugin:plugin:runIde"/>
                 </list>
             </option>
             <option name="vmOptions"/>

@@ -20,7 +20,7 @@ dependencyResolutionManagement {
 include(
     ":core",
     ":gradle-plugin",
-    ":intellij-plugin",
-    ":ui",
-    ":standalone",
+    ":intellij-plugin:plugin",
+    ":intellij-plugin:ui",
+    ":intellij-plugin:standalone",
 )

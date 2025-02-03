@@ -36,4 +36,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: intellij-plugin-${{ github.head_ref }}
-          path: ./intellij-plugin/build/distributions/*.zip
+          path: ./intellij-plugin/plugin/build/distributions/*.zip

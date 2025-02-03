@@ -50,7 +50,6 @@ kotlin {
         implementation(projects.core) {
             exclude(group = "org.jetbrains.kotlinx")
         }
-        implementation(projects.ui)
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)

@@ -1,6 +1,6 @@
 # Chamaleon IntelliJ Plugin
 
-IntelliJ plugin for [Chamaleon](../README.md)
+IntelliJ plugin for [Chamaleon](../../README.md)
 
 ## Features
 
