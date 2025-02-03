@@ -23,6 +23,6 @@ kotlin {
         }
         implementation(libs.intellij.jewel.standalone)
         implementation(libs.jvm.coroutines)
-        implementation(projects.ui)
+        implementation(projects.intellijPlugin.ui)
     }
 }
