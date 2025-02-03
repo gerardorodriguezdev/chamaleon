@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

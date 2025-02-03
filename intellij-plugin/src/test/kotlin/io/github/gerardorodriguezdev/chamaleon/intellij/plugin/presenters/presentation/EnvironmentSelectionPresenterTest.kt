@@ -1,8 +1,8 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.presentation
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation
 
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.EnvironmentSelectionPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.presentation.testing.FakeEnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.presentation.testing.TestData
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.EnvironmentSelectionPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.FakeEnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionState
 import kotlinx.collections.immutable.persistentListOf

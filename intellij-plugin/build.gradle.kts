@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.intellij)
     alias(libs.plugins.kmp.compose)
     alias(libs.plugins.kmp.compose.compiler)
-    alias(libs.plugins.kmp.serialization)
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"
@@ -41,11 +40,7 @@ kotlin {
                 exclude(group = "org.jetbrains.compose.material")
             }
         }
-        implementation(libs.intellij.jewel)
-        implementation(libs.kmp.navigation) {
-            exclude(group = "org.jetbrains.kotlinx")
-            exclude(group = "org.jetbrains.compose.material")
-        }
+        implementation(libs.intellij.jewel.laf)
         implementation(libs.jvm.coroutines) {
             exclude(group = "org.jetbrains.kotlinx")
         }

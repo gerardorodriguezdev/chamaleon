@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.presentation.testing
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
