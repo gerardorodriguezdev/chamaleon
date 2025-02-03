@@ -23,13 +23,13 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
+                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.EnvironmentSelectionToolWindowFactory"
                 id="Chamaleon"
                 anchor="right"
                 icon="/images/expui/toolWindow/pluginIcon.svg"/>
         <fileType
                 name="Chamaleon"
-                implementationClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.fileTypes.ChamaleonFileType"
+                implementationClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.fileTypes.ChamaleonFileType"
                 fileNames="template.chamaleon.json;properties.chamaleon.json"
                 patterns="*.environment.chamaleon.json"/>
     </extensions>
