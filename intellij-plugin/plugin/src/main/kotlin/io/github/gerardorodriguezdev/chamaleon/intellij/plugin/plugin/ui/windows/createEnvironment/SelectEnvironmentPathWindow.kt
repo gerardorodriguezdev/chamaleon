@@ -7,7 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.ui.compone
 import org.jetbrains.jewel.ui.component.TextField
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
-//TODO: Finish + Test + Preview
+// TODO: Finish + Test + Preview
 @Composable
 internal fun SelectEnvironmentPathWindow(
     state: SelectEnvironmentPath,

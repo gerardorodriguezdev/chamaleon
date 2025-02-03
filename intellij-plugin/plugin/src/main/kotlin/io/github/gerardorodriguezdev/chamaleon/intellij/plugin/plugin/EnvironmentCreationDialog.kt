@@ -12,7 +12,7 @@ import javax.swing.Action
 import javax.swing.JButton
 import javax.swing.JComponent
 
-//TODO: Finish
+// TODO: Finish
 internal class EnvironmentCreationDialog : DialogWrapper(false) {
     private val presenter = CreateEnvironmentPresenter(onSelectEnvironmentPathClicked = {})
 
@@ -66,7 +66,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
 
         override fun doAction(p0: ActionEvent?) {
-            //TODO: Do
+            // TODO: Do
         }
     }
 

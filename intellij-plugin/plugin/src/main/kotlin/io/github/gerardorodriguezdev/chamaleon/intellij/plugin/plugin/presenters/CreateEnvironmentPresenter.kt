@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.presenter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-//TODO: Finish + Test
+// TODO: Finish + Test
 internal class CreateEnvironmentPresenter(
     onSelectEnvironmentPathClicked: () -> Unit,
 ) {

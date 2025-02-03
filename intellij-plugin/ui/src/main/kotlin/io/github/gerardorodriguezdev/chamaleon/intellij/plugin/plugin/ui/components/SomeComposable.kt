@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.ui.compon
 import androidx.compose.runtime.Composable
 import org.jetbrains.jewel.ui.component.Text
 
-//TODO: Remove
+// TODO: Remove
 @Composable
 fun SomeComposable() {
     Text(text = "SomeText")

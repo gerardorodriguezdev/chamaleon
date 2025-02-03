@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.ui.components.SomeComposable
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 
-//TODO: Remove
+// TODO: Remove
 @Preview
 @Composable
 private fun SomeComposablePreview() {

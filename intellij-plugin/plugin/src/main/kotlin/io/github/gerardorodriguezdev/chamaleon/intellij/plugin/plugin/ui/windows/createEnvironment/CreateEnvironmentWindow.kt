@@ -6,7 +6,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.presenters
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.presenters.CreateEnvironmentPresenter.State.SelectSchema
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.plugin.ui.components.SomeComposable
 
-//TODO: Finish + Test + Preview
+// TODO: Finish + Test + Preview
 @Composable
 internal fun CreateEnvironmentWindow(state: State) {
     // TODO: Divider
