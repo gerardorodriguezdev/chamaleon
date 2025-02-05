@@ -13,7 +13,7 @@ import org.jetbrains.jewel.ui.component.Text
 @Composable
 internal fun PreviewContainer(
     isDark: Boolean = true,
-    backgroundColor: Color = if (isDark) Color.White else Color.Black,
+    backgroundColor: Color = if (isDark) Color.Black else Color.White,
     content: @Composable () -> Unit,
 ) {
     IntUiTheme(isDark = isDark) {
