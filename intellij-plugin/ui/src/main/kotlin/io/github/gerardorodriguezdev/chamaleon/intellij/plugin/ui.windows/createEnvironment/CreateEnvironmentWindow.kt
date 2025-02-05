@@ -5,6 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
+import kotlinx.collections.immutable.ImmutableSet
 
 // TODO: Finish + Test + Preview
 @Composable
@@ -34,8 +35,8 @@ sealed interface State {
     }
 
     data class SetupSchemaState(
-        val supportedPlatforms: Set<PlatformType>,
-        val propertyDefinitions: Set<PropertyDefinition>,
+        val supportedPlatforms: ImmutableSet<PlatformType>,
+        val propertyDefinitions: ImmutableSet<PropertyDefinition>,
     ) : State
 }
 
