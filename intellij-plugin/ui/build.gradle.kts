@@ -24,6 +24,9 @@ kotlin {
                 exclude(group = "org.jetbrains.compose.material")
             }
         }
+        implementation(libs.kmp.immutable) {
+            exclude(group = "org.jetbrains.kotlinx")
+        }
         implementation(libs.intellij.jewel.ui) {
             exclude(group = "org.jetbrains.kotlinx")
         }
