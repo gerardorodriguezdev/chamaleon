@@ -5,7 +5,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.previews.TooltipIconButtonPreview
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.previews.components.TooltipIconButtonPreview
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 
 internal fun main() = application {
