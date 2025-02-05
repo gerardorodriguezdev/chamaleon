@@ -21,7 +21,7 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
-internal fun EnvironmentSelectionWindow(
+fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionState,
     onRefreshClicked: () -> Unit,
     onCreateEnvironmentClicked: () -> Unit,
@@ -150,7 +150,7 @@ internal object EnvironmentSelectionConstants {
     val verticalScrollBarWidth = 12.dp
 }
 
-internal data class EnvironmentSelectionState(
+data class EnvironmentSelectionState(
     val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
     val isLoading: Boolean = false,
 )

@@ -20,15 +20,11 @@ kotlin {
             compose.desktop.macos_arm64,
         ).forEach { dependency ->
             implementation(dependency) {
-                exclude(group = "org.jetbrains.kotlinx")
                 exclude(group = "org.jetbrains.compose.material")
             }
         }
-        implementation(libs.kmp.immutable) {
-            exclude(group = "org.jetbrains.kotlinx")
-        }
-        implementation(libs.intellij.jewel.ui) {
-            exclude(group = "org.jetbrains.kotlinx")
-        }
+        implementation(libs.kmp.immutable)
+        implementation(libs.intellij.jewel.ui)
+        implementation(libs.jvm.coroutines)
     }
 }

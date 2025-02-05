@@ -2,14 +2,14 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter.State.SelectEnvironmentPath
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentPath
 import org.jetbrains.jewel.ui.component.TextField
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 // TODO: Finish + Test + Preview
 @Composable
-internal fun SelectEnvironmentPathWindow(
+fun SelectEnvironmentPathWindow(
     state: SelectEnvironmentPath,
     onSelectEnvironmentPathClicked: () -> Unit,
 ) {

@@ -1,5 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -14,14 +16,5 @@ internal class CreateEnvironmentPresenter(
         when (action) {
             is Action.OnSelectEnvironmentPathClicked -> Unit
         }
-    }
-
-    sealed interface State {
-        data class SelectEnvironmentPath(val name: String) : State
-        data class SelectSchema(val name: String, val schema: String) : State
-    }
-
-    sealed interface Action {
-        data object OnSelectEnvironmentPathClicked : Action
     }
 }
