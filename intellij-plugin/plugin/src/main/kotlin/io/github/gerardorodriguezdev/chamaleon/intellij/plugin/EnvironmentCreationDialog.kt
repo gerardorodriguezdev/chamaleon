@@ -32,7 +32,10 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         JewelComposePanel {
             Theme {
                 val state by presenter.state.collectAsState()
-                CreateEnvironmentWindow(state = state)
+                CreateEnvironmentWindow(
+                    state = state,
+                    onAction = {}
+                )
             }
         }
 
