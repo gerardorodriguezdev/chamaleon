@@ -8,16 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalStrings
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentPath
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.TextField
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
-// TODO: Finish + Test + Preview
 @Composable
-fun SelectEnvironmentPathWindow(
-    state: SelectEnvironmentPath,
-    onSelectEnvironmentPathClicked: () -> Unit,
+fun SelectEnvironmentsDirectoryLocationWindow(
+    state: SelectEnvironmentsDirectoryLocationState,
+    onIconClicked: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -30,15 +29,15 @@ fun SelectEnvironmentPathWindow(
         ) {
             Text(text = LocalStrings.current.environmentsDirectoryLocation, modifier = Modifier.widthIn(max = 140.dp))
 
-            val textFieldState = rememberTextFieldState(initialText = state.name)
+            val textFieldState = rememberTextFieldState(initialText = state.path)
             TextField(
                 state = textFieldState,
                 readOnly = true,
                 trailingIcon = {
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.NewFolder,
-                        tooltip = state.name,
-                        onClick = { onSelectEnvironmentPathClicked() }
+                        tooltip = state.path,
+                        onClick = { onIconClicked() }
                     )
                 },
             )

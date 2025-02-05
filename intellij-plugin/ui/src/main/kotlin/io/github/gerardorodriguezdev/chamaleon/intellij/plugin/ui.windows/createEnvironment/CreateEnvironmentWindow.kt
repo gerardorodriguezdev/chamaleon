@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.runtime.Composable
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentPath
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectSchema
 
 // TODO: Finish + Test + Preview
@@ -11,10 +11,10 @@ fun CreateEnvironmentWindow(state: State) {
     // TODO: GroupHeader
 
     when (state) {
-        is SelectEnvironmentPath ->
-            SelectEnvironmentPathWindow(
+        is SelectEnvironmentsDirectoryLocationState ->
+            SelectEnvironmentsDirectoryLocationWindow(
                 state = state,
-                onSelectEnvironmentPathClicked = {},
+                onIconClicked = {},
             )
 
         is SelectSchema -> Unit
@@ -22,7 +22,7 @@ fun CreateEnvironmentWindow(state: State) {
 }
 
 sealed interface State {
-    data class SelectEnvironmentPath(val name: String) : State
+    data class SelectEnvironmentsDirectoryLocationState(val path: String) : State
     data class SelectSchema(val name: String, val schema: String) : State
 }
 

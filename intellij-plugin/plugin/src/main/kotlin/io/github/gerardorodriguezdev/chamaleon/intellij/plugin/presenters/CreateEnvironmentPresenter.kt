@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 internal class CreateEnvironmentPresenter(
     onSelectEnvironmentPathClicked: () -> Unit,
 ) {
-    private val _state = MutableStateFlow<State>(value = State.SelectEnvironmentPath(name = ""))
+    private val _state = MutableStateFlow<State>(value = State.SelectEnvironmentsDirectoryLocationState(path = ""))
     val state: StateFlow<State> = _state
 
     fun onAction(action: Action) {
