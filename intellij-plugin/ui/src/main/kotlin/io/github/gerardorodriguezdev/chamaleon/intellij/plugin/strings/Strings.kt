@@ -14,6 +14,9 @@ interface Strings {
     val finish: String
     val selectEnvironmentsDirectoryLocation: String
     val environmentsDirectoryLocation: String
+    val createSchema: String
+    val updateSchema: String
+    val validEnvironments: String
 }
 
 object DefaultStrings : Strings {
@@ -30,4 +33,7 @@ object DefaultStrings : Strings {
     override val finish: String = "Finish"
     override val selectEnvironmentsDirectoryLocation: String = "Select the environments directory location"
     override val environmentsDirectoryLocation: String = "Environments directory location:"
+    override val createSchema: String = "Create schema"
+    override val updateSchema: String = "Update schema"
+    override val validEnvironments: String = "Valid environments"
 }

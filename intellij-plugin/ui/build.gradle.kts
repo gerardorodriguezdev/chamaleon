@@ -26,5 +26,6 @@ kotlin {
         implementation(libs.kmp.immutable)
         implementation(libs.intellij.jewel.ui)
         implementation(libs.jvm.coroutines)
+        implementation(projects.core)
     }
 }

@@ -1,15 +1,14 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.runtime.Composable
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectSchema
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
 
 // TODO: Finish + Test + Preview
 @Composable
 fun CreateEnvironmentWindow(state: State) {
-    // TODO: Divider
-    // TODO: GroupHeader
-
     when (state) {
         is SelectEnvironmentsDirectoryLocationState ->
             SelectEnvironmentsDirectoryLocationWindow(
@@ -17,13 +16,27 @@ fun CreateEnvironmentWindow(state: State) {
                 onIconClicked = {},
             )
 
-        is SelectSchema -> Unit
+        is SetupSchemaState ->
+            SetupSchema(state = state)
     }
 }
 
 sealed interface State {
-    data class SelectEnvironmentsDirectoryLocationState(val path: String) : State
-    data class SelectSchema(val name: String, val schema: String) : State
+    data class SelectEnvironmentsDirectoryLocationState(
+        val path: String,
+        val verification: Verification?,
+    ) : State {
+        sealed interface Verification {
+            data object Valid : Verification
+            data class Invalid(val reason: String) : Verification
+            data object InProgress : Verification
+        }
+    }
+
+    data class SetupSchemaState(
+        val supportedPlatforms: Set<PlatformType>,
+        val propertyDefinitions: Set<PropertyDefinition>,
+    ) : State
 }
 
 sealed interface Action {
