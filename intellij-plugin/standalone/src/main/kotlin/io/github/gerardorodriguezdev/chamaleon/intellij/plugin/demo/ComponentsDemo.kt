@@ -8,7 +8,7 @@ import androidx.compose.ui.window.rememberWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.previews.TooltipIconButtonPreview
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 
-fun main() = application {
+internal fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Demo",

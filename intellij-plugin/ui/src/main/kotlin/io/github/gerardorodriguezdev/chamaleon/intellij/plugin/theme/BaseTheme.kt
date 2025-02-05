@@ -12,16 +12,20 @@ val LocalStrings = staticCompositionLocalOf<Strings> { DefaultStrings }
 
 val LocalColors = staticCompositionLocalOf<Colors> { DefaultColors }
 
-@Composable
-fun BaseTheme(
-    strings: Strings = DefaultStrings,
-    colors: Colors = DefaultColors,
-    content: @Composable () -> Unit,
-) {
-    CompositionLocalProvider(
-        LocalColors provides colors,
-        LocalStrings provides strings,
+interface BaseTheme {
+
+    val strings: Strings
+    val colors: Colors
+
+    @Composable
+    fun Theme(
+        content: @Composable () -> Unit,
     ) {
-        content()
+        CompositionLocalProvider(
+            LocalColors provides colors,
+            LocalStrings provides strings,
+        ) {
+            content()
+        }
     }
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import com.intellij.openapi.ui.DialogWrapper
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStrings
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import java.awt.event.ActionEvent
@@ -30,7 +30,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
 
     override fun createCenterPanel(): JComponent =
         JewelComposePanel {
-            PluginTheme {
+            Theme {
                 val state by presenter.state.collectAsState()
                 CreateEnvironmentWindow(state = state)
             }

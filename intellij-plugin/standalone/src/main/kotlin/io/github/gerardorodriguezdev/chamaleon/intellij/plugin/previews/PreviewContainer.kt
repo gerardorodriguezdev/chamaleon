@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.BaseTheme
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.DemoTheme.Theme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.ui.component.Text
 
@@ -17,7 +17,7 @@ internal fun PreviewContainer(
     content: @Composable () -> Unit,
 ) {
     IntUiTheme(isDark = isDark) {
-        BaseTheme {
+        Theme {
             Box(modifier = Modifier.background(backgroundColor)) {
                 content()
             }

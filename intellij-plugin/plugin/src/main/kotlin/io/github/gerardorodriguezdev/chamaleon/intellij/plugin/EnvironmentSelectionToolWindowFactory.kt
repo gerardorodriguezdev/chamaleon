@@ -9,7 +9,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStrings
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.jewel.bridge.addComposeTab
@@ -36,7 +36,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
 
         toolWindow.addComposeTab(BundleStrings.environmentSelectionWindowName) {
             SwingBridgeTheme {
-                PluginTheme {
+                Theme {
                     EnvironmentSelectionWindow(
                         state = environmentSelectionPresenter.state.value,
                         onRefreshClicked = {
