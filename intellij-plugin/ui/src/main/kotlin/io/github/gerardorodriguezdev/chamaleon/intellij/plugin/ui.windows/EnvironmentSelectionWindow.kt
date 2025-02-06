@@ -12,11 +12,13 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalString
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCard
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.WindowContainer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionConstants.horizontalPadding
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionConstants.verticalScrollBarWidth
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.VerticalScrollbar
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
@@ -28,9 +30,9 @@ fun EnvironmentSelectionWindow(
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     if (state.isLoading) {
-        Loading()
+        LoadingWindow()
     } else {
-        Content(
+        ContentWindow(
             environmentCardStates = state.environmentCardStates,
             onRefreshClicked = onRefreshClicked,
             onCreateEnvironmentClicked = onCreateEnvironmentClicked,
@@ -39,37 +41,28 @@ fun EnvironmentSelectionWindow(
     }
 }
 
-//TODO: Take out
 @Composable
-private fun Loading() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-    }
-}
-
-//TODO: Take out window
-@Composable
-private fun Content(
+private fun ContentWindow(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefreshClicked: () -> Unit,
     onCreateEnvironmentClicked: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 2.dp)
-    ) {
-        Toolbar(
-            onRefreshClicked = onRefreshClicked,
-            onCreateEnvironmentClicked = onCreateEnvironmentClicked,
-        )
+    WindowContainer {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Toolbar(
+                onRefreshClicked = onRefreshClicked,
+                onCreateEnvironmentClicked = onCreateEnvironmentClicked,
+            )
 
-        EnvironmentCards(
-            environmentCardStates = environmentCardStates,
-            onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
-        )
+            EnvironmentCards(
+                environmentCardStates = environmentCardStates,
+                onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+            )
+        }
     }
 }
 
@@ -98,6 +91,7 @@ private fun Toolbar(
     }
 }
 
+//TODO: Screen for VerticalScroller + Toolbar
 @Composable
 private fun ColumnScope.EnvironmentCards(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
@@ -126,15 +120,20 @@ private fun ColumnScope.EnvironmentCards(
                 items = environmentCardStates,
                 key = { environmentCardState -> environmentCardState.environmentsDirectoryPath },
             ) { environmentCardState ->
-                EnvironmentCard(
-                    state = environmentCardState,
-                    onSelectedEnvironmentChanged = { newSelectedEnvironment ->
-                        onSelectedEnvironmentChanged(
-                            environmentCardState.environmentsDirectoryPath,
-                            newSelectedEnvironment,
-                        )
-                    }
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                    Divider(orientation = Orientation.Horizontal)
+
+                    EnvironmentCard(
+                        state = environmentCardState,
+                        onSelectedEnvironmentChanged = { newSelectedEnvironment ->
+                            onSelectedEnvironmentChanged(
+                                environmentCardState.environmentsDirectoryPath,
+                                newSelectedEnvironment,
+                            )
+                        }
+                    )
+                }
             }
         }
 
