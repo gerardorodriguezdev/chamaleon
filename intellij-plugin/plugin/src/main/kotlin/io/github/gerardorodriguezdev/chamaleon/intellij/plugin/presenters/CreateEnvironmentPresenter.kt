@@ -16,7 +16,7 @@ internal class CreateEnvironmentPresenter(onSelectEnvironmentPathClicked: () -> 
     fun onAction(action: Action) {
         when (action) {
             is Action.OnSelectEnvironmentPathClicked -> Unit
-            is Action.OnSupportedPlatformTypeChecked -> Unit
+            is Action.OnSupportedPlatformTypeChanged -> Unit
         }
     }
 }

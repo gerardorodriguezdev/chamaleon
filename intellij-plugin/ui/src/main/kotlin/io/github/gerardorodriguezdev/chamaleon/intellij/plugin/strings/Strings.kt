@@ -18,6 +18,7 @@ interface Strings {
     val updateSchema: String
     val validEnvironments: String
     val supportedPlatforms: String
+    val propertyDefinitions: String
 }
 
 object DefaultStrings : Strings {
@@ -37,5 +38,6 @@ object DefaultStrings : Strings {
     override val createSchema: String = "Create schema"
     override val updateSchema: String = "Update schema"
     override val validEnvironments: String = "Valid environments"
-    override val supportedPlatforms: String = "Supported platforms"
+    override val supportedPlatforms: String = "Supported platforms:"
+    override val propertyDefinitions: String = "PropertyDefinitions:"
 }

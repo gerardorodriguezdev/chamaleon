@@ -22,7 +22,9 @@ kotlin {
             }
         }
         implementation(libs.intellij.jewel.standalone)
+        implementation(libs.kmp.immutable)
         implementation(libs.jvm.coroutines)
         implementation(projects.intellijPlugin.ui)
+        implementation(projects.core)
     }
 }

@@ -1,11 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -16,72 +14,107 @@ import androidx.compose.ui.unit.dp
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalStrings
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputCheckBox
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.platformTypes
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPlatforms
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
-import kotlinx.collections.immutable.ImmutableSet
-import kotlinx.collections.immutable.toPersistentList
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState.PropertyDefinition
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Text
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SetupSchema(
+fun SetupSchemaWindow(
     state: SetupSchemaState,
-    onCheckedChanged: (platformType: PlatformType) -> Unit,
+    onSupportedPlatformsChanged: (platformType: PlatformType) -> Unit,
 ) {
     LazyColumn(
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         stickyHeader {
-            Title(stateProvider = { state })
+            Title(title = state.title)
         }
 
-        platforms(
-            supportedPlatformsProvider = { state.supportedPlatforms },
+        item {
+            SupportedPlatformSection(
+                supportedPlatforms = state.supportedPlatforms,
+                onCheckedChanged = onSupportedPlatformsChanged,
+            )
+        }
+
+        item {
+            PropertyDefinitionsSection(
+                propertyDefinitions = state.propertyDefinitions,
+            )
+        }
+    }
+}
+
+@Composable
+private fun Title(title: String) {
+    Text(text = title)
+}
+
+@Composable
+private fun SupportedPlatformSection(
+    supportedPlatforms: ImmutableList<PlatformType>,
+    onCheckedChanged: (platformType: PlatformType) -> Unit,
+) {
+    Section(title = LocalStrings.current.supportedPlatforms) {
+        SupportedPlatforms(
+            supportedPlatforms = supportedPlatforms,
             onCheckedChanged = onCheckedChanged,
         )
     }
 }
 
 @Composable
-private fun Title(stateProvider: () -> SetupSchemaState) {
-    val schemaExists by remember {
-        derivedStateOf {
-            val state = stateProvider()
-            state.supportedPlatforms.isNotEmpty() && state.propertyDefinitions.isNotEmpty()
-        }
+private fun PropertyDefinitionsSection(propertyDefinitions: ImmutableList<PropertyDefinition>) {
+    Section(title = LocalStrings.current.propertyDefinitions) {
+        //TODO: Finish
     }
-    val strings = LocalStrings.current
-    val text = if (schemaExists) strings.updateSchema else strings.createSchema
-    Text(text = text)
 }
 
-private fun LazyListScope.platforms(
-    supportedPlatformsProvider: () -> ImmutableSet<PlatformType>,
-    onCheckedChanged: (platformType: PlatformType) -> Unit,
+@Composable
+private fun Section(
+    title: String,
+    content: @Composable () -> Unit,
 ) {
-    item {
-        Text(text = LocalStrings.current.supportedPlatforms)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Divider(orientation = Orientation.Horizontal)
+
+        Text(text = title)
+
+        content()
     }
+}
 
-    items(platformTypes) { platformType ->
-        val isChecked by remember {
-            derivedStateOf {
-                val supportedPlatforms = supportedPlatformsProvider()
-                supportedPlatforms.contains(platformType)
+@Composable
+private fun SupportedPlatforms(
+    supportedPlatforms: ImmutableList<PlatformType>,
+    onCheckedChanged: (platformType: PlatformType) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(allPlatforms) { platformType ->
+            val isChecked by remember {
+                derivedStateOf { supportedPlatforms.contains(platformType) }
             }
-        }
 
-        InputCheckBox(
-            label = platformType.serialName,
-            isChecked = isChecked,
-            onCheckedChanged = { onCheckedChanged(platformType) }
-        )
+            InputCheckBox(
+                label = platformType.serialName,
+                isChecked = isChecked,
+                onCheckedChanged = { onCheckedChanged(platformType) }
+            )
+        }
     }
 }
 
 private object SetupSchemaConstants {
-    val platformTypes = PlatformType.entries.toPersistentList()
+    val allPlatforms = PlatformType.entries.toImmutableList()
 }
