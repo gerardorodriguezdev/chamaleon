@@ -1,8 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -31,25 +35,21 @@ fun SetupSchemaWindow(
 ) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         stickyHeader {
             Title(title = state.title)
         }
 
-        item {
-            SupportedPlatformSection(
-                supportedPlatforms = state.supportedPlatforms,
-                onCheckedChanged = onSupportedPlatformsChanged,
-            )
-        }
+        supportedPlatformSection(
+            supportedPlatforms = state.supportedPlatforms,
+            onCheckedChanged = onSupportedPlatformsChanged,
+        )
 
-        item {
-            PropertyDefinitionsSection(
-                propertyDefinitions = state.propertyDefinitions,
-            )
-        }
+        propertyDefinitionsSection(
+            propertyDefinitions = state.propertyDefinitions,
+        )
     }
 }
 
@@ -58,38 +58,38 @@ private fun Title(title: String) {
     Text(text = title)
 }
 
-@Composable
-private fun SupportedPlatformSection(
+private fun LazyListScope.supportedPlatformSection(
     supportedPlatforms: ImmutableList<PlatformType>,
     onCheckedChanged: (platformType: PlatformType) -> Unit,
 ) {
-    Section(title = LocalStrings.current.supportedPlatforms) {
-        SupportedPlatforms(
-            supportedPlatforms = supportedPlatforms,
-            onCheckedChanged = onCheckedChanged,
-        )
+    section(title = { LocalStrings.current.supportedPlatforms }) {
+        item {
+            SupportedPlatforms(
+                supportedPlatforms = supportedPlatforms,
+                onCheckedChanged = onCheckedChanged,
+            )
+        }
     }
 }
 
-@Composable
-private fun PropertyDefinitionsSection(propertyDefinitions: ImmutableList<PropertyDefinition>) {
-    Section(title = LocalStrings.current.propertyDefinitions) {
-        //TODO: Finish
+private fun LazyListScope.propertyDefinitionsSection(propertyDefinitions: ImmutableList<PropertyDefinition>) {
+    section(title = { LocalStrings.current.propertyDefinitions }) {
+        items(propertyDefinitions) { propertyDefinition ->
+
+        }
     }
 }
 
-@Composable
-private fun Section(
-    title: String,
-    content: @Composable () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun LazyListScope.section(title: @Composable () -> String, content: LazyListScope.() -> Unit) {
+    item {
         Divider(orientation = Orientation.Horizontal)
-
-        Text(text = title)
-
-        content()
     }
+
+    item {
+        Text(text = title())
+    }
+
+    content()
 }
 
 @Composable
