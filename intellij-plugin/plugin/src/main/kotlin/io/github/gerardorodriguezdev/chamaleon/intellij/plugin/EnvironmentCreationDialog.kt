@@ -2,20 +2,28 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.ui.DialogWrapper
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStrings
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
+import kotlinx.coroutines.*
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import java.awt.event.ActionEvent
 import javax.swing.Action
 import javax.swing.JButton
 import javax.swing.JComponent
 
-// TODO: Finish
 internal class EnvironmentCreationDialog : DialogWrapper(false) {
-    private val presenter = CreateEnvironmentPresenter(onSelectEnvironmentPathClicked = {})
+    private val scope = CoroutineScope(Dispatchers.EDT + SupervisorJob())
+
+    private val presenter = CreateEnvironmentPresenter(
+        onSelectEnvironmentPathClicked = {
+            //TODO: Finish
+        }
+    )
 
     private val cancel = Cancel()
     private val previous = Previous()
@@ -26,6 +34,8 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         title = BundleStrings.createEnvironment
 
         init()
+
+        collectState()
     }
 
     override fun createCenterPanel(): JComponent =
@@ -50,7 +60,21 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         )
     }
 
-    private fun cancelButton(): JButton? = getButton(cancel)
+    private fun collectState() {
+        scope.launch {
+            presenter.state.collect { state ->
+                previousButton()?.isEnabled = state.isPreviousButtonEnabled
+                nextButton()?.isEnabled = state.isNextButtonEnabled
+                finishButton()?.isEnabled = state.isFinishButtonEnabled
+            }
+        }
+    }
+
+    override fun dispose() {
+        scope.cancel()
+        presenter.dispose()
+        super.dispose()
+    }
 
     private fun previousButton(): JButton? = getButton(previous)
 
@@ -74,7 +98,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
 
         override fun doAction(p0: ActionEvent?) {
-            // TODO: Do
+            presenter.onAction(OnPreviousButtonClicked)
         }
     }
 
@@ -85,7 +109,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
 
         override fun doAction(p0: ActionEvent?) {
-            // TODO: Do
+            presenter.onAction(OnNextButtonClicked)
         }
     }
 
@@ -96,6 +120,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
 
         override fun doAction(p0: ActionEvent?) {
+            presenter.onAction(OnFinishButtonClicked)
             close(OK_EXIT_CODE)
         }
     }

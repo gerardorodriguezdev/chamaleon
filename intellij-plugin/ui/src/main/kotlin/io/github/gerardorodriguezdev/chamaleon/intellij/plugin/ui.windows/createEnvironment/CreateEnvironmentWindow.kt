@@ -38,10 +38,18 @@ fun CreateEnvironmentWindow(
 }
 
 sealed interface State {
+    val isPreviousButtonEnabled: Boolean
+    val isNextButtonEnabled: Boolean
+    val isFinishButtonEnabled: Boolean
+
     data class SelectEnvironmentsDirectoryLocationState(
         val path: String,
         val verification: Verification?,
+        override val isNextButtonEnabled: Boolean,
     ) : State {
+        override val isPreviousButtonEnabled: Boolean = false
+        override val isFinishButtonEnabled: Boolean = false
+
         sealed interface Verification {
             data object Valid : Verification
             data class Invalid(val reason: String) : Verification
@@ -53,7 +61,10 @@ sealed interface State {
         val title: String,
         val supportedPlatforms: ImmutableList<SupportedPlatform>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
+        override val isNextButtonEnabled: Boolean,
     ) : State {
+        override val isPreviousButtonEnabled: Boolean = true
+        override val isFinishButtonEnabled: Boolean = false
 
         data class SupportedPlatform(
             val isChecked: Boolean,
@@ -70,6 +81,10 @@ sealed interface State {
 }
 
 sealed interface Action {
+    data object OnPreviousButtonClicked : Action
+    data object OnNextButtonClicked : Action
+    data object OnFinishButtonClicked : Action
+
     data object OnSelectEnvironmentPathClicked : Action
 
     //TODO: Sep actions to window type emission
