@@ -3,8 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 import androidx.compose.runtime.Composable
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.OnSelectEnvironmentPathClicked
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.OnSupportedPlatformTypeChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
 import kotlinx.collections.immutable.ImmutableList
@@ -28,7 +27,10 @@ fun CreateEnvironmentWindow(
             SetupSchemaWindow(
                 state = state,
                 onSupportedPlatformsChanged = { platformType ->
-                    OnSupportedPlatformTypeChanged(platformType)
+                    onAction(OnSupportedPlatformTypeChanged(platformType))
+                },
+                onAddPropertyDefinitionClicked = {
+                    onAction(OnAddPropertyDefinitionClicked)
                 }
             )
     }
@@ -64,4 +66,5 @@ sealed interface State {
 sealed interface Action {
     data object OnSelectEnvironmentPathClicked : Action
     data class OnSupportedPlatformTypeChanged(val platformType: PlatformType) : Action
+    data object OnAddPropertyDefinitionClicked : Action
 }

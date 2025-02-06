@@ -11,10 +11,17 @@ import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.Text
 
 @Composable
-fun InputCheckBox(label: String, isChecked: Boolean, onCheckedChanged: (Boolean) -> Unit) {
+fun InputCheckBox(
+    label: String,
+    isChecked: Boolean,
+    onCheckedChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    //TODO: Common InputContainer
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier,
     ) {
         Text(text = label, modifier = Modifier.widthIn(max = 140.dp))
 

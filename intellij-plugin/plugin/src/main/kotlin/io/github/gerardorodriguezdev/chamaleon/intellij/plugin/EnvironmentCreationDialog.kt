@@ -34,7 +34,9 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
                 val state by presenter.state.collectAsState()
                 CreateEnvironmentWindow(
                     state = state,
-                    onAction = {}
+                    onAction = {
+                        //TODO: Connect
+                    }
                 )
             }
         }

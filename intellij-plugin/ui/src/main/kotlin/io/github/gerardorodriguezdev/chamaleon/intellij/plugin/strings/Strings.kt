@@ -19,6 +19,7 @@ interface Strings {
     val validEnvironments: String
     val supportedPlatforms: String
     val propertyDefinitions: String
+    val addPropertyDefinitions: String
 }
 
 object DefaultStrings : Strings {
@@ -40,4 +41,5 @@ object DefaultStrings : Strings {
     override val validEnvironments: String = "Valid environments"
     override val supportedPlatforms: String = "Supported platforms:"
     override val propertyDefinitions: String = "PropertyDefinitions:"
+    override val addPropertyDefinitions: String = "Add property definition"
 }

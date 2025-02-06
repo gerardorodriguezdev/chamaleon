@@ -39,6 +39,7 @@ internal fun SetupSchemaWindowPreview() {
                 )
             ),
             onSupportedPlatformsChanged = {},
+            onAddPropertyDefinitionClicked = {},
         )
     }
 }

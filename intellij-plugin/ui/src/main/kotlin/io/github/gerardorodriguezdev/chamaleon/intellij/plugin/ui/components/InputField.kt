@@ -17,12 +17,14 @@ fun InputField(
     label: String,
     initialValue: String = "",
     onValueChange: (newValue: String) -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier,
     ) {
-        Text(text = label, modifier = Modifier.widthIn(max = 140.dp))
+        Text(text = label, modifier = Modifier.widthIn(min = 140.dp))
 
         val textFieldState = rememberTextFieldState(initialValue)
         TextField(state = textFieldState)

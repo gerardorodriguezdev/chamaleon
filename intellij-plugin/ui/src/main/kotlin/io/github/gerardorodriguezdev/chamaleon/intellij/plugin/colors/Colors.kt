@@ -7,5 +7,5 @@ interface Colors {
 }
 
 object DefaultColors : Colors {
-    override val infoBorderColor: Color = Color.Black
+    override val infoBorderColor: Color = Color.White
 }
