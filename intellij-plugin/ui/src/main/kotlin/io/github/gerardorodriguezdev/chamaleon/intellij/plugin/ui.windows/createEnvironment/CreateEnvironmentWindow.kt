@@ -50,15 +50,20 @@ sealed interface State {
 
     data class SetupSchemaState(
         val title: String,
-        val supportedPlatforms: ImmutableList<PlatformType>,
+        val supportedPlatforms: ImmutableList<SupportedPlatform>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
     ) : State {
+
+        data class SupportedPlatform(
+            val isChecked: Boolean,
+            val platformType: PlatformType,
+        )
 
         data class PropertyDefinition(
             val name: String,
             val propertyType: PropertyType,
             val nullable: Boolean,
-            val supportedPlatforms: ImmutableList<PlatformType>,
+            val supportedPlatforms: ImmutableList<SupportedPlatform>,
         )
     }
 }

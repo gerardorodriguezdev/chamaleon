@@ -6,9 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,13 +15,11 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalString
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputCheckBox
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputField
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPlatforms
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPropertyTypes
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState.SupportedPlatform
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toPersistentList
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Dropdown
@@ -55,7 +50,6 @@ fun SetupSchemaWindow(
         propertyDefinitionsSection(
             propertyDefinitions = state.propertyDefinitions,
             onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked,
-            supportedPlatforms = state.supportedPlatforms,
             onPropertyDefinitionChanged = { propertyDefinition -> } //TODO: Connect
         )
     }
@@ -67,7 +61,7 @@ private fun Title(title: String) {
 }
 
 private fun LazyListScope.supportedPlatformSection(
-    supportedPlatforms: ImmutableList<PlatformType>,
+    supportedPlatforms: ImmutableList<SupportedPlatform>,
     onCheckedChanged: (platformType: PlatformType) -> Unit,
 ) {
     section(
@@ -83,7 +77,6 @@ private fun LazyListScope.supportedPlatformSection(
 }
 
 private fun LazyListScope.propertyDefinitionsSection(
-    supportedPlatforms: ImmutableList<PlatformType>,
     propertyDefinitions: ImmutableList<PropertyDefinition>,
     onAddPropertyDefinitionClicked: () -> Unit,
     onPropertyDefinitionChanged: (propertyDefinition: PropertyDefinition) -> Unit,
@@ -168,28 +161,8 @@ private fun LazyListScope.propertyDefinitionsSection(
                 Text(text = "Supported platforms for property definition:")
 
                 SupportedPlatforms(
-                    supportedPlatforms = if (propertyDefinition.supportedPlatforms.isEmpty()) {
-                        supportedPlatforms
-                    } else {
-                        propertyDefinition.supportedPlatforms
-                    },
-                    onCheckedChanged = { platformType ->
-                        val currentSupportedPlatforms = propertyDefinition.supportedPlatforms
-
-                        val containsPlatform = currentSupportedPlatforms.contains(platformType)
-
-                        val newMutableSupportedPlatforms = currentSupportedPlatforms.toMutableList()
-                        if (containsPlatform) newMutableSupportedPlatforms.remove(platformType) else newMutableSupportedPlatforms.add(
-                            platformType
-                        )
-                        val newSupportedPlatforms = newMutableSupportedPlatforms.toPersistentList()
-
-                        onPropertyDefinitionChanged(
-                            propertyDefinition.copy(
-                                supportedPlatforms = newSupportedPlatforms,
-                            )
-                        )
-                    }
+                    supportedPlatforms = propertyDefinition.supportedPlatforms,
+                    onCheckedChanged = { platformType -> } //TODO: Connect
                 )
             }
         }
@@ -211,28 +184,23 @@ private fun LazyListScope.section(title: @Composable () -> Unit, content: LazyLi
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SupportedPlatforms(
-    supportedPlatforms: ImmutableList<PlatformType>,
+    supportedPlatforms: ImmutableList<SupportedPlatform>,
     onCheckedChanged: (platformType: PlatformType) -> Unit
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        allPlatforms.forEach { platformType ->
-            val isChecked by remember {
-                derivedStateOf { supportedPlatforms.contains(platformType) }
-            }
-
+        supportedPlatforms.forEach { supportedPlatform ->
             InputCheckBox(
-                label = platformType.serialName,
-                isChecked = isChecked,
-                onCheckedChanged = { onCheckedChanged(platformType) }
+                label = supportedPlatform.platformType.serialName,
+                isChecked = supportedPlatform.isChecked,
+                onCheckedChanged = { onCheckedChanged(supportedPlatform.platformType) }
             )
         }
     }
 }
 
 private object SetupSchemaConstants {
-    val allPlatforms = PlatformType.entries.toImmutableList()
     val allPropertyTypes = PropertyType.entries
 }

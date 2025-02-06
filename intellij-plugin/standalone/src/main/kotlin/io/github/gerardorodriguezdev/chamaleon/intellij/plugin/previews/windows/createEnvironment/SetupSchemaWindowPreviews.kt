@@ -18,8 +18,14 @@ internal fun SetupSchemaWindowPreview() {
             state = SetupSchemaState(
                 title = "Some title",
                 supportedPlatforms = persistentListOf(
-                    PlatformType.ANDROID,
-                    PlatformType.NATIVE,
+                    SetupSchemaState.SupportedPlatform(
+                        isChecked = true,
+                        platformType = PlatformType.ANDROID,
+                    ),
+                    SetupSchemaState.SupportedPlatform(
+                        isChecked = false,
+                        platformType = PlatformType.NATIVE,
+                    )
                 ),
                 propertyDefinitions = persistentListOf(
                     PropertyDefinition(
@@ -33,7 +39,14 @@ internal fun SetupSchemaWindowPreview() {
                         propertyType = PropertyType.BOOLEAN,
                         nullable = true,
                         supportedPlatforms = persistentListOf(
-                            PlatformType.ANDROID,
+                            SetupSchemaState.SupportedPlatform(
+                                isChecked = true,
+                                platformType = PlatformType.ANDROID,
+                            ),
+                            SetupSchemaState.SupportedPlatform(
+                                isChecked = false,
+                                platformType = PlatformType.NATIVE,
+                            )
                         ),
                     ),
                 )
