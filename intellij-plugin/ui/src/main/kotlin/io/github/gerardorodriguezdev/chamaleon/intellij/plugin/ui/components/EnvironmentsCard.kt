@@ -19,6 +19,7 @@ fun EnvironmentCard(
     state: EnvironmentCardState,
     onSelectedEnvironmentChanged: (newSelectedEnvironment: String?) -> Unit,
 ) {
+    //TODO: Update card?
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier

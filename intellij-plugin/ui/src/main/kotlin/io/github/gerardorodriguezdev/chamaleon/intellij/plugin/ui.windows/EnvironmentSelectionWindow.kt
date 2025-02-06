@@ -39,6 +39,7 @@ fun EnvironmentSelectionWindow(
     }
 }
 
+//TODO: Take out
 @Composable
 private fun Loading() {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -46,6 +47,7 @@ private fun Loading() {
     }
 }
 
+//TODO: Take out window
 @Composable
 private fun Content(
     environmentCardStates: ImmutableList<EnvironmentCardState>,

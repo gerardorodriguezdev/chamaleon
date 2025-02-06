@@ -38,6 +38,7 @@ fun SetupSchemaWindow(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
+        //TODO: Move out?
         stickyHeader {
             Title(title = state.title)
         }
@@ -76,6 +77,8 @@ private fun LazyListScope.supportedPlatformSection(
     }
 }
 
+//TODO: Refactor
+//TODO: Paddings logic
 private fun LazyListScope.propertyDefinitionsSection(
     propertyDefinitions: ImmutableList<PropertyDefinition>,
     onAddPropertyDefinitionClicked: () -> Unit,
@@ -98,7 +101,6 @@ private fun LazyListScope.propertyDefinitionsSection(
         }
     ) {
         items(propertyDefinitions) { propertyDefinition ->
-            //TODO: Make card item
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier

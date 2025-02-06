@@ -14,6 +14,7 @@ fun CreateEnvironmentWindow(
     state: State,
     onAction: (action: Action) -> Unit,
 ) {
+    //TODO: Container here
     when (state) {
         is SelectEnvironmentsDirectoryLocationState ->
             SelectEnvironmentsDirectoryLocationWindow(
@@ -70,6 +71,8 @@ sealed interface State {
 
 sealed interface Action {
     data object OnSelectEnvironmentPathClicked : Action
+
+    //TODO: Sep actions to window type emission
     data class OnSupportedPlatformTypeChanged(val platformType: PlatformType) : Action
     data object OnAddPropertyDefinitionClicked : Action
 }
