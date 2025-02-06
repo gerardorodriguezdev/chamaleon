@@ -23,7 +23,7 @@ fun InputCheckBox(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier,
     ) {
-        Text(text = label, modifier = Modifier.widthIn(max = 140.dp))
+        Text(text = label, modifier = Modifier.widthIn(min = 140.dp))
 
         Checkbox(
             checked = isChecked,

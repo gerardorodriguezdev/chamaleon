@@ -19,6 +19,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Inp
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputField
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPlatforms
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPropertyTypes
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState.PropertyDefinition
 import kotlinx.collections.immutable.ImmutableList
@@ -134,18 +135,20 @@ private fun LazyListScope.propertyDefinitionsSection(
 
                     Dropdown(
                         menuContent = {
-                            PropertyType.entries.forEach { propertyType ->
+                            allPropertyTypes.forEach { propertyType ->
                                 selectableItem(
                                     selected = propertyDefinition.propertyType == propertyType,
                                     onClick = {
                                         //TODO: Finish
                                     }
                                 ) {
+                                    //TODO: Use string cap
                                     Text(text = propertyType.name.lowercase())
                                 }
                             }
                         },
                         content = {
+                            //TODO: Use string cap
                             Text(text = propertyDefinition.propertyType.name.lowercase())
                         }
                     )
@@ -231,4 +234,5 @@ private fun SupportedPlatforms(
 
 private object SetupSchemaConstants {
     val allPlatforms = PlatformType.entries.toImmutableList()
+    val allPropertyTypes = PropertyType.entries
 }

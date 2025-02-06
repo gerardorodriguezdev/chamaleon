@@ -40,6 +40,6 @@ object DefaultStrings : Strings {
     override val updateSchema: String = "Update schema"
     override val validEnvironments: String = "Valid environments"
     override val supportedPlatforms: String = "Supported platforms:"
-    override val propertyDefinitions: String = "PropertyDefinitions:"
+    override val propertyDefinitions: String = "PropertyDefinitions"
     override val addPropertyDefinitions: String = "Add property definition"
 }
