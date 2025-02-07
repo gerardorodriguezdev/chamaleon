@@ -23,7 +23,7 @@ fun Section(
         modifier = modifier,
         content = {
             if (enableDivider) {
-                Divider(orientation = Orientation.Vertical)
+                Divider(orientation = Orientation.Horizontal)
             }
 
             if (title != null || titleTrailingIcon != null) {
