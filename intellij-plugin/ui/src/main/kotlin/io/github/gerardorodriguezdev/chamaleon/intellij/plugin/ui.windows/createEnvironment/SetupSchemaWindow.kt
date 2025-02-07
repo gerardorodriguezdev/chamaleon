@@ -74,18 +74,7 @@ private fun LazyListScope.propertyDefinitionsSection(
     onPropertyDefinitionChanged: (propertyDefinition: PropertyDefinition) -> Unit,
 ) {
     stickyHeader {
-        Section(
-            title = string(StringsKeys.propertyDefinitions),
-            titleTrailingIcon = {
-                TooltipIconButton(
-                    iconKey = AllIconsKeys.General.Add,
-                    tooltip = string(StringsKeys.addPropertyDefinitions),
-                    onClick = onAddPropertyDefinitionClicked,
-                )
-            },
-            forceLabelWidth = true,
-            enableDivider = true
-        )
+        PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked)
     }
 
     items(propertyDefinitions) { propertyDefinition ->
@@ -135,6 +124,22 @@ private fun LazyListScope.propertyDefinitionsSection(
             }
         }
     }
+}
+
+@Composable
+private fun PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked: () -> Unit) {
+    Section(
+        title = string(StringsKeys.propertyDefinitions),
+        titleTrailingIcon = {
+            TooltipIconButton(
+                iconKey = AllIconsKeys.General.Add,
+                tooltip = string(StringsKeys.addPropertyDefinitions),
+                onClick = onAddPropertyDefinitionClicked,
+            )
+        },
+        forceLabelWidth = true,
+        enableDivider = true
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -16,7 +16,6 @@ fun CreateEnvironmentWindow(
     onAction: (action: Action) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    //TODO: Container here
     when (state) {
         is SelectEnvironmentsDirectoryLocationState ->
             SelectEnvironmentsDirectoryLocationWindow(
