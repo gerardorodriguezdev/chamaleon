@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.*
 import kotlinx.collections.immutable.ImmutableList
 
 //TODO: Finish
@@ -27,6 +27,11 @@ fun CreateEnvironmentWindow(
             SetupSchemaWindow(
                 state = state,
                 onAction = onAction,
+            )
+
+        is SetupPropertiesState ->
+            SetupPropertiesWindow(
+                state = state,
             )
     }
 }
@@ -70,6 +75,20 @@ sealed interface State {
             val propertyType: PropertyType,
             val nullable: Boolean,
             val supportedPlatforms: ImmutableList<SupportedPlatform>,
+        )
+    }
+
+    data class SetupPropertiesState(
+        val environmentName: String,
+        val properties: ImmutableList<Property>,
+        override val isFinishButtonEnabled: Boolean = true,
+    ) : State {
+        override val isPreviousButtonEnabled: Boolean = true
+        override val isNextButtonEnabled: Boolean = false
+
+        data class Property(
+            val name: String,
+            val value: PropertyValue,
         )
     }
 }
