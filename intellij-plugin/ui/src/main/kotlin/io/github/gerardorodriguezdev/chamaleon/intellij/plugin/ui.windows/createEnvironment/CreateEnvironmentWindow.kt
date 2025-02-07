@@ -45,7 +45,7 @@ sealed interface State {
     data class SelectEnvironmentsDirectoryLocationState(
         val path: String,
         val verification: Verification?,
-        override val isNextButtonEnabled: Boolean,
+        override val isNextButtonEnabled: Boolean = false,
     ) : State {
         override val isPreviousButtonEnabled: Boolean = false
         override val isFinishButtonEnabled: Boolean = false
@@ -61,7 +61,7 @@ sealed interface State {
         val title: String,
         val supportedPlatforms: ImmutableList<SupportedPlatform>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
-        override val isNextButtonEnabled: Boolean,
+        override val isNextButtonEnabled: Boolean = false,
     ) : State {
         override val isPreviousButtonEnabled: Boolean = true
         override val isFinishButtonEnabled: Boolean = false

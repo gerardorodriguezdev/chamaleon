@@ -12,6 +12,7 @@ fun InputTextField(
     label: String,
     initialValue: String = "",
     onValueChange: (newValue: String) -> Unit = {},
+    trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     InputContainer(
@@ -19,7 +20,7 @@ fun InputTextField(
         modifier = modifier,
     ) {
         val textFieldState = rememberTextFieldState(initialValue)
-        TextField(state = textFieldState)
+        TextField(state = textFieldState, trailingIcon = trailingIcon)
 
         LaunchedEffect(Unit) {
             snapshotFlow {

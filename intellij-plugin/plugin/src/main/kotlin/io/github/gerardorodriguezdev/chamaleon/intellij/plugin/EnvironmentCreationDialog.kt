@@ -83,7 +83,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
 
     private fun finishButton(): JButton? = getButton(finish)
 
-    private inner class Cancel : DialogWrapperAction(name = string(StringsKeys.cancel)) {
+    private inner class Cancel : DialogWrapperAction(string(StringsKeys.cancel)) {
         init {
             putValue(MAC_ACTION_ORDER, CANCEL_ACTION_ORDER)
         }
@@ -93,7 +93,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
     }
 
-    private inner class Previous : DialogWrapperAction(StringsKeys.previous) {
+    private inner class Previous : DialogWrapperAction(string(StringsKeys.previous)) {
         init {
             putValue(MAC_ACTION_ORDER, PREVIOUS_ACTION_ORDER)
         }
@@ -103,7 +103,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
     }
 
-    private inner class Next : DialogWrapperAction(name = string(StringsKeys.next)) {
+    private inner class Next : DialogWrapperAction(string(StringsKeys.next)) {
         init {
             putValue(DEFAULT_ACTION, true)
             putValue(MAC_ACTION_ORDER, NEXT_ACTION_ORDER)
@@ -114,7 +114,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
     }
 
-    private inner class Finish : DialogWrapperAction(name = string(StringsKeys.finish)) {
+    private inner class Finish : DialogWrapperAction(string(StringsKeys.finish)) {
         init {
             putValue(DEFAULT_ACTION, true)
             putValue(MAC_ACTION_ORDER, DEFAULT_ACTION_ORDER)

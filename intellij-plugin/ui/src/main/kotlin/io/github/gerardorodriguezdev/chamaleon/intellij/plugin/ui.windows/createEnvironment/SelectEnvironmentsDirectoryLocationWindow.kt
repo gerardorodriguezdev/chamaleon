@@ -1,20 +1,16 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIcon
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState.Verification
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
-import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.component.TextField
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
@@ -22,75 +18,63 @@ fun SelectEnvironmentsDirectoryLocationWindow(
     state: SelectEnvironmentsDirectoryLocationState,
     onIconClicked: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(text = string(StringsKeys.environmentsDirectoryLocation), modifier = Modifier.widthIn(max = 140.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                val textFieldState = rememberTextFieldState(initialText = state.path)
-                TextField(
-                    state = textFieldState,
-                    readOnly = true,
+    WindowContainer(
+        toolbar = {
+            Toolbar(title = string(StringsKeys.environmentsDirectoryLocation))
+        },
+        content = {
+            item {
+                InputTextField(
+                    label = string(StringsKeys.environmentsDirectoryLocation),
+                    initialValue = state.path,
                     trailingIcon = {
-                        TooltipIconButton(
-                            iconKey = AllIconsKeys.Actions.NewFolder,
-                            tooltip = state.path,
-                            onClick = { onIconClicked() }
-                        )
-                    },
-                )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            TooltipIconButton(
+                                iconKey = AllIconsKeys.Actions.NewFolder,
+                                tooltip = state.path,
+                                onClick = { onIconClicked() }
+                            )
 
-                state.verification?.let {
-                    VerificationIcon(verification = state.verification)
-                }
+                            state.verification?.let {
+                                VerificationIcon(verification = state.verification)
+                            }
+                        }
+                    }
+                )
             }
         }
-    }
+    )
 }
 
 @Composable
 private fun VerificationIcon(verification: Verification) {
-    val modifier = Modifier.size(24.dp)
     when (verification) {
-        is Verification.Valid -> ValidIcon(modifier = modifier)
-        is Verification.Invalid -> InvalidIcon(
-            invalidVerification = verification,
-            modifier = modifier
-        )
-
-        is Verification.InProgress -> InProgressIcon(modifier = modifier)
+        is Verification.Valid -> ValidIcon()
+        is Verification.Invalid -> InvalidIcon(invalidVerification = verification)
+        is Verification.InProgress -> InProgressIcon()
     }
 }
 
 @Composable
-private fun ValidIcon(modifier: Modifier) {
+private fun ValidIcon() {
     TooltipIcon(
         iconKey = AllIconsKeys.Actions.Checked,
         tooltip = string(StringsKeys.validEnvironments),
-        modifier = modifier,
     )
 }
 
 @Composable
-private fun InvalidIcon(invalidVerification: Verification.Invalid, modifier: Modifier) {
+private fun InvalidIcon(invalidVerification: Verification.Invalid) {
     TooltipIcon(
         iconKey = AllIconsKeys.RunConfigurations.InvalidConfigurationLayer,
         tooltip = invalidVerification.reason,
-        modifier = modifier,
     )
 }
 
 @Composable
-private fun InProgressIcon(modifier: Modifier) {
-    CircularProgressIndicator(modifier = modifier)
+private fun InProgressIcon() {
+    CircularProgressIndicator()
 }

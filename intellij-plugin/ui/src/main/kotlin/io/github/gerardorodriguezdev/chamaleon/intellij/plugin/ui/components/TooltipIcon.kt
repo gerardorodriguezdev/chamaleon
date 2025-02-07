@@ -19,7 +19,7 @@ fun TooltipIcon(iconKey: IconKey, tooltip: String, modifier: Modifier = Modifier
             Icon(
                 key = iconKey,
                 contentDescription = tooltip,
-                modifier = modifier
+                modifier = modifier,
             )
         }
     )
