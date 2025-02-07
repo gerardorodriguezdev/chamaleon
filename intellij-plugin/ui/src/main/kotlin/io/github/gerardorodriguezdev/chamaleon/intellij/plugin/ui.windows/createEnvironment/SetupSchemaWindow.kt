@@ -36,13 +36,12 @@ fun SetupSchemaWindow(
         content = {
             supportedPlatformSection(
                 supportedPlatforms = state.supportedPlatforms,
-                onCheckedChanged = onSupportedPlatformsChanged,
+                onSupportedPlatformChanged = onSupportedPlatformsChanged,
             )
 
             propertyDefinitionsSection(
                 propertyDefinitions = state.propertyDefinitions,
                 onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked,
-                onPropertyDefinitionChanged = { propertyDefinition -> } //TODO: Connect
             )
         }
     )
@@ -50,7 +49,7 @@ fun SetupSchemaWindow(
 
 private fun LazyListScope.supportedPlatformSection(
     supportedPlatforms: ImmutableList<SupportedPlatform>,
-    onCheckedChanged: (platformType: PlatformType) -> Unit,
+    onSupportedPlatformChanged: (platformType: PlatformType) -> Unit,
 ) {
     item {
         Section(
@@ -60,69 +59,23 @@ private fun LazyListScope.supportedPlatformSection(
         ) {
             SupportedPlatforms(
                 supportedPlatforms = supportedPlatforms,
-                onCheckedChanged = onCheckedChanged,
+                onCheckedChanged = onSupportedPlatformChanged,
             )
         }
     }
 }
 
-//TODO: Refactor
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.propertyDefinitionsSection(
     propertyDefinitions: ImmutableList<PropertyDefinition>,
     onAddPropertyDefinitionClicked: () -> Unit,
-    onPropertyDefinitionChanged: (propertyDefinition: PropertyDefinition) -> Unit,
 ) {
     stickyHeader {
         PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked)
     }
 
     items(propertyDefinitions) { propertyDefinition ->
-        Section(enableDivider = true) {
-            InputTextField(
-                label = string(StringsKeys.propertyName),
-                initialValue = propertyDefinition.name,
-                onValueChange = { newName ->
-                    onPropertyDefinitionChanged(
-                        propertyDefinition.copy(
-                            name = newName,
-                        )
-                    )
-                },
-            )
-
-            InputTextDropdown(
-                label = string(StringsKeys.propertyType),
-                selectedValue = propertyDefinition.propertyType.name.lowercase(),
-                content = {
-                    allPropertyTypes.forEach { propertyType ->
-                        item(
-                            selected = propertyDefinition.propertyType == propertyType,
-                            text = propertyType.name.lowercase(),
-                            onClick = {} //TODO: Finish
-                        )
-                    }
-                }
-            )
-
-            InputCheckBox(
-                label = string(StringsKeys.nullable),
-                forceLabelWidth = true,
-                isChecked = propertyDefinition.nullable,
-                onCheckedChanged = {}, //TODO: Fin
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Section(
-                title = string(StringsKeys.supportedPlatformsForPropertyDefinitions),
-                forceLabelWidth = false,
-            ) {
-                SupportedPlatforms(
-                    supportedPlatforms = propertyDefinition.supportedPlatforms,
-                    onCheckedChanged = { platformType -> } //TODO: Fin
-                )
-            }
-        }
+        PropertyDefinitionSectionCard(propertyDefinition)
     }
 }
 
@@ -140,6 +93,50 @@ private fun PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked: () ->
         forceLabelWidth = true,
         enableDivider = true
     )
+}
+
+@Composable
+private fun PropertyDefinitionSectionCard(
+    propertyDefinition: PropertyDefinition,
+) {
+    Section(enableDivider = true) {
+        InputTextField(
+            label = string(StringsKeys.propertyName),
+            initialValue = propertyDefinition.name,
+            onValueChange = { newName -> }, //TODO: Finish
+        )
+
+        InputTextDropdown(
+            label = string(StringsKeys.propertyType),
+            selectedValue = propertyDefinition.propertyType.name.lowercase(),
+            content = {
+                allPropertyTypes.forEach { propertyType ->
+                    item(
+                        selected = propertyDefinition.propertyType == propertyType,
+                        text = propertyType.name.lowercase(),
+                        onClick = { } //TODO: Finish
+                    )
+                }
+            }
+        )
+
+        InputCheckBox(
+            label = string(StringsKeys.nullable),
+            forceLabelWidth = true,
+            isChecked = propertyDefinition.nullable,
+            onCheckedChanged = {}, //TODO: Fin
+        )
+
+        Section(
+            title = string(StringsKeys.supportedPlatformsForPropertyDefinitions),
+            forceLabelWidth = false,
+        ) {
+            SupportedPlatforms(
+                supportedPlatforms = propertyDefinition.supportedPlatforms,
+                onCheckedChanged = { platformType -> } //TODO: Fin
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
