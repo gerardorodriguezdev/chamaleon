@@ -25,7 +25,7 @@ fun SelectEnvironmentsDirectoryLocationWindow(
         content = {
             item {
                 InputTextField(
-                    label = string(StringsKeys.environmentsDirectoryLocation),
+                    label = string(StringsKeys.environmentsDirectory),
                     initialValue = state.path,
                     readOnly = true,
                     trailingIcon = {

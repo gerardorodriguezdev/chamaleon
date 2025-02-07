@@ -15,7 +15,7 @@ object StringsKeys {
     val next = StringKey("next")
     val finish = StringKey("finish")
     val selectEnvironmentsDirectoryLocation = StringKey("select.environments.directory.location")
-    val environmentsDirectoryLocation = StringKey("environments.directory.location")
+    val environmentsDirectory = StringKey("environments.directory")
     val createSchema = StringKey("create.schema")
     val updateSchema = StringKey("update.schema")
     val validEnvironments = StringKey("valid.environments")
