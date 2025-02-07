@@ -53,7 +53,11 @@ private fun LazyListScope.supportedPlatformSection(
     onCheckedChanged: (platformType: PlatformType) -> Unit,
 ) {
     item {
-        Section(title = string(StringsKeys.supportedPlatforms), enableDivider = true) {
+        Section(
+            title = string(StringsKeys.supportedPlatforms),
+            enableDivider = true,
+            forceLabelWidth = false,
+        ) {
             SupportedPlatforms(
                 supportedPlatforms = supportedPlatforms,
                 onCheckedChanged = onCheckedChanged,
@@ -120,7 +124,10 @@ private fun LazyListScope.propertyDefinitionsSection(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Section(title = string(StringsKeys.supportedPlatformsForPropertyDefinitions)) {
+            Section(
+                title = string(StringsKeys.supportedPlatformsForPropertyDefinitions),
+                forceLabelWidth = false,
+            ) {
                 SupportedPlatforms(
                     supportedPlatforms = propertyDefinition.supportedPlatforms,
                     onCheckedChanged = { platformType -> } //TODO: Fin

@@ -32,7 +32,16 @@ internal fun SetupSchemaWindowPreview() {
                         name = "one",
                         propertyType = PropertyType.STRING,
                         nullable = false,
-                        supportedPlatforms = persistentListOf(),
+                        supportedPlatforms = persistentListOf(
+                            SetupSchemaState.SupportedPlatform(
+                                isChecked = true,
+                                platformType = PlatformType.ANDROID,
+                            ),
+                            SetupSchemaState.SupportedPlatform(
+                                isChecked = true,
+                                platformType = PlatformType.NATIVE,
+                            )
+                        ),
                     ),
                     PropertyDefinition(
                         name = "two",

@@ -22,7 +22,11 @@ fun InputTextField(
         modifier = modifier.fillMaxWidth(),
     ) {
         val textFieldState = rememberTextFieldState(initialValue)
-        TextField(state = textFieldState, trailingIcon = trailingIcon, readOnly = readOnly)
+        TextField(
+            state = textFieldState,
+            trailingIcon = trailingIcon,
+            readOnly = readOnly,
+        )
 
         LaunchedEffect(Unit) {
             snapshotFlow {
