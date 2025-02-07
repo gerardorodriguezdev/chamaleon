@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.*
@@ -13,6 +14,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun CreateEnvironmentWindow(
     state: State,
     onAction: (action: Action) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     //TODO: Container here
     when (state) {
@@ -22,6 +24,7 @@ fun CreateEnvironmentWindow(
                 onIconClicked = {
                     onAction(OnSelectEnvironmentPathClicked)
                 },
+                modifier = modifier,
             )
 
         is SetupSchemaState ->

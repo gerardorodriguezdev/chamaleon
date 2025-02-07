@@ -1,7 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
 
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.ui.DialogWrapper
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
@@ -47,7 +50,8 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
                     state = state,
                     onAction = {
                         //TODO: Connect
-                    }
+                    },
+                    modifier = Modifier.sizeIn(maxWidth = 300.dp, maxHeight = 300.dp)
                 )
             }
         }

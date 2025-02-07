@@ -17,10 +17,11 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WindowContainer(
+    modifier: Modifier = Modifier,
     toolbar: @Composable (BoxScope.() -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         val lazyListState = rememberLazyListState()
 
         LazyColumn(

@@ -28,8 +28,10 @@ fun SetupSchemaWindow(
     state: SetupSchemaState,
     onSupportedPlatformsChanged: (platformType: PlatformType) -> Unit,
     onAddPropertyDefinitionClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     WindowContainer(
+        modifier = modifier,
         toolbar = { Toolbar(title = state.title, forceLabelWidth = false) },
         content = {
             supportedPlatformSection(
