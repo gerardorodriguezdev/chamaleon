@@ -13,7 +13,7 @@ fun EnvironmentCard(
     state: EnvironmentCardState,
     onSelectedEnvironmentChanged: (newSelectedEnvironment: String?) -> Unit,
 ) {
-    Section {
+    Section(enableDivider = true) {
         InputText(
             label = string(StringsKeys.environmentsDirectoryPath),
             text = state.environmentsDirectoryPath,

@@ -7,5 +7,5 @@ object ThemeConstants {
     val itemsSpacing = 8.dp
     val scrollbarWidth = 12.dp
     val horizontalPadding = 12.dp
-    val verticalPadding = 12.dp
+    val verticalPadding = 4.dp
 }

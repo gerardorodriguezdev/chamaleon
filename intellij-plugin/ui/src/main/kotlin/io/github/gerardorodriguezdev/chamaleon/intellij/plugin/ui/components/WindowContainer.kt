@@ -17,7 +17,7 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WindowContainer(
-    toolbar: @Composable (() -> Unit)? = null,
+    toolbar: @Composable (BoxScope.() -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -26,6 +26,7 @@ fun WindowContainer(
         LazyColumn(
             state = lazyListState,
             contentPadding = PaddingValues(
+                top = verticalPadding,
                 bottom = verticalPadding,
                 start = horizontalPadding,
                 end = scrollbarWidth
@@ -35,7 +36,9 @@ fun WindowContainer(
         ) {
             toolbar?.let {
                 stickyHeader {
-                    toolbar()
+                    Box(modifier = Modifier.padding(vertical = verticalPadding)) {
+                        toolbar()
+                    }
                 }
             }
 
