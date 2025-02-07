@@ -39,6 +39,7 @@ private fun ContentWindow(
     WindowContainer(
         toolbar = {
             Toolbar(
+                forceLabelWidth = false,
                 trailingIcons = {
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.Refresh,

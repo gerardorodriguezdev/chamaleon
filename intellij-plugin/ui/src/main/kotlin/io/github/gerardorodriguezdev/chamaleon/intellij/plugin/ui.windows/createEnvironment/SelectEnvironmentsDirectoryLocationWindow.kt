@@ -20,7 +20,7 @@ fun SelectEnvironmentsDirectoryLocationWindow(
 ) {
     WindowContainer(
         toolbar = {
-            Toolbar(title = string(StringsKeys.environmentsDirectoryLocation))
+            Toolbar(title = string(StringsKeys.environmentsDirectoryLocation), forceLabelWidth = false)
         },
         content = {
             item {

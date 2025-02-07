@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +16,7 @@ fun InputTextDropdown(
     trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    InputContainer(label = label, modifier = modifier) {
+    InputContainer(label = label, modifier = modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(itemsSpacing),

@@ -14,6 +14,7 @@ fun Section(
     modifier: Modifier = Modifier,
     title: String? = null,
     titleTrailingIcon: @Composable (() -> Unit)? = null,
+    forceLabelWidth: Boolean = true,
     enableDivider: Boolean = false,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
@@ -26,7 +27,7 @@ fun Section(
             }
 
             if (title != null || titleTrailingIcon != null) {
-                Toolbar(title = title, trailingIcons = titleTrailingIcon)
+                Toolbar(title = title, trailingIcons = titleTrailingIcon, forceLabelWidth = forceLabelWidth)
             }
 
             content()

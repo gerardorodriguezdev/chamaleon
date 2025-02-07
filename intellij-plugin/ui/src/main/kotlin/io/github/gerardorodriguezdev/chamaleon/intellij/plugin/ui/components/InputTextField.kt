@@ -1,5 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +18,7 @@ fun InputTextField(
 ) {
     InputContainer(
         label = label,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
     ) {
         val textFieldState = rememberTextFieldState(initialValue)
         TextField(state = textFieldState, trailingIcon = trailingIcon)

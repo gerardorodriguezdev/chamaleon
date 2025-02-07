@@ -36,9 +36,7 @@ fun WindowContainer(
         ) {
             toolbar?.let {
                 stickyHeader {
-                    Box(modifier = Modifier.padding(vertical = verticalPadding)) {
-                        toolbar()
-                    }
+                    toolbar()
                 }
             }
 

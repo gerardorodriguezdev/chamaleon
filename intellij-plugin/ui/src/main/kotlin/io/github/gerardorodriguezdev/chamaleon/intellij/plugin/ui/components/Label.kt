@@ -7,6 +7,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConsta
 import org.jetbrains.jewel.ui.component.Text
 
 @Composable
-fun Label(label: String, modifier: Modifier = Modifier) {
-    Text(text = label, modifier = modifier.width(labelWidth))
+fun Label(label: String, forceLabelWidth: Boolean = true) {
+    Text(text = label, modifier = if (forceLabelWidth) Modifier.width(labelWidth) else Modifier)
 }

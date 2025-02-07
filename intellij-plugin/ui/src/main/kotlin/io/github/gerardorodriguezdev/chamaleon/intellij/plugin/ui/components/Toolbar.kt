@@ -7,11 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
-import org.jetbrains.jewel.ui.component.Text
 
 @Composable
 fun Toolbar(
     title: String? = null,
+    forceLabelWidth: Boolean = true,
     trailingIcons: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -21,7 +21,7 @@ fun Toolbar(
         modifier = modifier.fillMaxWidth(),
     ) {
         title?.let {
-            Text(text = title)
+            Label(label = title, forceLabelWidth = forceLabelWidth)
         }
 
         trailingIcons?.invoke()

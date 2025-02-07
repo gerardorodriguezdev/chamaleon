@@ -30,7 +30,7 @@ fun SetupSchemaWindow(
     onAddPropertyDefinitionClicked: () -> Unit,
 ) {
     WindowContainer(
-        toolbar = { Toolbar(title = state.title) },
+        toolbar = { Toolbar(title = state.title, forceLabelWidth = false) },
         content = {
             supportedPlatformSection(
                 supportedPlatforms = state.supportedPlatforms,
@@ -51,7 +51,7 @@ private fun LazyListScope.supportedPlatformSection(
     onCheckedChanged: (platformType: PlatformType) -> Unit,
 ) {
     item {
-        Section(title = string(StringsKeys.supportedPlatforms)) {
+        Section(title = string(StringsKeys.supportedPlatforms), enableDivider = true) {
             SupportedPlatforms(
                 supportedPlatforms = supportedPlatforms,
                 onCheckedChanged = onCheckedChanged,
@@ -78,11 +78,13 @@ private fun LazyListScope.propertyDefinitionsSection(
                     onClick = onAddPropertyDefinitionClicked,
                 )
             },
+            forceLabelWidth = true,
+            enableDivider = true
         )
     }
 
     items(propertyDefinitions) { propertyDefinition ->
-        Section {
+        Section(enableDivider = true) {
             InputTextField(
                 label = "Property name:", //TODO: String
                 initialValue = propertyDefinition.name,
@@ -111,8 +113,10 @@ private fun LazyListScope.propertyDefinitionsSection(
 
             InputCheckBox(
                 label = "Nullable:", //TODO: Finish
+                forceLabelWidth = true,
                 isChecked = propertyDefinition.nullable,
-                onCheckedChanged = {} //TODO: Fin
+                onCheckedChanged = {}, //TODO: Fin
+                modifier = Modifier.fillMaxWidth()
             )
 
             Section(title = "Supported platforms for property definition:") {
@@ -139,7 +143,8 @@ private fun SupportedPlatforms(
             InputCheckBox(
                 label = supportedPlatform.platformType.serialName,
                 isChecked = supportedPlatform.isChecked,
-                onCheckedChanged = { onCheckedChanged(supportedPlatform.platformType) }
+                forceLabelWidth = false,
+                onCheckedChanged = { onCheckedChanged(supportedPlatform.platformType) },
             )
         }
     }

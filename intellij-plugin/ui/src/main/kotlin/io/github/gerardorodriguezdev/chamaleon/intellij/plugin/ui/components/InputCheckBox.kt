@@ -10,9 +10,11 @@ fun InputCheckBox(
     isChecked: Boolean,
     onCheckedChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    forceLabelWidth: Boolean = true,
 ) {
     InputContainer(
         label = label,
+        forceLabelWidth = forceLabelWidth,
         modifier = modifier,
     ) {
         Checkbox(
