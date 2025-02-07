@@ -6,7 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalStrings
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIcon
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
@@ -30,7 +31,7 @@ fun SelectEnvironmentsDirectoryLocationWindow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(text = LocalStrings.current.environmentsDirectoryLocation, modifier = Modifier.widthIn(max = 140.dp))
+            Text(text = string(StringsKeys.environmentsDirectoryLocation), modifier = Modifier.widthIn(max = 140.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -75,7 +76,7 @@ private fun VerificationIcon(verification: Verification) {
 private fun ValidIcon(modifier: Modifier) {
     TooltipIcon(
         iconKey = AllIconsKeys.Actions.Checked,
-        tooltip = LocalStrings.current.validEnvironments,
+        tooltip = string(StringsKeys.validEnvironments),
         modifier = modifier,
     )
 }

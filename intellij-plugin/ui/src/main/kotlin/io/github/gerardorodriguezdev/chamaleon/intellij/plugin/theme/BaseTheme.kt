@@ -2,30 +2,30 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.colors.Colors
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.colors.DefaultColors
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.DefaultStrings
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.Strings
-
-val LocalStrings = staticCompositionLocalOf<Strings> { DefaultStrings }
-
-val LocalColors = staticCompositionLocalOf<Colors> { DefaultColors }
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.DefaultStringsProvider
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys.StringKey
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 
 interface BaseTheme {
-
-    val strings: Strings
-    val colors: Colors
+    val stringsProvider: StringsProvider
 
     @Composable
-    fun Theme(
-        content: @Composable () -> Unit,
-    ) {
+    fun Theme(content: @Composable () -> Unit) {
+        val stringsProvider = remember { stringsProvider }
         CompositionLocalProvider(
-            LocalColors provides colors,
-            LocalStrings provides strings,
+            LocalStringsProvider provides stringsProvider,
         ) {
             content()
         }
     }
+}
+
+private val LocalStringsProvider = staticCompositionLocalOf<StringsProvider> { DefaultStringsProvider }
+
+@Composable
+fun string(stringKey: StringKey): String {
+    val string = LocalStringsProvider.current.string(stringKey)
+    return remember { string }
 }

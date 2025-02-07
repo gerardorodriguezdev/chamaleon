@@ -8,7 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalStrings
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCard
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
@@ -79,13 +80,13 @@ private fun Toolbar(
     ) {
         TooltipIconButton(
             iconKey = AllIconsKeys.Actions.Refresh,
-            tooltip = LocalStrings.current.refreshEnvironments,
+            tooltip = string(StringsKeys.refreshEnvironments),
             onClick = onRefreshClicked,
         )
 
         TooltipIconButton(
             iconKey = AllIconsKeys.Actions.AddFile,
-            tooltip = LocalStrings.current.createEnvironment,
+            tooltip = string(StringsKeys.createEnvironment),
             onClick = onCreateEnvironmentClicked,
         )
     }

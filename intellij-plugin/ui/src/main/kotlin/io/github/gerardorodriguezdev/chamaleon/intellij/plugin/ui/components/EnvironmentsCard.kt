@@ -5,7 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalStrings
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.jewel.ui.component.Dropdown
 import org.jetbrains.jewel.ui.component.Text
@@ -24,7 +25,7 @@ fun EnvironmentCard(
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             //TODO: To label?
-            Text(text = LocalStrings.current.environmentsDirectoryPath, modifier = Modifier.width(150.dp))
+            Text(text = string(StringsKeys.environmentsDirectoryPath), modifier = Modifier.width(150.dp))
             Text(text = state.environmentsDirectoryPath, modifier = Modifier.weight(1f))
         }
 
@@ -33,7 +34,7 @@ fun EnvironmentCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             //TODO: To label?
-            Text(text = LocalStrings.current.selectedEnvironment, modifier = Modifier.width(150.dp))
+            Text(text = string(StringsKeys.selectedEnvironment), modifier = Modifier.width(150.dp))
 
             //TODO: TextDropdown
             Dropdown(
@@ -54,7 +55,7 @@ fun EnvironmentCard(
 
             TooltipIconButton(
                 iconKey = AllIconsKeys.Actions.Close,
-                tooltip = LocalStrings.current.removeSelectedEnvironment,
+                tooltip = string(StringsKeys.removeSelectedEnvironment),
                 onClick = { onSelectedEnvironmentChanged(null) },
             )
         }

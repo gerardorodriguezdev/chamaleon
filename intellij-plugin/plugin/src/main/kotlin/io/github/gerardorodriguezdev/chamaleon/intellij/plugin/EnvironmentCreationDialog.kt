@@ -5,7 +5,8 @@ import androidx.compose.runtime.getValue
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.ui.DialogWrapper
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStrings
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
@@ -31,7 +32,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
     private val finish = Finish()
 
     init {
-        title = BundleStrings.createEnvironment
+        title = string(StringsKeys.createEnvironment)
 
         init()
 
@@ -82,7 +83,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
 
     private fun finishButton(): JButton? = getButton(finish)
 
-    private inner class Cancel : DialogWrapperAction(BundleStrings.cancel) {
+    private inner class Cancel : DialogWrapperAction(name = string(StringsKeys.cancel)) {
         init {
             putValue(MAC_ACTION_ORDER, CANCEL_ACTION_ORDER)
         }
@@ -92,7 +93,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
     }
 
-    private inner class Previous : DialogWrapperAction(BundleStrings.previous) {
+    private inner class Previous : DialogWrapperAction(StringsKeys.previous) {
         init {
             putValue(MAC_ACTION_ORDER, PREVIOUS_ACTION_ORDER)
         }
@@ -102,7 +103,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
     }
 
-    private inner class Next : DialogWrapperAction(BundleStrings.next) {
+    private inner class Next : DialogWrapperAction(name = string(StringsKeys.next)) {
         init {
             putValue(DEFAULT_ACTION, true)
             putValue(MAC_ACTION_ORDER, NEXT_ACTION_ORDER)
@@ -113,7 +114,7 @@ internal class EnvironmentCreationDialog : DialogWrapper(false) {
         }
     }
 
-    private inner class Finish : DialogWrapperAction(BundleStrings.finish) {
+    private inner class Finish : DialogWrapperAction(name = string(StringsKeys.finish)) {
         init {
             putValue(DEFAULT_ACTION, true)
             putValue(MAC_ACTION_ORDER, DEFAULT_ACTION_ORDER)

@@ -8,7 +8,8 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.EnvironmentSelectionPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStrings
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     ) {
         project.scanProject()
 
-        toolWindow.addComposeTab(BundleStrings.environmentSelectionWindowName) {
+        toolWindow.addComposeTab(tabDisplayName = string(StringsKeys.environmentSelectionWindowName)) {
             SwingBridgeTheme {
                 Theme {
                     EnvironmentSelectionWindow(

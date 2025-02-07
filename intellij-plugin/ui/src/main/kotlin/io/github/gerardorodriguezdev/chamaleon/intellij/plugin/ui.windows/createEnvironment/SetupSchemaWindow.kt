@@ -11,7 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.LocalStrings
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputCheckBox
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputField
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
@@ -66,7 +67,7 @@ private fun LazyListScope.supportedPlatformSection(
     onCheckedChanged: (platformType: PlatformType) -> Unit,
 ) {
     section(
-        title = { Text(text = LocalStrings.current.supportedPlatforms) },
+        title = { Text(text = string(StringsKeys.supportedPlatforms)) },
     ) {
         item {
             SupportedPlatforms(
@@ -90,11 +91,11 @@ private fun LazyListScope.propertyDefinitionsSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(text = LocalStrings.current.propertyDefinitions, modifier = Modifier.widthIn(min = 140.dp))
+                Text(text = string(StringsKeys.propertyDefinitions), modifier = Modifier.widthIn(min = 140.dp))
 
                 TooltipIconButton(
                     iconKey = AllIconsKeys.General.Add,
-                    tooltip = LocalStrings.current.addPropertyDefinitions,
+                    tooltip = string(StringsKeys.addPropertyDefinitions),
                     onClick = onAddPropertyDefinitionClicked,
                 )
             }
