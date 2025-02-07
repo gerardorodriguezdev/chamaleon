@@ -11,17 +11,18 @@ import org.jetbrains.jewel.ui.component.TextField
 @Composable
 fun InputTextField(
     label: String,
+    modifier: Modifier = Modifier,
     initialValue: String = "",
+    readOnly: Boolean = false,
     onValueChange: (newValue: String) -> Unit = {},
     trailingIcon: @Composable (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     InputContainer(
         label = label,
         modifier = modifier.fillMaxWidth(),
     ) {
         val textFieldState = rememberTextFieldState(initialValue)
-        TextField(state = textFieldState, trailingIcon = trailingIcon)
+        TextField(state = textFieldState, trailingIcon = trailingIcon, readOnly = readOnly)
 
         LaunchedEffect(Unit) {
             snapshotFlow {

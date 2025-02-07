@@ -20,13 +20,14 @@ fun SelectEnvironmentsDirectoryLocationWindow(
 ) {
     WindowContainer(
         toolbar = {
-            Toolbar(title = string(StringsKeys.environmentsDirectoryLocation), forceLabelWidth = false)
+            Toolbar(title = string(StringsKeys.selectEnvironmentsDirectoryLocation), forceLabelWidth = false)
         },
         content = {
             item {
                 InputTextField(
                     label = string(StringsKeys.environmentsDirectoryLocation),
                     initialValue = state.path,
+                    readOnly = true,
                     trailingIcon = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
