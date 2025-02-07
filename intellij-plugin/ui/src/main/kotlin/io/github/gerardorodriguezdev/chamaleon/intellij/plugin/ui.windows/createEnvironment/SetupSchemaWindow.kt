@@ -14,7 +14,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputCheckBox
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputField
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.InputTextField
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.TooltipIconButton
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPropertyTypes
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
@@ -110,7 +110,7 @@ private fun LazyListScope.propertyDefinitionsSection(
             ) {
                 Divider(orientation = Orientation.Horizontal)
 
-                InputField(
+                InputTextField(
                     label = "Property name:", //TODO: String
                     initialValue = propertyDefinition.name,
                     onValueChange = { newName ->

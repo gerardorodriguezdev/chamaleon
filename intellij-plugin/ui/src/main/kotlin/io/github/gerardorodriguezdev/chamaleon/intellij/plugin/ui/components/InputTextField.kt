@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import org.jetbrains.jewel.ui.component.TextField
 
 @Composable
-fun InputField(
+fun InputTextField(
     label: String,
     initialValue: String = "",
     onValueChange: (newValue: String) -> Unit = {},
