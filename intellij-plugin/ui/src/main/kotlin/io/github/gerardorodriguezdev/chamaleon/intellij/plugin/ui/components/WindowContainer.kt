@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.horizontalPadding
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.scrollbarWidth
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.verticalPadding
 import org.jetbrains.jewel.ui.component.VerticalScrollbar
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -23,14 +26,12 @@ fun WindowContainer(
         LazyColumn(
             state = lazyListState,
             contentPadding = PaddingValues(
-                bottom = 16.dp,
-                start = 12.dp,
-                end = 12.dp - 12.dp
+                bottom = verticalPadding,
+                start = horizontalPadding,
+                end = scrollbarWidth
             ),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 12.dp)
+            verticalArrangement = Arrangement.spacedBy(itemsSpacing),
+            modifier = Modifier.fillMaxSize()
         ) {
             toolbar?.let {
                 stickyHeader {
