@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
 import kotlinx.collections.immutable.ImmutableList
@@ -20,21 +19,14 @@ fun CreateEnvironmentWindow(
         is SelectEnvironmentsDirectoryLocationState ->
             SelectEnvironmentsDirectoryLocationWindow(
                 state = state,
-                onIconClicked = {
-                    onAction(OnSelectEnvironmentPathClicked)
-                },
+                onAction = onAction,
                 modifier = modifier,
             )
 
         is SetupSchemaState ->
             SetupSchemaWindow(
                 state = state,
-                onSupportedPlatformsChanged = { platformType ->
-                    onAction(OnSupportedPlatformTypeChanged(platformType))
-                },
-                onAddPropertyDefinitionClicked = {
-                    onAction(OnAddPropertyDefinitionClicked)
-                }
+                onAction = onAction,
             )
     }
 }
@@ -87,9 +79,17 @@ sealed interface Action {
     data object OnNextButtonClicked : Action
     data object OnFinishButtonClicked : Action
 
-    data object OnSelectEnvironmentPathClicked : Action
+    sealed interface SelectEnvironmentsDirectoryLocationAction : Action {
+        data object OnSelectEnvironmentPathClicked : SelectEnvironmentsDirectoryLocationAction
+    }
 
-    //TODO: Sep actions to window type emission
-    data class OnSupportedPlatformTypeChanged(val platformType: PlatformType) : Action
-    data object OnAddPropertyDefinitionClicked : Action
+    sealed interface SetupSchemaAction : Action {
+        data class OnSupportedPlatformChanged(val newPlatformType: PlatformType) : SetupSchemaAction
+        data object OnAddPropertyDefinitionClicked : SetupSchemaAction
+        data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupSchemaAction
+        data class OnPropertyTypeChanged(val index: Int, val newPropertyType: PropertyType) : SetupSchemaAction
+        data class OnNullableChanged(val index: Int, val newValue: Boolean) : SetupSchemaAction
+        data class OnPropertyDefinitionSupportedPlatformChanged(val index: Int, val newPlatformType: PlatformType) :
+            SetupSchemaAction
+    }
 }

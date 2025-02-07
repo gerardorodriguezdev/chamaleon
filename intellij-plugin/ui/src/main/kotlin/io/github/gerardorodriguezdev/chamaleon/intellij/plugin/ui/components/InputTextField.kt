@@ -14,7 +14,7 @@ fun InputTextField(
     modifier: Modifier = Modifier,
     initialValue: String = "",
     readOnly: Boolean = false,
-    onValueChange: (newValue: String) -> Unit = {},
+    onValueChange: (newText: String) -> Unit = {},
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     InputContainer(

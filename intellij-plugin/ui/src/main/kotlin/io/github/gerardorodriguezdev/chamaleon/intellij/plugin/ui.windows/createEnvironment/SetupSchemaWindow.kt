@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
@@ -15,6 +15,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupSchemaAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupSchemaAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPropertyTypes
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupSchemaState.PropertyDefinition
@@ -26,8 +28,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 @Composable
 fun SetupSchemaWindow(
     state: SetupSchemaState,
-    onSupportedPlatformsChanged: (platformType: PlatformType) -> Unit,
-    onAddPropertyDefinitionClicked: () -> Unit,
+    onAction: (action: SetupSchemaAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WindowContainer(
@@ -36,12 +37,28 @@ fun SetupSchemaWindow(
         content = {
             supportedPlatformSection(
                 supportedPlatforms = state.supportedPlatforms,
-                onSupportedPlatformChanged = onSupportedPlatformsChanged,
+                onSupportedPlatformChanged = { newSupportedPlatform ->
+                    onAction(OnSupportedPlatformChanged(newSupportedPlatform))
+                },
             )
 
             propertyDefinitionsSection(
                 propertyDefinitions = state.propertyDefinitions,
-                onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked,
+                onAddPropertyDefinitionClicked = {
+                    onAction(OnAddPropertyDefinitionClicked)
+                },
+                onPropertyNameChanged = { index, newName ->
+                    onAction(OnPropertyNameChanged(index, newName))
+                },
+                onPropertyTypeChanged = { index, newPropertyType ->
+                    onAction(OnPropertyTypeChanged(index, newPropertyType))
+                },
+                onNullableChanged = { index, newValue ->
+                    onAction(OnNullableChanged(index, newValue))
+                },
+                onSupportedPlatformChanged = { index, newSupportedPlatform ->
+                    onAction(OnPropertyDefinitionSupportedPlatformChanged(index, newSupportedPlatform))
+                },
             )
         }
     )
@@ -49,7 +66,7 @@ fun SetupSchemaWindow(
 
 private fun LazyListScope.supportedPlatformSection(
     supportedPlatforms: ImmutableList<SupportedPlatform>,
-    onSupportedPlatformChanged: (platformType: PlatformType) -> Unit,
+    onSupportedPlatformChanged: (newPlatformType: PlatformType) -> Unit,
 ) {
     item {
         Section(
@@ -69,13 +86,23 @@ private fun LazyListScope.supportedPlatformSection(
 private fun LazyListScope.propertyDefinitionsSection(
     propertyDefinitions: ImmutableList<PropertyDefinition>,
     onAddPropertyDefinitionClicked: () -> Unit,
+    onPropertyNameChanged: (index: Int, newName: String) -> Unit,
+    onPropertyTypeChanged: (index: Int, newPropertyType: PropertyType) -> Unit,
+    onNullableChanged: (index: Int, newValue: Boolean) -> Unit,
+    onSupportedPlatformChanged: (index: Int, platformType: PlatformType) -> Unit,
 ) {
     stickyHeader {
         PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked)
     }
 
-    items(propertyDefinitions) { propertyDefinition ->
-        PropertyDefinitionSectionCard(propertyDefinition)
+    itemsIndexed(propertyDefinitions) { index, propertyDefinition ->
+        PropertyDefinitionSectionCard(
+            propertyDefinition = propertyDefinition,
+            onPropertyNameChanged = { newName -> onPropertyNameChanged(index, newName) },
+            onPropertyTypeChanged = { newPropertyType -> onPropertyTypeChanged(index, newPropertyType) },
+            onNullableChanged = { newValue -> onNullableChanged(index, newValue) },
+            onSupportedPlatformChanged = { newPlatformType -> onSupportedPlatformChanged(index, newPlatformType) },
+        )
     }
 }
 
@@ -98,12 +125,16 @@ private fun PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked: () ->
 @Composable
 private fun PropertyDefinitionSectionCard(
     propertyDefinition: PropertyDefinition,
+    onPropertyNameChanged: (newName: String) -> Unit,
+    onPropertyTypeChanged: (newPropertyType: PropertyType) -> Unit,
+    onNullableChanged: (newValue: Boolean) -> Unit,
+    onSupportedPlatformChanged: (newPlatformType: PlatformType) -> Unit,
 ) {
     Section(enableDivider = true) {
         InputTextField(
             label = string(StringsKeys.propertyName),
             initialValue = propertyDefinition.name,
-            onValueChange = { newName -> }, //TODO: Finish
+            onValueChange = onPropertyNameChanged,
         )
 
         InputTextDropdown(
@@ -114,7 +145,7 @@ private fun PropertyDefinitionSectionCard(
                     item(
                         selected = propertyDefinition.propertyType == propertyType,
                         text = propertyType.name.lowercase(),
-                        onClick = { } //TODO: Finish
+                        onClick = { onPropertyTypeChanged(propertyType) }
                     )
                 }
             }
@@ -124,7 +155,7 @@ private fun PropertyDefinitionSectionCard(
             label = string(StringsKeys.nullable),
             forceLabelWidth = true,
             isChecked = propertyDefinition.nullable,
-            onCheckedChanged = {}, //TODO: Fin
+            onCheckedChanged = onNullableChanged,
         )
 
         Section(
@@ -133,7 +164,7 @@ private fun PropertyDefinitionSectionCard(
         ) {
             SupportedPlatforms(
                 supportedPlatforms = propertyDefinition.supportedPlatforms,
-                onCheckedChanged = { platformType -> } //TODO: Fin
+                onCheckedChanged = onSupportedPlatformChanged,
             )
         }
     }
@@ -143,7 +174,7 @@ private fun PropertyDefinitionSectionCard(
 @Composable
 private fun SupportedPlatforms(
     supportedPlatforms: ImmutableList<SupportedPlatform>,
-    onCheckedChanged: (platformType: PlatformType) -> Unit
+    onCheckedChanged: (newPlatformType: PlatformType) -> Unit
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(itemsSpacing),

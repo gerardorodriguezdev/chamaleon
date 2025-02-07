@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.previews.windows
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.previews.utils.PreviewContainer
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SelectEnvironmentsDirectoryLocationAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SelectEnvironmentsDirectoryLocationWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState.Verification
@@ -40,12 +41,12 @@ internal fun SelectEnvironmentsDirectoryLocationWindowInProgressPreview() {
 @Composable
 private fun SelectEnvironmentsDirectoryLocationWindowPreview(
     state: SelectEnvironmentsDirectoryLocationState,
-    onIconClicked: () -> Unit = {},
+    onAction: (action: SelectEnvironmentsDirectoryLocationAction) -> Unit = {},
 ) {
     PreviewContainer {
         SelectEnvironmentsDirectoryLocationWindow(
             state = state,
-            onIconClicked = onIconClicked,
+            onAction = onAction,
         )
     }
 }

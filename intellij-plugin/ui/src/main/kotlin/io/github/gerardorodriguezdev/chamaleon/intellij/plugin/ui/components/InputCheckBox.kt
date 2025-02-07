@@ -8,7 +8,7 @@ import org.jetbrains.jewel.ui.component.Checkbox
 fun InputCheckBox(
     label: String,
     isChecked: Boolean,
-    onCheckedChanged: (Boolean) -> Unit,
+    onCheckedChanged: (newValue: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     forceLabelWidth: Boolean = true,
 ) {

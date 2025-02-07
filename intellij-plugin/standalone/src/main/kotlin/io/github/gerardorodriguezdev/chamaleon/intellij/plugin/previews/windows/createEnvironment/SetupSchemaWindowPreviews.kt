@@ -60,8 +60,7 @@ internal fun SetupSchemaWindowPreview() {
                     ),
                 )
             ),
-            onSupportedPlatformsChanged = {},
-            onAddPropertyDefinitionClicked = {},
+            onAction = {}
         )
     }
 }

@@ -9,6 +9,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SelectEnvironmentsDirectoryLocationAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SelectEnvironmentsDirectoryLocationAction.OnSelectEnvironmentPathClicked
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SelectEnvironmentsDirectoryLocationState.Verification
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
@@ -17,7 +19,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 @Composable
 fun SelectEnvironmentsDirectoryLocationWindow(
     state: SelectEnvironmentsDirectoryLocationState,
-    onIconClicked: () -> Unit,
+    onAction: (action: SelectEnvironmentsDirectoryLocationAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WindowContainer(
@@ -39,7 +41,7 @@ fun SelectEnvironmentsDirectoryLocationWindow(
                             TooltipIconButton(
                                 iconKey = AllIconsKeys.Actions.NewFolder,
                                 tooltip = state.path,
-                                onClick = { onIconClicked() }
+                                onClick = { onAction(OnSelectEnvironmentPathClicked) }
                             )
 
                             state.verification?.let {

@@ -25,9 +25,8 @@ internal class CreateEnvironmentPresenter(
             is Action.OnPreviousButtonClicked -> Unit
             is Action.OnNextButtonClicked -> Unit
             is Action.OnFinishButtonClicked -> Unit
-            is Action.OnSelectEnvironmentPathClicked -> Unit
-            is Action.OnSupportedPlatformTypeChanged -> Unit
-            is Action.OnAddPropertyDefinitionClicked -> Unit
+            is Action.SelectEnvironmentsDirectoryLocationAction -> Unit
+            is Action.SetupSchemaAction -> Unit
         }
     }
 
