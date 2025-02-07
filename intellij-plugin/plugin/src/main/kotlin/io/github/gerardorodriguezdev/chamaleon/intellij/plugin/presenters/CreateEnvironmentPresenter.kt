@@ -11,6 +11,11 @@ import kotlinx.coroutines.flow.StateFlow
 internal class CreateEnvironmentPresenter(
     onSelectEnvironmentPathClicked: () -> Unit
 ) : Disposable {
+    //TODO: Title for setup schema depending if schema existing or not
+    //TODO: Set root automatically if nothing selected
+    //TODO: Execute externally notification of progress
+    //TODO: Rev if valids or nots
+    //TODO: Move logic if possible to processor
     private val _state = MutableStateFlow<State>(
         value = SelectEnvironmentsDirectoryLocationState(
             path = "",

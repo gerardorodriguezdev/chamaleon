@@ -8,7 +8,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.*
 import kotlinx.collections.immutable.ImmutableList
 
-//TODO: Finish
 @Composable
 fun CreateEnvironmentWindow(
     state: State,
