@@ -61,7 +61,6 @@ private fun LazyListScope.supportedPlatformSection(
 }
 
 //TODO: Refactor
-//TODO: Paddings logic
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.propertyDefinitionsSection(
     propertyDefinitions: ImmutableList<PropertyDefinition>,
@@ -86,7 +85,7 @@ private fun LazyListScope.propertyDefinitionsSection(
     items(propertyDefinitions) { propertyDefinition ->
         Section(enableDivider = true) {
             InputTextField(
-                label = "Property name:", //TODO: String
+                label = string(StringsKeys.propertyName),
                 initialValue = propertyDefinition.name,
                 onValueChange = { newName ->
                     onPropertyDefinitionChanged(
@@ -98,7 +97,7 @@ private fun LazyListScope.propertyDefinitionsSection(
             )
 
             InputTextDropdown(
-                label = "Property type:", //TODO: Fin
+                label = string(StringsKeys.propertyType),
                 selectedValue = propertyDefinition.propertyType.name.lowercase(),
                 content = {
                     allPropertyTypes.forEach { propertyType ->
@@ -112,14 +111,14 @@ private fun LazyListScope.propertyDefinitionsSection(
             )
 
             InputCheckBox(
-                label = "Nullable:", //TODO: Finish
+                label = string(StringsKeys.nullable),
                 forceLabelWidth = true,
                 isChecked = propertyDefinition.nullable,
                 onCheckedChanged = {}, //TODO: Fin
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Section(title = "Supported platforms for property definition:") {
+            Section(title = string(StringsKeys.supportedPlatformsForPropertyDefinitions)) {
                 SupportedPlatforms(
                     supportedPlatforms = propertyDefinition.supportedPlatforms,
                     onCheckedChanged = { platformType -> } //TODO: Fin

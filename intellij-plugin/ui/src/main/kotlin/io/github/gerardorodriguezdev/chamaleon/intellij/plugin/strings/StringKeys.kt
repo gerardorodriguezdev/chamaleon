@@ -22,6 +22,10 @@ object StringsKeys {
     val supportedPlatforms = StringKey("supported.platforms")
     val propertyDefinitions = StringKey("property.definitions")
     val addPropertyDefinitions = StringKey("add.property.definitions")
+    val propertyName = StringKey("property.name")
+    val propertyType = StringKey("property.type")
+    val nullable = StringKey("nullable")
+    val supportedPlatformsForPropertyDefinitions = StringKey("supported.platforms.for.property.definitions")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)
