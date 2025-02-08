@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir

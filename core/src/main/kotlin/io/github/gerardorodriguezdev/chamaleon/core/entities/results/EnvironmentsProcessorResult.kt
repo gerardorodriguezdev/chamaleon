@@ -3,7 +3,6 @@ package io.github.gerardorodriguezdev.chamaleon.core.entities.results
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 
 public sealed interface EnvironmentsProcessorResult {
     public data class Success(
