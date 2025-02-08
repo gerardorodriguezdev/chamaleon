@@ -6,6 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.project.Project
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
@@ -20,15 +23,15 @@ import kotlinx.coroutines.launch
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import javax.swing.JComponent
 
-internal class EnvironmentCreationDialog : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
+internal class EnvironmentCreationDialog(
+    project: Project,
+) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
     private val scope = CoroutineScope(Dispatchers.EDT)
 
     private val presenter = CreateEnvironmentPresenter(
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
-        onSelectEnvironmentPathClicked = {
-            //TODO: Finish
-        }
+        onSelectEnvironmentPathClicked = { selectFileDirectory(project) }
     )
 
     init {
@@ -71,5 +74,15 @@ internal class EnvironmentCreationDialog : BaseDialog(dialogTitle = string(Strin
         scope.cancel()
         presenter.dispose()
         super.dispose()
+    }
+
+    private fun selectFileDirectory(project: Project): String? {
+        val fileDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
+        val selectedDirectory = FileChooser.chooseFile(
+            fileDescriptor,
+            project,
+            null
+        )
+        return selectedDirectory?.path
     }
 }

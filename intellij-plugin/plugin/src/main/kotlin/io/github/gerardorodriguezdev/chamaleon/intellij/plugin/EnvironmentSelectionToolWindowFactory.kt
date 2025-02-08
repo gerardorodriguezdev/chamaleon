@@ -44,7 +44,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             project.scanProject()
                         },
                         onCreateEnvironmentClicked = {
-                            EnvironmentCreationDialog().show()
+                            EnvironmentCreationDialog(project).show()
                         },
                         onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
                             project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)
