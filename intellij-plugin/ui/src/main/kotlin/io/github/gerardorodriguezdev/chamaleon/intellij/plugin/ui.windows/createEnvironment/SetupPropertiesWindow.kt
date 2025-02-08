@@ -22,7 +22,7 @@ fun SetupPropertiesWindow(
 ) {
     WindowContainer(
         modifier = modifier,
-        toolbar = { Toolbar(title = string(StringsKeys.createEnvironment), forceLabelWidth = false) },
+        toolbar = { Toolbar(title = string(StringsKeys.addProperties), forceLabelWidth = false) },
         content = {
             item {
                 Section(
