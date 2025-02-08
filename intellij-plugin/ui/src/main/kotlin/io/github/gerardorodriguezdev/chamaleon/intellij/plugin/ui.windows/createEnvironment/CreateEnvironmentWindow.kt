@@ -17,7 +17,7 @@ fun CreateEnvironmentWindow(
     modifier: Modifier = Modifier,
 ) {
     when (state) {
-        is LoadingState -> LoadingWindow()
+        is LoadingState -> LoadingWindow(modifier = modifier)
         is SetupEnvironmentState ->
             SetupEnvironmentWindow(
                 state = state,

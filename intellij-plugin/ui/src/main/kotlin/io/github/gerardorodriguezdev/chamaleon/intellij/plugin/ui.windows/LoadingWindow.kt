@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 
 @Composable
-fun LoadingWindow() {
-    Box(modifier = Modifier.fillMaxSize()) {
+fun LoadingWindow(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize()) {
         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
     }
 }

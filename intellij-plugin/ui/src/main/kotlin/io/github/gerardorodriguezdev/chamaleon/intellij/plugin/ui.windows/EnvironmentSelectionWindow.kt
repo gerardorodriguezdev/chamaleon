@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
@@ -16,11 +17,13 @@ fun EnvironmentSelectionWindow(
     onRefreshClicked: () -> Unit,
     onCreateEnvironmentClicked: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     if (state.isLoading) {
-        LoadingWindow()
+        LoadingWindow(modifier = modifier)
     } else {
         ContentWindow(
+            modifier = modifier,
             environmentCardStates = state.environmentCardStates,
             onRefreshClicked = onRefreshClicked,
             onCreateEnvironmentClicked = onCreateEnvironmentClicked,
@@ -31,12 +34,14 @@ fun EnvironmentSelectionWindow(
 
 @Composable
 private fun ContentWindow(
+    modifier: Modifier = Modifier,
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefreshClicked: () -> Unit,
     onCreateEnvironmentClicked: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
 ) {
     WindowContainer(
+        modifier = modifier,
         toolbar = {
             Toolbar(
                 forceLabelWidth = false,
