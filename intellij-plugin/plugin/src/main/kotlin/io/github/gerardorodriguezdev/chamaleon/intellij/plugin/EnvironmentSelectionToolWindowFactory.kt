@@ -19,8 +19,9 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import java.io.File
 
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
+    private val environmentsProcessor = EnvironmentsProcessor.create()
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
-        environmentsProcessor = EnvironmentsProcessor.create(),
+        environmentsProcessor = environmentsProcessor,
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->
@@ -44,7 +45,10 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             project.scanProject()
                         },
                         onCreateEnvironmentClicked = {
-                            EnvironmentCreationDialog(project).show()
+                            EnvironmentCreationDialog(
+                                project = project,
+                                environmentsProcessor = environmentsProcessor,
+                            ).show()
                         },
                         onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
                             project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)

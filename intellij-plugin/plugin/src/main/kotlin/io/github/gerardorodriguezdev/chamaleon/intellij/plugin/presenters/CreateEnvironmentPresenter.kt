@@ -1,6 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 
 import com.intellij.openapi.Disposable
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
@@ -9,9 +11,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 internal class CreateEnvironmentPresenter(
+    private val rootProjectFile: File?,
+    private val environmentsProcessor: EnvironmentsProcessor,
     uiDispatcher: CoroutineContext,
     ioDispatcher: CoroutineContext,
     private val onSelectEnvironmentPathClicked: () -> String?,
@@ -25,6 +31,26 @@ internal class CreateEnvironmentPresenter(
     val state: StateFlow<State> = _state
 
     private val ioScope = CoroutineScope(ioDispatcher)
+
+    init {
+        onInit()
+    }
+
+    private fun onInit() {
+        val rootProjectFile = rootProjectFile
+        if (rootProjectFile == null) {
+            _state.value = State.SetupEnvironmentState(path = "", verification = null)
+            return
+        }
+
+        ioScope.launch {
+            val result = environmentsProcessor.process(rootProjectFile)
+            when (result) {
+                is EnvironmentsProcessorResult.Success -> {}
+                is EnvironmentsProcessorResult.Failure -> Unit
+            }
+        }
+    }
 
     fun onAction(action: Action) {
         when (action) {

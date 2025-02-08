@@ -9,6 +9,7 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
@@ -21,14 +22,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.jetbrains.jewel.bridge.JewelComposePanel
+import java.io.File
 import javax.swing.JComponent
 
 internal class EnvironmentCreationDialog(
     project: Project,
+    environmentsProcessor: EnvironmentsProcessor,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
     private val scope = CoroutineScope(Dispatchers.EDT)
 
     private val presenter = CreateEnvironmentPresenter(
+        rootProjectFile = project.projectFile?.path?.toFileOrNull(),
+        environmentsProcessor = environmentsProcessor,
         uiDispatcher = Dispatchers.EDT,
         ioDispatcher = Dispatchers.IO,
         onSelectEnvironmentPathClicked = { selectFileDirectory(project) }
@@ -75,6 +80,8 @@ internal class EnvironmentCreationDialog(
         presenter.dispose()
         super.dispose()
     }
+
+    private fun String?.toFileOrNull(): File? = if (this == null) null else File(this)
 
     private fun selectFileDirectory(project: Project): String? {
         val fileDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
