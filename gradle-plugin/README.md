@@ -65,6 +65,8 @@ This file will be used to select an environment. In this case `local`
 }
 ```
 
+- **selectedEnvironmentName:** Can be `null` or a non-empty `String` (default=null)-> `optional`
+
 ### `template.chamaleon.json` file
 
 This file will be used only to validate that all the environments have the same structure
@@ -88,7 +90,7 @@ This file will be used only to validate that all the environments have the same 
 - **propertyDefinitions:** It's an array of property definition
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
-        - **propertyType:** Can be `String` or `Boolean `-> `required`
+      - **propertyType:** Can be `String` or `Boolean` -> `required`
         - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
       - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
         template for this property only.

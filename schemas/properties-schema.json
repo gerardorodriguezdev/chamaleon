@@ -6,7 +6,8 @@
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "minLength": 1
     }
   },
   "required": [
