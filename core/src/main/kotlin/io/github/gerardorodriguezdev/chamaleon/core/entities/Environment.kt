@@ -29,4 +29,20 @@ public data class Environment(
         platforms.firstOrNull { platform ->
             platform.platformType == platformType
         }
+
+    //TODO: Test
+    internal fun isValid(): ValidationResult {
+        if (name.isEmpty()) return ValidationResult.EMPTY_NAME
+        if (platforms.isEmpty()) return ValidationResult.EMPTY_PLATFORMS
+        if (platforms.any { platform -> !platform.isValid() }) return ValidationResult.INVALID_PLATFORM
+
+        return ValidationResult.VALID
+    }
+
+    internal enum class ValidationResult {
+        VALID,
+        EMPTY_NAME,
+        EMPTY_PLATFORMS,
+        INVALID_PLATFORM,
+    }
 }

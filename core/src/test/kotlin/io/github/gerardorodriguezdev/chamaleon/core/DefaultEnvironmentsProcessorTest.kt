@@ -83,14 +83,49 @@ class DefaultEnvironmentsProcessorTest {
         }
 
         @Test
-        fun `GIVEN schema parsing property uses unsupported platforms error WHEN process THEN returns failure`() =
+        fun `GIVEN schema parsing with empty supported platforms WHEN process THEN returns failure`() =
             runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Failure.PropertyContainsUnsupportedPlatforms(
+                schemaParser.schemaParserResult = SchemaParserResult.Failure.EmptySupportedPlatforms(
                     path = "",
-                    propertyName = "",
                 )
 
-                assertIs<PropertyOnSchemaContainsUnsupportedPlatforms>(
+                assertIs<SchemaEmptySupportedPlatforms>(
+                    defaultEnvironmentsProcessor.process(environmentsDirectory)
+                )
+            }
+
+        @Test
+        fun `GIVEN schema parsing with empty property definitions WHEN process THEN returns failure`() =
+            runTest {
+                schemaParser.schemaParserResult = SchemaParserResult.Failure.EmptyPropertyDefinitions(
+                    path = "",
+                )
+
+                assertIs<SchemaEmptyPropertyDefinitions>(
+                    defaultEnvironmentsProcessor.process(environmentsDirectory)
+                )
+            }
+
+        @Test
+        fun `GIVEN schema parsing with invalid property definitions WHEN process THEN returns failure`() =
+            runTest {
+                schemaParser.schemaParserResult = SchemaParserResult.Failure.InvalidPropertyDefinition(
+                    path = "",
+                )
+
+                assertIs<SchemaInvalidPropertyDefinitions>(
+                    defaultEnvironmentsProcessor.process(environmentsDirectory)
+                )
+            }
+
+        @Test
+        fun `GIVEN schema parsing with duplicated property definitions WHEN process THEN returns failure`() =
+            runTest {
+                schemaParser.schemaParserResult = SchemaParserResult.Failure.DuplicatedPropertyDefinition(
+                    path = "",
+                )
+
+                assertIs<SchemaDuplicatedPropertyDefinition>(
                     defaultEnvironmentsProcessor.process(environmentsDirectory)
                 )
             }

@@ -14,13 +14,14 @@ public sealed interface EnvironmentsProcessorResult {
     public sealed interface Failure : EnvironmentsProcessorResult {
         public data class EnvironmentsDirectoryNotFound(val environmentsDirectoryPath: String) : Failure
 
+        //TODO: Specific error type
         public data class SchemaFileNotFound(val environmentsDirectoryPath: String) : Failure
         public data class SchemaFileIsEmpty(val environmentsDirectoryPath: String) : Failure
         public data class SchemaSerialization(val throwable: Throwable) : Failure
-        public data class PropertyOnSchemaContainsUnsupportedPlatforms(
-            val environmentsDirectoryPath: String,
-            val propertyName: String,
-        ) : Failure
+        public data class SchemaEmptySupportedPlatforms(val environmentsDirectoryPath: String) : Failure
+        public data class SchemaEmptyPropertyDefinitions(val environmentsDirectoryPath: String) : Failure
+        public data class SchemaInvalidPropertyDefinitions(val environmentsDirectoryPath: String) : Failure
+        public data class SchemaDuplicatedPropertyDefinition(val environmentsDirectoryPath: String) : Failure
 
         public data class EnvironmentsSerialization(val throwable: Throwable) : Failure
 

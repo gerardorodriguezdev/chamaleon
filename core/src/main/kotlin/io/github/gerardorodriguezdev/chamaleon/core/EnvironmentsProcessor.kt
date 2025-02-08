@@ -151,11 +151,10 @@ internal class DefaultEnvironmentsProcessor(
             is SchemaParserResult.Failure.FileNotFound -> SchemaFileNotFound(path).toFailure()
             is SchemaParserResult.Failure.FileIsEmpty -> SchemaFileIsEmpty(path).toFailure()
             is SchemaParserResult.Failure.Serialization -> SchemaSerialization(throwable).toFailure()
-            is SchemaParserResult.Failure.PropertyContainsUnsupportedPlatforms ->
-                PropertyOnSchemaContainsUnsupportedPlatforms(
-                    environmentsDirectoryPath = path,
-                    propertyName = propertyName,
-                ).toFailure()
+            is SchemaParserResult.Failure.EmptySupportedPlatforms -> SchemaEmptySupportedPlatforms(path).toFailure()
+            is SchemaParserResult.Failure.EmptyPropertyDefinitions -> SchemaEmptyPropertyDefinitions(path).toFailure()
+            is SchemaParserResult.Failure.InvalidPropertyDefinition -> SchemaInvalidPropertyDefinitions(path).toFailure()
+            is SchemaParserResult.Failure.DuplicatedPropertyDefinition -> SchemaDuplicatedPropertyDefinition(path).toFailure()
         }
 
     private fun EnvironmentsParserResult.environmentsOrFailure(): Result<Set<Environment>, Failure> =

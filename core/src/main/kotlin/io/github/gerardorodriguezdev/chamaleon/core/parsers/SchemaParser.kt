@@ -2,7 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.ValidationResult.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
@@ -17,14 +17,15 @@ public interface SchemaParser {
     public sealed interface SchemaParserResult {
         public data class Success(val schema: Schema) : SchemaParserResult
 
+        //TODO: Take out
         public sealed interface Failure : SchemaParserResult {
             public data class FileNotFound(val path: String) : Failure
             public data class FileIsEmpty(val path: String) : Failure
             public data class Serialization(val throwable: Throwable) : Failure
-            public data class PropertyContainsUnsupportedPlatforms(
-                val path: String,
-                val propertyName: String,
-            ) : Failure
+            public data class EmptySupportedPlatforms(val path: String) : Failure
+            public data class EmptyPropertyDefinitions(val path: String) : Failure
+            public data class InvalidPropertyDefinition(val path: String) : Failure
+            public data class DuplicatedPropertyDefinition(val path: String) : Failure
         }
     }
 }
@@ -40,7 +41,7 @@ internal class DefaultSchemaParser : SchemaParser {
         return try {
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
 
-            val verificationResult = schemaDto.verify(path = schemaFile.parent)
+            val verificationResult = schemaDto.isValid().toFailureOrNull(path = schemaFile.parent)
             if (verificationResult != null) return verificationResult
 
             SchemaParserResult.Success(schemaDto.toSchema())
@@ -49,25 +50,14 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
-    private fun SchemaDto.verify(path: String): Failure? {
-        // TODO: No empty definitions
-        // TODO: No empty name for prop def
-        // TODO: No dup name
-        propertyDefinitionDtos
-            .forEach { propertyDefinitionDto ->
-                if (propertyDefinitionDto.containsUnsupportedPlatforms(this@verify.supportedPlatforms)) {
-                    return Failure.PropertyContainsUnsupportedPlatforms(
-                        path = path,
-                        propertyName = propertyDefinitionDto.name,
-                    )
-                }
-            }
-
-        return null
-    }
-
-    private fun PropertyDefinitionDto.containsUnsupportedPlatforms(supportedPlatforms: Set<PlatformType>): Boolean =
-        this.supportedPlatforms.isNotEmpty() && !supportedPlatforms.containsAll(this.supportedPlatforms)
+    private fun SchemaDto.ValidationResult.toFailureOrNull(path: String): Failure? =
+        when (this) {
+            VALID -> null
+            EMPTY_SUPPORTED_PLATFORMS -> Failure.EmptySupportedPlatforms(path)
+            EMPTY_PROPERTY_DEFINITIONS -> Failure.EmptyPropertyDefinitions(path)
+            INVALID_PROPERTY_DEFINITION -> Failure.InvalidPropertyDefinition(path)
+            DUPLICATED_PROPERTY_DEFINITION -> Failure.DuplicatedPropertyDefinition(path)
+        }
 
     private fun SchemaDto.toSchema(): Schema =
         Schema(
