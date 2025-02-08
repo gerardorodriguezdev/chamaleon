@@ -123,7 +123,7 @@ internal class DefaultSchemaParser : SchemaParser {
     private fun Schema.toSchemaDto(): SchemaDto =
         SchemaDto(
             supportedPlatforms = this@toSchemaDto.supportedPlatforms,
-            propertyDefinitionDtos = propertyDefinitions.toPropertyDefinitions(),
+            propertyDefinitionDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
         )
 
     private fun Set<PropertyDefinitionDto>.toPropertyDefinitions(): Set<PropertyDefinition> =
@@ -136,7 +136,7 @@ internal class DefaultSchemaParser : SchemaParser {
             )
         }.toSet()
 
-    private fun Set<PropertyDefinition>.toPropertyDefinitions(): Set<PropertyDefinitionDto> =
+    private fun Set<PropertyDefinition>.toPropertyDefinitionsDtos(): Set<PropertyDefinitionDto> =
         map { propertyDefinition ->
             PropertyDefinitionDto(
                 name = propertyDefinition.name,
