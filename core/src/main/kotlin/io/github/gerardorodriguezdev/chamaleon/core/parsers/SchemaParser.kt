@@ -52,15 +52,15 @@ public interface SchemaParser {
 internal class DefaultSchemaParser : SchemaParser {
     @Suppress("ReturnCount")
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
-        if (!schemaFile.exists()) return Failure.FileNotFound(schemaFile.parent)
+        if (!schemaFile.exists()) return Failure.FileNotFound(schemaFile.path)
 
         val schemaFileContent = schemaFile.readText()
-        if (schemaFileContent.isEmpty()) return Failure.FileIsEmpty(schemaFile.parent)
+        if (schemaFileContent.isEmpty()) return Failure.FileIsEmpty(schemaFile.path)
 
         return try {
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
 
-            val verificationResult = schemaDto.isValid().toFailureOrNull(path = schemaFile.parent)
+            val verificationResult = schemaDto.isValid().toFailureOrNull(path = schemaFile.path)
             if (verificationResult != null) return verificationResult
 
             SchemaParserResult.Success(schemaDto.toSchema())
@@ -78,7 +78,7 @@ internal class DefaultSchemaParser : SchemaParser {
         return try {
             if (!schemaFile.exists()) return AddSchemaResult.Failure.FileNotFound(schemaFile.path)
             if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
-            val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.parent)
+            val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.path)
             if (verificationResult != null) return verificationResult
 
             val schemaDto = newSchema.toSchemaDto()

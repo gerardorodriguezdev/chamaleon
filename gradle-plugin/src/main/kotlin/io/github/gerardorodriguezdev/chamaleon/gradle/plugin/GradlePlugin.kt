@@ -77,6 +77,18 @@ public class GradlePlugin : Plugin<Project> {
             is Failure.SchemaFileNotFound -> "'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'"
             is Failure.SchemaFileIsEmpty -> "'$SCHEMA_FILE' on '$environmentsDirectoryPath' is empty"
             is Failure.SchemaSerialization -> "Schema parsing failed with error '${throwable.message}'"
+            is Failure.SchemaEmptySupportedPlatforms ->
+                "'$SCHEMA_FILE' on $environmentsDirectoryPath has empty supported platforms"
+
+            is Failure.SchemaEmptyPropertyDefinitions ->
+                "'$SCHEMA_FILE' on $environmentsDirectoryPath has empty property definitions"
+
+            is Failure.SchemaInvalidPropertyDefinitions ->
+                "'$SCHEMA_FILE' on $environmentsDirectoryPath contains invalid property definitions"
+
+            is Failure.SchemaDuplicatedPropertyDefinition ->
+                "'$SCHEMA_FILE' on $environmentsDirectoryPath contains duplicated property definitions"
+
             is Failure.EnvironmentsSerialization -> "Environments parsing failed with error '${throwable.message}'"
             is Failure.PropertiesSerialization -> "Properties parsing failed with error '${throwable.message}'"
             is Failure.PlatformsNotEqualToSchema ->
@@ -84,9 +96,6 @@ public class GradlePlugin : Plugin<Project> {
 
             is Failure.PropertiesNotEqualToSchema ->
                 "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
-
-            is Failure.PropertyOnSchemaContainsUnsupportedPlatforms ->
-                "Property $propertyName on schema on $environmentsDirectoryPath contains unsupported platforms"
 
             is Failure.PropertyTypeNotMatchSchema ->
                 "Value of property '$propertyName' for platform '$platformType' " +
