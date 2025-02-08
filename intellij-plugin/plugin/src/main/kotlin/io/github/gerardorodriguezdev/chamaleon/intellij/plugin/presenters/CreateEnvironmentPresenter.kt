@@ -23,9 +23,7 @@ internal class CreateEnvironmentPresenter(
 
     fun onAction(action: Action) {
         when (action) {
-            is Action.OnPreviousButtonClicked -> Unit
-            is Action.OnNextButtonClicked -> Unit
-            is Action.OnFinishButtonClicked -> Unit
+            is Action.ExternalAction -> Unit
             is Action.SetupEnvironmentAction -> Unit
             is Action.SetupSchemaAction -> Unit
         }

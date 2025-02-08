@@ -96,9 +96,11 @@ sealed interface State {
 }
 
 sealed interface Action {
-    data object OnPreviousButtonClicked : Action
-    data object OnNextButtonClicked : Action
-    data object OnFinishButtonClicked : Action
+    sealed interface ExternalAction : Action {
+        data object OnPreviousButtonClicked : ExternalAction
+        data object OnNextButtonClicked : ExternalAction
+        data object OnFinishButtonClicked : ExternalAction
+    }
 
     sealed interface SetupEnvironmentAction : Action {
         data object OnSelectEnvironmentPathClicked : SetupEnvironmentAction
