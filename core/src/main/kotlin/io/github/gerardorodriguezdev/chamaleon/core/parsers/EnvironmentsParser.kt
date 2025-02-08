@@ -33,6 +33,7 @@ internal class DefaultEnvironmentsParser(
     val environmentFileNameExtractor: (environmentName: String) -> String,
 ) : EnvironmentsParser {
 
+    //TODO: Error if any env invalid
     override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
         val environmentsDirectoryFiles = environmentsDirectory.listFiles()
 
@@ -52,7 +53,7 @@ internal class DefaultEnvironmentsParser(
             }
 
             Environment(
-                name = environmentName,
+                name = environmentName, //TODO: Validate not empty
                 platforms = platformDtos.toPlatforms(),
             )
         }
@@ -65,15 +66,16 @@ internal class DefaultEnvironmentsParser(
         environmentsDirectory: File,
         environments: Set<Environment>,
     ): Boolean {
-        if (environments.isEmpty()) return false
+        if (environments.isEmpty()) return false //TODO: Error = no envs to add
 
         environments.forEach { environment ->
+            //TODO: Don't allow empty env name. Error = env name is empty
             val environmentFileName = environmentFileNameExtractor(environment.name)
             val environmentFile = File(environmentsDirectory, environmentFileName)
-            if (environmentFile.exists()) return false
+            if (environmentFile.exists()) return false //TODO: Error = envs file already present
 
             try {
-                val platformDtos = environment.platforms.toPlatformDtos()
+                val platformDtos = environment.platforms.toPlatformDtos() //TODO: Don't allow empty platfs
                 val platformDtosJson = PrettyJson.encodeToString(platformDtos)
                 environmentFile.writeText(platformDtosJson)
             } catch (_: Exception) {
@@ -87,16 +89,16 @@ internal class DefaultEnvironmentsParser(
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->
             Platform(
-                platformType = platformDto.platformType,
-                properties = platformDto.properties.toProperties(),
+                platformType = platformDto.platformType, // TODO: Don't allow dup platforms
+                properties = platformDto.properties.toProperties(), //TODO: Don't allow empty props
             )
         }.toSet()
 
     private fun Set<PlatformDto.PropertyDto>.toProperties(): Set<Platform.Property> =
         map { propertyDto ->
             Platform.Property(
-                name = propertyDto.name,
-                value = propertyDto.value,
+                name = propertyDto.name, //TODO: Don't allow empty name + Don't allow dup name
+                value = propertyDto.value, //TODO: Don't allow empty string if string value
             )
         }.toSet()
 
@@ -105,8 +107,8 @@ internal class DefaultEnvironmentsParser(
 
     private fun Platform.toPlatformDto(): PlatformDto =
         PlatformDto(
-            platformType = platformType,
-            properties = properties.toPropertyDtos()
+            platformType = platformType, //TODO: Don't allow dup platforms
+            properties = properties.toPropertyDtos() //TODO: Don't allow empty props list
         )
 
     private fun Set<Platform.Property>.toPropertyDtos(): Set<PlatformDto.PropertyDto> =
@@ -114,8 +116,8 @@ internal class DefaultEnvironmentsParser(
 
     private fun Platform.Property.toPropertyDto(): PlatformDto.PropertyDto? {
         return PlatformDto.PropertyDto(
-            name = name,
-            value = value ?: return null,
+            name = name, //TODO: Don't allow empty string + Don't allow dup names
+            value = value ?: return null, //TODO: Don't allow empty string if string value type
         )
     }
 }

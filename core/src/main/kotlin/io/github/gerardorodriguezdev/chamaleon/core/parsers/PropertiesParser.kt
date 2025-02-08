@@ -29,6 +29,7 @@ internal class DefaultPropertiesParser : PropertiesParser {
 
         return try {
             val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
+            //TODO: Review selectedEnvName not empty string
             return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
         } catch (error: IllegalArgumentException) {
             Failure(error)
@@ -40,7 +41,8 @@ internal class DefaultPropertiesParser : PropertiesParser {
     @Suppress("ReturnCount")
     override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
-            val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
+            val propertiesDto =
+                PropertiesDto(selectedEnvironmentName = newSelectedEnvironment) // TODO: Don't allow empty name. Error = empty env name
             val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
             return true
