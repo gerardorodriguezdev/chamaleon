@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core
+package io.github.gerardorodriguezdev.chamaleon.core.entities.results
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType

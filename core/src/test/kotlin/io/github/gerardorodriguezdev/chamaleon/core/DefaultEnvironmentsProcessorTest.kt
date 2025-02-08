@@ -1,11 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessorResult.Failure.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.ANDROID
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.JVM
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
