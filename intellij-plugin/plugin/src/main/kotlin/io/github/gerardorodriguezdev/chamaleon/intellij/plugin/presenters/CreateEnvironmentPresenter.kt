@@ -6,9 +6,12 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.LoadingState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.coroutines.CoroutineContext
 
 // TODO: Finish
 internal class CreateEnvironmentPresenter(
+    uiDispatcher: CoroutineContext,
+    ioDispatcher: CoroutineContext,
     onSelectEnvironmentPathClicked: () -> Unit
 ) : Disposable {
     //TODO: Title for setup schema depending if schema existing or not
