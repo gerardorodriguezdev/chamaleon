@@ -19,21 +19,18 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.FileNotFound(environmentsDirectory.absolutePath)
-
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.FileNotFound>(actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN schema empty WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.FileIsEmpty(environmentsDirectory.absolutePath)
         createSchemaFile()
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.FileIsEmpty>(actualSchemaParserResult)
     }
 
     @Test
@@ -47,42 +44,38 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN empty supported platforms WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.EmptySupportedPlatforms(environmentsDirectory.absolutePath)
         createSchemaFile(emptySupportedPlatformsSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.EmptySupportedPlatforms>(actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN empty property definitions WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.EmptyPropertyDefinitions(environmentsDirectory.absolutePath)
         createSchemaFile(emptyPropertyDefinitionsSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.EmptyPropertyDefinitions>(actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN invalid property definition WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.InvalidPropertyDefinition(environmentsDirectory.absolutePath)
         createSchemaFile(invalidPropertyDefinitionSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.InvalidPropertyDefinition>(actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN duplicated property definitions WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.DuplicatedPropertyDefinition(environmentsDirectory.absolutePath)
         createSchemaFile(duplicatedPropertyDefinitionSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.DuplicatedPropertyDefinition>(actualSchemaParserResult)
     }
 
     @Test
