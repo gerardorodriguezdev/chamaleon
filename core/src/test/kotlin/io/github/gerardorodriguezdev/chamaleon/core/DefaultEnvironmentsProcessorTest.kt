@@ -318,16 +318,16 @@ class DefaultEnvironmentsProcessorTest {
     }
 
     @Test
-    fun `WHEN updateSelectedEnvironmentResult THEN returns true`() {
-        propertiesParser.updateSelectedEnvironmentResult = true
+    fun `WHEN addOrUpdateSelectedEnvironment THEN returns true`() {
+        propertiesParser.addOrUpdateSelectedEnvironmentResult = true
 
-        val updateSelectedEnvironmentResult =
-            defaultEnvironmentsProcessor.updateSelectedEnvironment(
+        val addOrUpdateSelectedEnvironment =
+            defaultEnvironmentsProcessor.addOrUpdateSelectedEnvironment(
                 environmentsDirectory = directory,
                 newSelectedEnvironment = LOCAL_ENVIRONMENT_NAME,
             )
 
-        assertTrue(updateSelectedEnvironmentResult)
+        assertTrue(addOrUpdateSelectedEnvironment)
     }
 
     @Test
@@ -340,13 +340,13 @@ class DefaultEnvironmentsProcessorTest {
     fun `WHEN addEnvironmentResult THEN returns true`() {
         environmentsParser.addEnvironmentsResult = true
 
-        val updateSelectedEnvironmentResult =
+        val addOrUpdateSelectedEnvironment =
             defaultEnvironmentsProcessor.addEnvironments(
                 environmentsDirectory = directory,
                 environments = emptySet(),
             )
 
-        assertTrue(updateSelectedEnvironmentResult)
+        assertTrue(addOrUpdateSelectedEnvironment)
     }
 
     @ParameterizedTest

@@ -10,7 +10,7 @@ class FakeEnvironmentsProcessor(
     var processRecursivelyResult: List<EnvironmentsProcessorResult> = listOf(
         TestData.successEnvironmentsProcessorResult
     ),
-    var updateSelectedEnvironmentResult: Boolean = true,
+    var addOrUpdateSelectedEnvironment: Boolean = true,
     var addEnvironmentResult: Boolean = true,
 ) : EnvironmentsProcessor {
 
@@ -20,10 +20,10 @@ class FakeEnvironmentsProcessor(
     override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
         processRecursivelyResult
 
-    override fun updateSelectedEnvironment(
+    override fun addOrUpdateSelectedEnvironment(
         environmentsDirectory: File,
         newSelectedEnvironment: String?
-    ): Boolean = updateSelectedEnvironmentResult
+    ): Boolean = addOrUpdateSelectedEnvironment
 
     override fun addEnvironments(
         environmentsDirectory: File,

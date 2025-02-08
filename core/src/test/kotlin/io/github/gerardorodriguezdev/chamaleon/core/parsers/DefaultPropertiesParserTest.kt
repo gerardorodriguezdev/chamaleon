@@ -64,10 +64,10 @@ class DefaultPropertiesParserTest {
     }
 
     @Test
-    fun `WHEN updateSelectedEnvironment with environment THEN updates file`() {
+    fun `WHEN addOrUpdateSelectedEnvironment with environment THEN updates file`() {
         createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
-        val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
+        val propertiesFileUpdated = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = propertiesFile,
             newSelectedEnvironment = TestData.LOCAL_ENVIRONMENT_NAME,
         )
@@ -79,10 +79,10 @@ class DefaultPropertiesParserTest {
     }
 
     @Test
-    fun `WHEN updateSelectedEnvironment without environment THEN updates file`() {
+    fun `WHEN addOrUpdateSelectedEnvironment without environment THEN updates file`() {
         createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
-        val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
+        val propertiesFileUpdated = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = propertiesFile,
             newSelectedEnvironment = null,
         )
@@ -94,10 +94,10 @@ class DefaultPropertiesParserTest {
     }
 
     @Test
-    fun `GIVEN selectedEnvironment WHEN updateSelectedEnvironment to null THEN empties file`() {
+    fun `GIVEN selectedEnvironment WHEN addOrUpdateSelectedEnvironment to null THEN empties file`() {
         createPropertiesFile(validPropertiesFile)
 
-        val propertiesFileUpdated = defaultPropertiesParser.updateSelectedEnvironment(
+        val propertiesFileUpdated = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = propertiesFile,
             newSelectedEnvironment = null,
         )

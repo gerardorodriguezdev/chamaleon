@@ -75,7 +75,7 @@ internal class EnvironmentSelectionPresenter(
             .launch {
                 val environmentsDirectory = File(projectDirectory.absolutePath + environmentsDirectoryPath)
 
-                val selectedEnvironmentUpdated = environmentsProcessor.updateSelectedEnvironment(
+                val selectedEnvironmentUpdated = environmentsProcessor.addOrUpdateSelectedEnvironment(
                     environmentsDirectory = environmentsDirectory,
                     newSelectedEnvironment = newSelectedEnvironment,
                 )

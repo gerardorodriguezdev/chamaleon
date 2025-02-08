@@ -11,7 +11,7 @@ import java.io.File
 
 public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
-    public fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
+    public fun addOrUpdateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
 
     public sealed interface PropertiesParserResult {
         public data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
@@ -39,7 +39,7 @@ internal class DefaultPropertiesParser : PropertiesParser {
     }
 
     @Suppress("ReturnCount")
-    override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
+    override fun addOrUpdateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
             val propertiesDto =
                 PropertiesDto(selectedEnvironmentName = newSelectedEnvironment) // TODO: Don't allow empty name. Error = empty env name

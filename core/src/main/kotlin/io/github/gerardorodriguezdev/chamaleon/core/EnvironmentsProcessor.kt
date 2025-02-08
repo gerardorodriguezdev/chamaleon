@@ -28,7 +28,7 @@ import java.io.File
 public interface EnvironmentsProcessor {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
-    public fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
+    public fun addOrUpdateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
     public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
     //TODO: addSchema function
 
@@ -59,17 +59,20 @@ public interface EnvironmentsProcessor {
                 val platformType: PlatformType,
                 val environmentName: String
             ) : Failure
+
             public data class PropertyTypeNotMatchSchema(
                 val propertyName: String,
                 val platformType: PlatformType,
                 val environmentName: String,
                 val propertyType: PropertyType,
             ) : Failure
+
             public data class NullPropertyNotNullableOnSchema(
                 val propertyName: String,
                 val platformType: PlatformType,
                 val environmentName: String,
             ) : Failure
+
             public data class SelectedEnvironmentInvalid(
                 val selectedEnvironmentName: String,
                 val environmentNames: String
@@ -138,11 +141,11 @@ internal class DefaultEnvironmentsProcessor(
                 .awaitAll()
         }
 
-    override fun updateSelectedEnvironment(
+    override fun addOrUpdateSelectedEnvironment(
         environmentsDirectory: File,
         newSelectedEnvironment: String?
     ): Boolean =
-        propertiesParser.updateSelectedEnvironment(
+        propertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = File(environmentsDirectory, PROPERTIES_FILE),
             newSelectedEnvironment = newSelectedEnvironment,
         )

@@ -9,11 +9,11 @@ class FakePropertiesParser(
     var propertiesParserResult: PropertiesParserResult = PropertiesParserResult.Success(
         TestData.LOCAL_ENVIRONMENT_NAME,
     ),
-    var updateSelectedEnvironmentResult: Boolean = false,
+    var addOrUpdateSelectedEnvironmentResult: Boolean = false,
 ) : PropertiesParser {
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult = propertiesParserResult
-    override fun updateSelectedEnvironment(
+    override fun addOrUpdateSelectedEnvironment(
         propertiesFile: File,
         newSelectedEnvironment: String?
-    ): Boolean = updateSelectedEnvironmentResult
+    ): Boolean = addOrUpdateSelectedEnvironmentResult
 }

@@ -76,7 +76,7 @@ class EnvironmentSelectionPresenterTest {
 
     @Test
     fun `GIVEN invalid environment WHEN onSelectEnvironmentChanged THEN nothing happens`() {
-        environmentsProcessor.updateSelectedEnvironmentResult = false
+        environmentsProcessor.addOrUpdateSelectedEnvironment = false
         presenter.scanProject(projectDirectory)
 
         presenter.onSelectedEnvironmentChanged(

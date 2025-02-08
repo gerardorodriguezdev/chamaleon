@@ -120,12 +120,12 @@ public class GradlePlugin : Plugin<Project> {
             val environmentsDirectory = environmentsDirectory()
 
             doLast {
-                val updateSelectedEnvironmentResult = environmentsProcessor.updateSelectedEnvironment(
+                val addOrUpdateSelectedEnvironmentResult = environmentsProcessor.addOrUpdateSelectedEnvironment(
                     environmentsDirectory = environmentsDirectory.asFile,
                     newSelectedEnvironment = newSelectedEnvironment
                 )
 
-                if (!updateSelectedEnvironmentResult) {
+                if (!addOrUpdateSelectedEnvironmentResult) {
                     @Suppress("Indentation")
                     throw GradlePluginException(
                         message = "Error updating selected environment '$newSelectedEnvironment' on environments " +
