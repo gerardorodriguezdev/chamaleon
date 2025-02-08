@@ -5,14 +5,20 @@ import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefin
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.ValidationResult.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface SchemaParser {
     public fun schemaParserResult(schemaFile: File): SchemaParserResult
+    public fun addSchema(
+        schemaFile: File,
+        schema: Schema
+    ): AddSchemaResult
 
     public sealed interface SchemaParserResult {
         public data class Success(val schema: Schema) : SchemaParserResult
@@ -26,6 +32,19 @@ public interface SchemaParser {
             public data class EmptyPropertyDefinitions(val path: String) : Failure
             public data class InvalidPropertyDefinition(val path: String) : Failure
             public data class DuplicatedPropertyDefinition(val path: String) : Failure
+        }
+    }
+
+    public sealed interface AddSchemaResult {
+        public data object Success : AddSchemaResult
+        public sealed interface Failure : AddSchemaResult {
+            public data class EmptySupportedPlatforms(val path: String) : Failure
+            public data class EmptyPropertyDefinitions(val path: String) : Failure
+            public data class InvalidPropertyDefinition(val path: String) : Failure
+            public data class DuplicatedPropertyDefinition(val path: String) : Failure
+            public data class FileNotFound(val path: String) : Failure
+            public data class InvalidFile(val path: String) : Failure
+            public data class Serialization(val path: String, val throwable: Throwable) : Failure
         }
     }
 }
@@ -50,6 +69,28 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
+    //TODO: Test
+    //TODO: Update processor
+    override fun addSchema(
+        schemaFile: File,
+        newSchema: Schema
+    ): AddSchemaResult {
+        return try {
+            if (!schemaFile.exists()) return AddSchemaResult.Failure.FileNotFound(schemaFile.path)
+            if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
+            val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.parent)
+            if (verificationResult != null) return verificationResult
+
+            val schemaDto = newSchema.toSchemaDto()
+            val schemaFileContent = PrettyJson.encodeToString(schemaDto)
+            schemaFile.writeText(schemaFileContent)
+
+            AddSchemaResult.Success
+        } catch (error: Exception) {
+            AddSchemaResult.Failure.Serialization(schemaFile.path, error)
+        }
+    }
+
     private fun SchemaDto.ValidationResult.toFailureOrNull(path: String): Failure? =
         when (this) {
             VALID -> null
@@ -59,10 +100,30 @@ internal class DefaultSchemaParser : SchemaParser {
             DUPLICATED_PROPERTY_DEFINITION -> Failure.DuplicatedPropertyDefinition(path)
         }
 
+    private fun Schema.ValidationResult.toFailureOrNull(path: String): AddSchemaResult.Failure? =
+        when (this) {
+            Schema.ValidationResult.VALID -> null
+            Schema.ValidationResult.EMPTY_SUPPORTED_PLATFORMS -> AddSchemaResult.Failure.EmptySupportedPlatforms(path)
+            Schema.ValidationResult.EMPTY_PROPERTY_DEFINITIONS -> AddSchemaResult.Failure.EmptyPropertyDefinitions(path)
+            Schema.ValidationResult.INVALID_PROPERTY_DEFINITION -> AddSchemaResult.Failure.InvalidPropertyDefinition(
+                path
+            )
+
+            Schema.ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> AddSchemaResult.Failure.DuplicatedPropertyDefinition(
+                path
+            )
+        }
+
     private fun SchemaDto.toSchema(): Schema =
         Schema(
             supportedPlatforms = this@toSchema.supportedPlatforms,
             propertyDefinitions = propertyDefinitionDtos.toPropertyDefinitions(),
+        )
+
+    private fun Schema.toSchemaDto(): SchemaDto =
+        SchemaDto(
+            supportedPlatforms = this@toSchemaDto.supportedPlatforms,
+            propertyDefinitionDtos = propertyDefinitions.toPropertyDefinitions(),
         )
 
     private fun Set<PropertyDefinitionDto>.toPropertyDefinitions(): Set<PropertyDefinition> =
@@ -72,6 +133,16 @@ internal class DefaultSchemaParser : SchemaParser {
                 propertyType = propertyDefinitionDto.propertyType,
                 nullable = propertyDefinitionDto.nullable,
                 supportedPlatforms = propertyDefinitionDto.supportedPlatforms,
+            )
+        }.toSet()
+
+    private fun Set<PropertyDefinition>.toPropertyDefinitions(): Set<PropertyDefinitionDto> =
+        map { propertyDefinition ->
+            PropertyDefinitionDto(
+                name = propertyDefinition.name,
+                propertyType = propertyDefinition.propertyType,
+                nullable = propertyDefinition.nullable,
+                supportedPlatforms = propertyDefinition.supportedPlatforms,
             )
         }.toSet()
 }

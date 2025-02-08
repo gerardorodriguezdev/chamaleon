@@ -41,6 +41,8 @@ internal class DefaultPropertiesParser : PropertiesParser {
     @Suppress("ReturnCount")
     override fun addOrUpdateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
         try {
+            if (propertiesFile.isDirectory) return false
+            if (!propertiesFile.exists()) propertiesFile.createNewFile()
             val propertiesDto =
                 PropertiesDto(
                     selectedEnvironmentName = newSelectedEnvironment
