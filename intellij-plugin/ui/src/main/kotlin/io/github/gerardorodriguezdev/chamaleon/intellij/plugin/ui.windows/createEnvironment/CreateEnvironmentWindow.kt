@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.LoadingWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.*
 import kotlinx.collections.immutable.ImmutableList
 
@@ -15,6 +17,7 @@ fun CreateEnvironmentWindow(
     modifier: Modifier = Modifier,
 ) {
     when (state) {
+        is LoadingState -> LoadingWindow()
         is SetupEnvironmentState ->
             SetupEnvironmentWindow(
                 state = state,
@@ -40,6 +43,13 @@ sealed interface State {
     val isNextButtonEnabled: Boolean
     val isFinishButtonEnabled: Boolean
 
+    data class LoadingState(
+        override val isPreviousButtonEnabled: Boolean = false,
+    ) : State {
+        override val isNextButtonEnabled: Boolean = false
+        override val isFinishButtonEnabled: Boolean = false
+    }
+
     data class SetupEnvironmentState(
         val path: String,
         val verification: Verification?,
@@ -47,12 +57,6 @@ sealed interface State {
     ) : State {
         override val isPreviousButtonEnabled: Boolean = false
         override val isFinishButtonEnabled: Boolean = false
-
-        sealed interface Verification {
-            data object Valid : Verification
-            data class Invalid(val reason: String) : Verification
-            data object InProgress : Verification
-        }
     }
 
     data class SetupSchemaState(

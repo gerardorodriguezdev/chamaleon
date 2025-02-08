@@ -13,8 +13,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupEnvironmentAction.OnEnvironmentNameChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupEnvironmentAction.OnSelectEnvironmentPathClicked
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupEnvironmentState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupEnvironmentState.Verification
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
@@ -26,7 +24,7 @@ fun SetupEnvironmentWindow(
     WindowContainer(
         modifier = modifier,
         toolbar = {
-            Toolbar(title = string(StringsKeys.selectEnvironmentsDirectoryLocation), forceLabelWidth = false)
+            Toolbar(title = string(StringsKeys.setupEnvironment), forceLabelWidth = false)
         },
         content = {
             item {
@@ -65,34 +63,4 @@ fun SetupEnvironmentWindow(
             }
         }
     )
-}
-
-@Composable
-private fun VerificationIcon(verification: Verification) {
-    when (verification) {
-        is Verification.Valid -> ValidIcon()
-        is Verification.Invalid -> InvalidIcon(invalidVerification = verification)
-        is Verification.InProgress -> InProgressIcon()
-    }
-}
-
-@Composable
-private fun ValidIcon() {
-    TooltipIcon(
-        iconKey = AllIconsKeys.Actions.Checked,
-        tooltip = string(StringsKeys.validEnvironments),
-    )
-}
-
-@Composable
-private fun InvalidIcon(invalidVerification: Verification.Invalid) {
-    TooltipIcon(
-        iconKey = AllIconsKeys.RunConfigurations.InvalidConfigurationLayer,
-        tooltip = invalidVerification.reason,
-    )
-}
-
-@Composable
-private fun InProgressIcon() {
-    CircularProgressIndicator()
 }
