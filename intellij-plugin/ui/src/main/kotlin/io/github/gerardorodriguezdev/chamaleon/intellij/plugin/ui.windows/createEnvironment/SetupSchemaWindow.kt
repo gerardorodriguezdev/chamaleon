@@ -83,6 +83,7 @@ private fun LazyListScope.supportedPlatformSection(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+@Suppress("LongParameterList")
 private fun LazyListScope.propertyDefinitionsSection(
     propertyDefinitions: ImmutableList<PropertyDefinition>,
     onAddPropertyDefinitionClicked: () -> Unit,

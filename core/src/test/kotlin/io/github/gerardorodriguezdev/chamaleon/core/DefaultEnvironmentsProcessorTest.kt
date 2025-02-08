@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure.*
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessorResult.Failure.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.ANDROID
@@ -254,7 +254,7 @@ class DefaultEnvironmentsProcessorTest {
                 val validEnvironments = setOf(TestData.environmentWithRestrictedPlatform)
                 environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(validEnvironments)
 
-                val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
+                val expectedEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
                     environmentsDirectoryPath = environmentsDirectory.absolutePath,
                     selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = validEnvironments,
@@ -268,7 +268,7 @@ class DefaultEnvironmentsProcessorTest {
         @Test
         fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() =
             runTest {
-                val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
+                val expectedEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
                     environmentsDirectoryPath = environmentsDirectory.absolutePath,
                     selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = setOf(TestData.environment),
@@ -290,7 +290,7 @@ class DefaultEnvironmentsProcessorTest {
 
             assertEquals(
                 expected = listOf(
-                    EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
+                    EnvironmentsProcessorResult.Success(
                         environmentsDirectoryPath = environmentsDirectory.absolutePath,
                         selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                         environments = setOf(

@@ -14,7 +14,9 @@ internal object BundleStringsProvider : StringsProvider {
     override fun string(key: StringKey): String = message(key.value)
 
     private fun message(
-        key: @PropertyKey(resourceBundle = BUNDLE) String,
+        key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String,
         vararg params: Any
     ): @Nls String = INSTANCE.getMessage(key, *params)
 }

@@ -13,8 +13,8 @@ import org.jetbrains.jewel.ui.component.Text
 fun InputText(
     label: String,
     text: String,
-    trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     InputContainer(label = label, modifier = modifier) {
         Row(

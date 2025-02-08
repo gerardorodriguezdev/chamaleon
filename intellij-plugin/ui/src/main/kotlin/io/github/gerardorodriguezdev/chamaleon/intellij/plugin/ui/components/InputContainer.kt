@@ -11,8 +11,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConsta
 @Composable
 fun InputContainer(
     label: String,
-    forceLabelWidth: Boolean = true,
     modifier: Modifier = Modifier,
+    forceLabelWidth: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
     Row(

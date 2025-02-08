@@ -4,9 +4,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessorResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -73,6 +73,7 @@ public class GradlePlugin : Plugin<Project> {
         when (this) {
             is Failure.EnvironmentsDirectoryNotFound ->
                 "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
+
             is Failure.SchemaFileNotFound -> "'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'"
             is Failure.SchemaFileIsEmpty -> "'$SCHEMA_FILE' on '$environmentsDirectoryPath' is empty"
             is Failure.SchemaSerialization -> "Schema parsing failed with error '${throwable.message}'"

@@ -9,6 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConsta
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 
+@Suppress("LongParameterList")
 @Composable
 fun Section(
     modifier: Modifier = Modifier,

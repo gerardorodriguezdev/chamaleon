@@ -50,9 +50,9 @@ internal class DefaultSchemaParser : SchemaParser {
     }
 
     private fun SchemaDto.verify(path: String): Failure? {
-        //TODO: No empty definitions
-        //TODO: No empty name for prop def
-        //TODO: No dup name
+        // TODO: No empty definitions
+        // TODO: No empty name for prop def
+        // TODO: No dup name
         propertyDefinitionDtos
             .forEach { propertyDefinitionDto ->
                 if (propertyDefinitionDto.containsUnsupportedPlatforms(this@verify.supportedPlatforms)) {

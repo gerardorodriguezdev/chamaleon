@@ -10,7 +10,7 @@ import kotlinx.collections.immutable.persistentListOf
 
 @Preview
 @Composable
-fun SetupPropertiesWindowPreview() {
+internal fun SetupPropertiesWindowPreview() {
     PreviewContainer {
         SetupPropertiesWindow(
             state = SetupPropertiesState(

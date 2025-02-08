@@ -2,7 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 
 import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
@@ -22,11 +22,11 @@ internal class CreateEnvironmentPresenter(
     ioDispatcher: CoroutineContext,
     private val onSelectEnvironmentPathClicked: () -> String?,
 ) : Disposable {
-    //TODO: Title for setup schema depending if schema existing or not
-    //TODO: Set root automatically if nothing selected
-    //TODO: Execute externally notification of progress
-    //TODO: Rev if valids or nots
-    //TODO: Move logic if possible to processor
+    // TODO: Title for setup schema depending if schema existing or not
+    // TODO: Set root automatically if nothing selected
+    // TODO: Execute externally notification of progress
+    // TODO: Rev if valids or nots
+    // TODO: Move logic if possible to processor
     private val _state = MutableStateFlow<State>(value = LoadingState())
     val state: StateFlow<State> = _state
 
@@ -66,11 +66,11 @@ internal class CreateEnvironmentPresenter(
             is SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> {
                 val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
                 selectedEnvironmentPath?.let { path ->
-                    //TODO: Update path selected here
+                    // TODO: Update path selected here
                 }
             }
 
-            is SetupEnvironmentAction.OnEnvironmentNameChanged -> Unit //TODO: Finish
+            is SetupEnvironmentAction.OnEnvironmentNameChanged -> Unit // TODO: Finish
         }
     }
 

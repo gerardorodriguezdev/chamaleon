@@ -10,10 +10,10 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConsta
 
 @Composable
 fun Toolbar(
+    modifier: Modifier = Modifier,
     title: String? = null,
     forceLabelWidth: Boolean = true,
     trailingIcons: @Composable (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

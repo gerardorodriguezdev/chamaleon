@@ -22,6 +22,7 @@ interface BaseTheme {
     }
 }
 
+@Suppress("CompositionLocalAllowlist")
 private val LocalStringsProvider = staticCompositionLocalOf<StringsProvider> { DefaultStringsProvider }
 
 @Composable

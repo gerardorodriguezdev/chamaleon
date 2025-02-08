@@ -12,9 +12,9 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConsta
 fun InputTextDropdown(
     label: String,
     selectedValue: String,
-    content: TextDropdownScope.() -> Unit,
-    trailingIcon: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    content: TextDropdownScope.() -> Unit,
 ) {
     InputContainer(label = label, modifier = modifier.fillMaxWidth()) {
         Row(
