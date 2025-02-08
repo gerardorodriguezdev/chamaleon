@@ -20,16 +20,6 @@ fun SetupPropertiesWindow(
         modifier = modifier,
         toolbar = { Toolbar(title = string(StringsKeys.createEnvironment), forceLabelWidth = false) },
         content = {
-            //TODO: Move to start
-            item {
-                Section(enableDivider = true) {
-                    InputTextField(
-                        label = string(StringsKeys.environmentName),
-                        onValueChange = {}, //TODO: Finish
-                    )
-                }
-            }
-
             item {
                 Section(
                     title = string(StringsKeys.properties),

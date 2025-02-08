@@ -14,7 +14,6 @@ fun SetupPropertiesWindowPreview() {
     PreviewContainer {
         SetupPropertiesWindow(
             state = SetupPropertiesState(
-                environmentName = "Environment name",
                 properties = persistentListOf(
                     SetupPropertiesState.Property(
                         name = "name",

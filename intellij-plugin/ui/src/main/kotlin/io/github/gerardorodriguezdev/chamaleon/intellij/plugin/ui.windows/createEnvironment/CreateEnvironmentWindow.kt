@@ -15,8 +15,8 @@ fun CreateEnvironmentWindow(
     modifier: Modifier = Modifier,
 ) {
     when (state) {
-        is SelectEnvironmentsDirectoryLocationState ->
-            SelectEnvironmentsDirectoryLocationWindow(
+        is SetupEnvironmentState ->
+            SetupEnvironmentWindow(
                 state = state,
                 onAction = onAction,
                 modifier = modifier,
@@ -40,7 +40,7 @@ sealed interface State {
     val isNextButtonEnabled: Boolean
     val isFinishButtonEnabled: Boolean
 
-    data class SelectEnvironmentsDirectoryLocationState(
+    data class SetupEnvironmentState(
         val path: String,
         val verification: Verification?,
         override val isNextButtonEnabled: Boolean = false,
@@ -78,7 +78,6 @@ sealed interface State {
     }
 
     data class SetupPropertiesState(
-        val environmentName: String,
         val properties: ImmutableList<Property>,
         override val isFinishButtonEnabled: Boolean = true,
     ) : State {
@@ -97,8 +96,9 @@ sealed interface Action {
     data object OnNextButtonClicked : Action
     data object OnFinishButtonClicked : Action
 
-    sealed interface SelectEnvironmentsDirectoryLocationAction : Action {
-        data object OnSelectEnvironmentPathClicked : SelectEnvironmentsDirectoryLocationAction
+    sealed interface SetupEnvironmentAction : Action {
+        data object OnSelectEnvironmentPathClicked : SetupEnvironmentAction
+        data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
     }
 
     sealed interface SetupSchemaAction : Action {
