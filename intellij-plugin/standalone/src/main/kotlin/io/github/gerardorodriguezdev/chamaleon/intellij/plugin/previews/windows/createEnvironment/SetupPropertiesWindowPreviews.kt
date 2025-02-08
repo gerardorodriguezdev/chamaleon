@@ -28,7 +28,8 @@ fun SetupPropertiesWindowPreview() {
                         value = PropertyValue.StringProperty("value"),
                     )
                 ),
-            )
+            ),
+            onAction = {}
         )
     }
 }

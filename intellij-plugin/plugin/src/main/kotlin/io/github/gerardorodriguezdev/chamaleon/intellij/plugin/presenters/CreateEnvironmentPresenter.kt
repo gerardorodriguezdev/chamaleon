@@ -26,6 +26,7 @@ internal class CreateEnvironmentPresenter(
             is Action.ExternalAction -> Unit
             is Action.SetupEnvironmentAction -> Unit
             is Action.SetupSchemaAction -> Unit
+            is Action.SetupPropertiesAction -> Unit
         }
     }
 

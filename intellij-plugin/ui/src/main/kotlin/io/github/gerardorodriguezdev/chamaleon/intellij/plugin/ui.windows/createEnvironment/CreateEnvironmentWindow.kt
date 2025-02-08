@@ -34,6 +34,7 @@ fun CreateEnvironmentWindow(
         is SetupPropertiesState ->
             SetupPropertiesWindow(
                 state = state,
+                onAction = onAction,
             )
     }
 }
@@ -115,5 +116,11 @@ sealed interface Action {
         data class OnNullableChanged(val index: Int, val newValue: Boolean) : SetupSchemaAction
         data class OnPropertyDefinitionSupportedPlatformChanged(val index: Int, val newPlatformType: PlatformType) :
             SetupSchemaAction
+    }
+
+    sealed interface SetupPropertiesAction : Action {
+        object OnAddPropertyClicked : SetupPropertiesAction
+        data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupPropertiesAction
+        data class OnPropertyValueChanged(val index: Int, val newValue: PropertyValue) : SetupPropertiesAction
     }
 }
