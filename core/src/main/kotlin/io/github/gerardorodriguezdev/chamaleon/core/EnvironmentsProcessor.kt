@@ -342,6 +342,7 @@ internal class DefaultEnvironmentsProcessor(
         val selectedEnvironmentName: String?,
     )
 
+    //TODO: Move out
     internal companion object {
         val environmentFileMatcher: (file: File) -> Boolean =
             { file: File -> file.name != ENVIRONMENT_FILE_SUFFIX && file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) }

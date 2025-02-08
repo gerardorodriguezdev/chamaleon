@@ -18,6 +18,7 @@ public interface EnvironmentsParser {
         environments: Set<Environment>,
     ): Boolean
 
+    //TODO: Move out
     public sealed interface EnvironmentsParserResult {
         public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
 

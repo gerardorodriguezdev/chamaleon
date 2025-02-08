@@ -13,6 +13,7 @@ public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
     public fun addOrUpdateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
 
+    //TODO: Move out
     public sealed interface PropertiesParserResult {
         public data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
         public data class Failure(val throwable: Throwable) : PropertiesParserResult
