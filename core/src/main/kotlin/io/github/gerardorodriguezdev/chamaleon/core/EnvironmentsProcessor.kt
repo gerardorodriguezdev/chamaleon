@@ -149,13 +149,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun SchemaParserResult.schemaOrFailure(): Result<Schema, Failure> =
         when (this) {
             is SchemaParserResult.Success -> schema.toSuccess()
-            is SchemaParserResult.Failure.FileNotFound -> SchemaFileNotFound(path).toFailure()
-            is SchemaParserResult.Failure.FileIsEmpty -> SchemaFileIsEmpty(path).toFailure()
-            is SchemaParserResult.Failure.Serialization -> SchemaSerialization(throwable).toFailure()
-            is SchemaParserResult.Failure.EmptySupportedPlatforms -> SchemaEmptySupportedPlatforms(path).toFailure()
-            is SchemaParserResult.Failure.EmptyPropertyDefinitions -> SchemaEmptyPropertyDefinitions(path).toFailure()
-            is SchemaParserResult.Failure.InvalidPropertyDefinition -> SchemaInvalidPropertyDefinitions(path).toFailure()
-            is SchemaParserResult.Failure.DuplicatedPropertyDefinition -> SchemaDuplicatedPropertyDefinition(path).toFailure()
+            is SchemaParserResult.Failure -> SchemaParsingError(this).toFailure()
         }
 
     private fun EnvironmentsParserResult.environmentsOrFailure(): Result<Set<Environment>, Failure> =

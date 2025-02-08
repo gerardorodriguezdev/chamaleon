@@ -7,6 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -74,20 +75,24 @@ public class GradlePlugin : Plugin<Project> {
             is Failure.EnvironmentsDirectoryNotFound ->
                 "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
 
-            is Failure.SchemaFileNotFound -> "'$SCHEMA_FILE' not found on '$environmentsDirectoryPath'"
-            is Failure.SchemaFileIsEmpty -> "'$SCHEMA_FILE' on '$environmentsDirectoryPath' is empty"
-            is Failure.SchemaSerialization -> "Schema parsing failed with error '${throwable.message}'"
-            is Failure.SchemaEmptySupportedPlatforms ->
-                "'$SCHEMA_FILE' on $environmentsDirectoryPath has empty supported platforms"
+            is Failure.SchemaParsingError -> when (val error = this.schemaParsingError) {
+                is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '${error.path}'"
+                is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '${error.path}' is empty"
+                is SchemaParserResult.Failure.Serialization ->
+                    "Schema parsing failed with error '${error.throwable}'"
 
-            is Failure.SchemaEmptyPropertyDefinitions ->
-                "'$SCHEMA_FILE' on $environmentsDirectoryPath has empty property definitions"
+                is SchemaParserResult.Failure.EmptySupportedPlatforms ->
+                    "'$SCHEMA_FILE' on ${error.path} has empty supported platforms"
 
-            is Failure.SchemaInvalidPropertyDefinitions ->
-                "'$SCHEMA_FILE' on $environmentsDirectoryPath contains invalid property definitions"
+                is SchemaParserResult.Failure.EmptyPropertyDefinitions ->
+                    "'$SCHEMA_FILE' on ${error.path} has empty property definitions"
 
-            is Failure.SchemaDuplicatedPropertyDefinition ->
-                "'$SCHEMA_FILE' on $environmentsDirectoryPath contains duplicated property definitions"
+                is SchemaParserResult.Failure.InvalidPropertyDefinition ->
+                    "'$SCHEMA_FILE' on ${error.path} contains invalid property definitions"
+
+                is SchemaParserResult.Failure.DuplicatedPropertyDefinition ->
+                    "'$SCHEMA_FILE' on ${error.path} contains duplicated property definitions"
+            }
 
             is Failure.EnvironmentsSerialization -> "Environments parsing failed with error '${throwable.message}'"
             is Failure.PropertiesSerialization -> "Properties parsing failed with error '${throwable.message}'"

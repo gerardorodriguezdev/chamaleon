@@ -60,76 +60,10 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN schema parsing file not found WHEN process THEN returns failure`() = runTest {
             schemaParser.schemaParserResult = SchemaParserResult.Failure.FileNotFound("")
 
-            assertIs<SchemaFileNotFound>(
+            assertIs<SchemaParsingError>(
                 defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
-
-        @Test
-        fun `GIVEN schema parsing file is empty WHEN process THEN returns failure`() = runTest {
-            schemaParser.schemaParserResult = SchemaParserResult.Failure.FileIsEmpty("")
-
-            assertIs<SchemaFileIsEmpty>(
-                defaultEnvironmentsProcessor.process(environmentsDirectory)
-            )
-        }
-
-        @Test
-        fun `GIVEN schema parsing serialization error WHEN process THEN returns failure`() = runTest {
-            schemaParser.schemaParserResult = SchemaParserResult.Failure.Serialization(Exception())
-
-            assertIs<SchemaSerialization>(
-                defaultEnvironmentsProcessor.process(environmentsDirectory)
-            )
-        }
-
-        @Test
-        fun `GIVEN schema parsing with empty supported platforms WHEN process THEN returns failure`() =
-            runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Failure.EmptySupportedPlatforms(
-                    path = "",
-                )
-
-                assertIs<SchemaEmptySupportedPlatforms>(
-                    defaultEnvironmentsProcessor.process(environmentsDirectory)
-                )
-            }
-
-        @Test
-        fun `GIVEN schema parsing with empty property definitions WHEN process THEN returns failure`() =
-            runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Failure.EmptyPropertyDefinitions(
-                    path = "",
-                )
-
-                assertIs<SchemaEmptyPropertyDefinitions>(
-                    defaultEnvironmentsProcessor.process(environmentsDirectory)
-                )
-            }
-
-        @Test
-        fun `GIVEN schema parsing with invalid property definitions WHEN process THEN returns failure`() =
-            runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Failure.InvalidPropertyDefinition(
-                    path = "",
-                )
-
-                assertIs<SchemaInvalidPropertyDefinitions>(
-                    defaultEnvironmentsProcessor.process(environmentsDirectory)
-                )
-            }
-
-        @Test
-        fun `GIVEN schema parsing with duplicated property definitions WHEN process THEN returns failure`() =
-            runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Failure.DuplicatedPropertyDefinition(
-                    path = "",
-                )
-
-                assertIs<SchemaDuplicatedPropertyDefinition>(
-                    defaultEnvironmentsProcessor.process(environmentsDirectory)
-                )
-            }
 
         @Test
         fun `GIVEN environments parsing serialization error WHEN process THEN returns failure`() = runTest {
