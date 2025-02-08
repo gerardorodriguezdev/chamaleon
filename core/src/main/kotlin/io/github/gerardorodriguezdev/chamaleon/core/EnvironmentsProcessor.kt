@@ -30,6 +30,7 @@ public interface EnvironmentsProcessor {
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
     public fun updateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
     public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
+    //TODO: addSchema function
 
     public sealed interface EnvironmentsProcessorResult {
         public data class Success(

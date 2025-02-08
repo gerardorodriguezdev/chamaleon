@@ -9,10 +9,10 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.OnPropertyNameChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.OnPropertyValueChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allBooleans
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun SetupPropertiesWindow(
@@ -24,18 +24,11 @@ fun SetupPropertiesWindow(
         modifier = modifier,
         toolbar = { Toolbar(title = string(StringsKeys.addProperties), forceLabelWidth = false) },
         content = {
+            //TODO: Do this for each platform available
             item {
                 Section(
                     title = string(StringsKeys.properties),
-                    forceLabelWidth = true,
                     enableDivider = true,
-                    titleTrailingIcon = {
-                        TooltipIconButton(
-                            iconKey = AllIconsKeys.General.Add,
-                            tooltip = string(StringsKeys.addProperty),
-                            onClick = { onAction(OnAddPropertyClicked) }
-                        )
-                    }
                 )
             }
 
@@ -48,6 +41,7 @@ fun SetupPropertiesWindow(
                         },
                     )
 
+                    //TODO: Add null case (show null on text edit placeholder or show null on first selected option but treat as not existent)
                     when (property.value) {
                         is StringProperty ->
                             InputTextField(
@@ -68,6 +62,7 @@ fun SetupPropertiesWindow(
                                 label = string(StringsKeys.value),
                                 selectedValue = property.value.value.toString(),
                                 content = {
+                                    //TODO: Pass bools from state
                                     allBooleans.forEach { boolean ->
                                         item(
                                             text = boolean.toString(),
