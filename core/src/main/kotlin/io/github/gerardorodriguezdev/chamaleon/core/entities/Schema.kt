@@ -10,11 +10,9 @@ public data class Schema(
         val nullable: Boolean,
         val supportedPlatforms: Set<PlatformType>,
     ) {
-        //TODO: Test
         internal fun isValid(): Boolean = name.isNotEmpty()
     }
 
-    //TODO: Test
     internal fun isValid(): ValidationResult {
         if (supportedPlatforms.isEmpty()) return ValidationResult.EMPTY_SUPPORTED_PLATFORMS
         if (propertyDefinitions.isEmpty()) return ValidationResult.EMPTY_PROPERTY_DEFINITIONS

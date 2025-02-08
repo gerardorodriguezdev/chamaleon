@@ -4,14 +4,12 @@ public sealed class PropertyValue {
     internal abstract fun isValid(): Boolean
 
     public data class StringProperty(val value: String) : PropertyValue() {
-        //TODO: Test
         override fun isValid(): Boolean = value.isNotEmpty()
 
         override fun toString(): String = value
     }
 
     public data class BooleanProperty(val value: Boolean) : PropertyValue() {
-        //TODO: Test
         override fun isValid(): Boolean = true
 
         override fun toString(): String = value.toString()

@@ -23,7 +23,6 @@ internal data class PlatformDto(
         }
     }
 
-    //TODO: Test
     fun isValid(): ValidationResult {
         if (properties.isEmpty()) return ValidationResult.EMPTY_PROPERTIES
 

@@ -75,6 +75,7 @@ public class GradlePlugin : Plugin<Project> {
             is Failure.EnvironmentsDirectoryNotFound ->
                 "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
 
+            //TODO: Refactor
             is Failure.SchemaParsingError -> when (val error = this.schemaParsingError) {
                 is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '${error.path}'"
                 is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '${error.path}' is empty"

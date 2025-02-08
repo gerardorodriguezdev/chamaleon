@@ -35,7 +35,6 @@ public data class Platform(
         val name: String,
         val value: PropertyValue?,
     ) {
-        //TODO: Test
         internal fun isValid(): Boolean {
             if (name.isEmpty()) return false
             if (value == null) return true
@@ -44,6 +43,5 @@ public data class Platform(
         }
     }
 
-    //TODO: Test
     internal fun isValid(): Boolean = !properties.any { property -> !property.isValid() }
 }

@@ -6,6 +6,5 @@ import kotlinx.serialization.Serializable
 internal data class PropertiesDto(
     val selectedEnvironmentName: String?,
 ) {
-    //TODO: Test
     fun isValid(): Boolean = selectedEnvironmentName == null || selectedEnvironmentName.isNotEmpty()
 }
