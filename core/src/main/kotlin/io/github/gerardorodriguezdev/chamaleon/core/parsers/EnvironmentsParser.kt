@@ -3,9 +3,9 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -16,15 +16,6 @@ public interface EnvironmentsParser {
         environmentsDirectory: File,
         environments: Set<Environment>,
     ): Boolean
-
-    //TODO: Move out
-    public sealed interface EnvironmentsParserResult {
-        public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
-
-        public sealed interface Failure : EnvironmentsParserResult {
-            public data class Serialization(val throwable: Throwable) : Failure
-        }
-    }
 }
 
 internal class DefaultEnvironmentsParser(

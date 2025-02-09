@@ -9,6 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
@@ -18,7 +19,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Result
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toFailure
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toSuccess
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

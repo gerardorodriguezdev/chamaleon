@@ -1,0 +1,11 @@
+package io.github.gerardorodriguezdev.chamaleon.core.entities.results
+
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+
+public sealed interface EnvironmentsParserResult {
+    public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
+
+    public sealed interface Failure : EnvironmentsParserResult {
+        public data class Serialization(val throwable: Throwable) : Failure
+    }
+}
