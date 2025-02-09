@@ -7,7 +7,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-public class NonEmptySetSerializer<T>(private val elementSerializer: KSerializer<T>) : KSerializer<Set<T>> {
+public class NonEmptySetSerializer<T>(elementSerializer: KSerializer<T>) : KSerializer<Set<T>> {
     private val delegate = SetSerializer(elementSerializer)
 
     override val descriptor: SerialDescriptor = delegate.descriptor

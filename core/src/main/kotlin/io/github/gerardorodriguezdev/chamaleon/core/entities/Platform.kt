@@ -48,7 +48,8 @@ public data class Platform(
         if (properties.any { property -> !property.isValid() }) return false
 
         val uniqueProperties = properties.distinctBy { property -> property.name }
-        if (uniqueProperties.size != properties.size) return false
+        val containsDuplicateProperties = uniqueProperties.size != properties.size
+        if (containsDuplicateProperties) return false
 
         return true
     }
