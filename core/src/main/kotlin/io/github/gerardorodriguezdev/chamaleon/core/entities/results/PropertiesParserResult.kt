@@ -4,6 +4,6 @@ public sealed interface PropertiesParserResult {
     public data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
     public sealed interface Failure : PropertiesParserResult {
         public data object InvalidPropertiesFile : Failure
-        public data class Serialization(val throwable: Exception) : Failure
+        public data class Serialization(val throwable: Throwable) : Failure
     }
 }

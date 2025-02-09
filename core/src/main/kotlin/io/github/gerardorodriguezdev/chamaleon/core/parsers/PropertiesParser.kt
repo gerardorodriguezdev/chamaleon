@@ -1,50 +1,58 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
-    public fun addOrUpdateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
+    public fun addOrUpdateSelectedEnvironment(
+        propertiesFile: File, newSelectedEnvironment: String?
+    ): AddOrUpdateSelectedEnvironmentResult
 }
 
 internal class DefaultPropertiesParser : PropertiesParser {
     @Suppress("ReturnCount")
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
-        if (!propertiesFile.exists()) return Success()
-
         return try {
+            if (!propertiesFile.exists()) return PropertiesParserResult.Success()
+
             val propertiesFileContent = propertiesFile.readText()
-            if (propertiesFileContent.isEmpty()) return Success()
+            if (propertiesFileContent.isEmpty()) return PropertiesParserResult.Success()
 
             val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
 
-            return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
+            return PropertiesParserResult.Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
         } catch (error: Exception) {
-            Failure.Serialization(error)
+            PropertiesParserResult.Failure.Serialization(error)
         }
     }
 
     @Suppress("ReturnCount")
-    override fun addOrUpdateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
-        try {
-            if (propertiesFile.isDirectory) return false
-            if (!propertiesFile.exists()) propertiesFile.createNewFile()
-            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty()) return false
+    override fun addOrUpdateSelectedEnvironment(
+        propertiesFile: File,
+        newSelectedEnvironment: String?,
+    ): AddOrUpdateSelectedEnvironmentResult {
+        return try {
+            if (propertiesFile.isDirectory)
+                return AddOrUpdateSelectedEnvironmentResult.Failure.InvalidFile(propertiesFile.path)
+            if (!propertiesFile.exists()) {
+                propertiesFile.createNewFile()
+            }
+            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty())
+                return AddOrUpdateSelectedEnvironmentResult.Failure.EnvironmentNameIsEmpty(propertiesFile.path)
             val propertiesDto =
                 PropertiesDto(
                     selectedEnvironmentName = newSelectedEnvironment
                 )
             val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
-            return true
-        } catch (_: Exception) {
-            return false
+            return AddOrUpdateSelectedEnvironmentResult.Success
+        } catch (error: Exception) {
+            return AddOrUpdateSelectedEnvironmentResult.Failure.Serialization(error)
         }
     }
 }

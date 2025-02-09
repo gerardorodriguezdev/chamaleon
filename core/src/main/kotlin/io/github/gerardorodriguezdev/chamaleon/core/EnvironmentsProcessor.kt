@@ -26,7 +26,10 @@ public interface EnvironmentsProcessor {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
 
-    public fun addOrUpdateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
+    public fun addOrUpdateSelectedEnvironment(
+        environmentsDirectory: File,
+        newSelectedEnvironment: String?,
+    ): AddOrUpdateSelectedEnvironmentResult
 
     public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
 
@@ -97,7 +100,7 @@ internal class DefaultEnvironmentsProcessor(
     override fun addOrUpdateSelectedEnvironment(
         environmentsDirectory: File,
         newSelectedEnvironment: String?
-    ): Boolean =
+    ): AddOrUpdateSelectedEnvironmentResult =
         propertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = File(environmentsDirectory, PROPERTIES_FILE),
             newSelectedEnvironment = newSelectedEnvironment,

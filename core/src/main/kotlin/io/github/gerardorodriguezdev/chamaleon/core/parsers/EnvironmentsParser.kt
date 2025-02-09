@@ -63,6 +63,7 @@ internal class DefaultEnvironmentsParser(
             // TODO: Don't allow empty env name. Error = env name is empty
             val environmentFileName = environmentFileNameExtractor(environment.name)
             val environmentFile = File(environmentsDirectory, environmentFileName)
+            //TODO: Create files if not exist
             if (environmentFile.exists()) return false // TODO: Error = envs file already present
 
             try {
