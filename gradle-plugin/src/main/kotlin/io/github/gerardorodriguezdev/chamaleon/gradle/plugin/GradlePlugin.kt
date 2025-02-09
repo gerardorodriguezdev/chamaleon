@@ -121,7 +121,7 @@ public class GradlePlugin : Plugin<Project> {
 
     private fun EnvironmentsParserResult.Failure.toErrorMessage(): String =
         when (this) {
-            is EnvironmentsParserResult.Failure.InvalidEnvironment -> "Invalid environment on '$path'"
+            is EnvironmentsParserResult.Failure.FileIsEmpty -> "Environments file on '$path' is empty"
             is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$path'"
             is EnvironmentsParserResult.Failure.Serialization ->
                 "Environment parsing failed with error '${throwable.message}'"
@@ -131,7 +131,6 @@ public class GradlePlugin : Plugin<Project> {
         when (this) {
             is PropertiesParserResult.Failure.Serialization ->
                 "Properties parsing failed with error '${throwable.message}'"
-            is PropertiesParserResult.Failure.InvalidPropertiesFile -> "Invalid properties file"
         }
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =

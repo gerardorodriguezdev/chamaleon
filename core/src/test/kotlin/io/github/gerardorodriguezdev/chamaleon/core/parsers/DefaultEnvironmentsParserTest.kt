@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.InvalidEnvironment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.FileIsEmpty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.Serialization
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
@@ -47,7 +47,7 @@ class DefaultEnvironmentsParserTest {
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
-        assertIs<InvalidEnvironment>(actualEnvironmentsParserResult)
+        assertIs<FileIsEmpty>(actualEnvironmentsParserResult)
     }
 
     @Test

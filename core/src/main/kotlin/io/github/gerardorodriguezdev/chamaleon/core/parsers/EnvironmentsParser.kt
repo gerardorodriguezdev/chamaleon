@@ -39,7 +39,7 @@ internal class DefaultEnvironmentsParser(
 
                 val fileContent = environmentFile.readText()
                 if (fileContent.isEmpty()) {
-                    return EnvironmentsParserResult.Failure.InvalidEnvironment(environmentFile.path)
+                    return EnvironmentsParserResult.Failure.FileIsEmpty(environmentFile.path)
                 }
 
                 val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)

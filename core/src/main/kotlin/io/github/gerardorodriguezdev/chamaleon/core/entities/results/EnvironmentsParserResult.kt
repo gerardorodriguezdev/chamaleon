@@ -6,7 +6,7 @@ public sealed interface EnvironmentsParserResult {
     public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
 
     public sealed interface Failure : EnvironmentsParserResult {
-        public data class InvalidEnvironment(val path: String) : Failure
+        public data class FileIsEmpty(val path: String) : Failure
         public data class EnvironmentNameEmpty(val path: String) : Failure
         public data class Serialization(val throwable: Throwable) : Failure
     }

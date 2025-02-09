@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
@@ -12,13 +13,14 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 internal class CreateEnvironmentPresenter(
     private val rootProjectFile: File?,
     private val environmentsProcessor: EnvironmentsProcessor,
-    uiDispatcher: CoroutineContext,
+    private val uiDispatcher: CoroutineContext,
     ioDispatcher: CoroutineContext,
     private val onSelectEnvironmentPathClicked: () -> String?,
 ) : Disposable {
@@ -28,6 +30,8 @@ internal class CreateEnvironmentPresenter(
     val state: StateFlow<State> = _state
 
     private val ioScope = CoroutineScope(ioDispatcher)
+
+    private var environmentsProcessorResult: EnvironmentsProcessorResult? = null
 
     init {
         onInit()
@@ -42,9 +46,31 @@ internal class CreateEnvironmentPresenter(
 
         ioScope.launch {
             val result = environmentsProcessor.process(rootProjectFile)
-            when (result) {
-                is EnvironmentsProcessorResult.Success -> {}
-                is EnvironmentsProcessorResult.Failure -> Unit
+
+            withContext(uiDispatcher) {
+                when (result) {
+                    is EnvironmentsProcessorResult.Success -> {
+                        environmentsProcessorResult = result
+                        //TODO: Continue
+                    }
+
+                    is EnvironmentsProcessorResult.Failure -> when (result) {
+                        is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound -> {
+                            //TODO: Continue
+                        }
+
+                        is EnvironmentsProcessorResult.Failure.SchemaParsingError -> when (val error =
+                            result.schemaParsingError) {
+                            is SchemaParserResult.Failure.FileNotFound -> {
+                                //TODO: Continue
+                            }
+
+                            else -> {} //TODO: Error
+                        }
+
+                        else -> {} //TODO: Error
+                    }
+                }
             }
         }
     }
@@ -64,6 +90,7 @@ internal class CreateEnvironmentPresenter(
                 val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
                 selectedEnvironmentPath?.let { path ->
                     // TODO: Update path selected here
+                    // TODO: Try processing env
                 }
             }
 

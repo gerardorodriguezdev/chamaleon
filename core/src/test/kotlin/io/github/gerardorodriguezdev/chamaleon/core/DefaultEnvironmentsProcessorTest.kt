@@ -258,19 +258,6 @@ class DefaultEnvironmentsProcessorTest {
                 actual = environmentsProcessorResults,
             )
         }
-
-        @Test
-        fun `GIVEN invalid environments WHEN processRecursively THEN returns results list`() = runTest {
-            createEnvironmentsDirectory()
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile
-
-            val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
-
-            assertEquals(
-                expected = listOf(PropertiesParsingError(PropertiesParserResult.Failure.InvalidPropertiesFile)),
-                actual = environmentsProcessorResults,
-            )
-        }
     }
 
     @Test
