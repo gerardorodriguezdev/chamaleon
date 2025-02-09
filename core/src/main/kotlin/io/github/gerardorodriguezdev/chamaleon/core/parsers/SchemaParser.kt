@@ -18,6 +18,8 @@ public interface SchemaParser {
         schemaFile: File,
         schema: Schema
     ): AddSchemaResult
+
+    public fun isSchemaValid(schema: Schema): Boolean
 }
 
 internal class DefaultSchemaParser : SchemaParser {
@@ -60,6 +62,8 @@ internal class DefaultSchemaParser : SchemaParser {
             AddSchemaResult.Failure.Serialization(schemaFile.path, error)
         }
     }
+
+    override fun isSchemaValid(schema: Schema): Boolean = schema.isValid() == ValidationResult.VALID
 
     private fun ValidationResult.toFailureOrNull(path: String): AddSchemaResult.Failure? =
         when (this) {

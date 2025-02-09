@@ -25,9 +25,13 @@ import java.io.File
 public interface EnvironmentsProcessor {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
+
     public fun addOrUpdateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
+
     public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
+
     public fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult
+    public fun isSchemaValid(schema: Schema): Boolean
 
     public companion object {
         public const val SCHEMA_FILE: String = "template.chamaleon.json"
@@ -104,6 +108,8 @@ internal class DefaultEnvironmentsProcessor(
 
     override fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult =
         schemaParser.addSchema(schemaFile, newSchema)
+
+    override fun isSchemaValid(schema: Schema): Boolean = schemaParser.isSchemaValid(schema)
 
     @Suppress("ReturnCount")
     private suspend fun parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> =
