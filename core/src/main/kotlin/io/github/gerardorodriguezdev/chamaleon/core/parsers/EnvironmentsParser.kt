@@ -56,7 +56,6 @@ internal class DefaultEnvironmentsParser(
         }
     }
 
-    //TODO: Refactor
     @Suppress("ReturnCount")
     override fun addEnvironments(
         environmentsDirectory: File,
@@ -67,22 +66,7 @@ internal class DefaultEnvironmentsParser(
                 return AddEnvironmentsResult.Failure.EmptyEnvironments(environmentsDirectory.path)
 
             environments.forEach { environment ->
-                val validationResult: AddEnvironmentsResult? =
-                    when (environment.isValid()) {
-                        Environment.ValidationResult.VALID -> null
-                        Environment.ValidationResult.EMPTY_PLATFORMS -> AddEnvironmentsResult.Failure.EmptyPlatforms(
-                            environmentsDirectory.path
-                        )
-
-                        Environment.ValidationResult.INVALID_PLATFORM -> AddEnvironmentsResult.Failure.InvalidPlatforms(
-                            environmentsDirectory.path
-                        )
-
-                        Environment.ValidationResult.EMPTY_NAME -> AddEnvironmentsResult.Failure.EmptyEnvironmentName(
-                            environmentsDirectory.path
-                        )
-                    }
-
+                val validationResult = environment.validationResult(environmentsDirectory.path)
                 if (validationResult != null) return validationResult
 
                 val environmentFileName = environmentFileNameExtractor(environment.name)
@@ -101,6 +85,14 @@ internal class DefaultEnvironmentsParser(
             AddEnvironmentsResult.Failure.Serialization(error)
         }
     }
+
+    private fun Environment.validationResult(path: String): AddEnvironmentsResult.Failure? =
+        when (isValid()) {
+            Environment.ValidationResult.VALID -> null
+            Environment.ValidationResult.EMPTY_PLATFORMS -> AddEnvironmentsResult.Failure.EmptyPlatforms(path)
+            Environment.ValidationResult.INVALID_PLATFORM -> AddEnvironmentsResult.Failure.InvalidPlatforms(path)
+            Environment.ValidationResult.EMPTY_NAME -> AddEnvironmentsResult.Failure.EmptyEnvironmentName(path)
+        }
 
     override fun isEnvironmentValid(environment: Environment): Boolean =
         environment.isValid() == Environment.ValidationResult.VALID
