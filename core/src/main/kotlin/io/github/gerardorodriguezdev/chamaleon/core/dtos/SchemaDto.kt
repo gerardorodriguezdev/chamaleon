@@ -10,10 +10,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class SchemaDto(
-    //TODO: Non empty set here
-    val supportedPlatforms: Set<PlatformType>,
+    val supportedPlatforms: Set<PlatformType>, //TODO: Non empty set
     @SerialName("propertyDefinitions")
-    val propertyDefinitionDtos: Set<PropertyDefinitionDto>,
+    val propertyDefinitionDtos: Set<PropertyDefinitionDto>, //TODO: Non empty set
 ) {
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
