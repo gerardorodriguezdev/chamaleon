@@ -42,26 +42,31 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
 
     override fun deserialize(decoder: Decoder): SchemaDto =
         decoder.decodeStructure(descriptor) {
-            //TODO: Group
-            verifyAndAdvanceIndex(SUPPORTED_PLATFORMS_INDEX)
-            val supportedPlatforms = decodeSerializableElement(
-                descriptor = descriptor,
-                index = SUPPORTED_PLATFORMS_INDEX,
-                deserializer = supportedPlatformsSerializer
-            )
-
-            //TODO: Group
-            verifyAndAdvanceIndex(PROPERTY_DEFINITIONS_DTOS_INDEX)
-            val propertyDefinitionsDtos = decodeSerializableElement(
-                descriptor = descriptor,
-                index = PROPERTY_DEFINITIONS_DTOS_INDEX,
-                deserializer = propertyDefinitionsDtosSerializer,
-            )
+            val supportedPlatforms = supportedPlatforms()
+            val propertyDefinitionsDtos = propertyDefinitionsDtos()
 
             propertyDefinitionsDtos.verify(supportedPlatforms)
 
             SchemaDto(supportedPlatforms = supportedPlatforms, propertyDefinitionsDtos = propertyDefinitionsDtos)
         }
+
+    private fun CompositeDecoder.supportedPlatforms(): Set<PlatformType> {
+        verifyAndAdvanceIndex(SUPPORTED_PLATFORMS_INDEX)
+        return decodeSerializableElement(
+            descriptor = descriptor,
+            index = SUPPORTED_PLATFORMS_INDEX,
+            deserializer = supportedPlatformsSerializer
+        )
+    }
+
+    private fun CompositeDecoder.propertyDefinitionsDtos(): Set<PropertyDefinitionDto> {
+        verifyAndAdvanceIndex(PROPERTY_DEFINITIONS_DTOS_INDEX)
+        return decodeSerializableElement(
+            descriptor = descriptor,
+            index = PROPERTY_DEFINITIONS_DTOS_INDEX,
+            deserializer = propertyDefinitionsDtosSerializer,
+        )
+    }
 
     private fun CompositeDecoder.verifyAndAdvanceIndex(targetIndex: Int) {
         val index = decodeElementIndex(descriptor)
