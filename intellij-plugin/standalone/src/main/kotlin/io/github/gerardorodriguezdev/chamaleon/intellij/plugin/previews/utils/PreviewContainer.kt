@@ -25,6 +25,7 @@ internal fun PreviewContainer(
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @Preview
 @Composable
 private fun PreviewContainerPreview() {

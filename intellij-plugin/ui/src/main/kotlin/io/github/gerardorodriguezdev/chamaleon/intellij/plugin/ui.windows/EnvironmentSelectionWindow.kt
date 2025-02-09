@@ -32,6 +32,7 @@ fun EnvironmentSelectionWindow(
     }
 }
 
+@Suppress("UnusedParameter")
 @Composable
 private fun ContentWindow(
     environmentCardStates: ImmutableList<EnvironmentCardState>,

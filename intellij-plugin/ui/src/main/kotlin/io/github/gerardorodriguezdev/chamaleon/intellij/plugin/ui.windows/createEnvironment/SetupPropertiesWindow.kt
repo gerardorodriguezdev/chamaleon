@@ -42,43 +42,69 @@ fun SetupPropertiesWindow(
 
                     when (property.value) {
                         is StringProperty ->
-                            InputTextField(
-                                label = string(StringsKeys.value),
-                                initialValue = property.value.value,
-                                onValueChange = { newText ->
-                                    onAction(
-                                        OnPropertyValueChanged(
-                                            index = index,
-                                            newValue = StringProperty(newText),
-                                        )
-                                    )
-                                },
+                            InputStringProperty(
+                                index = index,
+                                property = property.value,
+                                onAction = onAction,
                             )
 
                         is BooleanProperty ->
-                            InputTextDropdown(
-                                label = string(StringsKeys.value),
-                                selectedValue = property.value.value.toString(),
-                                content = {
-                                    allBooleans.forEach { boolean ->
-                                        item(
-                                            text = boolean.toString(),
-                                            selected = boolean == property.value.value,
-                                            onClick = {
-                                                val newValue = !property.value.value
-                                                onAction(
-                                                    OnPropertyValueChanged(
-                                                        index = index,
-                                                        newValue = BooleanProperty(newValue),
-                                                    )
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
+                            InputBooleanProperty(
+                                index = index,
+                                property = property.value,
+                                onAction = onAction,
                             )
                     }
                 }
+            }
+        }
+    )
+}
+
+@Composable
+private fun InputStringProperty(
+    index: Int,
+    property: StringProperty,
+    onAction: (action: SetupPropertiesAction) -> Unit,
+) {
+    InputTextField(
+        label = string(StringsKeys.value),
+        initialValue = property.value,
+        onValueChange = { newText ->
+            onAction(
+                OnPropertyValueChanged(
+                    index = index,
+                    newValue = StringProperty(newText),
+                )
+            )
+        },
+    )
+}
+
+@Composable
+private fun InputBooleanProperty(
+    index: Int,
+    property: BooleanProperty,
+    onAction: (action: SetupPropertiesAction) -> Unit
+) {
+    InputTextDropdown(
+        label = string(StringsKeys.value),
+        selectedValue = property.value.toString(),
+        content = {
+            allBooleans.forEach { boolean ->
+                item(
+                    text = boolean.toString(),
+                    selected = boolean == property.value,
+                    onClick = {
+                        val newValue = !property.value
+                        onAction(
+                            OnPropertyValueChanged(
+                                index = index,
+                                newValue = BooleanProperty(newValue),
+                            )
+                        )
+                    }
+                )
             }
         }
     )

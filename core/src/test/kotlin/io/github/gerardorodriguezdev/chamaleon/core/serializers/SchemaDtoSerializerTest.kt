@@ -93,7 +93,7 @@ internal class SchemaDtoSerializerTest {
         }
 
         @Test
-        @Suppress("MaximumLineLength")
+        @Suppress("MaximumLineLength", "MaxLineLength")
         fun `GIVEN valid schema dto WHEN serialize THEN returns json`() {
             //language=json
             val expectedJson =

@@ -55,7 +55,7 @@ internal class CreateEnvironmentPresenter(
                         is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound -> {}
 
                         is EnvironmentsProcessorResult.Failure.SchemaParsingError ->
-                            when (val error = result.schemaParsingError) {
+                            when (result.schemaParsingError) {
                                 is SchemaParserResult.Failure.FileNotFound -> {}
                                 else -> {}
                             }
