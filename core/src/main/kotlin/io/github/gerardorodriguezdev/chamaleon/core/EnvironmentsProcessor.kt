@@ -64,7 +64,7 @@ internal class DefaultEnvironmentsProcessor(
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         coroutineScope {
             if (!environmentsDirectory.exists()) {
-                return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectory.absolutePath)
+                return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectory.path)
             }
 
             val filesParserResult = parseFiles(environmentsDirectory)
@@ -77,7 +77,7 @@ internal class DefaultEnvironmentsProcessor(
             if (environmentsVerificationResult is Failure) return@coroutineScope environmentsVerificationResult
 
             return@coroutineScope Success(
-                environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                environmentsDirectoryPath = environmentsDirectory.path,
                 selectedEnvironmentName = selectedEnvironmentName,
                 environments = environments,
             )
@@ -344,7 +344,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun File.environmentsDirectoriesPaths(): List<String> =
         walkTopDown()
             .filter { file -> file.isEnvironmentsDirectory }
-            .map { environmentFile -> environmentFile.absolutePath }
+            .map { environmentFile -> environmentFile.path }
             .toList()
 
     private val File.isEnvironmentsDirectory: Boolean get() = isDirectory && name == ENVIRONMENTS_DIRECTORY_NAME

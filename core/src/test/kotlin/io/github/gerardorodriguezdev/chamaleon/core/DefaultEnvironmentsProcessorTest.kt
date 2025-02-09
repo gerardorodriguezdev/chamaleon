@@ -216,7 +216,7 @@ class DefaultEnvironmentsProcessorTest {
                 environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(validEnvironments)
 
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
-                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                    environmentsDirectoryPath = environmentsDirectory.path,
                     selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = validEnvironments,
                 )
@@ -230,7 +230,7 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() =
             runTest {
                 val expectedEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
-                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                    environmentsDirectoryPath = environmentsDirectory.path,
                     selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = setOf(TestData.environment),
                 )
@@ -252,7 +252,7 @@ class DefaultEnvironmentsProcessorTest {
             assertEquals(
                 expected = listOf(
                     EnvironmentsProcessorResult.Success(
-                        environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                        environmentsDirectoryPath = environmentsDirectory.path,
                         selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                         environments = setOf(
                             TestData.environment

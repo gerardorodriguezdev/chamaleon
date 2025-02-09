@@ -4,11 +4,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -76,32 +74,11 @@ public class GradlePlugin : Plugin<Project> {
             is Failure.EnvironmentsDirectoryNotFound ->
                 "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
 
-            //TODO: Refactor
-            is Failure.SchemaParsingError -> when (val error = this.schemaParsingError) {
-                is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '${error.path}'"
-                is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '${error.path}' is empty"
-                is SchemaParserResult.Failure.Serialization ->
-                    "Schema parsing failed with error '${error.throwable}'"
+            is Failure.SchemaParsingError -> schemaParsingError.toErrorMessage()
 
-                is SchemaParserResult.Failure.EmptySupportedPlatforms ->
-                    "'$SCHEMA_FILE' on ${error.path} has empty supported platforms"
+            is Failure.EnvironmentsParsingError -> environmentsParsingError.toErrorMessage()
 
-                is SchemaParserResult.Failure.EmptyPropertyDefinitions ->
-                    "'$SCHEMA_FILE' on ${error.path} has empty property definitions"
-
-                is SchemaParserResult.Failure.InvalidPropertyDefinition ->
-                    "'$SCHEMA_FILE' on ${error.path} contains invalid property definitions"
-
-                is SchemaParserResult.Failure.DuplicatedPropertyDefinition ->
-                    "'$SCHEMA_FILE' on ${error.path} contains duplicated property definitions"
-            }
-
-            is Failure.EnvironmentsSerialization -> "Environments parsing failed with error '${throwable.message}'"
-
-            is Failure.PropertiesParsingError -> when (val error = this.propertiesParsingError) {
-                is PropertiesParser.PropertiesParserResult.Failure.Serialization -> "Properties parsing failed with error '${error.throwable.message}'"
-                is PropertiesParser.PropertiesParserResult.Failure.InvalidPropertiesFile -> "Invalid properties file"
-            }
+            is Failure.PropertiesParsingError -> propertiesParsingError.toErrorMessage()
 
             is Failure.PlatformsNotEqualToSchema ->
                 "Platforms of environment '$environmentName' are not equal to schema"
@@ -120,6 +97,40 @@ public class GradlePlugin : Plugin<Project> {
             is Failure.SelectedEnvironmentInvalid ->
                 "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
                         "[$environmentNames]"
+        }
+
+    private fun SchemaParserResult.Failure.toErrorMessage(): String =
+        when (this) {
+            is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '$path'"
+            is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '$path' is empty"
+            is SchemaParserResult.Failure.Serialization ->
+                "Schema parsing failed with error '${throwable.message}'"
+
+            is SchemaParserResult.Failure.EmptySupportedPlatforms ->
+                "'$SCHEMA_FILE' on '$path' has empty supported platforms"
+
+            is SchemaParserResult.Failure.EmptyPropertyDefinitions ->
+                "'$SCHEMA_FILE' on '$path' has empty property definitions"
+
+            is SchemaParserResult.Failure.InvalidPropertyDefinition ->
+                "'$SCHEMA_FILE' on '$path' contains invalid property definitions"
+
+            is SchemaParserResult.Failure.DuplicatedPropertyDefinition ->
+                "'$SCHEMA_FILE' on '$path' contains duplicated property definitions"
+        }
+
+    private fun EnvironmentsParserResult.Failure.toErrorMessage(): String =
+        when (this) {
+            is EnvironmentsParserResult.Failure.InvalidEnvironment -> "Invalid environment on '$path'"
+            is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$path'"
+            is EnvironmentsParserResult.Failure.NoEnvironmentsFound -> "No environments found on '$path'"
+            is EnvironmentsParserResult.Failure.Serialization -> "Environment parsing failed with error '${throwable.message}'"
+        }
+
+    private fun PropertiesParserResult.Failure.toErrorMessage(): String =
+        when (this) {
+            is PropertiesParserResult.Failure.Serialization -> "Properties parsing failed with error '${throwable.message}'"
+            is PropertiesParserResult.Failure.InvalidPropertiesFile -> "Invalid properties file"
         }
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
@@ -147,7 +158,7 @@ public class GradlePlugin : Plugin<Project> {
                     newSelectedEnvironment = newSelectedEnvironment
                 )
 
-                if (!addOrUpdateSelectedEnvironmentResult) {
+                if (addOrUpdateSelectedEnvironmentResult is AddEnvironmentsResult.Failure) {
                     @Suppress("Indentation")
                     throw GradlePluginException(
                         message = "Error updating selected environment '$newSelectedEnvironment' on environments " +

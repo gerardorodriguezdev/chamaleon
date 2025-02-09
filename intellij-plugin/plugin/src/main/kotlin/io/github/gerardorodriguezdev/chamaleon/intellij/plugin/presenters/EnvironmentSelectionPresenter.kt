@@ -57,7 +57,7 @@ internal class EnvironmentSelectionPresenter(
 
     private fun Success.toEnvironmentCardState(projectDirectory: File): EnvironmentCardState =
         EnvironmentCardState(
-            environmentsDirectoryPath = environmentsDirectoryPath.removePrefix(projectDirectory.absolutePath),
+            environmentsDirectoryPath = environmentsDirectoryPath.removePrefix(projectDirectory.path),
             selectedEnvironment = selectedEnvironmentName,
             environments = environments
                 .map { environment -> environment.name }
@@ -73,7 +73,7 @@ internal class EnvironmentSelectionPresenter(
 
         ioScope
             .launch {
-                val environmentsDirectory = File(projectDirectory.absolutePath + environmentsDirectoryPath)
+                val environmentsDirectory = File(projectDirectory.path + environmentsDirectoryPath)
 
                 val selectedEnvironmentUpdated = environmentsProcessor.addOrUpdateSelectedEnvironment(
                     environmentsDirectory = environmentsDirectory,
