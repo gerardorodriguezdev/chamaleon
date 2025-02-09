@@ -11,12 +11,16 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
+        google()
         mavenCentral()
+        maven("https://packages.jetbrains.team/maven/p/kpm/public/")
     }
 }
 
 include(
     ":core",
     ":gradle-plugin",
-    ":intellij-plugin",
+    ":intellij-plugin:plugin",
+    ":intellij-plugin:ui",
+    ":intellij-plugin:standalone",
 )

@@ -2,74 +2,83 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.ValidationResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddSchemaResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface SchemaParser {
     public fun schemaParserResult(schemaFile: File): SchemaParserResult
+    public fun addSchema(
+        schemaFile: File,
+        schema: Schema
+    ): AddSchemaResult
 
-    public sealed interface SchemaParserResult {
-        public data class Success(val schema: Schema) : SchemaParserResult
-
-        public sealed interface Failure : SchemaParserResult {
-            public data class FileNotFound(val path: String) : Failure
-            public data class FileIsEmpty(val path: String) : Failure
-            public data class Serialization(val throwable: Throwable) : Failure
-            public data class PropertyContainsUnsupportedPlatforms(
-                val path: String,
-                val propertyName: String,
-            ) : Failure
-        }
-    }
+    public fun isSchemaValid(schema: Schema): Boolean
 }
 
 internal class DefaultSchemaParser : SchemaParser {
     @Suppress("ReturnCount")
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
-        if (!schemaFile.exists()) return Failure.FileNotFound(schemaFile.parent)
-
-        val schemaFileContent = schemaFile.readText()
-        if (schemaFileContent.isEmpty()) return Failure.FileIsEmpty(schemaFile.parent)
-
         return try {
+            if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFile.path)
+            val schemaFileContent = schemaFile.readText()
+            if (schemaFileContent.isEmpty()) return SchemaParserResult.Failure.FileIsEmpty(schemaFile.path)
+
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
-
-            val verificationResult = schemaDto.verify(path = schemaFile.parent)
-            if (verificationResult != null) return verificationResult
-
             SchemaParserResult.Success(schemaDto.toSchema())
         } catch (exception: SerializationException) {
-            Failure.Serialization(exception)
+            SchemaParserResult.Failure.Serialization(exception)
         }
     }
 
-    private fun SchemaDto.verify(path: String): Failure? {
-        propertyDefinitionDtos
-            .forEach { propertyDefinitionDto ->
-                if (propertyDefinitionDto.containsUnsupportedPlatforms(this@verify.supportedPlatforms)) {
-                    return Failure.PropertyContainsUnsupportedPlatforms(
-                        path = path,
-                        propertyName = propertyDefinitionDto.name,
-                    )
-                }
-            }
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    override fun addSchema(
+        schemaFile: File,
+        newSchema: Schema
+    ): AddSchemaResult {
+        return try {
+            if (schemaFile.exists()) return AddSchemaResult.Failure.FileAlreadyPresent(schemaFile.path)
+            schemaFile.createNewFile()
 
-        return null
+            if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
+
+            val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.path)
+            if (verificationResult != null) return verificationResult
+
+            val schemaDto = newSchema.toSchemaDto()
+
+            val schemaFileContent = PrettyJson.encodeToString(schemaDto)
+            schemaFile.writeText(schemaFileContent)
+
+            AddSchemaResult.Success
+        } catch (error: Exception) {
+            AddSchemaResult.Failure.Serialization(error)
+        }
     }
 
-    private fun PropertyDefinitionDto.containsUnsupportedPlatforms(supportedPlatforms: Set<PlatformType>): Boolean =
-        this.supportedPlatforms.isNotEmpty() && !supportedPlatforms.containsAll(this.supportedPlatforms)
+    override fun isSchemaValid(schema: Schema): Boolean = schema.isValid() == ValidationResult.VALID
+
+    private fun ValidationResult.toFailureOrNull(path: String): AddSchemaResult.Failure? =
+        when (this) {
+            ValidationResult.VALID -> null
+            ValidationResult.EMPTY_SUPPORTED_PLATFORMS -> AddSchemaResult.Failure.EmptySupportedPlatforms(path)
+            ValidationResult.EMPTY_PROPERTY_DEFINITIONS -> AddSchemaResult.Failure.EmptyPropertyDefinitions(path)
+            ValidationResult.INVALID_PROPERTY_DEFINITION -> AddSchemaResult.Failure.InvalidPropertyDefinition(path)
+            ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> AddSchemaResult.Failure.DuplicatedPropertyDefinition(
+                path
+            )
+        }
 
     private fun SchemaDto.toSchema(): Schema =
         Schema(
             supportedPlatforms = this@toSchema.supportedPlatforms,
-            propertyDefinitions = propertyDefinitionDtos.toPropertyDefinitions(),
+            propertyDefinitions = propertyDefinitionsDtos.toPropertyDefinitions(),
         )
 
     private fun Set<PropertyDefinitionDto>.toPropertyDefinitions(): Set<PropertyDefinition> =
@@ -79,6 +88,22 @@ internal class DefaultSchemaParser : SchemaParser {
                 propertyType = propertyDefinitionDto.propertyType,
                 nullable = propertyDefinitionDto.nullable,
                 supportedPlatforms = propertyDefinitionDto.supportedPlatforms,
+            )
+        }.toSet()
+
+    private fun Schema.toSchemaDto(): SchemaDto =
+        SchemaDto(
+            supportedPlatforms = this@toSchemaDto.supportedPlatforms,
+            propertyDefinitionsDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
+        )
+
+    private fun Set<PropertyDefinition>.toPropertyDefinitionsDtos(): Set<PropertyDefinitionDto> =
+        map { propertyDefinition ->
+            PropertyDefinitionDto(
+                name = propertyDefinition.name,
+                propertyType = propertyDefinition.propertyType,
+                nullable = propertyDefinition.nullable,
+                supportedPlatforms = propertyDefinition.supportedPlatforms,
             )
         }.toSet()
 }

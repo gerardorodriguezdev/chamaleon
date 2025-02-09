@@ -15,7 +15,7 @@
           <option value=":core:apiCheck"/>
           <option value="test"/>
           <option value="build"/>
-          <option value=":intellij-plugin:buildPlugin"/>
+          <option value=":intellij-plugin:plugin:buildPlugin"/>
         </list>
       </option>
       <option name="vmOptions"/>

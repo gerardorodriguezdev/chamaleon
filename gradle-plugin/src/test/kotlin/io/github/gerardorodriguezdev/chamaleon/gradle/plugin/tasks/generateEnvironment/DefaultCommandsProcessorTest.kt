@@ -94,8 +94,5 @@ class DefaultCommandsProcessorTest {
         val invalidCommandParserResult = CommandParserResult.Failure.InvalidCommand(EMPTY_STRING)
         val invalidPlatformTypeCommandParserResult =
             CommandParserResult.Failure.InvalidPlatformType(command = EMPTY_STRING, platformTypeString = EMPTY_STRING)
-        val successCommandParserResult = CommandParserResult.Success(
-            environment = mergedEnvironment,
-        )
     }
 }

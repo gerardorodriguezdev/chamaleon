@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -49,14 +50,14 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         }
 
     private fun generateEnvironments(environmentsDirectory: File, environments: Set<Environment>) {
-        val wereEnvironmentsGenerated = environmentsProcessor.addEnvironments(
+        val addEnvironmentsResult = environmentsProcessor.addEnvironments(
             environmentsDirectory = environmentsDirectory,
             environments = environments,
         )
 
-        if (!wereEnvironmentsGenerated) {
+        if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
             throw GenerateEnvironmentTaskException(
-                message = "Error generating environments file on ${environmentsDirectory.absolutePath}"
+                message = "Error generating environments file on '${environmentsDirectory.path}'"
             )
         }
     }

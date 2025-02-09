@@ -3,11 +3,9 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -16,15 +14,9 @@ public interface EnvironmentsParser {
     public fun addEnvironments(
         environmentsDirectory: File,
         environments: Set<Environment>,
-    ): Boolean
+    ): AddEnvironmentsResult
 
-    public sealed interface EnvironmentsParserResult {
-        public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult
-
-        public sealed interface Failure : EnvironmentsParserResult {
-            public data class Serialization(val throwable: Throwable) : Failure
-        }
-    }
+    public fun isEnvironmentValid(environment: Environment): Boolean
 }
 
 internal class DefaultEnvironmentsParser(
@@ -33,56 +25,85 @@ internal class DefaultEnvironmentsParser(
     val environmentFileNameExtractor: (environmentName: String) -> String,
 ) : EnvironmentsParser {
 
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
-        val environmentsDirectoryFiles = environmentsDirectory.listFiles()
+        try {
+            val environmentsDirectoryFiles = environmentsDirectory.listFiles()
+            val environmentsFiles = environmentsDirectoryFiles.filter { file -> environmentFileMatcher(file) }
 
-        val environmentsFiles =
-            environmentsDirectoryFiles?.filter { file -> environmentFileMatcher(file) } ?: emptyList()
+            val environments = environmentsFiles.map { environmentFile ->
+                val environmentName = environmentNameExtractor(environmentFile)
+                if (environmentName.isEmpty()) {
+                    return EnvironmentsParserResult.Failure.EnvironmentNameEmpty(environmentFile.path)
+                }
 
-        val environments = environmentsFiles.mapNotNull { file ->
-            val environmentName = environmentNameExtractor(file)
+                val fileContent = environmentFile.readText()
+                if (fileContent.isEmpty()) {
+                    return EnvironmentsParserResult.Failure.FileIsEmpty(environmentFile.path)
+                }
 
-            val fileContent = file.readText()
-            if (fileContent.isEmpty()) return@mapNotNull null
+                val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)
 
-            val platformDtos = try {
-                Json.decodeFromString<Set<PlatformDto>>(fileContent)
-            } catch (error: SerializationException) {
-                return Failure.Serialization(error)
+                Environment(
+                    name = environmentName,
+                    platforms = platformDtos.toPlatforms(),
+                )
             }
 
-            Environment(
-                name = environmentName,
-                platforms = platformDtos.toPlatforms(),
-            )
+            return EnvironmentsParserResult.Success(environments = environments.toSet())
+        } catch (error: Exception) {
+            return EnvironmentsParserResult.Failure.Serialization(error)
         }
-
-        return Success(environments = environments.toSet())
     }
 
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun addEnvironments(
         environmentsDirectory: File,
         environments: Set<Environment>,
-    ): Boolean {
-        if (environments.isEmpty()) return false
+    ): AddEnvironmentsResult {
+        return try {
+            if (!environmentsDirectory.isDirectory) {
+                return AddEnvironmentsResult.Failure.InvalidDirectory(environmentsDirectory.path)
+            }
+            if (environments.isEmpty()) {
+                return AddEnvironmentsResult.Failure.EmptyEnvironments(environmentsDirectory.path)
+            }
 
-        environments.forEach { environment ->
-            val environmentFileName = environmentFileNameExtractor(environment.name)
-            val environmentFile = File(environmentsDirectory, environmentFileName)
-            if (environmentFile.exists()) return false
+            environments.forEach { environment ->
+                val validationResult = environment.validationResult(environmentsDirectory.path)
+                if (validationResult != null) return validationResult
 
-            try {
+                val environmentFileName = environmentFileNameExtractor(environment.name)
+                val environmentFile = File(environmentsDirectory, environmentFileName)
+
+                if (environmentFile.exists()) {
+                    return AddEnvironmentsResult.Failure.FileAlreadyPresent(
+                        environmentFile.path
+                    )
+                }
+                environmentFile.createNewFile()
+
                 val platformDtos = environment.platforms.toPlatformDtos()
                 val platformDtosJson = PrettyJson.encodeToString(platformDtos)
                 environmentFile.writeText(platformDtosJson)
-            } catch (_: Exception) {
-                return false
             }
+
+            AddEnvironmentsResult.Success
+        } catch (error: Exception) {
+            AddEnvironmentsResult.Failure.Serialization(error)
+        }
+    }
+
+    private fun Environment.validationResult(path: String): AddEnvironmentsResult.Failure? =
+        when (isValid()) {
+            Environment.ValidationResult.VALID -> null
+            Environment.ValidationResult.EMPTY_PLATFORMS -> AddEnvironmentsResult.Failure.EmptyPlatforms(path)
+            Environment.ValidationResult.INVALID_PLATFORM -> AddEnvironmentsResult.Failure.InvalidPlatforms(path)
+            Environment.ValidationResult.EMPTY_NAME -> AddEnvironmentsResult.Failure.EmptyEnvironmentName(path)
         }
 
-        return true
-    }
+    override fun isEnvironmentValid(environment: Environment): Boolean =
+        environment.isValid() == Environment.ValidationResult.VALID
 
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->

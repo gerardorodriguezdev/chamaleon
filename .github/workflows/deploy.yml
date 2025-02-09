@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -27,7 +30,7 @@ jobs:
           -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }} \
 
       - name: Verify Jetbrains plugin
-        run: ./gradlew :intellij-plugin:verifyPlugin
+        run: ./gradlew :intellij-plugin:plugin:verifyPlugin
 
       - name: Publish gradle plugin
         run: |
@@ -36,7 +39,7 @@ jobs:
           -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }} \
 
       - name: Publish to Jetbrains Marketplace
-        run: ./gradlew :intellij-plugin:publishPlugin
+        run: ./gradlew :intellij-plugin:plugin:publishPlugin
         env:
           JETBRAINS_PUBLISH_TOKEN: ${{ secrets.JETBRAINS_PUBLISH_TOKEN }}
           JETBRAINS_CERTIFICATE_CHAIN: ${{ secrets.JETBRAINS_CERTIFICATE_CHAIN }}
@@ -58,4 +61,4 @@ jobs:
           files: |
             ./gradle-plugin/build/libs/*.jar
             ./core/build/libs/*.jar
-            ./intellij-plugin/build/distributions/*.zip
+            ./intellij-plugin/plugin/build/distributions/*.zip

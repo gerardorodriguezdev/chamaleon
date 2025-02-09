@@ -13,12 +13,13 @@ It's a [Gradle plugin](gradle-plugin/README.md) that allows you to:
   services)
 - Use in any Kotlin project (multiplatform as well)
 
-Additionally, there is an [Intellij Plugin](intellij-plugin/README.md) that makes it easier to switch environments
+Additionally, there is an [Intellij Plugin](intellij-plugin/plugin/README.md) that makes it easier to switch
+environments
 
 ## How to use start?
 
 1. Set up the [Gradle Plugin](gradle-plugin/README.md)
-2. (Optional) Install the [IntelliJ Plugin](intellij-plugin/README.md)
+2. (Optional) Install the [IntelliJ Plugin](intellij-plugin/plugin/README.md)
 
 ## What problems does it solve?
 
@@ -33,7 +34,7 @@ switch between them as you would usually need to pass some arguments to each `ta
 If you have a mobile app with multiple environments, you usually need to generate a file depending on which environment
 you want to configure.
 However, for backend services you would need to expose the environment contents by environment
-variables, having 2 different ways when working with environments
+variables, having two different ways when working with environments
 
 ### Environment variables all over the place
 
