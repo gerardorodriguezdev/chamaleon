@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.ValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
@@ -59,18 +60,13 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
-    private fun Schema.ValidationResult.toFailureOrNull(path: String): AddSchemaResult.Failure? =
+    private fun ValidationResult.toFailureOrNull(path: String): AddSchemaResult.Failure? =
         when (this) {
-            Schema.ValidationResult.VALID -> null
-            Schema.ValidationResult.EMPTY_SUPPORTED_PLATFORMS -> AddSchemaResult.Failure.EmptySupportedPlatforms(path)
-            Schema.ValidationResult.EMPTY_PROPERTY_DEFINITIONS -> AddSchemaResult.Failure.EmptyPropertyDefinitions(path)
-            Schema.ValidationResult.INVALID_PROPERTY_DEFINITION -> AddSchemaResult.Failure.InvalidPropertyDefinition(
-                path
-            )
-
-            Schema.ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> AddSchemaResult.Failure.DuplicatedPropertyDefinition(
-                path
-            )
+            ValidationResult.VALID -> null
+            ValidationResult.EMPTY_SUPPORTED_PLATFORMS -> AddSchemaResult.Failure.EmptySupportedPlatforms(path)
+            ValidationResult.EMPTY_PROPERTY_DEFINITIONS -> AddSchemaResult.Failure.EmptyPropertyDefinitions(path)
+            ValidationResult.INVALID_PROPERTY_DEFINITION -> AddSchemaResult.Failure.InvalidPropertyDefinition(path)
+            ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> AddSchemaResult.Failure.DuplicatedPropertyDefinition(path)
         }
 
     private fun SchemaDto.toSchema(): Schema =

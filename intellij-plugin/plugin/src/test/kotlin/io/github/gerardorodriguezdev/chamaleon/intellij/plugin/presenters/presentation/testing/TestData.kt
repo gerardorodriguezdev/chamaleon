@@ -8,7 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 
 object TestData {
-    const val ENVIRONMENTS_PATH = "/environments"
+    const val ENVIRONMENTS_DIRECTORY_PATH = "/environments"
 
     const val LOCAL_ENVIRONMENT_NAME = "local"
     const val PRODUCTION_ENVIRONMENT_NAME = "production"
@@ -42,7 +42,7 @@ object TestData {
     )
 
     val successEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
-        environmentsDirectoryPath = ENVIRONMENTS_PATH,
+        environmentsDirectoryPath = ENVIRONMENTS_DIRECTORY_PATH,
         selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
         environments = setOf(
             localEnvironment,

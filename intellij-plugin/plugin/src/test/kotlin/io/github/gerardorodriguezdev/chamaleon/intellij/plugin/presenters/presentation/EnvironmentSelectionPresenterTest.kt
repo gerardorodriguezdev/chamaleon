@@ -35,7 +35,7 @@ class EnvironmentSelectionPresenterTest {
     @BeforeTest
     fun setup() {
         projectDirectory = createTempDirectory().toFile()
-        val environmentsDirectory = File(projectDirectory, TestData.ENVIRONMENTS_PATH)
+        val environmentsDirectory = File(projectDirectory, TestData.ENVIRONMENTS_DIRECTORY_PATH)
         environmentsDirectory.mkdirs()
     }
 
@@ -81,7 +81,7 @@ class EnvironmentSelectionPresenterTest {
 
         presenter.onSelectedEnvironmentChanged(
             projectDirectory = projectDirectory,
-            environmentsDirectoryPath = TestData.ENVIRONMENTS_PATH,
+            environmentsDirectoryPath = TestData.ENVIRONMENTS_DIRECTORY_PATH,
             newSelectedEnvironment = "NonExistingEnvironment"
         )
 
@@ -97,12 +97,12 @@ class EnvironmentSelectionPresenterTest {
 
     @Test
     fun `GIVEN valid environment WHEN onSelectEnvironmentChanged THEN updates selected environment`() {
-        val expectedUpdatedEnvironmentsDirectory = File(projectDirectory, TestData.ENVIRONMENTS_PATH)
+        val expectedUpdatedEnvironmentsDirectory = File(projectDirectory, TestData.ENVIRONMENTS_DIRECTORY_PATH)
         presenter.scanProject(projectDirectory)
 
         presenter.onSelectedEnvironmentChanged(
             projectDirectory = projectDirectory,
-            environmentsDirectoryPath = TestData.ENVIRONMENTS_PATH,
+            environmentsDirectoryPath = TestData.ENVIRONMENTS_DIRECTORY_PATH,
             newSelectedEnvironment = TestData.PRODUCTION_ENVIRONMENT_NAME
         )
 
@@ -137,7 +137,7 @@ class EnvironmentSelectionPresenterTest {
             )
 
         private fun environmentCardState(
-            environmentsDirectoryPath: String = TestData.ENVIRONMENTS_PATH,
+            environmentsDirectoryPath: String = TestData.ENVIRONMENTS_DIRECTORY_PATH,
             selectedEnvironment: String = TestData.LOCAL_ENVIRONMENT_NAME,
             environments: List<String> = TestData.environmentsNamesList,
         ): EnvironmentCardState =
