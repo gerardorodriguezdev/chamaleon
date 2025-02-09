@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
@@ -75,12 +76,12 @@ internal class EnvironmentSelectionPresenter(
             .launch {
                 val environmentsDirectory = File(projectDirectory.path + environmentsDirectoryPath)
 
-                val selectedEnvironmentUpdated = environmentsProcessor.addOrUpdateSelectedEnvironment(
+                val addOrUpdateSelectedEnvironmentResult = environmentsProcessor.addOrUpdateSelectedEnvironment(
                     environmentsDirectory = environmentsDirectory,
                     newSelectedEnvironment = newSelectedEnvironment,
                 )
 
-                if (selectedEnvironmentUpdated) {
+                if (addOrUpdateSelectedEnvironmentResult is AddOrUpdateSelectedEnvironmentResult.Success) {
                     withContext(uiDispatcher) {
                         _state.value = currentState.copy(
                             environmentCardStates = currentState.environmentCardStates.updateEnvironmentCardState(

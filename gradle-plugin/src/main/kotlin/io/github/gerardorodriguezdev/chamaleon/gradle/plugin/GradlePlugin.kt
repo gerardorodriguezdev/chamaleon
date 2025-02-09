@@ -123,7 +123,6 @@ public class GradlePlugin : Plugin<Project> {
         when (this) {
             is EnvironmentsParserResult.Failure.InvalidEnvironment -> "Invalid environment on '$path'"
             is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$path'"
-            is EnvironmentsParserResult.Failure.NoEnvironmentsFound -> "No environments found on '$path'"
             is EnvironmentsParserResult.Failure.Serialization -> "Environment parsing failed with error '${throwable.message}'"
         }
 

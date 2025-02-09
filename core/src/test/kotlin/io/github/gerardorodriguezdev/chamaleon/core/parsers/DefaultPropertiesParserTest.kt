@@ -1,11 +1,16 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNull
 
 class DefaultPropertiesParserTest {
     @TempDir
@@ -67,12 +72,15 @@ class DefaultPropertiesParserTest {
     fun `WHEN addOrUpdateSelectedEnvironment with environment THEN updates file`() {
         createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
-        val propertiesFileUpdated = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
+        val addOrUpdateSelectedEnvironmentResult = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = propertiesFile,
             newSelectedEnvironment = TestData.LOCAL_ENVIRONMENT_NAME,
         )
 
-        assertTrue(propertiesFileUpdated)
+        assertEquals(
+            expected = AddOrUpdateSelectedEnvironmentResult.Success,
+            actual = addOrUpdateSelectedEnvironmentResult
+        )
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
         assertEquals(expected = TestData.LOCAL_ENVIRONMENT_NAME, actual = newSelectedEnvironmentName)
@@ -82,12 +90,15 @@ class DefaultPropertiesParserTest {
     fun `WHEN addOrUpdateSelectedEnvironment without environment THEN updates file`() {
         createPropertiesFile(EMPTY_PROPERTIES_FILE)
 
-        val propertiesFileUpdated = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
+        val addOrUpdateSelectedEnvironmentResult = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = propertiesFile,
             newSelectedEnvironment = null,
         )
 
-        assertTrue(propertiesFileUpdated)
+        assertEquals(
+            expected = AddOrUpdateSelectedEnvironmentResult.Success,
+            actual = addOrUpdateSelectedEnvironmentResult
+        )
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
         assertNull(newSelectedEnvironmentName)
@@ -97,12 +108,15 @@ class DefaultPropertiesParserTest {
     fun `GIVEN selectedEnvironment WHEN addOrUpdateSelectedEnvironment to null THEN empties file`() {
         createPropertiesFile(validPropertiesFile)
 
-        val propertiesFileUpdated = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
+        val addOrUpdateSelectedEnvironmentResult = defaultPropertiesParser.addOrUpdateSelectedEnvironment(
             propertiesFile = propertiesFile,
             newSelectedEnvironment = null,
         )
 
-        assertTrue(propertiesFileUpdated)
+        assertEquals(
+            expected = AddOrUpdateSelectedEnvironmentResult.Success,
+            actual = addOrUpdateSelectedEnvironmentResult
+        )
         val newSelectedEnvironmentName =
             defaultPropertiesParser.propertiesParserResult(propertiesFile).toSuccess().selectedEnvironmentName
         assertNull(newSelectedEnvironmentName)
@@ -147,6 +161,6 @@ class DefaultPropertiesParserTest {
                 }
             """.trimIndent()
 
-        fun PropertiesParser.PropertiesParserResult.toSuccess(): Success = this as Success
+        fun PropertiesParserResult.toSuccess(): Success = this as Success
     }
 }

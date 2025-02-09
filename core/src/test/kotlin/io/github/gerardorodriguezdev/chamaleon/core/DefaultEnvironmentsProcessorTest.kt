@@ -5,11 +5,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.ANDROID
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.JVM
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.PRODUCTION_ENVIRONMENT_NAME
@@ -28,7 +25,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class DefaultEnvironmentsProcessorTest {
     @TempDir
@@ -69,7 +65,7 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN environments parsing serialization error WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 
-            assertIs<EnvironmentsSerialization>(
+            assertIs<EnvironmentsParsingError>(
                 defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
@@ -279,7 +275,7 @@ class DefaultEnvironmentsProcessorTest {
 
     @Test
     fun `WHEN addOrUpdateSelectedEnvironment THEN returns true`() {
-        propertiesParser.addOrUpdateSelectedEnvironmentResult = true
+        propertiesParser.addOrUpdateSelectedEnvironmentResult = AddOrUpdateSelectedEnvironmentResult.Success
 
         val addOrUpdateSelectedEnvironment =
             defaultEnvironmentsProcessor.addOrUpdateSelectedEnvironment(
@@ -287,7 +283,7 @@ class DefaultEnvironmentsProcessorTest {
                 newSelectedEnvironment = LOCAL_ENVIRONMENT_NAME,
             )
 
-        assertTrue(addOrUpdateSelectedEnvironment)
+        assertEquals(expected = AddOrUpdateSelectedEnvironmentResult.Success, actual = addOrUpdateSelectedEnvironment)
     }
 
     @Test
@@ -298,7 +294,7 @@ class DefaultEnvironmentsProcessorTest {
 
     @Test
     fun `WHEN addEnvironmentResult THEN returns true`() {
-        environmentsParser.addEnvironmentsResult = true
+        environmentsParser.addEnvironmentsResult = AddEnvironmentsResult.Success
 
         val addOrUpdateSelectedEnvironment =
             defaultEnvironmentsProcessor.addEnvironments(
@@ -306,7 +302,7 @@ class DefaultEnvironmentsProcessorTest {
                 environments = emptySet(),
             )
 
-        assertTrue(addOrUpdateSelectedEnvironment)
+        assertEquals(expected = AddEnvironmentsResult.Success, actual = addOrUpdateSelectedEnvironment)
     }
 
     @ParameterizedTest

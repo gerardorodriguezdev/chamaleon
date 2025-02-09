@@ -48,7 +48,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertIs<Failure.EmptySupportedPlatforms>(actualSchemaParserResult)
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
     }
 
     @Test
@@ -57,7 +57,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertIs<Failure.EmptyPropertyDefinitions>(actualSchemaParserResult)
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
     }
 
     @Test
@@ -66,7 +66,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertIs<Failure.InvalidPropertyDefinition>(actualSchemaParserResult)
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
     }
 
     @Test
@@ -75,7 +75,7 @@ class DefaultSchemaParserTest {
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertIs<Failure.DuplicatedPropertyDefinition>(actualSchemaParserResult)
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
     }
 
     @Test

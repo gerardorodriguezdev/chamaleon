@@ -9,11 +9,14 @@ import java.io.File
 
 class FakeSchemaParser(
     var schemaParserResult: SchemaParserResult = SchemaParserResult.Success(TestData.schema),
-    var addSchemaResult: AddSchemaResult = AddSchemaResult.Success
+    var addSchemaResult: AddSchemaResult = AddSchemaResult.Success,
+    var isSchemaValidResult: Boolean = true
 ) : SchemaParser {
     override fun schemaParserResult(schemaFile: File): SchemaParserResult = schemaParserResult
     override fun addSchema(
         schemaFile: File,
         schema: Schema
     ): AddSchemaResult = addSchemaResult
+
+    override fun isSchemaValid(schema: Schema): Boolean = isSchemaValidResult
 }

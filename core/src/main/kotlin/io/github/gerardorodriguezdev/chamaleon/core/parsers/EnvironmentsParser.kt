@@ -30,9 +30,6 @@ internal class DefaultEnvironmentsParser(
             val environmentsDirectoryFiles = environmentsDirectory.listFiles()
             val environmentsFiles = environmentsDirectoryFiles.filter { file -> environmentFileMatcher(file) }
 
-            if (environmentsFiles.isEmpty())
-                return EnvironmentsParserResult.Failure.NoEnvironmentsFound(environmentsDirectory.name)
-
             val environments = environmentsFiles.map { environmentFile ->
                 val environmentName = environmentNameExtractor(environmentFile)
                 if (environmentName.isEmpty())
@@ -62,6 +59,8 @@ internal class DefaultEnvironmentsParser(
         environments: Set<Environment>,
     ): AddEnvironmentsResult {
         return try {
+            if (!environmentsDirectory.isDirectory)
+                return AddEnvironmentsResult.Failure.InvalidDirectory(environmentsDirectory.path)
             if (environments.isEmpty())
                 return AddEnvironmentsResult.Failure.EmptyEnvironments(environmentsDirectory.path)
 

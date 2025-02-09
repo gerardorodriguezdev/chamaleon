@@ -1,18 +1,18 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.InvalidEnvironment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.Serialization
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.PRODUCTION_ENVIRONMENT_NAME
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class DefaultEnvironmentsParserTest {
     @TempDir
@@ -34,7 +34,7 @@ class DefaultEnvironmentsParserTest {
     @Test
     fun `GIVEN file not found WHEN environmentsParserResult THEN returns empty set`() {
         environmentFileMatcher = { false }
-        val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = setOf())
+        val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = emptySet())
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
@@ -42,13 +42,12 @@ class DefaultEnvironmentsParserTest {
     }
 
     @Test
-    fun `GIVEN file empty WHEN environmentsParserResult THEN returns empty set`() {
-        val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = setOf())
+    fun `GIVEN file empty WHEN environmentsParserResult THEN returns error`() {
         createEnvironmentsFile()
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
 
-        assertEquals(expected = expectedEnvironmentsParserResult, actual = actualEnvironmentsParserResult)
+        assertIs<InvalidEnvironment>(actualEnvironmentsParserResult)
     }
 
     @Test
@@ -72,20 +71,20 @@ class DefaultEnvironmentsParserTest {
     }
 
     @Test
-    fun `GIVEN environmentsDirectory not found WHEN addEnvironments THEN returns false`() {
+    fun `GIVEN environmentsDirectory not found WHEN addEnvironments THEN returns error`() {
         val result = defaultEnvironmentsParser.addEnvironments(
             environmentsDirectory = environmentsDirectory,
             environments = emptySet(),
         )
 
-        assertFalse(result)
+        assertIs<AddEnvironmentsResult.Failure.EmptyEnvironments>(result)
     }
 
     @Test
-    fun `GIVEN environment file already exists WHEN addEnvironments THEN returns false`() {
+    fun `GIVEN environment file already exists WHEN addEnvironments THEN returns error`() {
         createEnvironmentsFile()
 
-        val result = defaultEnvironmentsParser.addEnvironments(
+        val addEnvironmentsResult = defaultEnvironmentsParser.addEnvironments(
             environmentsDirectory = environmentsDirectory,
             environments = setOf(
                 Environment(
@@ -95,12 +94,12 @@ class DefaultEnvironmentsParserTest {
             ),
         )
 
-        assertFalse(result)
+        assertIs<AddEnvironmentsResult.Failure.FileAlreadyPresent>(addEnvironmentsResult)
     }
 
     @Test
-    fun `GIVEN environments WHEN addEnvironments THEN returns true`() {
-        val result = defaultEnvironmentsParser.addEnvironments(
+    fun `GIVEN environments WHEN addEnvironments THEN returns success`() {
+        val addEnvironmentsResult = defaultEnvironmentsParser.addEnvironments(
             environmentsDirectory = environmentsDirectory,
             environments = setOf(
                 TestData.environment,
@@ -114,7 +113,7 @@ class DefaultEnvironmentsParserTest {
         val productionEnvironmentFile = File(environmentsDirectory, PRODUCTION_ENVIRONMENT_NAME)
         val productionEnvironmentFileContent = productionEnvironmentFile.readText()
 
-        assertTrue(result)
+        assertEquals(expected = AddEnvironmentsResult.Success, actual = addEnvironmentsResult)
         assertEquals(expected = environmentWithoutOptionals, actual = localEnvironmentFileContent)
         assertEquals(expected = environmentWithoutOptionals, actual = productionEnvironmentFileContent)
     }
