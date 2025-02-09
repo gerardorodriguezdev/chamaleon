@@ -1,3 +1,5 @@
+@file:Suppress("InvalidPackageDeclaration")
+
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows
 
 import androidx.compose.foundation.layout.Box
