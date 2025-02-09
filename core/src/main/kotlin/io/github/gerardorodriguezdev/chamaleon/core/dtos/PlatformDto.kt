@@ -14,20 +14,10 @@ internal data class PlatformDto(
     data class PropertyDto(
         val name: String,
         val value: PropertyValue?,
-    ) {
-        fun isValid(): Boolean {
-            if (name.isEmpty()) return false
-            if (value == null) return true
-            if (!value.isValid()) return false
-            return true
-        }
-    }
+    )
 
     fun isValid(): ValidationResult {
         if (properties.isEmpty()) return ValidationResult.EMPTY_PROPERTIES
-
-        if (properties.any { property -> !property.isValid() }) return ValidationResult.INVALID_PROPERTY
-
         return ValidationResult.VALID
     }
 

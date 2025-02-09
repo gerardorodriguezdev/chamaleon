@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.dtos
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyStringSerializer
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -9,6 +10,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class SchemaDto(
+    //TODO: Non empty set here
     val supportedPlatforms: Set<PlatformType>,
     @SerialName("propertyDefinitions")
     val propertyDefinitionDtos: Set<PropertyDefinitionDto>,
@@ -16,24 +18,23 @@ internal data class SchemaDto(
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     data class PropertyDefinitionDto(
+        @Serializable(with = NonEmptyStringSerializer::class)
         val name: String,
         val propertyType: PropertyType,
         val nullable: Boolean = false,
         @EncodeDefault
         val supportedPlatforms: Set<PlatformType> = emptySet(),
     ) {
-        //TODO: Test
         fun isValid(supportedPlatforms: Set<PlatformType>): Boolean {
-            if (name.isEmpty()) return false
             if (containsUnsupportedPlatforms(supportedPlatforms)) return false
             return true
         }
 
+        //TODO: To serializer? Can it be possible?
         private fun PropertyDefinitionDto.containsUnsupportedPlatforms(supportedPlatforms: Set<PlatformType>): Boolean =
             this.supportedPlatforms.isNotEmpty() && !supportedPlatforms.containsAll(this.supportedPlatforms)
     }
 
-    //TODO: Test
     fun isValid(): ValidationResult {
         if (supportedPlatforms.isEmpty()) return ValidationResult.EMPTY_SUPPORTED_PLATFORMS
         if (propertyDefinitionDtos.isEmpty()) return ValidationResult.EMPTY_PROPERTY_DEFINITIONS

@@ -33,9 +33,6 @@ internal class DefaultPropertiesParser : PropertiesParser {
 
             val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
 
-            val verificationResult = propertiesDto.isValid()
-            if (!verificationResult) return Failure.InvalidPropertiesFile
-
             return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
         } catch (error: Exception) {
             Failure.Serialization(error)
