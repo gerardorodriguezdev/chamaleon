@@ -29,10 +29,6 @@ internal class DefaultSchemaParser : SchemaParser {
 
         return try {
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
-
-            val verificationResult = schemaDto.isValid().toFailureOrNull(path = schemaFile.path)
-            if (verificationResult != null) return verificationResult
-
             SchemaParserResult.Success(schemaDto.toSchema())
         } catch (exception: SerializationException) {
             SchemaParserResult.Failure.Serialization(exception)
@@ -63,26 +59,6 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
-    private fun SchemaDto.ValidationResult.toFailureOrNull(path: String): SchemaParserResult.Failure? =
-        when (this) {
-            SchemaDto.ValidationResult.VALID -> null
-            SchemaDto.ValidationResult.EMPTY_SUPPORTED_PLATFORMS -> SchemaParserResult.Failure.EmptySupportedPlatforms(
-                path
-            )
-
-            SchemaDto.ValidationResult.EMPTY_PROPERTY_DEFINITIONS -> SchemaParserResult.Failure.EmptyPropertyDefinitions(
-                path
-            )
-
-            SchemaDto.ValidationResult.INVALID_PROPERTY_DEFINITION -> SchemaParserResult.Failure.InvalidPropertyDefinition(
-                path
-            )
-
-            SchemaDto.ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> SchemaParserResult.Failure.DuplicatedPropertyDefinition(
-                path
-            )
-        }
-
     private fun Schema.ValidationResult.toFailureOrNull(path: String): AddSchemaResult.Failure? =
         when (this) {
             Schema.ValidationResult.VALID -> null
@@ -100,13 +76,13 @@ internal class DefaultSchemaParser : SchemaParser {
     private fun SchemaDto.toSchema(): Schema =
         Schema(
             supportedPlatforms = this@toSchema.supportedPlatforms,
-            propertyDefinitions = propertyDefinitionDtos.toPropertyDefinitions(),
+            propertyDefinitions = propertyDefinitionsDtos.toPropertyDefinitions(),
         )
 
     private fun Schema.toSchemaDto(): SchemaDto =
         SchemaDto(
             supportedPlatforms = this@toSchemaDto.supportedPlatforms,
-            propertyDefinitionDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
+            propertyDefinitionsDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
         )
 
     private fun Set<PropertyDefinitionDto>.toPropertyDefinitions(): Set<PropertyDefinition> =
