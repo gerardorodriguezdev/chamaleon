@@ -43,5 +43,12 @@ public data class Platform(
         }
     }
 
-    internal fun isValid(): Boolean = !properties.any { property -> !property.isValid() }
+    internal fun isValid(): Boolean {
+        if (properties.any { property -> !property.isValid() }) return false
+
+        val uniqueProperties = properties.distinctBy { property -> property.name }
+        if (uniqueProperties.size != properties.size) return false
+
+        return true
+    }
 }
