@@ -24,7 +24,6 @@ fun SetupPropertiesWindow(
         modifier = modifier,
         toolbar = { Toolbar(title = string(StringsKeys.addProperties), forceLabelWidth = false) },
         content = {
-            // TODO: Do this for each platform available
             item {
                 Section(
                     title = string(StringsKeys.properties),
@@ -41,8 +40,6 @@ fun SetupPropertiesWindow(
                         },
                     )
 
-                    // TODO: Add null case (show null on text edit placeholder or show null on first selected option but treat as not existent)
-                    // TODO: Sep smaller pieces
                     when (property.value) {
                         is StringProperty ->
                             InputTextField(
@@ -63,7 +60,6 @@ fun SetupPropertiesWindow(
                                 label = string(StringsKeys.value),
                                 selectedValue = property.value.value.toString(),
                                 content = {
-                                    // TODO: Pass bools from state
                                     allBooleans.forEach { boolean ->
                                         item(
                                             text = boolean.toString(),

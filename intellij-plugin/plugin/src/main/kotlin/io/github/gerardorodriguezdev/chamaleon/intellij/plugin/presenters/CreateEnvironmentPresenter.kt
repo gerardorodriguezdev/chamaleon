@@ -24,8 +24,6 @@ internal class CreateEnvironmentPresenter(
     ioDispatcher: CoroutineContext,
     private val onSelectEnvironmentPathClicked: () -> String?,
 ) : Disposable {
-    // TODO: Title for setup schema depending if schema existing or not
-    // TODO: Execute externally notification of progress
     private val _state = MutableStateFlow<State>(value = LoadingState())
     val state: StateFlow<State> = _state
 
@@ -51,24 +49,18 @@ internal class CreateEnvironmentPresenter(
                 when (result) {
                     is EnvironmentsProcessorResult.Success -> {
                         environmentsProcessorResult = result
-                        //TODO: Continue
                     }
 
                     is EnvironmentsProcessorResult.Failure -> when (result) {
-                        is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound -> {
-                            //TODO: Continue
-                        }
+                        is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound -> {}
 
-                        is EnvironmentsProcessorResult.Failure.SchemaParsingError -> when (val error =
-                            result.schemaParsingError) {
-                            is SchemaParserResult.Failure.FileNotFound -> {
-                                //TODO: Continue
+                        is EnvironmentsProcessorResult.Failure.SchemaParsingError ->
+                            when (val error = result.schemaParsingError) {
+                                is SchemaParserResult.Failure.FileNotFound -> {}
+                                else -> {}
                             }
 
-                            else -> {} //TODO: Error
-                        }
-
-                        else -> {} //TODO: Error
+                        else -> {}
                     }
                 }
             }
@@ -88,13 +80,10 @@ internal class CreateEnvironmentPresenter(
         when (this) {
             is SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> {
                 val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
-                selectedEnvironmentPath?.let { path ->
-                    // TODO: Update path selected here
-                    // TODO: Try processing env
-                }
+                selectedEnvironmentPath?.let { path -> }
             }
 
-            is SetupEnvironmentAction.OnEnvironmentNameChanged -> Unit // TODO: Finish
+            is SetupEnvironmentAction.OnEnvironmentNameChanged -> Unit
         }
     }
 
