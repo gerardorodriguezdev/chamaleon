@@ -17,15 +17,4 @@ internal data class PlatformDto(
         val name: String,
         val value: PropertyValue?,
     )
-
-    fun isValid(): ValidationResult {
-        if (properties.isEmpty()) return ValidationResult.EMPTY_PROPERTIES
-        return ValidationResult.VALID
-    }
-
-    enum class ValidationResult {
-        VALID,
-        EMPTY_PROPERTIES,
-        INVALID_PROPERTY,
-    }
 }
