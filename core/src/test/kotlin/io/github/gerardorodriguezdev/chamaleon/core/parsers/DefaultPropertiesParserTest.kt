@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.io.TempDir
 import java.io.File

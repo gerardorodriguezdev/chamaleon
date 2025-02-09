@@ -8,8 +8,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.Strin
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.PRODUCTION_ENVIRONMENT_NAME
