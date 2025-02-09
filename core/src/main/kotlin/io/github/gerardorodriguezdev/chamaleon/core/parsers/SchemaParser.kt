@@ -23,12 +23,11 @@ public interface SchemaParser {
 internal class DefaultSchemaParser : SchemaParser {
     @Suppress("ReturnCount")
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
-        if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFile.path)
-
-        val schemaFileContent = schemaFile.readText()
-        if (schemaFileContent.isEmpty()) return SchemaParserResult.Failure.FileIsEmpty(schemaFile.path)
-
         return try {
+            if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFile.path)
+            val schemaFileContent = schemaFile.readText()
+            if (schemaFileContent.isEmpty()) return SchemaParserResult.Failure.FileIsEmpty(schemaFile.path)
+
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
             SchemaParserResult.Success(schemaDto.toSchema())
         } catch (exception: SerializationException) {
@@ -36,21 +35,23 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
-    //TODO: Test
-    //TODO: Update processor
     override fun addSchema(
         schemaFile: File,
         newSchema: Schema
     ): AddSchemaResult {
-        //TODO: Create file if not present. If present return error. Remote file not found error
-        if (!schemaFile.exists()) return AddSchemaResult.Failure.FileNotFound(schemaFile.path)
-        if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
-
-        val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.path)
-        if (verificationResult != null) return verificationResult
-
-        val schemaDto = newSchema.toSchemaDto()
         return try {
+            if (schemaFile.exists()) return AddSchemaResult.Failure.FileAlreadyPresent(schemaFile.path)
+            if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
+
+            if (!schemaFile.exists()) {
+                schemaFile.createNewFile()
+            }
+
+            val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.path)
+            if (verificationResult != null) return verificationResult
+
+            val schemaDto = newSchema.toSchemaDto()
+
             val schemaFileContent = PrettyJson.encodeToString(schemaDto)
             schemaFile.writeText(schemaFileContent)
 
@@ -75,12 +76,6 @@ internal class DefaultSchemaParser : SchemaParser {
             propertyDefinitions = propertyDefinitionsDtos.toPropertyDefinitions(),
         )
 
-    private fun Schema.toSchemaDto(): SchemaDto =
-        SchemaDto(
-            supportedPlatforms = this@toSchemaDto.supportedPlatforms,
-            propertyDefinitionsDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
-        )
-
     private fun Set<PropertyDefinitionDto>.toPropertyDefinitions(): Set<PropertyDefinition> =
         map { propertyDefinitionDto ->
             PropertyDefinition(
@@ -90,6 +85,12 @@ internal class DefaultSchemaParser : SchemaParser {
                 supportedPlatforms = propertyDefinitionDto.supportedPlatforms,
             )
         }.toSet()
+
+    private fun Schema.toSchemaDto(): SchemaDto =
+        SchemaDto(
+            supportedPlatforms = this@toSchemaDto.supportedPlatforms,
+            propertyDefinitionsDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
+        )
 
     private fun Set<PropertyDefinition>.toPropertyDefinitionsDtos(): Set<PropertyDefinitionDto> =
         map { propertyDefinition ->

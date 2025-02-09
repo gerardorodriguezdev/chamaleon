@@ -9,13 +9,10 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toFailure
 import io.github.gerardorodriguezdev.chamaleon.core.models.Result.Companion.toSuccess
@@ -30,7 +27,7 @@ public interface EnvironmentsProcessor {
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
     public fun addOrUpdateSelectedEnvironment(environmentsDirectory: File, newSelectedEnvironment: String?): Boolean
     public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
-    // TODO: addSchema function
+    public fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult
 
     public companion object {
         public const val SCHEMA_FILE: String = "template.chamaleon.json"
@@ -104,6 +101,9 @@ internal class DefaultEnvironmentsProcessor(
 
     override fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean =
         environmentsParser.addEnvironments(environmentsDirectory, environments)
+
+    override fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult =
+        schemaParser.addSchema(schemaFile, newSchema)
 
     @Suppress("ReturnCount")
     private suspend fun parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> =
@@ -342,7 +342,6 @@ internal class DefaultEnvironmentsProcessor(
         val selectedEnvironmentName: String?,
     )
 
-    //TODO: Move out
     internal companion object {
         val environmentFileMatcher: (file: File) -> Boolean =
             { file: File -> file.name != ENVIRONMENT_FILE_SUFFIX && file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) }

@@ -7,8 +7,8 @@ public sealed interface AddSchemaResult {
         public data class EmptyPropertyDefinitions(val path: String) : Failure
         public data class InvalidPropertyDefinition(val path: String) : Failure
         public data class DuplicatedPropertyDefinition(val path: String) : Failure
-        public data class FileNotFound(val path: String) : Failure
         public data class InvalidFile(val path: String) : Failure
+        public data class FileAlreadyPresent(val path: String) : Failure
         public data class Serialization(val path: String, val throwable: Throwable) : Failure
     }
 }
