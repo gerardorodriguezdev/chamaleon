@@ -9,6 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddSchemaRe
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import java.io.File
 
+@Suppress("LongParameterList")
 class FakeEnvironmentsProcessor(
     var processEnvironmentsProcessorResult: EnvironmentsProcessorResult = TestData.successEnvironmentsProcessorResult,
     var processRecursivelyResult: List<EnvironmentsProcessorResult> = listOf(

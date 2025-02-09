@@ -34,11 +34,11 @@ fun EnvironmentSelectionWindow(
 
 @Composable
 private fun ContentWindow(
-    modifier: Modifier = Modifier,
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefreshClicked: () -> Unit,
     onCreateEnvironmentClicked: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     WindowContainer(
         modifier = modifier,

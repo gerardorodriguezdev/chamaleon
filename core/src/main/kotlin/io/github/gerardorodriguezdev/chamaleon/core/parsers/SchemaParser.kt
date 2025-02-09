@@ -37,6 +37,7 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun addSchema(
         schemaFile: File,
         newSchema: Schema
@@ -69,7 +70,9 @@ internal class DefaultSchemaParser : SchemaParser {
             ValidationResult.EMPTY_SUPPORTED_PLATFORMS -> AddSchemaResult.Failure.EmptySupportedPlatforms(path)
             ValidationResult.EMPTY_PROPERTY_DEFINITIONS -> AddSchemaResult.Failure.EmptyPropertyDefinitions(path)
             ValidationResult.INVALID_PROPERTY_DEFINITION -> AddSchemaResult.Failure.InvalidPropertyDefinition(path)
-            ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> AddSchemaResult.Failure.DuplicatedPropertyDefinition(path)
+            ValidationResult.DUPLICATED_PROPERTY_DEFINITION -> AddSchemaResult.Failure.DuplicatedPropertyDefinition(
+                path
+            )
         }
 
     private fun SchemaDto.toSchema(): Schema =

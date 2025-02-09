@@ -89,7 +89,9 @@ class GradlePluginTest {
         assertEquals(expected = environmentsFiles.size, actual = 2)
 
         val localEnvironmentFile =
-            environmentsFiles.first { environmentFile -> environmentFile.name == SampleResources.localEnvironmentResource.fileName }
+            environmentsFiles.first { environmentFile ->
+                environmentFile.name == SampleResources.localEnvironmentResource.fileName
+            }
         val localEnvironmentFileContent = localEnvironmentFile.readText()
         assertEquals(
             expected = SampleResources.localEnvironmentResource.fileContent,

@@ -93,6 +93,7 @@ internal class SchemaDtoSerializerTest {
         }
 
         @Test
+        @Suppress("MaximumLineLength")
         fun `GIVEN valid schema dto WHEN serialize THEN returns json`() {
             //language=json
             val expectedJson =
@@ -212,7 +213,6 @@ internal class SchemaDtoSerializerTest {
                 Json.decodeFromString<SchemaDto>(json)
             }
         }
-
 
         @Test
         fun `GIVEN valid WHEN deserialize THEN returns nullable string`() {

@@ -30,6 +30,7 @@ public data class Environment(
             platform.platformType == platformType
         }
 
+    @Suppress("ReturnCount")
     internal fun isValid(): ValidationResult {
         if (name.isEmpty()) return ValidationResult.EMPTY_NAME
         if (platforms.isEmpty()) return ValidationResult.EMPTY_PLATFORMS

@@ -10,12 +10,13 @@ import java.io.File
 public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
     public fun addOrUpdateSelectedEnvironment(
-        propertiesFile: File, newSelectedEnvironment: String?
+        propertiesFile: File,
+        newSelectedEnvironment: String?
     ): AddOrUpdateSelectedEnvironmentResult
 }
 
 internal class DefaultPropertiesParser : PropertiesParser {
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         return try {
             if (!propertiesFile.exists()) return PropertiesParserResult.Success()
@@ -31,19 +32,21 @@ internal class DefaultPropertiesParser : PropertiesParser {
         }
     }
 
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun addOrUpdateSelectedEnvironment(
         propertiesFile: File,
         newSelectedEnvironment: String?,
     ): AddOrUpdateSelectedEnvironmentResult {
         return try {
-            if (propertiesFile.isDirectory)
+            if (propertiesFile.isDirectory) {
                 return AddOrUpdateSelectedEnvironmentResult.Failure.InvalidFile(propertiesFile.path)
+            }
             if (!propertiesFile.exists()) {
                 propertiesFile.createNewFile()
             }
-            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty())
+            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty()) {
                 return AddOrUpdateSelectedEnvironmentResult.Failure.EnvironmentNameIsEmpty(propertiesFile.path)
+            }
             val propertiesDto =
                 PropertiesDto(
                     selectedEnvironmentName = newSelectedEnvironment

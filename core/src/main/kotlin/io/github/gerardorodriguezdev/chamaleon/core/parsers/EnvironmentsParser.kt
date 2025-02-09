@@ -25,6 +25,7 @@ internal class DefaultEnvironmentsParser(
     val environmentFileNameExtractor: (environmentName: String) -> String,
 ) : EnvironmentsParser {
 
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
         try {
             val environmentsDirectoryFiles = environmentsDirectory.listFiles()
@@ -32,12 +33,14 @@ internal class DefaultEnvironmentsParser(
 
             val environments = environmentsFiles.map { environmentFile ->
                 val environmentName = environmentNameExtractor(environmentFile)
-                if (environmentName.isEmpty())
+                if (environmentName.isEmpty()) {
                     return EnvironmentsParserResult.Failure.EnvironmentNameEmpty(environmentFile.path)
+                }
 
                 val fileContent = environmentFile.readText()
-                if (fileContent.isEmpty())
+                if (fileContent.isEmpty()) {
                     return EnvironmentsParserResult.Failure.InvalidEnvironment(environmentFile.path)
+                }
 
                 val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)
 
@@ -53,16 +56,18 @@ internal class DefaultEnvironmentsParser(
         }
     }
 
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun addEnvironments(
         environmentsDirectory: File,
         environments: Set<Environment>,
     ): AddEnvironmentsResult {
         return try {
-            if (!environmentsDirectory.isDirectory)
+            if (!environmentsDirectory.isDirectory) {
                 return AddEnvironmentsResult.Failure.InvalidDirectory(environmentsDirectory.path)
-            if (environments.isEmpty())
+            }
+            if (environments.isEmpty()) {
                 return AddEnvironmentsResult.Failure.EmptyEnvironments(environmentsDirectory.path)
+            }
 
             environments.forEach { environment ->
                 val validationResult = environment.validationResult(environmentsDirectory.path)
@@ -71,7 +76,11 @@ internal class DefaultEnvironmentsParser(
                 val environmentFileName = environmentFileNameExtractor(environment.name)
                 val environmentFile = File(environmentsDirectory, environmentFileName)
 
-                if (environmentFile.exists()) return AddEnvironmentsResult.Failure.FileAlreadyPresent(environmentFile.path)
+                if (environmentFile.exists()) {
+                    return AddEnvironmentsResult.Failure.FileAlreadyPresent(
+                        environmentFile.path
+                    )
+                }
                 environmentFile.createNewFile()
 
                 val platformDtos = environment.platforms.toPlatformDtos()

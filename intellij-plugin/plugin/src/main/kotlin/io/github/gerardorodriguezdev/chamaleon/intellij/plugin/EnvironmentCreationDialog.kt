@@ -66,8 +66,8 @@ internal class EnvironmentCreationDialog(
                 }
             }
         }.apply {
-            minimumWidth = 400
-            minimumHeight = 400
+            minimumWidth = DIALOG_MIN_SIZE
+            minimumHeight = DIALOG_MIN_SIZE
         }
     }
 
@@ -107,5 +107,9 @@ internal class EnvironmentCreationDialog(
             null
         )
         return selectedDirectory?.path
+    }
+
+    private companion object {
+        const val DIALOG_MIN_SIZE = 400
     }
 }

@@ -1,5 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.entities
 
+@Suppress("ReturnCount")
 public data class Schema(
     val supportedPlatforms: Set<PlatformType>,
     val propertyDefinitions: Set<PropertyDefinition>,
@@ -22,7 +23,9 @@ public data class Schema(
 
         val uniquePropertyDefinitions =
             propertyDefinitions.distinctBy { propertyDefinition -> propertyDefinition.name }
-        if (propertyDefinitions.size != uniquePropertyDefinitions.size) return ValidationResult.DUPLICATED_PROPERTY_DEFINITION
+        if (propertyDefinitions.size != uniquePropertyDefinitions.size) {
+            return ValidationResult.DUPLICATED_PROPERTY_DEFINITION
+        }
 
         return ValidationResult.VALID
     }
