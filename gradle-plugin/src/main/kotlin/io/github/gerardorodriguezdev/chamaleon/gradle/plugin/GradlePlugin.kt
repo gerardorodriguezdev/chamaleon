@@ -8,6 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.results.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -96,7 +97,12 @@ public class GradlePlugin : Plugin<Project> {
             }
 
             is Failure.EnvironmentsSerialization -> "Environments parsing failed with error '${throwable.message}'"
-            is Failure.PropertiesSerialization -> "Properties parsing failed with error '${throwable.message}'"
+
+            is Failure.PropertiesParsingError -> when (val error = this.propertiesParsingError) {
+                is PropertiesParser.PropertiesParserResult.Failure.Serialization -> "Properties parsing failed with error '${error.throwable.message}'"
+                is PropertiesParser.PropertiesParserResult.Failure.InvalidPropertiesFile -> "Invalid properties file"
+            }
+
             is Failure.PlatformsNotEqualToSchema ->
                 "Platforms of environment '$environmentName' are not equal to schema"
 

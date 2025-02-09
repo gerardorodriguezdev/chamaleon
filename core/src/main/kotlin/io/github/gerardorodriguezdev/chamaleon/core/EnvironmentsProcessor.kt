@@ -161,7 +161,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(): Result<String?, Failure> =
         when (this) {
             is PropertiesParserResult.Success -> selectedEnvironmentName.toSuccess()
-            is PropertiesParserResult.Failure -> PropertiesSerialization(throwable).toFailure()
+            is PropertiesParserResult.Failure -> PropertiesParsingError(this).toFailure()
         }
 
     @Suppress("ReturnCount")

@@ -76,18 +76,9 @@ class DefaultEnvironmentsProcessorTest {
 
         @Test
         fun `GIVEN invalid properties file WHEN process THEN returns failure`() = runTest {
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
+            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.Serialization(Exception())
 
-            assertIs<PropertiesSerialization>(
-                defaultEnvironmentsProcessor.process(environmentsDirectory)
-            )
-        }
-
-        @Test
-        fun `GIVEN properties file parsing error WHEN process THEN returns failure`() = runTest {
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
-
-            assertIs<PropertiesSerialization>(
+            assertIs<PropertiesParsingError>(
                 defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
@@ -274,14 +265,13 @@ class DefaultEnvironmentsProcessorTest {
 
         @Test
         fun `GIVEN invalid environments WHEN processRecursively THEN returns results list`() = runTest {
-            val expectedException = Exception()
             createEnvironmentsDirectory()
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(expectedException)
+            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.InvalidPropertiesFile
 
             val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
 
             assertEquals(
-                expected = listOf(PropertiesSerialization(expectedException)),
+                expected = listOf(PropertiesParsingError(PropertiesParserResult.Failure.InvalidPropertiesFile)),
                 actual = environmentsProcessorResults,
             )
         }

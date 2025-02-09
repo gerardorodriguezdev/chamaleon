@@ -7,7 +7,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.E
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -49,7 +48,7 @@ internal class DefaultEnvironmentsParser(
 
             val platformDtos = try {
                 Json.decodeFromString<Set<PlatformDto>>(fileContent)
-            } catch (error: SerializationException) {
+            } catch (error: Exception) {
                 return Failure.Serialization(error)
             }
 
