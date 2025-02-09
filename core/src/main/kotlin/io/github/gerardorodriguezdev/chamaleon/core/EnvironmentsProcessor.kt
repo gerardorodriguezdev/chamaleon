@@ -31,7 +31,8 @@ public interface EnvironmentsProcessor {
         newSelectedEnvironment: String?,
     ): AddOrUpdateSelectedEnvironmentResult
 
-    public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean
+    public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): AddEnvironmentsResult
+    public fun isEnvironmentValid(environment: Environment): Boolean
 
     public fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult
     public fun isSchemaValid(schema: Schema): Boolean
@@ -106,8 +107,11 @@ internal class DefaultEnvironmentsProcessor(
             newSelectedEnvironment = newSelectedEnvironment,
         )
 
-    override fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): Boolean =
+    override fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): AddEnvironmentsResult =
         environmentsParser.addEnvironments(environmentsDirectory, environments)
+
+    override fun isEnvironmentValid(environment: Environment): Boolean =
+        environmentsParser.isEnvironmentValid(environment)
 
     override fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult =
         schemaParser.addSchema(schemaFile, newSchema)
@@ -164,7 +168,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun EnvironmentsParserResult.environmentsOrFailure(): Result<Set<Environment>, Failure> =
         when (this) {
             is EnvironmentsParserResult.Success -> environments.toSuccess()
-            is EnvironmentsParserResult.Failure.Serialization -> EnvironmentsSerialization(throwable).toFailure()
+            is EnvironmentsParserResult.Failure -> EnvironmentsParsingError(this).toFailure()
         }
 
     private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(): Result<String?, Failure> =
@@ -340,7 +344,7 @@ internal class DefaultEnvironmentsProcessor(
     private fun File.environmentsDirectoriesPaths(): List<String> =
         walkTopDown()
             .filter { file -> file.isEnvironmentsDirectory }
-            .map { file -> file.absolutePath }
+            .map { environmentFile -> environmentFile.absolutePath }
             .toList()
 
     private val File.isEnvironmentsDirectory: Boolean get() = isDirectory && name == ENVIRONMENTS_DIRECTORY_NAME
@@ -352,10 +356,14 @@ internal class DefaultEnvironmentsProcessor(
     )
 
     internal companion object {
-        val environmentFileMatcher: (file: File) -> Boolean =
-            { file: File -> file.name != ENVIRONMENT_FILE_SUFFIX && file.name.endsWith(ENVIRONMENT_FILE_SUFFIX) }
-        val environmentNameExtractor: (file: File) -> String =
-            { file: File -> file.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
+        val environmentFileMatcher: (environmentFile: File) -> Boolean =
+            { environmentFile: File ->
+                environmentFile.name != ENVIRONMENT_FILE_SUFFIX && environmentFile.name.endsWith(
+                    ENVIRONMENT_FILE_SUFFIX
+                )
+            }
+        val environmentNameExtractor: (environmentFile: File) -> String =
+            { environmentFile: File -> environmentFile.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX) }
         val environmentFileNameExtractor: (String) -> String =
             { environmentName -> EnvironmentsProcessor.environmentFileName(environmentName) }
     }

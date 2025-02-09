@@ -18,8 +18,8 @@ class DefaultEnvironmentsParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
-    private var environmentFileMatcher: (file: File) -> Boolean = { _ -> true }
-    private var environmentNameExtractor: (file: File) -> String = { _ -> LOCAL_ENVIRONMENT_NAME }
+    private var environmentFileMatcher: (environmentFile: File) -> Boolean = { _ -> true }
+    private var environmentNameExtractor: (environmentFile: File) -> String = { _ -> LOCAL_ENVIRONMENT_NAME }
     private var environmentFileNameExtractor: (environmentName: String) -> String =
         { environmentName -> environmentName }
 

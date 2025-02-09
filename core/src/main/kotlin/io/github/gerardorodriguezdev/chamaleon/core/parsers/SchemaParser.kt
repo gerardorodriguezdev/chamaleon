@@ -43,11 +43,9 @@ internal class DefaultSchemaParser : SchemaParser {
     ): AddSchemaResult {
         return try {
             if (schemaFile.exists()) return AddSchemaResult.Failure.FileAlreadyPresent(schemaFile.path)
-            if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
+            schemaFile.createNewFile()
 
-            if (!schemaFile.exists()) {
-                schemaFile.createNewFile()
-            }
+            if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFile.path)
 
             val verificationResult = newSchema.isValid().toFailureOrNull(schemaFile.path)
             if (verificationResult != null) return verificationResult
@@ -59,7 +57,7 @@ internal class DefaultSchemaParser : SchemaParser {
 
             AddSchemaResult.Success
         } catch (error: Exception) {
-            AddSchemaResult.Failure.Serialization(schemaFile.path, error)
+            AddSchemaResult.Failure.Serialization(error)
         }
     }
 

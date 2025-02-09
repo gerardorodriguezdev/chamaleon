@@ -68,9 +68,9 @@ class GradlePluginTest {
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
         assertEquals(expected = environmentsFiles.size, actual = SampleResources.resources.size)
-        environmentsFiles.forEach { file ->
-            val resource = SampleResources.resources.first { resource -> resource.fileName == file.name }
-            assertEquals(expected = resource.fileContent, actual = file.readText())
+        environmentsFiles.forEach { environmentFile ->
+            val resource = SampleResources.resources.first { resource -> resource.fileName == environmentFile.name }
+            assertEquals(expected = resource.fileContent, actual = environmentFile.readText())
         }
     }
 
@@ -89,7 +89,7 @@ class GradlePluginTest {
         assertEquals(expected = environmentsFiles.size, actual = 2)
 
         val localEnvironmentFile =
-            environmentsFiles.first { file -> file.name == SampleResources.localEnvironmentResource.fileName }
+            environmentsFiles.first { environmentFile -> environmentFile.name == SampleResources.localEnvironmentResource.fileName }
         val localEnvironmentFileContent = localEnvironmentFile.readText()
         assertEquals(
             expected = SampleResources.localEnvironmentResource.fileContent,
@@ -109,7 +109,8 @@ class GradlePluginTest {
         )
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
-        val propertiesFile = environmentsFiles.first { file -> file.name == EnvironmentsProcessor.PROPERTIES_FILE }
+        val propertiesFile =
+            environmentsFiles.first { environmentFile -> environmentFile.name == EnvironmentsProcessor.PROPERTIES_FILE }
         val propertiesFileContent = propertiesFile.readText()
         assertEquals(
             expected = propertiesFileContentWithProductionEnvironmentSelected,

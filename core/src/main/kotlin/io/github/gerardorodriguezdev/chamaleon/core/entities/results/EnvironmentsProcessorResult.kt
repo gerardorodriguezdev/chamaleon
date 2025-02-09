@@ -3,7 +3,6 @@ package io.github.gerardorodriguezdev.chamaleon.core.entities.results
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser
 
 public sealed interface EnvironmentsProcessorResult {
     public data class Success(
@@ -17,10 +16,12 @@ public sealed interface EnvironmentsProcessorResult {
 
         public data class SchemaParsingError(val schemaParsingError: SchemaParserResult.Failure) : Failure
 
-        public data class EnvironmentsSerialization(val throwable: Throwable) : Failure
-
         public data class PropertiesParsingError(
-            val propertiesParsingError: PropertiesParser.PropertiesParserResult.Failure
+            val propertiesParsingError: PropertiesParserResult.Failure
+        ) : Failure
+
+        public data class EnvironmentsParsingError(
+            val environmentsParsingError: EnvironmentsParserResult.Failure,
         ) : Failure
 
         public data class PlatformsNotEqualToSchema(val environmentName: String) : Failure

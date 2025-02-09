@@ -27,8 +27,8 @@ class EnvironmentSelectionPresenterTest {
         environmentsProcessor = environmentsProcessor,
         uiDispatcher = dispatcher,
         ioDispatcher = dispatcher,
-        onEnvironmentsDirectoryChanged = { file ->
-            environmentDirectoryChangedEvents.add(file)
+        onEnvironmentsDirectoryChanged = { environmentsDirectory ->
+            environmentDirectoryChangedEvents.add(environmentsDirectory)
         }
     )
 
