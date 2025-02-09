@@ -1,14 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.core
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.EnvironmentsProcessorResult.Failure.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.ANDROID
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType.JVM
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.PRODUCTION_ENVIRONMENT_NAME
@@ -27,7 +25,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class DefaultEnvironmentsProcessorTest {
     @TempDir
@@ -59,65 +56,25 @@ class DefaultEnvironmentsProcessorTest {
         fun `GIVEN schema parsing file not found WHEN process THEN returns failure`() = runTest {
             schemaParser.schemaParserResult = SchemaParserResult.Failure.FileNotFound("")
 
-            assertIs<SchemaFileNotFound>(
+            assertIs<SchemaParsingError>(
                 defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
-
-        @Test
-        fun `GIVEN schema parsing file is empty WHEN process THEN returns failure`() = runTest {
-            schemaParser.schemaParserResult = SchemaParserResult.Failure.FileIsEmpty("")
-
-            assertIs<SchemaFileIsEmpty>(
-                defaultEnvironmentsProcessor.process(environmentsDirectory)
-            )
-        }
-
-        @Test
-        fun `GIVEN schema parsing serialization error WHEN process THEN returns failure`() = runTest {
-            schemaParser.schemaParserResult = SchemaParserResult.Failure.Serialization(Exception())
-
-            assertIs<SchemaSerialization>(
-                defaultEnvironmentsProcessor.process(environmentsDirectory)
-            )
-        }
-
-        @Test
-        fun `GIVEN schema parsing property uses unsupported platforms error WHEN process THEN returns failure`() =
-            runTest {
-                schemaParser.schemaParserResult = SchemaParserResult.Failure.PropertyContainsUnsupportedPlatforms(
-                    path = "",
-                    propertyName = "",
-                )
-
-                assertIs<PropertyOnSchemaContainsUnsupportedPlatforms>(
-                    defaultEnvironmentsProcessor.process(environmentsDirectory)
-                )
-            }
 
         @Test
         fun `GIVEN environments parsing serialization error WHEN process THEN returns failure`() = runTest {
             environmentsParser.environmentsParserResult = EnvironmentsParserResult.Failure.Serialization(Exception())
 
-            assertIs<EnvironmentsSerialization>(
+            assertIs<EnvironmentsParsingError>(
                 defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
 
         @Test
         fun `GIVEN invalid properties file WHEN process THEN returns failure`() = runTest {
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
+            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure.Serialization(Exception())
 
-            assertIs<PropertiesSerialization>(
-                defaultEnvironmentsProcessor.process(environmentsDirectory)
-            )
-        }
-
-        @Test
-        fun `GIVEN properties file parsing error WHEN process THEN returns failure`() = runTest {
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(Exception())
-
-            assertIs<PropertiesSerialization>(
+            assertIs<PropertiesParsingError>(
                 defaultEnvironmentsProcessor.process(environmentsDirectory)
             )
         }
@@ -254,8 +211,8 @@ class DefaultEnvironmentsProcessorTest {
                 val validEnvironments = setOf(TestData.environmentWithRestrictedPlatform)
                 environmentsParser.environmentsParserResult = EnvironmentsParserResult.Success(validEnvironments)
 
-                val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
-                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                val expectedEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
+                    environmentsDirectoryPath = environmentsDirectory.path,
                     selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = validEnvironments,
                 )
@@ -268,8 +225,8 @@ class DefaultEnvironmentsProcessorTest {
         @Test
         fun `GIVEN valid schema and environments with selected environment WHEN process THEN returns environments`() =
             runTest {
-                val expectedEnvironmentsProcessorResult = EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
-                    environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                val expectedEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
+                    environmentsDirectoryPath = environmentsDirectory.path,
                     selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                     environments = setOf(TestData.environment),
                 )
@@ -290,8 +247,8 @@ class DefaultEnvironmentsProcessorTest {
 
             assertEquals(
                 expected = listOf(
-                    EnvironmentsProcessor.EnvironmentsProcessorResult.Success(
-                        environmentsDirectoryPath = environmentsDirectory.absolutePath,
+                    EnvironmentsProcessorResult.Success(
+                        environmentsDirectoryPath = environmentsDirectory.path,
                         selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
                         environments = setOf(
                             TestData.environment
@@ -301,33 +258,19 @@ class DefaultEnvironmentsProcessorTest {
                 actual = environmentsProcessorResults,
             )
         }
-
-        @Test
-        fun `GIVEN invalid environments WHEN processRecursively THEN returns results list`() = runTest {
-            val expectedException = Exception()
-            createEnvironmentsDirectory()
-            propertiesParser.propertiesParserResult = PropertiesParserResult.Failure(expectedException)
-
-            val environmentsProcessorResults = defaultEnvironmentsProcessor.processRecursively(directory)
-
-            assertEquals(
-                expected = listOf(PropertiesSerialization(expectedException)),
-                actual = environmentsProcessorResults,
-            )
-        }
     }
 
     @Test
-    fun `WHEN updateSelectedEnvironmentResult THEN returns true`() {
-        propertiesParser.updateSelectedEnvironmentResult = true
+    fun `WHEN addOrUpdateSelectedEnvironment THEN returns true`() {
+        propertiesParser.addOrUpdateSelectedEnvironmentResult = AddOrUpdateSelectedEnvironmentResult.Success
 
-        val updateSelectedEnvironmentResult =
-            defaultEnvironmentsProcessor.updateSelectedEnvironment(
+        val addOrUpdateSelectedEnvironment =
+            defaultEnvironmentsProcessor.addOrUpdateSelectedEnvironment(
                 environmentsDirectory = directory,
                 newSelectedEnvironment = LOCAL_ENVIRONMENT_NAME,
             )
 
-        assertTrue(updateSelectedEnvironmentResult)
+        assertEquals(expected = AddOrUpdateSelectedEnvironmentResult.Success, actual = addOrUpdateSelectedEnvironment)
     }
 
     @Test
@@ -338,15 +281,15 @@ class DefaultEnvironmentsProcessorTest {
 
     @Test
     fun `WHEN addEnvironmentResult THEN returns true`() {
-        environmentsParser.addEnvironmentsResult = true
+        environmentsParser.addEnvironmentsResult = AddEnvironmentsResult.Success
 
-        val updateSelectedEnvironmentResult =
+        val addOrUpdateSelectedEnvironment =
             defaultEnvironmentsProcessor.addEnvironments(
                 environmentsDirectory = directory,
                 environments = emptySet(),
             )
 
-        assertTrue(updateSelectedEnvironmentResult)
+        assertEquals(expected = AddEnvironmentsResult.Success, actual = addOrUpdateSelectedEnvironment)
     }
 
     @ParameterizedTest

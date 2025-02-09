@@ -65,6 +65,8 @@ This file will be used to select an environment. In this case `local`
 }
 ```
 
+- **selectedEnvironmentName:** Can be `null` or a non-empty `String` (default=null)-> `optional`
+
 ### `template.chamaleon.json` file
 
 This file will be used only to validate that all the environments have the same structure
@@ -85,10 +87,10 @@ This file will be used only to validate that all the environments have the same 
 ```
 
 - **supportedPlatforms:** Can be one or all the supported platforms `(android, wasm, js, jvm, native)`
-- **propertyDefinitions:** It's an array of property definition
+- **propertyDefinitions:** It's an array of property definition. Has to have at least one property definition
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
-        - **propertyType:** Can be `String` or `Boolean `-> `required`
+      - **propertyType:** Can be `String` or `Boolean` -> `required`
         - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
       - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
         template for this property only.
@@ -114,7 +116,7 @@ environment. You can have as many as you want like `myEnvironmentName.environmen
 ```
 
 - **platformType:** Can be any of the supported platforms `(android, wasm, js, jvm, native)` -> `required`
-- **properties:** It's an array of property
+- **properties:** It's an array of properties. Has to have at least one property
     - **property:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
         - **value:** The value of your property. Can be `String`, `Boolean` or `null` -> `optional` if it's nullable

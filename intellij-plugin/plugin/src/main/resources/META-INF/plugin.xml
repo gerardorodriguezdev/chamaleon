@@ -1,0 +1,36 @@
+<idea-plugin>
+    <id>io.github.gerardorodriguezdev.chamaleon</id>
+    <name>Chamaleon</name>
+    <vendor>gerardorodriguezdev</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <description>
+        <![CDATA[
+        Simplify the management of multiple environments for any Kotlin project
+
+        <ul>
+            <li>Select between your different environments</li>
+            <li>Scan all your available environments</li>
+            <li>Show where they are in your project</li>
+        </ul>
+        ]]>
+    </description>
+
+    <resource-bundle>messages.Bundle</resource-bundle>
+
+    <depends>com.intellij.modules.json</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
+                id="Chamaleon"
+                anchor="right"
+                icon="/images/expui/toolWindow/pluginIcon.svg"/>
+        <fileType
+                name="Chamaleon"
+                implementationClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.fileTypes.ChamaleonFileType"
+                fileNames="template.chamaleon.json;properties.chamaleon.json"
+                patterns="*.environment.chamaleon.json"/>
+    </extensions>
+</idea-plugin>

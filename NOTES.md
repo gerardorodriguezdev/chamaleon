@@ -10,7 +10,7 @@
 
 ## How to release?
 
-- After the last commit for the release has been merged add a git tag for it
+- After the last commit for the release has been merged, add a git tag for it
 - Wait for the deployment to succeed
 - Bump [release version](/gradle/libs.versions.toml) in this file using semantic versioning
 

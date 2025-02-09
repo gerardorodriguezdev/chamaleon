@@ -1,53 +1,61 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.PropertiesParser.PropertiesParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
-    public fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean
-
-    public sealed interface PropertiesParserResult {
-        public data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
-        public data class Failure(val throwable: Throwable) : PropertiesParserResult
-    }
+    public fun addOrUpdateSelectedEnvironment(
+        propertiesFile: File,
+        newSelectedEnvironment: String?
+    ): AddOrUpdateSelectedEnvironmentResult
 }
 
 internal class DefaultPropertiesParser : PropertiesParser {
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
-        if (!propertiesFile.exists()) return Success()
-
-        val propertiesFileContent = propertiesFile.readText()
-        if (propertiesFileContent.isEmpty()) return Success()
-
         return try {
+            if (!propertiesFile.exists()) return PropertiesParserResult.Success()
+
+            val propertiesFileContent = propertiesFile.readText()
+            if (propertiesFileContent.isEmpty()) return PropertiesParserResult.Success()
+
             val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
-            return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
-        } catch (error: IllegalArgumentException) {
-            Failure(error)
-        } catch (error: SerializationException) {
-            Failure(error)
+
+            return PropertiesParserResult.Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
+        } catch (error: Exception) {
+            PropertiesParserResult.Failure.Serialization(error)
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Suppress("ReturnCount")
-    override fun updateSelectedEnvironment(propertiesFile: File, newSelectedEnvironment: String?): Boolean {
-        try {
-            val propertiesDto = PropertiesDto(selectedEnvironmentName = newSelectedEnvironment)
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    override fun addOrUpdateSelectedEnvironment(
+        propertiesFile: File,
+        newSelectedEnvironment: String?,
+    ): AddOrUpdateSelectedEnvironmentResult {
+        return try {
+            if (propertiesFile.isDirectory) {
+                return AddOrUpdateSelectedEnvironmentResult.Failure.InvalidFile(propertiesFile.path)
+            }
+            if (!propertiesFile.exists()) {
+                propertiesFile.createNewFile()
+            }
+            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty()) {
+                return AddOrUpdateSelectedEnvironmentResult.Failure.EnvironmentNameIsEmpty(propertiesFile.path)
+            }
+            val propertiesDto =
+                PropertiesDto(
+                    selectedEnvironmentName = newSelectedEnvironment
+                )
             val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
-            return true
-        } catch (_: Exception) {
-            return false
+            return AddOrUpdateSelectedEnvironmentResult.Success
+        } catch (error: Exception) {
+            return AddOrUpdateSelectedEnvironmentResult.Failure.Serialization(error)
         }
     }
 }

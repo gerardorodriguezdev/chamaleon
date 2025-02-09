@@ -50,6 +50,7 @@ gradlePlugin {
             id = "io.github.gerardorodriguezdev.chamaleon"
             displayName = "Chamaleon"
             description = "Simplify managing multiple environments for any Kotlin project"
+
             tags = listOf(
                 "kotlin",
                 "kmp",

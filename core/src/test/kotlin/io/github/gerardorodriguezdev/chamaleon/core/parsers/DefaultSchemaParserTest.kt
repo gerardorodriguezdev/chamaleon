@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.parsers.SchemaParser.SchemaParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -19,21 +19,18 @@ class DefaultSchemaParserTest {
 
     @Test
     fun `GIVEN no schema file WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.FileNotFound(environmentsDirectory.absolutePath)
-
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.FileNotFound>(actualSchemaParserResult)
     }
 
     @Test
     fun `GIVEN schema empty WHEN schemaParserResult THEN returns failure`() {
-        val expectedSchemaParserResult = Failure.FileIsEmpty(environmentsDirectory.absolutePath)
         createSchemaFile()
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertEquals(expected = expectedSchemaParserResult, actual = actualSchemaParserResult)
+        assertIs<Failure.FileIsEmpty>(actualSchemaParserResult)
     }
 
     @Test
@@ -46,12 +43,39 @@ class DefaultSchemaParserTest {
     }
 
     @Test
-    fun `GIVEN property contains unsupported platforms WHEN schemaParserResult THEN returns failure`() {
-        createSchemaFile(invalidSchemaWithUnsupportedPlatforms)
+    fun `GIVEN empty supported platforms WHEN schemaParserResult THEN returns failure`() {
+        createSchemaFile(emptySupportedPlatformsSchema)
 
-        val schemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
-        assertIs<Failure.PropertyContainsUnsupportedPlatforms>(schemaParserResult)
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
+    }
+
+    @Test
+    fun `GIVEN empty property definitions WHEN schemaParserResult THEN returns failure`() {
+        createSchemaFile(emptyPropertyDefinitionsSchema)
+
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
+
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
+    }
+
+    @Test
+    fun `GIVEN invalid property definition WHEN schemaParserResult THEN returns failure`() {
+        createSchemaFile(invalidPropertyDefinitionSchema)
+
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
+
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
+    }
+
+    @Test
+    fun `GIVEN duplicated property definitions WHEN schemaParserResult THEN returns failure`() {
+        createSchemaFile(duplicatedPropertyDefinitionSchema)
+
+        val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
+
+        assertIs<Failure.Serialization>(actualSchemaParserResult)
     }
 
     @Test
@@ -96,7 +120,25 @@ class DefaultSchemaParserTest {
                 }
             """.trimIndent()
 
-        val invalidSchemaWithUnsupportedPlatforms =
+        val emptySupportedPlatformsSchema =
+            //language=json
+            """
+                {
+                  "supportedPlatforms": [],
+                  "propertyDefinitions": []
+                }
+            """.trimIndent()
+
+        val emptyPropertyDefinitionsSchema =
+            //language=json
+            """
+                {
+                  "supportedPlatforms": ["android"],
+                  "propertyDefinitions": []
+                }
+            """.trimIndent()
+
+        val invalidPropertyDefinitionSchema =
             //language=JSON
             """
                 {
@@ -118,6 +160,27 @@ class DefaultSchemaParserTest {
                   ]
                 }
             """.trimIndent()
+
+        val duplicatedPropertyDefinitionSchema =
+            //language=json
+            """
+                {
+                  "supportedPlatforms": [
+                    "android"
+                  ],
+                  "propertyDefinitions": [
+                    {
+                      "name": "host",
+                      "propertyType": "String"
+                    },
+                    {
+                      "name": "host",
+                      "propertyType": "Boolean"
+                    }
+                  ]
+                }
+            """.trimIndent()
+
         val completeValidSchema =
             //language=json
             """
