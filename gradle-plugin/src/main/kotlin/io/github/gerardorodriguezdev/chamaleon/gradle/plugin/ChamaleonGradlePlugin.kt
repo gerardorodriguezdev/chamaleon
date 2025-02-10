@@ -18,7 +18,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
 @Suppress("TooManyFunctions")
-public class GradlePlugin : Plugin<Project> {
+public class ChamaleonGradlePlugin : Plugin<Project> {
     private val environmentsProcessor = EnvironmentsProcessor.create()
 
     override fun apply(target: Project) {
@@ -62,7 +62,7 @@ public class GradlePlugin : Plugin<Project> {
     private fun handleFailure(failure: Failure) {
         when (failure) {
             is Failure.EnvironmentsDirectoryNotFound -> Unit
-            else -> throw GradlePluginException(
+            else -> throw ChamaleonGradlePluginException(
                 message = failure.toErrorMessage()
             )
         }
@@ -160,7 +160,7 @@ public class GradlePlugin : Plugin<Project> {
 
                 if (addOrUpdateSelectedEnvironmentResult is AddEnvironmentsResult.Failure) {
                     @Suppress("Indentation")
-                    throw GradlePluginException(
+                    throw ChamaleonGradlePluginException(
                         message = "Error updating selected environment '$newSelectedEnvironment' on environments " +
                                 "directory $environmentsDirectory"
                     )
@@ -178,7 +178,7 @@ public class GradlePlugin : Plugin<Project> {
             this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
         }
 
-    private class GradlePluginException(message: String) : IllegalStateException(message)
+    private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"

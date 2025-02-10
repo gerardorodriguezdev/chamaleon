@@ -58,7 +58,7 @@ gradlePlugin {
                 "environments",
                 "configuration",
             )
-            implementationClass = "io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin"
+            implementationClass = "io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin"
         }
     }
 }
