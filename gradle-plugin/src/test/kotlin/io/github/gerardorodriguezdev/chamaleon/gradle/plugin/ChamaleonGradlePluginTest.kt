@@ -10,7 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlug
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources.writeAll
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser
@@ -250,9 +250,9 @@ class ChamaleonGradlePluginTest {
                 )
             )
 
-        private fun Project.extension(): Extension {
+        private fun Project.extension(): ChamaleonExtension {
             pluginManager.apply(ChamaleonGradlePlugin::class.java)
-            return extensions.findByType(Extension::class.java)!!
+            return extensions.findByType(ChamaleonExtension::class.java)!!
         }
 
         private fun BuildResult.outcomeOfTask(taskName: String): TaskOutcome? = task(taskPath(taskName))?.outcome
