@@ -8,7 +8,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.ValidationRe
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -23,7 +22,7 @@ public interface SchemaParser {
 }
 
 internal class DefaultSchemaParser : SchemaParser {
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
         return try {
             if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFile.path)
@@ -32,8 +31,8 @@ internal class DefaultSchemaParser : SchemaParser {
 
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
             SchemaParserResult.Success(schemaDto.toSchema())
-        } catch (exception: SerializationException) {
-            SchemaParserResult.Failure.Serialization(exception)
+        } catch (error: Exception) {
+            SchemaParserResult.Failure.Serialization(error)
         }
     }
 

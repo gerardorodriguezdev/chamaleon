@@ -6,11 +6,11 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.GradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources.writeAll
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser
@@ -25,7 +25,7 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class GradlePluginTest {
+class ChamaleonGradlePluginTest {
     @TempDir
     lateinit var directory: File
 
@@ -189,7 +189,7 @@ class GradlePluginTest {
                 listOf(
                     SELECT_ENVIRONMENT_TASK_NAME,
                     commandLineArgument(
-                        key = GradlePlugin.SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT,
+                        key = ChamaleonGradlePlugin.SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT,
                         value = PRODUCTION_ENVIRONMENT_NAME,
                     )
                 )
@@ -250,9 +250,9 @@ class GradlePluginTest {
                 )
             )
 
-        private fun Project.extension(): Extension {
-            pluginManager.apply(GradlePlugin::class.java)
-            return extensions.findByType(Extension::class.java)!!
+        private fun Project.extension(): ChamaleonExtension {
+            pluginManager.apply(ChamaleonGradlePlugin::class.java)
+            return extensions.findByType(ChamaleonExtension::class.java)!!
         }
 
         private fun BuildResult.outcomeOfTask(taskName: String): TaskOutcome? = task(taskPath(taskName))?.outcome

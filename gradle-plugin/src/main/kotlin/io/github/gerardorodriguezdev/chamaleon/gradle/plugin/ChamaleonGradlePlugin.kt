@@ -7,7 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.Extension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
 import kotlinx.coroutines.runBlocking
@@ -18,7 +18,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
 @Suppress("TooManyFunctions")
-public class GradlePlugin : Plugin<Project> {
+public class ChamaleonGradlePlugin : Plugin<Project> {
     private val environmentsProcessor = EnvironmentsProcessor.create()
 
     override fun apply(target: Project) {
@@ -30,13 +30,13 @@ public class GradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.createExtension(): Extension {
-        val extension = extensions.create(EXTENSION_NAME, Extension::class.java)
+    private fun Project.createExtension(): ChamaleonExtension {
+        val extension = extensions.create(EXTENSION_NAME, ChamaleonExtension::class.java)
         scanProject(extension)
         return extension
     }
 
-    private fun Project.scanProject(extension: Extension) {
+    private fun Project.scanProject(extension: ChamaleonExtension) {
         val environmentsProcessorResult = environmentsProcessorResult()
 
         when (environmentsProcessorResult) {
@@ -54,7 +54,7 @@ public class GradlePlugin : Plugin<Project> {
 
     private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
 
-    private fun handleSuccess(extension: Extension, success: Success) {
+    private fun handleSuccess(extension: ChamaleonExtension, success: Success) {
         extension.environments.set(success.environments)
         extension.selectedEnvironmentName.set(success.selectedEnvironmentName)
     }
@@ -62,7 +62,7 @@ public class GradlePlugin : Plugin<Project> {
     private fun handleFailure(failure: Failure) {
         when (failure) {
             is Failure.EnvironmentsDirectoryNotFound -> Unit
-            else -> throw GradlePluginException(
+            else -> throw ChamaleonGradlePluginException(
                 message = failure.toErrorMessage()
             )
         }
@@ -160,7 +160,7 @@ public class GradlePlugin : Plugin<Project> {
 
                 if (addOrUpdateSelectedEnvironmentResult is AddEnvironmentsResult.Failure) {
                     @Suppress("Indentation")
-                    throw GradlePluginException(
+                    throw ChamaleonGradlePluginException(
                         message = "Error updating selected environment '$newSelectedEnvironment' on environments " +
                                 "directory $environmentsDirectory"
                     )
@@ -178,7 +178,7 @@ public class GradlePlugin : Plugin<Project> {
             this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
         }
 
-    private class GradlePluginException(message: String) : IllegalStateException(message)
+    private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"

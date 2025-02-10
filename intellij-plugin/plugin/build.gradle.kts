@@ -48,7 +48,7 @@ kotlin {
             exclude(group = "org.jetbrains.kotlinx")
         }
         implementation(projects.core) {
-            exclude(group = "org.jetbrains.kotlinx")
+            exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         }
         implementation(projects.intellijPlugin.ui) {
             exclude(group = "org.jetbrains.kotlinx")
