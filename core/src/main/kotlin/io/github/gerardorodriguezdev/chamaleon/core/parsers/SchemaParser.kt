@@ -22,7 +22,7 @@ public interface SchemaParser {
 }
 
 internal class DefaultSchemaParser : SchemaParser {
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
         return try {
             if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFile.path)
