@@ -5,6 +5,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
@@ -53,28 +54,41 @@ fun SetupPropertiesWindow(
                             },
                         )
 
-                        when (val propertyValue = property.value) {
-                            is StringProperty ->
-                                InputStringProperty(
-                                    index = index,
-                                    property = propertyValue,
-                                    onAction = onAction,
-                                )
-
-                            is BooleanProperty ->
-                                InputBooleanProperty(
-                                    index = index,
-                                    property = propertyValue,
-                                    onAction = onAction,
-                                )
-
-                            null -> Unit
-                        }
+                        InputPropertyValue(
+                            index = index,
+                            propertyValue = property.value,
+                            onAction = onAction,
+                        )
                     }
                 }
             }
         }
     )
+}
+
+@Composable
+private fun InputPropertyValue(
+    index: Int,
+    propertyValue: PropertyValue?,
+    onAction: (action: SetupPropertiesAction) -> Unit
+) {
+    when (propertyValue) {
+        is StringProperty ->
+            InputStringProperty(
+                index = index,
+                property = propertyValue,
+                onAction = onAction,
+            )
+
+        is BooleanProperty ->
+            InputBooleanProperty(
+                index = index,
+                property = propertyValue,
+                onAction = onAction,
+            )
+
+        null -> Unit
+    }
 }
 
 @Composable
