@@ -4,7 +4,6 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
@@ -95,7 +94,26 @@ sealed interface State {
         data class Platform(
             val platformType: PlatformType,
             val properties: ImmutableList<Property>,
-        )
+        ) {
+            data class Property(
+                val name: String,
+                val value: PropertyValue,
+            )
+        }
+
+        sealed class PropertyValue {
+            data class StringProperty(val value: String) : PropertyValue() {
+                override fun toString(): String = value.toString()
+            }
+
+            data class BooleanProperty(val value: Boolean) : PropertyValue() {
+                override fun toString(): String = value.toString()
+            }
+
+            data class NullableBooleanProperty(val value: Boolean?) : PropertyValue() {
+                override fun toString(): String = value.toString()
+            }
+        }
     }
 }
 
@@ -123,6 +141,6 @@ sealed interface Action {
 
     sealed interface SetupPropertiesAction : Action {
         data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupPropertiesAction
-        data class OnPropertyValueChanged(val index: Int, val newValue: PropertyValue) : SetupPropertiesAction
+        data class OnPropertyValueChanged(val index: Int, val newValue: PropertyValue?) : SetupPropertiesAction
     }
 }

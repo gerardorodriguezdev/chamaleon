@@ -33,6 +33,7 @@ object StringsKeys {
     val addProperty = StringKey("add.property")
     val setupEnvironment = StringKey("setup.environment")
     val addProperties = StringKey("add.properties")
+    val clearText = StringKey("clear.text")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)

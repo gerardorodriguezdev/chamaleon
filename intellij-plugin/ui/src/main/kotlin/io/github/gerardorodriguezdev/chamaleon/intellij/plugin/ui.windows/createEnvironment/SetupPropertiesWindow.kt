@@ -5,9 +5,6 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
@@ -15,11 +12,12 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.OnPropertyNameChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.OnPropertyValueChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allBooleans
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allNullableBooleans
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState.PropertyValue.*
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue as EntityPropertyValue
 
-// TODO: Add null case (show null on text edit placeholder or show null on first selected option but treat as not existent)
-// TODO: Sep smaller pieces
-// TODO: Pass bools from state
 @Composable
 fun SetupPropertiesWindow(
     state: SetupPropertiesState,
@@ -69,7 +67,7 @@ fun SetupPropertiesWindow(
 @Composable
 private fun InputPropertyValue(
     index: Int,
-    propertyValue: PropertyValue?,
+    propertyValue: PropertyValue,
     onAction: (action: SetupPropertiesAction) -> Unit
 ) {
     when (propertyValue) {
@@ -87,7 +85,12 @@ private fun InputPropertyValue(
                 onAction = onAction,
             )
 
-        null -> Unit
+        is NullableBooleanProperty ->
+            InputNullableBooleanProperty(
+                index = index,
+                property = propertyValue,
+                onAction = onAction,
+            )
     }
 }
 
@@ -104,7 +107,7 @@ private fun InputStringProperty(
             onAction(
                 OnPropertyValueChanged(
                     index = index,
-                    newValue = StringProperty(newText),
+                    newValue = StringProperty(newText).toEntityPropertyValue(),
                 )
             )
         },
@@ -126,11 +129,10 @@ private fun InputBooleanProperty(
                     text = boolean.toString(),
                     selected = boolean == property.value,
                     onClick = {
-                        val newValue = !property.value
                         onAction(
                             OnPropertyValueChanged(
                                 index = index,
-                                newValue = BooleanProperty(newValue),
+                                newValue = BooleanProperty(boolean).toEntityPropertyValue(),
                             )
                         )
                     }
@@ -140,6 +142,42 @@ private fun InputBooleanProperty(
     )
 }
 
+@Composable
+private fun InputNullableBooleanProperty(
+    index: Int,
+    property: NullableBooleanProperty,
+    onAction: (action: SetupPropertiesAction) -> Unit
+) {
+    InputTextDropdown(
+        label = string(StringsKeys.value),
+        selectedValue = property.value.toString(),
+        content = {
+            allNullableBooleans.forEach { nullableBoolean ->
+                item(
+                    text = nullableBoolean.toString(),
+                    selected = nullableBoolean == property.value,
+                    onClick = {
+                        onAction(
+                            OnPropertyValueChanged(
+                                index = index,
+                                newValue = NullableBooleanProperty(nullableBoolean).toEntityPropertyValue(),
+                            )
+                        )
+                    }
+                )
+            }
+        }
+    )
+}
+
+private fun PropertyValue.toEntityPropertyValue(): EntityPropertyValue? =
+    when (this) {
+        is StringProperty -> EntityPropertyValue.StringProperty(value)
+        is BooleanProperty -> EntityPropertyValue.BooleanProperty(value)
+        is NullableBooleanProperty -> value?.let { EntityPropertyValue.BooleanProperty(value) }
+    }
+
 private object SetupPropertiesConstants {
     val allBooleans = booleanArrayOf(true, false)
+    val allNullableBooleans: Array<Boolean?> = arrayOf(true, false, null)
 }
