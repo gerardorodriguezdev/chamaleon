@@ -16,6 +16,9 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allBooleans
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState
 
+// TODO: Add null case (show null on text edit placeholder or show null on first selected option but treat as not existent)
+// TODO: Sep smaller pieces
+// TODO: Pass bools from state
 @Composable
 fun SetupPropertiesWindow(
     state: SetupPropertiesState,
@@ -33,29 +36,40 @@ fun SetupPropertiesWindow(
                 )
             }
 
-            itemsIndexed(state.properties) { index, property ->
-                Section(enableDivider = true) {
-                    InputTextField(
-                        label = string(StringsKeys.name),
-                        onValueChange = { newText ->
-                            onAction(OnPropertyNameChanged(index, newText))
-                        },
+            state.platforms.forEach { platform ->
+                item {
+                    Section(
+                        title = platform.platformType.serialName,
+                        enableDivider = true,
                     )
+                }
 
-                    when (property.value) {
-                        is StringProperty ->
-                            InputStringProperty(
-                                index = index,
-                                property = property.value,
-                                onAction = onAction,
-                            )
+                itemsIndexed(platform.properties) { index, property ->
+                    Section(enableDivider = true) {
+                        InputTextField(
+                            label = string(StringsKeys.name),
+                            onValueChange = { newText ->
+                                onAction(OnPropertyNameChanged(index, newText))
+                            },
+                        )
 
-                        is BooleanProperty ->
-                            InputBooleanProperty(
-                                index = index,
-                                property = property.value,
-                                onAction = onAction,
-                            )
+                        when (val propertyValue = property.value) {
+                            is StringProperty ->
+                                InputStringProperty(
+                                    index = index,
+                                    property = propertyValue,
+                                    onAction = onAction,
+                                )
+
+                            is BooleanProperty ->
+                                InputBooleanProperty(
+                                    index = index,
+                                    property = propertyValue,
+                                    onAction = onAction,
+                                )
+
+                            null -> Unit
+                        }
                     }
                 }
             }

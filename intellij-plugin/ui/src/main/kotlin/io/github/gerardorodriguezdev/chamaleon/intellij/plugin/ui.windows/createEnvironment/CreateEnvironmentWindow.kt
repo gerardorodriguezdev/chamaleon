@@ -4,6 +4,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
@@ -85,15 +86,15 @@ sealed interface State {
     }
 
     data class SetupPropertiesState(
-        val properties: ImmutableList<Property>,
+        val platforms: ImmutableList<Platform>,
         override val isFinishButtonEnabled: Boolean = true,
     ) : State {
         override val isPreviousButtonEnabled: Boolean = true
         override val isNextButtonEnabled: Boolean = false
 
-        data class Property(
-            val name: String,
-            val value: PropertyValue,
+        data class Platform(
+            val platformType: PlatformType,
+            val properties: ImmutableList<Property>,
         )
     }
 }

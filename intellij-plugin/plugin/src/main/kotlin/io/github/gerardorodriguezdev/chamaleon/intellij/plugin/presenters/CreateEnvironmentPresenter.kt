@@ -17,6 +17,10 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
+// TODO: Update path selected here
+// TODO: Try processing env
+// TODO: Title for setup schema depending if schema existing or not
+// TODO: Execute externally notification of progress
 internal class CreateEnvironmentPresenter(
     private val rootProjectFile: File?,
     private val environmentsProcessor: EnvironmentsProcessor,
