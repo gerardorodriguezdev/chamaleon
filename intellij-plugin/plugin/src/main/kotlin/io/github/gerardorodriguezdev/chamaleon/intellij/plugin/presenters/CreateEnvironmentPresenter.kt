@@ -2,81 +2,108 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 
 import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.ExternalAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupEnvironmentAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.LoadingState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
-// TODO: Update path selected here
-// TODO: Try processing env
-// TODO: Title for setup schema depending if schema existing or not
-// TODO: Execute externally notification of progress
 internal class CreateEnvironmentPresenter(
-    private val rootProjectFile: File?,
+    private val projectDirectory: File,
+    private val stringsProvider: StringsProvider,
     private val environmentsProcessor: EnvironmentsProcessor,
     private val uiDispatcher: CoroutineContext,
     ioDispatcher: CoroutineContext,
     private val onSelectEnvironmentPathClicked: () -> String?,
 ) : Disposable {
-    private val _state = MutableStateFlow<State>(value = LoadingState())
-    val state: StateFlow<State> = _state
+    private val _state = MutableStateFlow<CreateEnvironmentState>(CreateEnvironmentState())
+    val state: StateFlow<CreateEnvironmentState> = _state
 
     private val ioScope = CoroutineScope(ioDispatcher)
-
-    private var environmentsProcessorResult: EnvironmentsProcessorResult? = null
+    private var processingJob: Job? = null
 
     init {
-        onInit()
+        process(projectDirectory)
     }
 
-    private fun onInit() {
-        val rootProjectFile = rootProjectFile
-        if (rootProjectFile == null) {
-            _state.value = State.SetupEnvironmentState(path = "", verification = null)
-            return
+    fun onAction(action: Action) {
+        when (action) {
+            is ExternalAction -> Unit
+            is SetupEnvironmentAction -> action.handle()
+            is Action.SetupSchemaAction -> Unit
+            is Action.SetupPropertiesAction -> Unit
         }
+    }
 
-        ioScope.launch {
-            val result = environmentsProcessor.process(rootProjectFile)
+    //TODO: Refactor target file
+    //TODO: Invalid paths
+    private fun process(file: File) {
+        processingJob?.cancel()
+
+        val targetFile = file.toTargetFile()
+
+        _state.value = _state.value.copy(
+            verification = Verification.InProgress,
+            environmentsDirectoryPath = targetFile.path.removePrefix(projectDirectory.path),
+        )
+
+        processingJob = ioScope.launch {
+            val result = environmentsProcessor.process(file)
+            val processingResult = result.toProcessingResult()
 
             withContext(uiDispatcher) {
-                when (result) {
-                    is EnvironmentsProcessorResult.Success -> {
-                        environmentsProcessorResult = result
+                when (processingResult) {
+                    is ProcessingResult.Success -> {
+                        _state.value = _state.value.copy(
+                            verification = Verification.Valid,
+                            isNextButtonEnabled = true,
+
+                            environmentsDirectoryPath = targetFile.path.removePrefix(projectDirectory.path),
+                            environments = processingResult.environments,
+                            schema = processingResult.schema,
+                        )
                     }
 
-                    is EnvironmentsProcessorResult.Failure -> when (result) {
-                        is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound -> {}
+                    is ProcessingResult.EnvironmentsDirectoryNotFound,
+                    is ProcessingResult.SchemaFileNotFound -> {
+                        _state.value = _state.value.copy(
+                            verification = Verification.Valid,
+                            isNextButtonEnabled = true,
 
-                        is EnvironmentsProcessorResult.Failure.SchemaParsingError ->
-                            when (result.schemaParsingError) {
-                                is SchemaParserResult.Failure.FileNotFound -> {}
-                                else -> {}
-                            }
+                            environments = null,
+                            schema = null,
+                        )
+                    }
 
-                        else -> {}
+                    is ProcessingResult.InvalidEnvironments -> {
+                        _state.value = _state.value.copy(
+                            verification = Verification.Invalid(processingResult.reason),
+                            isNextButtonEnabled = false,
+
+                            environments = null,
+                            schema = null,
+                        )
                     }
                 }
             }
         }
     }
 
-    fun onAction(action: Action) {
-        when (action) {
-            is Action.ExternalAction -> Unit
-            is SetupEnvironmentAction -> action.handle()
-            is Action.SetupSchemaAction -> Unit
-            is Action.SetupPropertiesAction -> Unit
+    private fun File.toTargetFile(): File {
+        return if (path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)) {
+            this
+        } else {
+            File(this, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
         }
     }
 
@@ -84,7 +111,10 @@ internal class CreateEnvironmentPresenter(
         when (this) {
             is SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> {
                 val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
-                selectedEnvironmentPath?.let { path -> }
+                selectedEnvironmentPath?.let { path ->
+                    val file = File(path)
+                    process(file)
+                }
             }
 
             is SetupEnvironmentAction.OnEnvironmentNameChanged -> Unit
@@ -93,5 +123,63 @@ internal class CreateEnvironmentPresenter(
 
     override fun dispose() {
         ioScope.cancel()
+    }
+
+    private fun EnvironmentsProcessorResult.toProcessingResult(): ProcessingResult =
+        when (this) {
+            is EnvironmentsProcessorResult.Success -> ProcessingResult.Success(
+                environments = environments,
+                schema = schema,
+            )
+
+            is EnvironmentsProcessorResult.Failure -> toProcessingResult()
+        }
+
+    private fun EnvironmentsProcessorResult.Failure.toProcessingResult(): ProcessingResult {
+        return when (this) {
+            is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound ->
+                ProcessingResult.EnvironmentsDirectoryNotFound
+
+            is EnvironmentsProcessorResult.Failure.SchemaParsingError -> toProcessingResult()
+            else -> genericInvalidEnvironments()
+        }
+    }
+
+    private fun EnvironmentsProcessorResult.Failure.SchemaParsingError.toProcessingResult(): ProcessingResult =
+        when (schemaParsingError) {
+            is SchemaParserResult.Failure.FileNotFound -> ProcessingResult.SchemaFileNotFound
+            else -> genericInvalidEnvironments()
+        }
+
+    private fun genericInvalidEnvironments(): ProcessingResult.InvalidEnvironments =
+        ProcessingResult.InvalidEnvironments(reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound))
+
+    data class CreateEnvironmentState(
+        val verification: Verification? = null,
+
+        val environmentsDirectoryPath: String? = null,
+        val environments: Set<Environment>? = null,
+        val schema: Schema? = null,
+
+        val isPreviousButtonEnabled: Boolean = false,
+        val isNextButtonEnabled: Boolean = false,
+        val isFinishButtonEnabled: Boolean = false,
+
+        val step: Step = Step.SETUP_ENVIRONMENT,
+    ) {
+        enum class Step {
+            SETUP_ENVIRONMENT,
+        }
+    }
+
+    sealed interface ProcessingResult {
+        data class Success(
+            val environments: Set<Environment>,
+            val schema: Schema,
+        ) : ProcessingResult
+
+        data object EnvironmentsDirectoryNotFound : ProcessingResult
+        data object SchemaFileNotFound : ProcessingResult
+        data class InvalidEnvironments(val reason: String) : ProcessingResult
     }
 }

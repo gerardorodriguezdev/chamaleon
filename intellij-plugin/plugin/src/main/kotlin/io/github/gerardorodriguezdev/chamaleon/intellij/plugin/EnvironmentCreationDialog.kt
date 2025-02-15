@@ -1,14 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
 
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.toSize
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
@@ -18,14 +16,17 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.ExternalAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.enableNewSwingCompositing
@@ -34,16 +35,22 @@ import javax.swing.JComponent
 
 internal class EnvironmentCreationDialog(
     project: Project,
+    projectDirectory: File,
     environmentsProcessor: EnvironmentsProcessor,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
-    private val scope = CoroutineScope(Dispatchers.EDT)
+    private val scope = CoroutineScope(Dispatchers.Swing)
 
     private val presenter = CreateEnvironmentPresenter(
-        rootProjectFile = project.projectFile?.path?.toFileOrNull(),
+        projectDirectory = projectDirectory,
+        stringsProvider = BundleStringsProvider,
         environmentsProcessor = environmentsProcessor,
-        uiDispatcher = Dispatchers.EDT,
+        uiDispatcher = Dispatchers.Swing,
         ioDispatcher = Dispatchers.IO,
         onSelectEnvironmentPathClicked = { selectFileDirectory(project) }
+    )
+
+    private val state = mutableStateOf<State>(
+        State.SetupEnvironmentState(path = "", verification = null)
     )
 
     init {
@@ -57,9 +64,8 @@ internal class EnvironmentCreationDialog(
         return JewelComposePanel {
             with(LocalDensity.current) {
                 Theme {
-                    val state by presenter.state.collectAsState()
                     CreateEnvironmentWindow(
-                        state = state,
+                        state = state.value,
                         onAction = presenter::onAction,
                         modifier = Modifier.requiredSize(LocalWindowInfo.current.containerSize.toSize().toDpSize())
                     )
@@ -71,6 +77,32 @@ internal class EnvironmentCreationDialog(
         }
     }
 
+    private fun collectState() {
+        scope.launch {
+            presenter.state.collect { createEnvironmentState ->
+                state.value = createEnvironmentState.toState()
+
+                setDialogButtonsState(
+                    isPreviousButtonEnabled = createEnvironmentState.isPreviousButtonEnabled,
+                    isNextButtonEnabled = createEnvironmentState.isNextButtonEnabled,
+                    isFinishButtonEnabled = createEnvironmentState.isFinishButtonEnabled,
+                )
+            }
+        }
+    }
+
+    //TODO: Add all steps
+    private fun CreateEnvironmentPresenter.CreateEnvironmentState.toState(): State =
+        when (step) {
+            CreateEnvironmentPresenter.CreateEnvironmentState.Step.SETUP_ENVIRONMENT -> {
+                State.SetupEnvironmentState(
+                    path = environmentsDirectoryPath ?: "",
+                    verification = verification,
+                )
+            }
+        }
+
+    //TODO: Move this types of actions
     override fun onDialogAction(action: DialogAction) {
         when (action) {
             is DialogAction.OnPreviousButtonClicked -> presenter.onAction(OnPreviousButtonClicked)
@@ -79,25 +111,11 @@ internal class EnvironmentCreationDialog(
         }
     }
 
-    private fun collectState() {
-        scope.launch {
-            presenter.state.collect { state ->
-                setDialogButtonsState(
-                    isPreviousButtonEnabled = state.isPreviousButtonEnabled,
-                    isNextButtonEnabled = state.isNextButtonEnabled,
-                    isFinishButtonEnabled = state.isFinishButtonEnabled,
-                )
-            }
-        }
-    }
-
     override fun dispose() {
         scope.cancel()
         presenter.dispose()
         super.dispose()
     }
-
-    private fun String?.toFileOrNull(): File? = if (this == null) null else File(this)
 
     private fun selectFileDirectory(project: Project): String? {
         val fileDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()

@@ -1,7 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindow
@@ -13,6 +12,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.Bundle
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.addComposeTab
 import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
@@ -22,7 +22,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     private val environmentsProcessor = EnvironmentsProcessor.create()
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
         environmentsProcessor = environmentsProcessor,
-        uiDispatcher = Dispatchers.EDT,
+        uiDispatcher = Dispatchers.Swing,
         ioDispatcher = Dispatchers.IO,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->
             environmentsDirectory.onEnvironmentsDirectoryChanged()
@@ -45,8 +45,11 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             project.scanProject()
                         },
                         onCreateEnvironmentClicked = {
+                            val projectDirectoryPath = project.basePath ?: return@EnvironmentSelectionWindow
+
                             EnvironmentCreationDialog(
                                 project = project,
+                                projectDirectory = File(projectDirectoryPath),
                                 environmentsProcessor = environmentsProcessor,
                             ).show()
                         },

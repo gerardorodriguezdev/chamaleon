@@ -32,7 +32,6 @@ fun EnvironmentSelectionWindow(
     }
 }
 
-@Suppress("UnusedParameter")
 @Composable
 private fun ContentWindow(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
@@ -53,11 +52,11 @@ private fun ContentWindow(
                         onClick = onRefreshClicked,
                     )
 
-                    /*TooltipIconButton(
+                    TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.AddFile,
                         tooltip = string(StringsKeys.createEnvironment),
                         onClick = onCreateEnvironmentClicked,
-                    )*/
+                    )
                 }
             )
         },

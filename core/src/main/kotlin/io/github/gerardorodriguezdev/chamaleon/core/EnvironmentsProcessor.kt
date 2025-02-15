@@ -80,6 +80,7 @@ internal class DefaultEnvironmentsProcessor(
                 environmentsDirectoryPath = environmentsDirectory.path,
                 selectedEnvironmentName = selectedEnvironmentName,
                 environments = environments,
+                schema = schema,
             )
         }
 
