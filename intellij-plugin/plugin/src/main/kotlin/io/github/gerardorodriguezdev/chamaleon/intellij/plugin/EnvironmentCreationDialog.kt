@@ -91,6 +91,7 @@ internal class EnvironmentCreationDialog(
     }
 
     //TODO: Add all steps
+    //TODO: Move logic out
     private fun CreateEnvironmentPresenter.CreateEnvironmentState.toState(): State =
         when (step) {
             CreateEnvironmentPresenter.CreateEnvironmentState.Step.SETUP_ENVIRONMENT -> {

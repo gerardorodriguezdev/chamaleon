@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
+//TODO: Move logic out if possible
 internal class CreateEnvironmentPresenter(
     private val projectDirectory: File,
     private val stringsProvider: StringsProvider,
@@ -33,7 +34,7 @@ internal class CreateEnvironmentPresenter(
     private var processingJob: Job? = null
 
     init {
-        process(projectDirectory)
+        process(file = projectDirectory)
     }
 
     fun onAction(action: Action) {
@@ -52,16 +53,19 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    //TODO: Refactor target file
-    //TODO: Invalid paths
+    //TODO: Org functions
     private fun process(file: File) {
-        processingJob?.cancel()
+        val file = file.appendEnvironmentsDirectoryIfNeeded()
+        val environmentsDirectoryPath = file.path.removePrefix(projectDirectory.path)
+        process(file = file, environmentsDirectoryPath = environmentsDirectoryPath)
+    }
 
-        val targetFile = file.toTargetFile()
+    private fun process(file: File, environmentsDirectoryPath: String) {
+        processingJob?.cancel()
 
         _state.value = _state.value.copy(
             verification = Verification.InProgress,
-            environmentsDirectoryPath = targetFile.path.removePrefix(projectDirectory.path),
+            environmentsDirectoryPath = environmentsDirectoryPath,
         )
 
         processingJob = ioScope.launch {
@@ -75,7 +79,6 @@ internal class CreateEnvironmentPresenter(
                             verification = Verification.Valid,
                             isNextButtonEnabled = true,
 
-                            environmentsDirectoryPath = targetFile.path.removePrefix(projectDirectory.path),
                             environments = processingResult.environments,
                             schema = processingResult.schema,
                         )
@@ -103,14 +106,6 @@ internal class CreateEnvironmentPresenter(
                     }
                 }
             }
-        }
-    }
-
-    private fun File.toTargetFile(): File {
-        return if (path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)) {
-            this
-        } else {
-            File(this, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
         }
     }
 
@@ -160,6 +155,14 @@ internal class CreateEnvironmentPresenter(
 
     private fun genericInvalidEnvironments(): ProcessingResult.InvalidEnvironments =
         ProcessingResult.InvalidEnvironments(reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound))
+
+    //TODO: Refactor
+    private fun File.appendEnvironmentsDirectoryIfNeeded(): File =
+        if (path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)) {
+            this
+        } else {
+            File(this, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+        }
 
     data class CreateEnvironmentState(
         val verification: Verification? = null,
