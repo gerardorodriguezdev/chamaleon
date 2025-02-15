@@ -19,7 +19,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.ExternalAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
 import kotlinx.coroutines.CoroutineScope
@@ -102,13 +101,8 @@ internal class EnvironmentCreationDialog(
             }
         }
 
-    //TODO: Move this types of actions
     override fun onDialogAction(action: DialogAction) {
-        when (action) {
-            is DialogAction.OnPreviousButtonClicked -> presenter.onAction(OnPreviousButtonClicked)
-            is DialogAction.OnNextButtonClicked -> presenter.onAction(OnNextButtonClicked)
-            is DialogAction.OnFinishButtonClicked -> presenter.onAction(OnFinishButtonClicked)
-        }
+        presenter.onDialogAction(action)
     }
 
     override fun dispose() {

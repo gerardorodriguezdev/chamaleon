@@ -91,12 +91,6 @@ sealed interface State {
 }
 
 sealed interface Action {
-    sealed interface ExternalAction : Action {
-        data object OnPreviousButtonClicked : ExternalAction
-        data object OnNextButtonClicked : ExternalAction
-        data object OnFinishButtonClicked : ExternalAction
-    }
-
     sealed interface SetupEnvironmentAction : Action {
         data object OnSelectEnvironmentPathClicked : SetupEnvironmentAction
         data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
