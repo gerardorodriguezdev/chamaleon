@@ -134,7 +134,7 @@ private fun PropertyDefinitionSectionCard(
     Section(enableDivider = true) {
         InputTextField(
             label = string(StringsKeys.propertyName),
-            initialValue = propertyDefinition.name,
+            value = propertyDefinition.name,
             onValueChange = onPropertyNameChanged,
         )
 

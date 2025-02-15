@@ -100,7 +100,7 @@ private fun InputStringProperty(
 ) {
     InputTextField(
         label = string(StringsKeys.value),
-        initialValue = property.value,
+        value = property.value,
         onValueChange = { newText ->
             onAction(
                 OnPropertyValueChanged(

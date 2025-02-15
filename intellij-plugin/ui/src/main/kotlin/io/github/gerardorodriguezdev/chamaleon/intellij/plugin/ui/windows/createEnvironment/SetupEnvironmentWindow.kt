@@ -30,7 +30,7 @@ fun SetupEnvironmentWindow(
             item {
                 InputTextField(
                     label = string(StringsKeys.environmentsDirectory),
-                    initialValue = state.path,
+                    value = state.path,
                     readOnly = true,
                     trailingIcon = {
                         Row(
