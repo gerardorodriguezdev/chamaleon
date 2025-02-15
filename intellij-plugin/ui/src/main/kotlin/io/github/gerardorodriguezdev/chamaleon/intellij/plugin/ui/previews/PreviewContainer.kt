@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.previews.utils
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.previews
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.DemoTheme.Theme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.ui.component.Text
 
@@ -17,7 +16,7 @@ internal fun PreviewContainer(
     content: @Composable () -> Unit,
 ) {
     IntUiTheme(isDark = isDark) {
-        Theme {
+        PreviewTheme.Theme {
             Box(modifier = Modifier.background(backgroundColor)) {
                 content()
             }

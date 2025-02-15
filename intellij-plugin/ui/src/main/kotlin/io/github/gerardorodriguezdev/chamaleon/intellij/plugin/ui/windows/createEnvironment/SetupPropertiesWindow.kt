@@ -1,5 +1,3 @@
-@file:Suppress("InvalidPackageDeclaration")
-
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.foundation.lazy.itemsIndexed
