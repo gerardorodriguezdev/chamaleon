@@ -11,6 +11,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupSchemaAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupEnvironmentState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupSchemaState
+import kotlinx.collections.immutable.persistentListOf
 
 internal fun CreateEnvironmentState.toWindowState(): CreateEnvironmentWindowState =
     when (step) {
@@ -20,6 +22,15 @@ internal fun CreateEnvironmentState.toWindowState(): CreateEnvironmentWindowStat
                 environmentName = environmentName ?: "",
                 environmentsDirectoryVerification = environmentsDirectoryVerification,
                 environmentNameVerification = environmentNameVerification,
+            )
+        }
+
+        CreateEnvironmentState.Step.SETUP_SCHEMA -> {
+            //TODO: Update
+            SetupSchemaState(
+                title = "Update",
+                supportedPlatforms = persistentListOf(),
+                propertyDefinitions = persistentListOf(),
             )
         }
     }

@@ -18,6 +18,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentProcessor
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupSchemaPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
@@ -62,6 +63,9 @@ internal class EnvironmentCreationDialog(
                 onSelectEnvironmentPathClicked = { selectFileDirectory(project) },
                 stateHolder = stateHolder,
             )
+        },
+        setupSchemaPresenterProvider = { stateHolder ->
+            DefaultSetupSchemaPresenter(stateHolder)
         }
     )
 
