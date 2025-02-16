@@ -54,17 +54,6 @@ internal class CreateEnvironmentPresenter(
     }
 
     private fun process(file: File) {
-        if (!file.isDirectory) {
-            _state.value = _state.value.copy(
-                environmentsDirectoryVerification = Verification.Invalid("Invalid directory selected"), //TODO: Abc
-                environmentsDirectoryPath = null,
-                isNextButtonEnabled = false,
-                environments = null,
-                schema = null,
-            )
-            return
-        }
-
         val environmentsDirectory = file.toEnvironmentsDirectory()
         val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(projectDirectory.path)
         process(environmentsDirectory = environmentsDirectory, environmentsDirectoryPath = environmentsDirectoryPath)
@@ -125,6 +114,18 @@ internal class CreateEnvironmentPresenter(
                 val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
                 selectedEnvironmentPath?.let { path ->
                     val file = File(path)
+                    if (!file.isDirectory) {
+                        _state.value = _state.value.copy(
+                            environmentsDirectoryVerification =
+                                Verification.Invalid("Invalid directory selected"), //TODO: Abc
+                            environmentsDirectoryPath = null,
+                            isNextButtonEnabled = false,
+                            environments = null,
+                            schema = null,
+                        )
+                        return
+                    }
+
                     process(file = file)
                 }
             }
