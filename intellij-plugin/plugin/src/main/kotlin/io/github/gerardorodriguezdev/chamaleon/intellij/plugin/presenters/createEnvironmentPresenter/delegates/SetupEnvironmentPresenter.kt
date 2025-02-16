@@ -1,8 +1,8 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates
 
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.base.StateHolder
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupEnvironmentAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.SetupEnvironmentProcessor.SetupEnvironmentProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
@@ -61,22 +61,24 @@ internal class DefaultSetupEnvironmentPresenter(
                 .flowOn(ioScope)
                 .collect { processingResult ->
                     when (processingResult) {
-                        is SetupEnvironmentProcessorResult.Success -> updateSuccessProcessing(processingResult)
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success -> updateSuccessProcessing(
+                            processingResult
+                        )
 
-                        is SetupEnvironmentProcessorResult.Loading ->
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Loading ->
                             updateProcessingLoading(processingResult.environmentsDirectoryPath)
 
-                        is SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound,
-                        is SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound ->
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound,
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound ->
                             updateValidEmptyEnvironmentsDirectory()
 
-                        is SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory ->
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory ->
                             updateInvalidEnvironmentsDirectory(
                                 reason = stringsProvider.string(StringsKeys.selectedFileNotDirectory),
                                 environmentsDirectoryPath = null,
                             )
 
-                        is SetupEnvironmentProcessorResult.Failure.InvalidEnvironments ->
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.InvalidEnvironments ->
                             updateInvalidEnvironmentsDirectory(
                                 reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound),
                                 environmentsDirectoryPath = stateHolder.state.environmentsDirectoryPath,
@@ -95,7 +97,7 @@ internal class DefaultSetupEnvironmentPresenter(
         }
     }
 
-    private fun updateSuccessProcessing(setupEnvironmentProcessorResult: SetupEnvironmentProcessorResult.Success) {
+    private fun updateSuccessProcessing(setupEnvironmentProcessorResult: SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success) {
         stateHolder.updateState { currentState ->
             currentState.copy(
                 environmentsDirectoryVerification = Verification.Valid,

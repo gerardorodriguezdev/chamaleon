@@ -18,7 +18,7 @@ object StringsKeys {
     val environmentsDirectory = StringKey("environments.directory")
     val createTemplate = StringKey("create.template")
     val updateTemplate = StringKey("update.template")
-    val validEnvironments = StringKey("valid.environments")
+    val validField = StringKey("valid.field")
     val supportedPlatforms = StringKey("supported.platforms")
     val propertyDefinitions = StringKey("property.definitions")
     val addPropertyDefinitions = StringKey("add.property.definitions")

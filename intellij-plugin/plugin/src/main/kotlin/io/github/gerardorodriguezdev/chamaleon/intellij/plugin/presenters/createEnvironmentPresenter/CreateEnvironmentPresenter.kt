@@ -1,26 +1,22 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
 
-import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.base.StateHolder
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.SetupEnvironmentPresenter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.coroutines.CoroutineContext
 
 internal class CreateEnvironmentPresenter(
-    uiContext: CoroutineContext,
+    uiScope: CoroutineScope,
     setupEnvironmentPresenterProvider: (
         stateHolder: StateHolder<CreateEnvironmentState>,
         uiScope: CoroutineScope,
     ) -> SetupEnvironmentPresenter
-) : Disposable, StateHolder<CreateEnvironmentState> {
+) : StateHolder<CreateEnvironmentState> {
     private val mutableStateFlow = MutableStateFlow<CreateEnvironmentState>(CreateEnvironmentState())
     val stateFlow: StateFlow<CreateEnvironmentState> = mutableStateFlow
 
     override val state: CreateEnvironmentState get() = mutableStateFlow.value
-
-    private val uiScope = CoroutineScope(uiContext)
 
     private val setupEnvironmentPresenter = setupEnvironmentPresenterProvider(this, uiScope)
 
@@ -34,10 +30,6 @@ internal class CreateEnvironmentPresenter(
     }
 
     override fun updateState(block: (CreateEnvironmentState) -> CreateEnvironmentState) {
-        block.invoke(state)
-    }
-
-    override fun dispose() {
-        uiScope.cancel()
+        mutableStateFlow.value = block.invoke(state)
     }
 }

@@ -19,7 +19,7 @@ fun VerificationIcon(verification: Verification) {
 private fun ValidIcon() {
     TooltipIcon(
         iconKey = AllIconsKeys.Actions.Checked,
-        tooltip = string(StringsKeys.validEnvironments),
+        tooltip = string(StringsKeys.validField),
     )
 }
 

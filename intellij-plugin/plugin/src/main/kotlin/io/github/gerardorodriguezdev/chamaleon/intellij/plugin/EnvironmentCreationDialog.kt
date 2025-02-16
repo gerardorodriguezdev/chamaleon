@@ -16,8 +16,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.DefaultSetupEnvironmentPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.DefaultSetupEnvironmentProcessor
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
@@ -43,10 +43,10 @@ internal class EnvironmentCreationDialog(
     projectDirectory: File,
     environmentsProcessor: EnvironmentsProcessor,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
-    private val scope = CoroutineScope(Dispatchers.Swing)
+    private val uiScope = CoroutineScope(Dispatchers.Swing)
 
     private val presenter = CreateEnvironmentPresenter(
-        uiContext = Dispatchers.Swing,
+        uiScope = uiScope,
         setupEnvironmentPresenterProvider = { stateHolder, uiScope ->
             DefaultSetupEnvironmentPresenter(
                 projectDirectory = projectDirectory,
@@ -103,7 +103,7 @@ internal class EnvironmentCreationDialog(
     }
 
     private fun collectState() {
-        scope.launch {
+        uiScope.launch {
             presenter.stateFlow.collect { createEnvironmentState ->
                 createEnvironmentWindowState.value = createEnvironmentState.toWindowState()
 
@@ -121,8 +121,7 @@ internal class EnvironmentCreationDialog(
     }
 
     override fun dispose() {
-        scope.cancel()
-        presenter.dispose()
+        uiScope.cancel()
         super.dispose()
     }
 

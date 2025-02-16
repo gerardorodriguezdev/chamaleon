@@ -1,11 +1,10 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.SetupEnvironmentProcessor.SetupEnvironmentProcessorResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
@@ -35,10 +34,10 @@ internal class DefaultSetupEnvironmentProcessor(
     private val environmentsProcessor: EnvironmentsProcessor,
 ) : SetupEnvironmentProcessor {
 
-    override fun process(file: File): Flow<SetupEnvironmentProcessorResult> =
+    override fun process(file: File): Flow<SetupEnvironmentProcessor.SetupEnvironmentProcessorResult> =
         flow {
             if (!file.isDirectory) {
-                emit(SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory)
+                emit(SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory)
                 return@flow
             }
 
@@ -59,20 +58,20 @@ internal class DefaultSetupEnvironmentProcessor(
     private fun File.containsEnvironmentsDirectoryName(): Boolean =
         path.endsWith(EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME)
 
-    private suspend fun FlowCollector<SetupEnvironmentProcessorResult>.process(
+    private suspend fun FlowCollector<SetupEnvironmentProcessor.SetupEnvironmentProcessorResult>.process(
         environmentsDirectory: File,
         environmentsDirectoryPath: String
     ) {
-        emit(SetupEnvironmentProcessorResult.Loading(environmentsDirectoryPath))
+        emit(SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Loading(environmentsDirectoryPath))
 
         val result = environmentsProcessor.process(environmentsDirectory)
         val processorResult = result.toProcessorResult()
         emit(processorResult)
     }
 
-    private fun EnvironmentsProcessorResult.toProcessorResult(): SetupEnvironmentProcessorResult =
+    private fun EnvironmentsProcessorResult.toProcessorResult(): SetupEnvironmentProcessor.SetupEnvironmentProcessorResult =
         when (this) {
-            is EnvironmentsProcessorResult.Success -> SetupEnvironmentProcessorResult.Success(
+            is EnvironmentsProcessorResult.Success -> SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success(
                 environments = environments,
                 schema = schema,
             )
@@ -80,19 +79,19 @@ internal class DefaultSetupEnvironmentProcessor(
             is EnvironmentsProcessorResult.Failure -> toProcessorResult()
         }
 
-    private fun EnvironmentsProcessorResult.Failure.toProcessorResult(): SetupEnvironmentProcessorResult {
+    private fun EnvironmentsProcessorResult.Failure.toProcessorResult(): SetupEnvironmentProcessor.SetupEnvironmentProcessorResult {
         return when (this) {
             is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound ->
-                SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound
+                SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound
 
             is EnvironmentsProcessorResult.Failure.SchemaParsingError -> toProcessorResult()
-            else -> SetupEnvironmentProcessorResult.Failure.InvalidEnvironments
+            else -> SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.InvalidEnvironments
         }
     }
 
-    private fun EnvironmentsProcessorResult.Failure.SchemaParsingError.toProcessorResult(): SetupEnvironmentProcessorResult =
+    private fun EnvironmentsProcessorResult.Failure.SchemaParsingError.toProcessorResult(): SetupEnvironmentProcessor.SetupEnvironmentProcessorResult =
         when (schemaParsingError) {
-            is SchemaParserResult.Failure.FileNotFound -> SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound
-            else -> SetupEnvironmentProcessorResult.Failure.InvalidEnvironments
+            is SchemaParserResult.Failure.FileNotFound -> SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound
+            else -> SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.InvalidEnvironments
         }
 }
