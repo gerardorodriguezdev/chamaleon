@@ -73,7 +73,7 @@ internal class SetupEnvironmentPresenter(
                     is ProcessingResult.SchemaFileNotFound -> updateValidEmptyEnvironmentsDirectory()
 
                     is ProcessingResult.InvalidEnvironments -> updateInvalidEnvironmentsDirectory(
-                        reason = processingResult.reason,
+                        reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound),
                         environmentsDirectoryPath = mutableState.value.environmentsDirectoryPath,
                     )
                 }
@@ -97,18 +97,15 @@ internal class SetupEnvironmentPresenter(
                 ProcessingResult.EnvironmentsDirectoryNotFound
 
             is EnvironmentsProcessorResult.Failure.SchemaParsingError -> toProcessingResult()
-            else -> genericInvalidEnvironments()
+            else -> ProcessingResult.InvalidEnvironments
         }
     }
 
     private fun EnvironmentsProcessorResult.Failure.SchemaParsingError.toProcessingResult(): ProcessingResult =
         when (schemaParsingError) {
             is SchemaParserResult.Failure.FileNotFound -> ProcessingResult.SchemaFileNotFound
-            else -> genericInvalidEnvironments()
+            else -> ProcessingResult.InvalidEnvironments
         }
-
-    private fun genericInvalidEnvironments(): ProcessingResult.InvalidEnvironments =
-        ProcessingResult.InvalidEnvironments(reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound))
 
     sealed interface ProcessingResult {
         data class Success(
@@ -118,7 +115,7 @@ internal class SetupEnvironmentPresenter(
 
         data object EnvironmentsDirectoryNotFound : ProcessingResult
         data object SchemaFileNotFound : ProcessingResult
-        data class InvalidEnvironments(val reason: String) : ProcessingResult
+        data object InvalidEnvironments : ProcessingResult
     }
 
     private fun SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
