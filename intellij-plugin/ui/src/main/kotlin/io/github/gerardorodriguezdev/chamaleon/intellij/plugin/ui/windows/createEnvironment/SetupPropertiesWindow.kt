@@ -6,14 +6,14 @@ import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.OnPropertyNameChanged
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.Action.SetupPropertiesAction.OnPropertyValueChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction.OnPropertyNameChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction.OnPropertyValueChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.PropertyValue.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allBooleans
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allNullableBooleans
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.SetupPropertiesState.PropertyValue.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue as EntityPropertyValue
 
 @Composable

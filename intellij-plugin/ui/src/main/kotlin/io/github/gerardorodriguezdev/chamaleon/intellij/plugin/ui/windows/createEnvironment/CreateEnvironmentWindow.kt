@@ -6,13 +6,13 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun CreateEnvironmentWindow(
-    state: State,
-    onAction: (action: Action) -> Unit,
+    state: CreateEnvironmentWindowState,
+    onAction: (action: CreateEnvironmentWindowAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (state) {
@@ -37,19 +37,19 @@ fun CreateEnvironmentWindow(
     }
 }
 
-sealed interface State {
+sealed interface CreateEnvironmentWindowState {
     data class SetupEnvironmentState(
         val path: String,
         val environmentsDirectoryVerification: Verification?,
         val environmentName: String,
         val environmentNameVerification: Verification?,
-    ) : State
+    ) : CreateEnvironmentWindowState
 
     data class SetupSchemaState(
         val title: String,
         val supportedPlatforms: ImmutableList<SupportedPlatform>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
-    ) : State {
+    ) : CreateEnvironmentWindowState {
         data class SupportedPlatform(
             val isChecked: Boolean,
             val platformType: PlatformType,
@@ -65,7 +65,7 @@ sealed interface State {
 
     data class SetupPropertiesState(
         val platforms: ImmutableList<Platform>,
-    ) : State {
+    ) : CreateEnvironmentWindowState {
         data class Platform(
             val platformType: PlatformType,
             val properties: ImmutableList<Property>,
@@ -92,13 +92,13 @@ sealed interface State {
     }
 }
 
-sealed interface Action {
-    sealed interface SetupEnvironmentAction : Action {
+sealed interface CreateEnvironmentWindowAction {
+    sealed interface SetupEnvironmentAction : CreateEnvironmentWindowAction {
         data object OnSelectEnvironmentPathClicked : SetupEnvironmentAction
         data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
     }
 
-    sealed interface SetupSchemaAction : Action {
+    sealed interface SetupSchemaAction : CreateEnvironmentWindowAction {
         data class OnSupportedPlatformChanged(val newPlatformType: PlatformType) : SetupSchemaAction
         data object OnAddPropertyDefinitionClicked : SetupSchemaAction
         data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupSchemaAction
@@ -108,7 +108,7 @@ sealed interface Action {
             SetupSchemaAction
     }
 
-    sealed interface SetupPropertiesAction : Action {
+    sealed interface SetupPropertiesAction : CreateEnvironmentWindowAction {
         data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupPropertiesAction
         data class OnPropertyValueChanged(val index: Int, val newValue: PropertyValue?) : SetupPropertiesAction
     }

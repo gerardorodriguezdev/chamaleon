@@ -24,15 +24,15 @@ internal class EnvironmentSelectionPresenter(
     ioDispatcher: CoroutineContext,
     private val onEnvironmentsDirectoryChanged: (environmentsDirectory: File) -> Unit,
 ) : Disposable {
-    private val _state = mutableStateOf(EnvironmentSelectionState())
-    val state: State<EnvironmentSelectionState> = _state
+    private val mutableState = mutableStateOf(EnvironmentSelectionState())
+    val state: State<EnvironmentSelectionState> = mutableState
 
     private val ioScope = CoroutineScope(ioDispatcher)
 
     fun scanProject(projectDirectory: File) {
-        if (_state.value.isLoading) return
+        if (mutableState.value.isLoading) return
 
-        _state.value = _state.value.copy(isLoading = true)
+        mutableState.value = mutableState.value.copy(isLoading = true)
 
         ioScope
             .launch {
@@ -40,7 +40,7 @@ internal class EnvironmentSelectionPresenter(
                 val environmentCardStates = environmentsProcessorResults.toEnvironmentCardStates(projectDirectory)
 
                 withContext(uiDispatcher) {
-                    _state.value = _state.value.copy(
+                    mutableState.value = mutableState.value.copy(
                         environmentCardStates = environmentCardStates,
                         isLoading = false,
                     )
@@ -80,8 +80,8 @@ internal class EnvironmentSelectionPresenter(
 
                 if (addOrUpdateSelectedEnvironmentResult is AddOrUpdateSelectedEnvironmentResult.Success) {
                     withContext(uiDispatcher) {
-                        _state.value = _state.value.copy(
-                            environmentCardStates = _state.value.environmentCardStates.updateEnvironmentCardState(
+                        mutableState.value = mutableState.value.copy(
+                            environmentCardStates = mutableState.value.environmentCardStates.updateEnvironmentCardState(
                                 environmentsDirectoryPath = environmentsDirectoryPath,
                                 newSelectedEnvironment = newSelectedEnvironment,
                             ),

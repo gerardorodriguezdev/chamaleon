@@ -14,13 +14,17 @@ import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.CreateEnvironmentPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.State
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupEnvironmentState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -48,8 +52,8 @@ internal class EnvironmentCreationDialog(
         onSelectEnvironmentPathClicked = { selectFileDirectory(project) }
     )
 
-    private val state = mutableStateOf<State>(
-        State.SetupEnvironmentState(
+    private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(
+        SetupEnvironmentState(
             path = "",
             environmentsDirectoryVerification = null,
             environmentName = "",
@@ -59,6 +63,8 @@ internal class EnvironmentCreationDialog(
 
     init {
         collectState()
+
+        presenter.onAction(CreateEnvironmentAction.SetupEnvironmentAction.OnInit)
     }
 
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
@@ -69,8 +75,10 @@ internal class EnvironmentCreationDialog(
             with(LocalDensity.current) {
                 Theme {
                     CreateEnvironmentWindow(
-                        state = state.value,
-                        onAction = presenter::onAction,
+                        state = createEnvironmentWindowState.value,
+                        onAction = { action ->
+                            presenter.onAction(action.toCreateEnvironmentAction())
+                        },
                         modifier = Modifier.requiredSize(LocalWindowInfo.current.containerSize.toSize().toDpSize())
                     )
                 }
@@ -84,7 +92,7 @@ internal class EnvironmentCreationDialog(
     private fun collectState() {
         scope.launch {
             presenter.state.collect { createEnvironmentState ->
-                state.value = createEnvironmentState.toState()
+                createEnvironmentWindowState.value = createEnvironmentState.toWindowState()
 
                 setDialogButtonsState(
                     isPreviousButtonEnabled = createEnvironmentState.isPreviousButtonEnabled,
@@ -95,20 +103,8 @@ internal class EnvironmentCreationDialog(
         }
     }
 
-    private fun CreateEnvironmentPresenter.CreateEnvironmentState.toState(): State =
-        when (step) {
-            CreateEnvironmentPresenter.CreateEnvironmentState.Step.SETUP_ENVIRONMENT -> {
-                State.SetupEnvironmentState(
-                    path = environmentsDirectoryPath ?: "",
-                    environmentName = environmentName ?: "",
-                    environmentsDirectoryVerification = environmentsDirectoryVerification,
-                    environmentNameVerification = environmentNameVerification,
-                )
-            }
-        }
-
     override fun onDialogAction(action: DialogAction) {
-        presenter.onDialogAction(action)
+        presenter.onAction(action.toCreateEnvironmentAction())
     }
 
     override fun dispose() {
