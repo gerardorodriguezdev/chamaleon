@@ -1,33 +1,28 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.base.StateHolder
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.SetupEnvironmentProcessor.SetupEnvironmentProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
-//TODO: Processing outside and only update state here
 internal class SetupEnvironmentPresenter(
     private val projectDirectory: File,
-
-    private val uiDispatcher: CoroutineDispatcher,
-    private val ioScope: CoroutineScope,
-
-    private val environmentsProcessor: EnvironmentsProcessor,
+    private val uiScope: CoroutineScope,
+    private val ioScope: CoroutineContext,
+    private val setupEnvironmentProcessor: SetupEnvironmentProcessor,
     private val stringsProvider: StringsProvider,
-
+    private val stateHolder: StateHolder<CreateEnvironmentState>,
     private val onSelectEnvironmentPathClicked: () -> String?,
-    stateHolder: StateHolder<CreateEnvironmentState>,
-) : StateHolder<CreateEnvironmentState> by stateHolder {
-
-    private var processingJob: Job? = null
+) {
+    private var processJob: Job? = null
 
     fun onAction(action: SetupEnvironmentAction) {
         when (action) {
@@ -41,95 +36,10 @@ internal class SetupEnvironmentPresenter(
         process(file = projectDirectory)
     }
 
-    private fun process(file: File) {
-        val environmentsDirectory = file.toEnvironmentsDirectory()
-        val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(projectDirectory.path)
-        process(environmentsDirectory = environmentsDirectory, environmentsDirectoryPath = environmentsDirectoryPath)
-    }
-
-    private fun File.toEnvironmentsDirectory(): File =
-        if (containsEnvironmentsDirectoryName()) this else appendEnvironmentsDirectoryName()
-
-    private fun File.appendEnvironmentsDirectoryName(): File =
-        File(this, EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME)
-
-    private fun File.containsEnvironmentsDirectoryName(): Boolean =
-        path.endsWith(EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME)
-
-    private fun process(environmentsDirectory: File, environmentsDirectoryPath: String) {
-        processingJob?.cancel()
-
-        updateProcessingLoading(environmentsDirectoryPath)
-
-        processingJob = ioScope.launch {
-            val result = environmentsProcessor.process(environmentsDirectory)
-            val processingResult = result.toProcessingResult()
-
-            withContext(uiDispatcher) {
-                when (processingResult) {
-                    is ProcessingResult.Success -> updateSuccessProcessing(processingResult)
-
-                    is ProcessingResult.EnvironmentsDirectoryNotFound,
-                    is ProcessingResult.SchemaFileNotFound -> updateValidEmptyEnvironmentsDirectory()
-
-                    is ProcessingResult.InvalidEnvironments -> updateInvalidEnvironmentsDirectory(
-                        reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound),
-                        environmentsDirectoryPath = mutableState.value.environmentsDirectoryPath,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun EnvironmentsProcessorResult.toProcessingResult(): ProcessingResult =
-        when (this) {
-            is EnvironmentsProcessorResult.Success -> ProcessingResult.Success(
-                environments = environments,
-                schema = schema,
-            )
-
-            is EnvironmentsProcessorResult.Failure -> toProcessingResult()
-        }
-
-    private fun EnvironmentsProcessorResult.Failure.toProcessingResult(): ProcessingResult {
-        return when (this) {
-            is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound ->
-                ProcessingResult.EnvironmentsDirectoryNotFound
-
-            is EnvironmentsProcessorResult.Failure.SchemaParsingError -> toProcessingResult()
-            else -> ProcessingResult.InvalidEnvironments
-        }
-    }
-
-    private fun EnvironmentsProcessorResult.Failure.SchemaParsingError.toProcessingResult(): ProcessingResult =
-        when (schemaParsingError) {
-            is SchemaParserResult.Failure.FileNotFound -> ProcessingResult.SchemaFileNotFound
-            else -> ProcessingResult.InvalidEnvironments
-        }
-
-    sealed interface ProcessingResult {
-        data class Success(
-            val environments: Set<Environment>,
-            val schema: Schema,
-        ) : ProcessingResult
-
-        data object EnvironmentsDirectoryNotFound : ProcessingResult
-        data object SchemaFileNotFound : ProcessingResult
-        data object InvalidEnvironments : ProcessingResult
-    }
-
     private fun SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
         val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
         selectedEnvironmentPath?.let { path ->
-            val file = File(path)
-            if (!file.isDirectory) {
-                updateInvalidEnvironmentsDirectory(
-                    reason = stringsProvider.string(StringsKeys.selectedFileNotDirectory),
-                    environmentsDirectoryPath = null,
-                )
-            }
-
-            process(file = file)
+            process(file = File(path))
         }
     }
 
@@ -137,53 +47,97 @@ internal class SetupEnvironmentPresenter(
         updateEnvironmentName(newName)
     }
 
-    private fun updateProcessingLoading(environmentsDirectoryPath: String) {
-        mutableState.value.copy(
-            environmentsDirectoryVerification = Verification.InProgress,
-            environmentsDirectoryPath = environmentsDirectoryPath,
-        )
+    private fun process(file: File) {
+        processJob?.cancel()
+
+        processJob = uiScope.launch {
+            setupEnvironmentProcessor
+                .process(file)
+                .flowOn(ioScope)
+                .collect { processingResult ->
+                    when (processingResult) {
+                        is SetupEnvironmentProcessorResult.Success -> updateSuccessProcessing(processingResult)
+
+                        is SetupEnvironmentProcessorResult.Loading ->
+                            updateProcessingLoading(processingResult.environmentsDirectoryPath)
+
+                        is SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound,
+                        is SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound ->
+                            updateValidEmptyEnvironmentsDirectory()
+
+                        is SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory ->
+                            updateInvalidEnvironmentsDirectory(
+                                reason = stringsProvider.string(StringsKeys.selectedFileNotDirectory),
+                                environmentsDirectoryPath = null,
+                            )
+
+                        is SetupEnvironmentProcessorResult.Failure.InvalidEnvironments ->
+                            updateInvalidEnvironmentsDirectory(
+                                reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound),
+                                environmentsDirectoryPath = stateHolder.state.environmentsDirectoryPath,
+                            )
+                    }
+                }
+        }
     }
 
-    private fun updateSuccessProcessing(processingResult: ProcessingResult.Success) {
-        mutableState.value.copy(
-            environmentsDirectoryVerification = Verification.Valid,
-            environments = processingResult.environments,
-            schema = processingResult.schema,
-        )
+    private fun updateProcessingLoading(environmentsDirectoryPath: String) {
+        stateHolder.updateState { currentState ->
+            currentState.copy(
+                environmentsDirectoryVerification = Verification.InProgress,
+                environmentsDirectoryPath = environmentsDirectoryPath,
+            )
+        }
+    }
+
+    private fun updateSuccessProcessing(setupEnvironmentProcessorResult: SetupEnvironmentProcessorResult.Success) {
+        stateHolder.updateState { currentState ->
+            currentState.copy(
+                environmentsDirectoryVerification = Verification.Valid,
+                environments = setupEnvironmentProcessorResult.environments,
+                schema = setupEnvironmentProcessorResult.schema,
+            )
+        }
     }
 
     private fun updateValidEmptyEnvironmentsDirectory() {
-        mutableState.value = mutableState.value.copy(
-            environmentsDirectoryVerification = Verification.Valid,
-            environments = null,
-            schema = null,
-        )
+        stateHolder.updateState { currentState ->
+            currentState.copy(
+                environmentsDirectoryVerification = Verification.Valid,
+                environments = null,
+                schema = null,
+            )
+        }
     }
 
     private fun updateInvalidEnvironmentsDirectory(
         reason: String,
         environmentsDirectoryPath: String?
     ) {
-        mutableState.value = mutableState.value.copy(
-            environmentsDirectoryVerification = Verification.Invalid(reason),
-            environmentsDirectoryPath = environmentsDirectoryPath,
-            environments = null,
-            schema = null,
-        )
+        stateHolder.updateState { currentState ->
+            currentState.copy(
+                environmentsDirectoryVerification = Verification.Invalid(reason),
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environments = null,
+                schema = null,
+            )
+        }
     }
 
     private fun updateEnvironmentName(newEnvironmentName: String) {
         val environmentNameVerification = newEnvironmentName.environmentNameVerification()
 
-        mutableState.value.copy(
-            environmentName = newEnvironmentName,
-            environmentNameVerification = environmentNameVerification,
-        )
+        stateHolder.updateState { currentState ->
+            currentState.copy(
+                environmentName = newEnvironmentName,
+                environmentNameVerification = environmentNameVerification,
+            )
+        }
     }
 
     private fun String.environmentNameVerification(): Verification {
         val isEnvironmentNameDuplicated =
-            mutableState.value.environments?.any { environment -> environment.name == this } == true
+            stateHolder.state.environments?.any { environment -> environment.name == this } == true
 
         return when {
             isEmpty() -> Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameEmpty))
