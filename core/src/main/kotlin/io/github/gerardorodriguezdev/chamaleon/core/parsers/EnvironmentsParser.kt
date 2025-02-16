@@ -15,8 +15,6 @@ public interface EnvironmentsParser {
         environmentsDirectory: File,
         environments: Set<Environment>,
     ): AddEnvironmentsResult
-
-    public fun isEnvironmentValid(environment: Environment): Boolean
 }
 
 internal class DefaultEnvironmentsParser(
@@ -101,9 +99,6 @@ internal class DefaultEnvironmentsParser(
             Environment.ValidationResult.INVALID_PLATFORM -> AddEnvironmentsResult.Failure.InvalidPlatforms(path)
             Environment.ValidationResult.EMPTY_NAME -> AddEnvironmentsResult.Failure.EmptyEnvironmentName(path)
         }
-
-    override fun isEnvironmentValid(environment: Environment): Boolean =
-        environment.isValid() == Environment.ValidationResult.VALID
 
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
         map { platformDto ->

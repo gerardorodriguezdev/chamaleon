@@ -7,15 +7,15 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Ver
 
 internal data class CreateEnvironmentState(
     val environmentsDirectoryPath: String? = null,
-    val environmentsDirectoryVerification: Verification? = null,
+    val environmentsDirectoryVerification: Verification? = null, //TODO: Fix
 
     val environmentName: String? = null,
-    val environmentNameVerification: Verification? = null,
+    val environmentNameVerification: Verification? = null, //TODO: Fix
 
     val environments: Set<Environment>? = null,
 
     val schema: Schema? = null,
-    val schemaVerification: Verification? = null,
+    val schemaVerification: Verification? = null, //TODO: Fix
 
     val step: Step = Step.SETUP_ENVIRONMENT,
 ) {

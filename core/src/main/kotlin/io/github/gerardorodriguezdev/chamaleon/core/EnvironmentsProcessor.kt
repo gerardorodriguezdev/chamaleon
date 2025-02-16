@@ -32,10 +32,8 @@ public interface EnvironmentsProcessor {
     ): AddOrUpdateSelectedEnvironmentResult
 
     public fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): AddEnvironmentsResult
-    public fun isEnvironmentValid(environment: Environment): Boolean
 
     public fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult
-    public fun isSchemaValid(schema: Schema): Boolean
 
     public companion object {
         public const val SCHEMA_FILE: String = "template.chamaleon.json"
@@ -111,13 +109,8 @@ internal class DefaultEnvironmentsProcessor(
     override fun addEnvironments(environmentsDirectory: File, environments: Set<Environment>): AddEnvironmentsResult =
         environmentsParser.addEnvironments(environmentsDirectory, environments)
 
-    override fun isEnvironmentValid(environment: Environment): Boolean =
-        environmentsParser.isEnvironmentValid(environment)
-
     override fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult =
         schemaParser.addSchema(schemaFile, newSchema)
-
-    override fun isSchemaValid(schema: Schema): Boolean = schemaParser.isSchemaValid(schema)
 
     @Suppress("ReturnCount")
     private suspend fun parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> =
