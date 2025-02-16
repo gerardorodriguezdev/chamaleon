@@ -95,9 +95,9 @@ internal class EnvironmentCreationDialog(
                 createEnvironmentWindowState.value = createEnvironmentState.toWindowState()
 
                 setDialogButtonsState(
-                    isPreviousButtonEnabled = createEnvironmentState.isPreviousButtonEnabled,
-                    isNextButtonEnabled = createEnvironmentState.isNextButtonEnabled,
-                    isFinishButtonEnabled = createEnvironmentState.isFinishButtonEnabled,
+                    isPreviousButtonEnabled = createEnvironmentState.isPreviousButtonEnabled(),
+                    isNextButtonEnabled = createEnvironmentState.isNextButtonEnabled(),
+                    isFinishButtonEnabled = createEnvironmentState.isFinishButtonEnabled(),
                 )
             }
         }
