@@ -7,6 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog.DialogAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.extensions.isValid
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
-//TODO: Move logic out if possible
 internal class CreateEnvironmentPresenter(
     private val projectDirectory: File,
     private val stringsProvider: StringsProvider,
@@ -53,31 +53,41 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    //TODO: Org functions
     private fun process(file: File) {
-        val file = file.appendEnvironmentsDirectoryIfNeeded()
-        val environmentsDirectoryPath = file.path.removePrefix(projectDirectory.path)
-        process(file = file, environmentsDirectoryPath = environmentsDirectoryPath)
+        if (!file.isDirectory) {
+            _state.value = _state.value.copy(
+                environmentsDirectoryVerification = Verification.Invalid("Invalid directory selected"), //TODO: Abc
+                environmentsDirectoryPath = null,
+                isNextButtonEnabled = false,
+                environments = null,
+                schema = null,
+            )
+            return
+        }
+
+        val environmentsDirectory = file.toEnvironmentsDirectory()
+        val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(projectDirectory.path)
+        process(environmentsDirectory = environmentsDirectory, environmentsDirectoryPath = environmentsDirectoryPath)
     }
 
-    private fun process(file: File, environmentsDirectoryPath: String) {
+    private fun process(environmentsDirectory: File, environmentsDirectoryPath: String) {
         processingJob?.cancel()
 
         _state.value = _state.value.copy(
-            verification = Verification.InProgress,
+            environmentsDirectoryVerification = Verification.InProgress,
             environmentsDirectoryPath = environmentsDirectoryPath,
         )
 
         processingJob = ioScope.launch {
-            val result = environmentsProcessor.process(file)
+            val result = environmentsProcessor.process(environmentsDirectory)
             val processingResult = result.toProcessingResult()
 
             withContext(uiDispatcher) {
                 when (processingResult) {
                     is ProcessingResult.Success -> {
                         _state.value = _state.value.copy(
-                            verification = Verification.Valid,
-                            isNextButtonEnabled = true,
+                            environmentsDirectoryVerification = Verification.Valid,
+                            isNextButtonEnabled = _state.value.environmentNameVerification.isValid(),
 
                             environments = processingResult.environments,
                             schema = processingResult.schema,
@@ -87,8 +97,8 @@ internal class CreateEnvironmentPresenter(
                     is ProcessingResult.EnvironmentsDirectoryNotFound,
                     is ProcessingResult.SchemaFileNotFound -> {
                         _state.value = _state.value.copy(
-                            verification = Verification.Valid,
-                            isNextButtonEnabled = true,
+                            environmentsDirectoryVerification = Verification.Valid,
+                            isNextButtonEnabled = _state.value.environmentNameVerification.isValid(),
 
                             environments = null,
                             schema = null,
@@ -97,7 +107,7 @@ internal class CreateEnvironmentPresenter(
 
                     is ProcessingResult.InvalidEnvironments -> {
                         _state.value = _state.value.copy(
-                            verification = Verification.Invalid(processingResult.reason),
+                            environmentsDirectoryVerification = Verification.Invalid(processingResult.reason),
                             isNextButtonEnabled = false,
 
                             environments = null,
@@ -115,11 +125,30 @@ internal class CreateEnvironmentPresenter(
                 val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
                 selectedEnvironmentPath?.let { path ->
                     val file = File(path)
-                    process(file)
+                    process(file = file)
                 }
             }
 
-            is SetupEnvironmentAction.OnEnvironmentNameChanged -> Unit
+            is SetupEnvironmentAction.OnEnvironmentNameChanged -> {
+                val environmentNameVerification = newName.environmentNameVerification()
+                _state.value = _state.value.copy(
+                    environmentName = newName,
+                    environmentNameVerification = environmentNameVerification,
+                    isNextButtonEnabled =
+                        _state.value.environmentsDirectoryVerification.isValid() && environmentNameVerification.isValid(),
+                )
+            }
+        }
+    }
+
+    private fun String.environmentNameVerification(): Verification {
+        val isEnvironmentNameDuplicated =
+            _state.value.environments?.any { environment -> environment.name == this } == true
+
+        return when {
+            isEmpty() -> Verification.Invalid("Empty environmentName") //TODO: Abc
+            isEnvironmentNameDuplicated -> Verification.Invalid("Duplicated environment") //TODO: Abc
+            else -> Verification.Valid
         }
     }
 
@@ -156,16 +185,21 @@ internal class CreateEnvironmentPresenter(
     private fun genericInvalidEnvironments(): ProcessingResult.InvalidEnvironments =
         ProcessingResult.InvalidEnvironments(reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound))
 
-    //TODO: Refactor
-    private fun File.appendEnvironmentsDirectoryIfNeeded(): File =
-        if (path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)) {
-            this
-        } else {
-            File(this, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
-        }
+    private fun File.toEnvironmentsDirectory(): File =
+        if (containsEnvironmentsDirectoryName()) this else appendEnvironmentsDirectoryName()
+
+    private fun File.appendEnvironmentsDirectoryName(): File =
+        File(this, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+
+    private fun File.containsEnvironmentsDirectoryName(): Boolean =
+        path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
 
     data class CreateEnvironmentState(
-        val verification: Verification? = null,
+        val environmentsDirectoryVerification: Verification? = null,
+        val environmentName: String? = null,
+        val environmentNameVerification: Verification? = null,
+
+        val step: Step = Step.SETUP_ENVIRONMENT,
 
         val environmentsDirectoryPath: String? = null,
         val environments: Set<Environment>? = null,
@@ -174,8 +208,6 @@ internal class CreateEnvironmentPresenter(
         val isPreviousButtonEnabled: Boolean = false,
         val isNextButtonEnabled: Boolean = false,
         val isFinishButtonEnabled: Boolean = false,
-
-        val step: Step = Step.SETUP_ENVIRONMENT,
     ) {
         enum class Step {
             SETUP_ENVIRONMENT,

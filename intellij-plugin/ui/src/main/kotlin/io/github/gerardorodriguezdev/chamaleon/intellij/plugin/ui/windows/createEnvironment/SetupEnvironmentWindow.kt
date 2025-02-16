@@ -43,8 +43,8 @@ fun SetupEnvironmentWindow(
                                 onClick = { onAction(OnSelectEnvironmentPathClicked) }
                             )
 
-                            state.verification?.let {
-                                VerificationIcon(verification = state.verification)
+                            state.environmentsDirectoryVerification?.let {
+                                VerificationIcon(verification = state.environmentsDirectoryVerification)
                             }
                         }
                     }
@@ -55,9 +55,15 @@ fun SetupEnvironmentWindow(
                 Section(enableDivider = true) {
                     InputTextField(
                         label = string(StringsKeys.environmentName),
+                        value = state.environmentName,
                         onValueChange = { newText ->
                             onAction(OnEnvironmentNameChanged(newText))
                         },
+                        trailingIcon = {
+                            state.environmentNameVerification?.let {
+                                VerificationIcon(verification = state.environmentNameVerification)
+                            }
+                        }
                     )
                 }
             }

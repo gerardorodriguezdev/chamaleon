@@ -30,10 +30,9 @@ internal class EnvironmentSelectionPresenter(
     private val ioScope = CoroutineScope(ioDispatcher)
 
     fun scanProject(projectDirectory: File) {
-        val currentState = _state.value
-        if (currentState.isLoading) return
+        if (_state.value.isLoading) return
 
-        _state.value = currentState.copy(isLoading = true)
+        _state.value = _state.value.copy(isLoading = true)
 
         ioScope
             .launch {
@@ -41,7 +40,7 @@ internal class EnvironmentSelectionPresenter(
                 val environmentCardStates = environmentsProcessorResults.toEnvironmentCardStates(projectDirectory)
 
                 withContext(uiDispatcher) {
-                    _state.value = currentState.copy(
+                    _state.value = _state.value.copy(
                         environmentCardStates = environmentCardStates,
                         isLoading = false,
                     )
@@ -70,8 +69,6 @@ internal class EnvironmentSelectionPresenter(
         environmentsDirectoryPath: String,
         newSelectedEnvironment: String?
     ) {
-        val currentState = _state.value
-
         ioScope
             .launch {
                 val environmentsDirectory = File(projectDirectory.path + environmentsDirectoryPath)
@@ -83,8 +80,8 @@ internal class EnvironmentSelectionPresenter(
 
                 if (addOrUpdateSelectedEnvironmentResult is AddOrUpdateSelectedEnvironmentResult.Success) {
                     withContext(uiDispatcher) {
-                        _state.value = currentState.copy(
-                            environmentCardStates = currentState.environmentCardStates.updateEnvironmentCardState(
+                        _state.value = _state.value.copy(
+                            environmentCardStates = _state.value.environmentCardStates.updateEnvironmentCardState(
                                 environmentsDirectoryPath = environmentsDirectoryPath,
                                 newSelectedEnvironment = newSelectedEnvironment,
                             ),

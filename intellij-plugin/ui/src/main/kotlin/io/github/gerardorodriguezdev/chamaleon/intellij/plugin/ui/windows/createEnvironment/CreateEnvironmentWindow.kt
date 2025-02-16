@@ -40,7 +40,9 @@ fun CreateEnvironmentWindow(
 sealed interface State {
     data class SetupEnvironmentState(
         val path: String,
-        val verification: Verification?,
+        val environmentsDirectoryVerification: Verification?,
+        val environmentName: String,
+        val environmentNameVerification: Verification?,
     ) : State
 
     data class SetupSchemaState(

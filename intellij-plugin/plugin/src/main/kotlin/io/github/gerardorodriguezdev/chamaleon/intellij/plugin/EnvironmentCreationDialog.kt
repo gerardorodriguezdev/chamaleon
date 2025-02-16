@@ -49,7 +49,12 @@ internal class EnvironmentCreationDialog(
     )
 
     private val state = mutableStateOf<State>(
-        State.SetupEnvironmentState(path = "", verification = null)
+        State.SetupEnvironmentState(
+            path = "",
+            environmentsDirectoryVerification = null,
+            environmentName = "",
+            environmentNameVerification = null,
+        )
     )
 
     init {
@@ -90,14 +95,14 @@ internal class EnvironmentCreationDialog(
         }
     }
 
-    //TODO: Add all steps
-    //TODO: Move logic out
     private fun CreateEnvironmentPresenter.CreateEnvironmentState.toState(): State =
         when (step) {
             CreateEnvironmentPresenter.CreateEnvironmentState.Step.SETUP_ENVIRONMENT -> {
                 State.SetupEnvironmentState(
                     path = environmentsDirectoryPath ?: "",
-                    verification = verification,
+                    environmentName = environmentName ?: "",
+                    environmentsDirectoryVerification = environmentsDirectoryVerification,
+                    environmentNameVerification = environmentNameVerification,
                 )
             }
         }
