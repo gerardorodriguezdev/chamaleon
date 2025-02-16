@@ -16,6 +16,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.DefaultSetupEnvironmentPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.DefaultSetupEnvironmentProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
@@ -44,12 +46,23 @@ internal class EnvironmentCreationDialog(
     private val scope = CoroutineScope(Dispatchers.Swing)
 
     private val presenter = CreateEnvironmentPresenter(
-        projectDirectory = projectDirectory,
-        stringsProvider = BundleStringsProvider,
-        environmentsProcessor = environmentsProcessor,
-        uiDispatcher = Dispatchers.Swing,
-        ioDispatcher = Dispatchers.IO,
-        onSelectEnvironmentPathClicked = { selectFileDirectory(project) }
+        uiContext = Dispatchers.Swing,
+        setupEnvironmentPresenterProvider = { stateHolder, uiScope ->
+            DefaultSetupEnvironmentPresenter(
+                projectDirectory = projectDirectory,
+                stringsProvider = BundleStringsProvider,
+                setupEnvironmentProcessorProvider = { projectDirectory ->
+                    DefaultSetupEnvironmentProcessor(
+                        projectDirectory = projectDirectory,
+                        environmentsProcessor = environmentsProcessor,
+                    )
+                },
+                uiScope = uiScope,
+                ioScope = Dispatchers.IO,
+                onSelectEnvironmentPathClicked = { selectFileDirectory(project) },
+                stateHolder = stateHolder,
+            )
+        }
     )
 
     private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(
@@ -91,7 +104,7 @@ internal class EnvironmentCreationDialog(
 
     private fun collectState() {
         scope.launch {
-            presenter.state.collect { createEnvironmentState ->
+            presenter.stateFlow.collect { createEnvironmentState ->
                 createEnvironmentWindowState.value = createEnvironmentState.toWindowState()
 
                 setDialogButtonsState(

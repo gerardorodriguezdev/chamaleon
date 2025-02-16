@@ -13,18 +13,23 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
-internal class SetupEnvironmentPresenter(
+interface SetupEnvironmentPresenter {
+    fun onAction(action: SetupEnvironmentAction)
+}
+
+internal class DefaultSetupEnvironmentPresenter(
     private val projectDirectory: File,
     private val uiScope: CoroutineScope,
     private val ioScope: CoroutineContext,
-    private val setupEnvironmentProcessor: SetupEnvironmentProcessor,
+    setupEnvironmentProcessorProvider: (projectDirectory: File) -> SetupEnvironmentProcessor,
     private val stringsProvider: StringsProvider,
     private val stateHolder: StateHolder<CreateEnvironmentState>,
     private val onSelectEnvironmentPathClicked: () -> String?,
-) {
+) : SetupEnvironmentPresenter {
+    private val setupEnvironmentProcessor = setupEnvironmentProcessorProvider(projectDirectory)
     private var processJob: Job? = null
 
-    fun onAction(action: SetupEnvironmentAction) {
+    override fun onAction(action: SetupEnvironmentAction) {
         when (action) {
             is SetupEnvironmentAction.OnInit -> action.handle()
             is SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> action.handle()
