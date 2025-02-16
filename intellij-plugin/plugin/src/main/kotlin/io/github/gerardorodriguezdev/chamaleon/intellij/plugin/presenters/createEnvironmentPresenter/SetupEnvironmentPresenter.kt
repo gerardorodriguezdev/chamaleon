@@ -14,7 +14,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Ver
 import kotlinx.coroutines.*
 import java.io.File
 
-//TODO: Strings
 //TODO: Processing outside and only update state here
 internal class SetupEnvironmentPresenter(
     private val projectDirectory: File,
@@ -129,8 +128,8 @@ internal class SetupEnvironmentPresenter(
             val file = File(path)
             if (!file.isDirectory) {
                 updateInvalidEnvironmentsDirectory(
-                    reason = "File is not a directory",
-                    environmentsDirectoryPath = null, //TODO: Abc
+                    reason = stringsProvider.string(StringsKeys.selectedFileNotDirectory),
+                    environmentsDirectoryPath = null,
                 )
             }
 
@@ -198,8 +197,10 @@ internal class SetupEnvironmentPresenter(
             mutableState.value.environments?.any { environment -> environment.name == this } == true
 
         return when {
-            isEmpty() -> Verification.Invalid("Empty environmentName") //TODO: Abc
-            isEnvironmentNameDuplicated -> Verification.Invalid("Duplicated environment") //TODO: Abc
+            isEmpty() -> Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameEmpty))
+            isEnvironmentNameDuplicated ->
+                Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
+
             else -> Verification.Valid
         }
     }

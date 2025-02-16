@@ -35,6 +35,9 @@ object StringsKeys {
     val addProperties = StringKey("add.properties")
     val clearText = StringKey("clear.text")
     val invalidEnvironmentsFound = StringKey("invalid.environments.found")
+    val selectedFileNotDirectory = StringKey("selected.file.not.directory")
+    val environmentNameEmpty = StringKey("environment.name.empty")
+    val environmentNameIsDuplicated = StringKey("environment.name.is.duplicated")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)
