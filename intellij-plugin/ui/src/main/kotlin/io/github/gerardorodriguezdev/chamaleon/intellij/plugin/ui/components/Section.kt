@@ -11,7 +11,7 @@ import org.jetbrains.jewel.ui.component.Divider
 
 @Suppress("LongParameterList")
 @Composable
-fun Section(
+internal fun Section(
     modifier: Modifier = Modifier,
     title: String? = null,
     titleTrailingIcon: @Composable (() -> Unit)? = null,

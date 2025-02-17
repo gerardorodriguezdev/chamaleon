@@ -30,7 +30,7 @@ fun SetupEnvironmentWindow(
             item {
                 InputTextField(
                     label = string(StringsKeys.environmentsDirectory),
-                    value = state.path,
+                    value = state.environmentsDirectoryPathField.value,
                     readOnly = true,
                     trailingIcon = {
                         Row(
@@ -39,12 +39,12 @@ fun SetupEnvironmentWindow(
                         ) {
                             TooltipIconButton(
                                 iconKey = AllIconsKeys.Actions.NewFolder,
-                                tooltip = state.path,
+                                tooltip = string(StringsKeys.selectEnvironmentsDirectoryLocation),
                                 onClick = { onAction(OnSelectEnvironmentPathClicked) }
                             )
 
-                            state.environmentsDirectoryVerification?.let {
-                                VerificationIcon(verification = state.environmentsDirectoryVerification)
+                            state.environmentsDirectoryPathField.verification?.let {
+                                VerificationIcon(verification = state.environmentsDirectoryPathField.verification)
                             }
                         }
                     }
@@ -55,14 +55,13 @@ fun SetupEnvironmentWindow(
                 Section(enableDivider = true) {
                     InputTextField(
                         label = string(StringsKeys.environmentName),
-                        value = state.environmentName,
+                        value = state.environmentNameField.value,
                         onValueChange = { newText ->
                             onAction(OnEnvironmentNameChanged(newText))
                         },
                         trailingIcon = {
-                            val verification = state.environmentNameVerification.toVerification()
-                            verification?.let {
-                                VerificationIcon(verification = verification)
+                            state.environmentNameField.verification?.let {
+                                VerificationIcon(verification = state.environmentNameField.verification)
                             }
                         }
                     )
@@ -71,16 +70,3 @@ fun SetupEnvironmentWindow(
         }
     )
 }
-
-@Composable
-private fun SetupEnvironmentState.EnvironmentNameVerification.toVerification(): Verification? =
-    when (this) {
-        SetupEnvironmentState.EnvironmentNameVerification.VALID -> null
-        SetupEnvironmentState.EnvironmentNameVerification.IS_EMPTY -> Verification.Invalid(
-            reason = string(StringsKeys.environmentNameEmpty),
-        )
-
-        SetupEnvironmentState.EnvironmentNameVerification.IS_DUPLICATED -> Verification.Invalid(
-            reason = string(StringsKeys.environmentNameIsDuplicated),
-        )
-    }

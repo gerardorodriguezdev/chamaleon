@@ -10,7 +10,7 @@ import org.jetbrains.jewel.ui.icon.IconKey
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TooltipIcon(iconKey: IconKey, tooltip: String, modifier: Modifier = Modifier) {
+internal fun TooltipIcon(iconKey: IconKey, tooltip: String, modifier: Modifier = Modifier) {
     Tooltip(
         tooltip = {
             Text(text = tooltip)

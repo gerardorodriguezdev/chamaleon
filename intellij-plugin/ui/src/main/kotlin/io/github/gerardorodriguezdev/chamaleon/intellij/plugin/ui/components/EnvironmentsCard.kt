@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
-fun EnvironmentCard(
+internal fun EnvironmentCard(
     state: EnvironmentCardState,
     onSelectedEnvironmentChanged: (newSelectedEnvironment: String?) -> Unit,
 ) {

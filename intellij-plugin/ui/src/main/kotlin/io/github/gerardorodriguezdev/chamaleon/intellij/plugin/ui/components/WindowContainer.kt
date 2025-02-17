@@ -16,7 +16,7 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun WindowContainer(
+internal fun WindowContainer(
     modifier: Modifier = Modifier,
     toolbar: @Composable (BoxScope.() -> Unit)? = null,
     content: LazyListScope.() -> Unit,

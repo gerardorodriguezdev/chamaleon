@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 
 @Composable
-fun Toolbar(
+internal fun Toolbar(
     modifier: Modifier = Modifier,
     title: String? = null,
     forceLabelWidth: Boolean = true,

@@ -9,7 +9,7 @@ import org.jetbrains.jewel.ui.icon.IconKey
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TooltipIconButton(iconKey: IconKey, tooltip: String, onClick: () -> Unit) {
+internal fun TooltipIconButton(iconKey: IconKey, tooltip: String, onClick: () -> Unit) {
     Tooltip(
         tooltip = {
             Text(text = tooltip)

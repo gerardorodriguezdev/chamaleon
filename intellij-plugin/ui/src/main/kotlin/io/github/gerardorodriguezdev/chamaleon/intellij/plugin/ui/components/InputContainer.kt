@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 
 @Composable
-fun InputContainer(
+internal fun InputContainer(
     label: String,
     modifier: Modifier = Modifier,
     forceLabelWidth: Boolean = true,

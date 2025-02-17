@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.*
 import kotlinx.collections.immutable.ImmutableList
 
@@ -39,18 +39,9 @@ fun CreateEnvironmentWindow(
 
 sealed interface CreateEnvironmentWindowState {
     data class SetupEnvironmentState(
-        val path: String = "",
-        val environmentsDirectoryVerification: Verification? = null,
-
-        val environmentName: String = "",
-        val environmentNameVerification: EnvironmentNameVerification = EnvironmentNameVerification.VALID,
-    ) : CreateEnvironmentWindowState {
-        enum class EnvironmentNameVerification {
-            VALID,
-            IS_EMPTY,
-            IS_DUPLICATED;
-        }
-    }
+        val environmentsDirectoryPathField: Field<String>,
+        val environmentNameField: Field<String>,
+    ) : CreateEnvironmentWindowState
 
     data class SetupSchemaState(
         val title: String,

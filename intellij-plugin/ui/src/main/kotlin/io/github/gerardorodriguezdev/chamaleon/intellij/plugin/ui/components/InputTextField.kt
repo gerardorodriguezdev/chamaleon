@@ -7,7 +7,7 @@ import org.jetbrains.jewel.ui.component.TextField
 
 @Suppress("LongParameterList")
 @Composable
-fun InputTextField(
+internal fun InputTextField(
     label: String,
     modifier: Modifier = Modifier,
     value: String = "",
