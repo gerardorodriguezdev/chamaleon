@@ -60,8 +60,9 @@ fun SetupEnvironmentWindow(
                             onAction(OnEnvironmentNameChanged(newText))
                         },
                         trailingIcon = {
-                            state.environmentNameVerification?.let {
-                                VerificationIcon(verification = state.environmentNameVerification)
+                            val verification = state.environmentNameVerification.toVerification()
+                            verification?.let {
+                                VerificationIcon(verification = verification)
                             }
                         }
                     )
@@ -70,3 +71,16 @@ fun SetupEnvironmentWindow(
         }
     )
 }
+
+@Composable
+private fun SetupEnvironmentState.EnvironmentNameVerification.toVerification(): Verification? =
+    when (this) {
+        SetupEnvironmentState.EnvironmentNameVerification.VALID -> null
+        SetupEnvironmentState.EnvironmentNameVerification.IS_EMPTY -> Verification.Invalid(
+            reason = string(StringsKeys.environmentNameEmpty),
+        )
+
+        SetupEnvironmentState.EnvironmentNameVerification.IS_DUPLICATED -> Verification.Invalid(
+            reason = string(StringsKeys.environmentNameIsDuplicated),
+        )
+    }

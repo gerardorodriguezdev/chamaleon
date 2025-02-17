@@ -181,6 +181,7 @@ private fun SupportedPlatforms(
         horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
         modifier = Modifier.fillMaxWidth(),
     ) {
+        //TODO: Add all for case first
         supportedPlatforms.forEach { supportedPlatform ->
             InputCheckBox(
                 label = supportedPlatform.platformType.serialName,

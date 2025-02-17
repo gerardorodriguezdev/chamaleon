@@ -69,14 +69,7 @@ internal class EnvironmentCreationDialog(
         }
     )
 
-    private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(
-        SetupEnvironmentState(
-            path = "",
-            environmentsDirectoryVerification = null,
-            environmentName = "",
-            environmentNameVerification = null,
-        )
-    )
+    private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(SetupEnvironmentState())
 
     init {
         collectState()

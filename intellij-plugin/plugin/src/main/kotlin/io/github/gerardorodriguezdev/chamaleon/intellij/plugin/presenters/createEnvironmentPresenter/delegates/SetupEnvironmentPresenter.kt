@@ -1,8 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates
 
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.base.StateHolder
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupEnvironmentAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
@@ -31,24 +34,24 @@ internal class DefaultSetupEnvironmentPresenter(
 
     override fun onAction(action: SetupEnvironmentAction) {
         when (action) {
-            is SetupEnvironmentAction.OnInit -> action.handle()
-            is SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> action.handle()
-            is SetupEnvironmentAction.OnEnvironmentNameChanged -> action.handle()
+            is OnInit -> action.handle()
+            is OnSelectEnvironmentPathClicked -> action.handle()
+            is OnEnvironmentNameChanged -> action.handle()
         }
     }
 
-    private fun SetupEnvironmentAction.OnInit.handle() {
+    private fun OnInit.handle() {
         process(file = projectDirectory)
     }
 
-    private fun SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
+    private fun OnSelectEnvironmentPathClicked.handle() {
         val selectedEnvironmentPath = onSelectEnvironmentPathClicked()
         selectedEnvironmentPath?.let { path ->
             process(file = File(path))
         }
     }
 
-    private fun SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
+    private fun OnEnvironmentNameChanged.handle() {
         updateEnvironmentName(newName)
     }
 
@@ -61,12 +64,11 @@ internal class DefaultSetupEnvironmentPresenter(
                 .flowOn(ioScope)
                 .collect { processingResult ->
                     when (processingResult) {
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success -> updateSuccessProcessing(
-                            processingResult
-                        )
+                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success ->
+                            processingResult.updateSuccessProcessing()
 
                         is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Loading ->
-                            updateProcessingLoading(processingResult.environmentsDirectoryPath)
+                            processingResult.updateProcessingLoading()
 
                         is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound,
                         is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound ->
@@ -75,34 +77,37 @@ internal class DefaultSetupEnvironmentPresenter(
                         is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory ->
                             updateInvalidEnvironmentsDirectory(
                                 reason = stringsProvider.string(StringsKeys.selectedFileNotDirectory),
-                                environmentsDirectoryPath = null,
+                                environmentsDirectoryPath = "",
                             )
 
                         is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.InvalidEnvironments ->
                             updateInvalidEnvironmentsDirectory(
                                 reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound),
-                                environmentsDirectoryPath = stateHolder.state.environmentsDirectoryPath,
+                                environmentsDirectoryPath = stateHolder.state.environmentsDirectoryPathField.value,
                             )
                     }
                 }
         }
     }
 
-    private fun updateProcessingLoading(environmentsDirectoryPath: String) {
+    private fun SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Loading.updateProcessingLoading() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryVerification = Verification.InProgress,
-                environmentsDirectoryPath = environmentsDirectoryPath,
+                environmentsDirectoryPathField = Field(
+                    value = environmentsDirectoryPath,
+                    verification = Verification.InProgress,
+                )
             )
         }
     }
 
-    private fun updateSuccessProcessing(setupEnvironmentProcessorResult: SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success) {
+    private fun SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success.updateSuccessProcessing() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryVerification = Verification.Valid,
-                environments = setupEnvironmentProcessorResult.environments,
-                schema = setupEnvironmentProcessorResult.schema,
+                environmentsDirectoryPathField =
+                    currentState.environmentsDirectoryPathField.copy(verification = Verification.Valid),
+                environments = environments,
+                schema = schema,
             )
         }
     }
@@ -110,48 +115,35 @@ internal class DefaultSetupEnvironmentPresenter(
     private fun updateValidEmptyEnvironmentsDirectory() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryVerification = Verification.Valid,
-                environments = null,
-                schema = null,
+                environmentsDirectoryPathField =
+                    currentState.environmentsDirectoryPathField.copy(verification = Verification.Valid),
+                environments = emptySet(),
+                schema = Schema.emptySchema(),
             )
         }
     }
 
     private fun updateInvalidEnvironmentsDirectory(
         reason: String,
-        environmentsDirectoryPath: String?
+        environmentsDirectoryPath: String
     ) {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryVerification = Verification.Invalid(reason),
-                environmentsDirectoryPath = environmentsDirectoryPath,
-                environments = null,
-                schema = null,
+                environmentsDirectoryPathField = Field(
+                    value = environmentsDirectoryPath,
+                    verification = Verification.Invalid(reason),
+                ),
+                environments = emptySet(),
+                schema = Schema.emptySchema(),
             )
         }
     }
 
     private fun updateEnvironmentName(newEnvironmentName: String) {
-        val environmentNameVerification = newEnvironmentName.environmentNameVerification()
-
         stateHolder.updateState { currentState ->
             currentState.copy(
                 environmentName = newEnvironmentName,
-                environmentNameVerification = environmentNameVerification,
             )
-        }
-    }
-
-    private fun String.environmentNameVerification(): Verification {
-        val isEnvironmentNameDuplicated =
-            stateHolder.state.environments?.any { environment -> environment.name == this } == true
-
-        return when {
-            isEmpty() -> Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameEmpty))
-            isEnvironmentNameDuplicated ->
-                Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
-
-            else -> Verification.Valid
         }
     }
 }

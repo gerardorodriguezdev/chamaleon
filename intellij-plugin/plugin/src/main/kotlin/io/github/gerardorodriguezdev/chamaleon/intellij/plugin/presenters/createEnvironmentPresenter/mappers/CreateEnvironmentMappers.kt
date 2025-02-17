@@ -4,6 +4,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialo
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog.DialogAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentNameVerification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Step
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnEnvironmentNameChanged
@@ -16,16 +18,17 @@ import kotlinx.collections.immutable.persistentListOf
 
 internal fun CreateEnvironmentState.toWindowState(): CreateEnvironmentWindowState =
     when (step) {
-        CreateEnvironmentState.Step.SETUP_ENVIRONMENT -> {
+        Step.SETUP_ENVIRONMENT -> {
             SetupEnvironmentState(
-                path = environmentsDirectoryPath ?: "",
-                environmentName = environmentName ?: "",
-                environmentsDirectoryVerification = environmentsDirectoryVerification,
-                environmentNameVerification = environmentNameVerification,
+                path = environmentsDirectoryPathField.value,
+                environmentsDirectoryVerification = environmentsDirectoryPathField.verification,
+
+                environmentName = environmentName,
+                environmentNameVerification = environmentNameVerification.toEnvironmentNameVerification(),
             )
         }
 
-        CreateEnvironmentState.Step.SETUP_SCHEMA -> {
+        Step.SETUP_SCHEMA -> {
             //TODO: Update
             SetupSchemaState(
                 title = "Update",
@@ -35,7 +38,14 @@ internal fun CreateEnvironmentState.toWindowState(): CreateEnvironmentWindowStat
         }
     }
 
-internal fun CreateEnvironmentWindowAction.toCreateEnvironmentAction(): CreateEnvironmentAction =
+private fun EnvironmentNameVerification.toEnvironmentNameVerification(): SetupEnvironmentState.EnvironmentNameVerification =
+    when (this) {
+        EnvironmentNameVerification.VALID -> SetupEnvironmentState.EnvironmentNameVerification.VALID
+        EnvironmentNameVerification.IS_EMPTY -> SetupEnvironmentState.EnvironmentNameVerification.IS_EMPTY
+        EnvironmentNameVerification.IS_DUPLICATED -> SetupEnvironmentState.EnvironmentNameVerification.IS_DUPLICATED
+    }
+
+fun CreateEnvironmentWindowAction.toCreateEnvironmentAction(): CreateEnvironmentAction =
     when (this) {
         is SetupEnvironmentAction -> toSetupEnvironmentAction()
         is SetupSchemaAction -> toSetupSchemaAction()

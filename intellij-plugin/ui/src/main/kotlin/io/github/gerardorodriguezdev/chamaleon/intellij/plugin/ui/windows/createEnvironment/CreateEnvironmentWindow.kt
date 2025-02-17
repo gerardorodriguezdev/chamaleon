@@ -39,11 +39,18 @@ fun CreateEnvironmentWindow(
 
 sealed interface CreateEnvironmentWindowState {
     data class SetupEnvironmentState(
-        val path: String,
-        val environmentsDirectoryVerification: Verification?,
-        val environmentName: String,
-        val environmentNameVerification: Verification?,
-    ) : CreateEnvironmentWindowState
+        val path: String = "",
+        val environmentsDirectoryVerification: Verification? = null,
+
+        val environmentName: String = "",
+        val environmentNameVerification: EnvironmentNameVerification = EnvironmentNameVerification.VALID,
+    ) : CreateEnvironmentWindowState {
+        enum class EnvironmentNameVerification {
+            VALID,
+            IS_EMPTY,
+            IS_DUPLICATED;
+        }
+    }
 
     data class SetupSchemaState(
         val title: String,

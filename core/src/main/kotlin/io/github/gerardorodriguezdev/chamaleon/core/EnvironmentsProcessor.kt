@@ -4,11 +4,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENT_FILE_SUFFIX
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.entities.*
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure.*
@@ -193,31 +190,40 @@ internal class DefaultEnvironmentsProcessor(
             return@coroutineScope null
         }
 
-    @Suppress("NestedBlockDepth", "ReturnCount")
     private fun Schema.verifyEnvironments(environments: Set<Environment>): Failure? {
-        environments.forEach { environment ->
-            val verifyEnvironmentContainsAllPlatformsResult = verifyEnvironmentContainsAllPlatforms(environment)
-            if (verifyEnvironmentContainsAllPlatformsResult is Failure) {
-                return verifyEnvironmentContainsAllPlatformsResult
-            }
-
-            environment.platforms.forEach { platform ->
-                val verifyPlatformContainsAllPropertiesResult =
-                    verifyPlatformContainsAllProperties(platform, environment.name)
-                if (verifyPlatformContainsAllPropertiesResult is Failure) {
-                    return verifyPlatformContainsAllPropertiesResult
-                }
-
-                platform.properties.forEach { property ->
-                    val verifyPropertyTypeIsCorrectResult =
-                        verifyPropertyTypeIsCorrect(property, platform.platformType, environment.name)
-                    if (verifyPropertyTypeIsCorrectResult is Failure) return verifyPropertyTypeIsCorrectResult
-                }
-            }
-        }
-
-        return null
+        val environmentsValidationResult = areEnvironmentsValid(environments)
+        val failureEnvironmentValidationResult =
+            environmentsValidationResult.filterIsInstance<Schema.EnvironmentsValidationResult.Failure>()
+        return failureEnvironmentValidationResult.firstOrNull().toFailure()
     }
+
+    private fun Schema.EnvironmentsValidationResult.Failure?.toFailure(): Failure? =
+        when (this) {
+            null -> null
+            is Schema.EnvironmentsValidationResult.Failure.NullPropertyNotNullableOnSchema ->
+                NullPropertyNotNullableOnSchema(
+                    propertyName = propertyName,
+                    platformType = platformType,
+                    environmentName = environmentName,
+                )
+
+            is Schema.EnvironmentsValidationResult.Failure.PlatformsNotEqualToSchema ->
+                PlatformsNotEqualToSchema(environmentName = environmentName)
+
+            is Schema.EnvironmentsValidationResult.Failure.PropertiesNotEqualToSchema ->
+                PropertiesNotEqualToSchema(
+                    environmentName = environmentName,
+                    platformType = platformType,
+                )
+
+            is Schema.EnvironmentsValidationResult.Failure.PropertyTypeNotMatchSchema ->
+                PropertyTypeNotMatchSchema(
+                    environmentName = environmentName,
+                    platformType = platformType,
+                    propertyName = propertyName,
+                    propertyType = propertyType,
+                )
+        }
 
     private fun String.verifyEnvironments(environments: Set<Environment>): Failure? =
         if (!environments.any { environment -> environment.name == this }) {
@@ -227,112 +233,6 @@ internal class DefaultEnvironmentsProcessor(
             )
         } else {
             null
-        }
-
-    private fun Schema.verifyEnvironmentContainsAllPlatforms(environment: Environment): Failure? {
-        val platformTypes = environment.platforms.map { platform -> platform.platformType }
-
-        return if (!containsAll(platformTypes)) PlatformsNotEqualToSchema(environment.name) else null
-    }
-
-    private fun Schema.containsAll(platformTypes: List<PlatformType>): Boolean =
-        supportedPlatforms.size == platformTypes.size && supportedPlatforms.containsAll(platformTypes)
-
-    @Suppress("ReturnCount")
-    private fun Schema.verifyPlatformContainsAllProperties(platform: Platform, environmentName: String): Failure? {
-        val propertiesNotEqualToSchema = PropertiesNotEqualToSchema(platform.platformType, environmentName)
-        if (isPlatformNotSupported(platform)) return propertiesNotEqualToSchema
-        if (platformHasMorePropertiesThanSchema(platform)) return propertiesNotEqualToSchema
-
-        propertyDefinitions.forEach { propertyDefinition ->
-            if (!propertyDefinition.verify(platform)) return propertiesNotEqualToSchema
-        }
-
-        return null
-    }
-
-    private fun PropertyDefinition.verify(platform: Platform): Boolean {
-        val isPlatformSupported = supportedPlatforms.isEmpty() || supportedPlatforms.contains(platform.platformType)
-        val isPropertyPresent = platform.properties.contains(this)
-        return isPlatformSupported == isPropertyPresent
-    }
-
-    private fun Schema.isPlatformNotSupported(platform: Platform): Boolean =
-        platform.platformType !in supportedPlatforms
-
-    private fun Schema.platformHasMorePropertiesThanSchema(platform: Platform): Boolean =
-        propertyDefinitions.size < platform.properties.size
-
-    private fun Set<Property>.contains(propertyDefinition: PropertyDefinition): Boolean =
-        any { property -> property.name == propertyDefinition.name }
-
-    private fun Schema.verifyPropertyTypeIsCorrect(
-        property: Property,
-        platformType: PlatformType,
-        environmentName: String,
-    ): Failure? {
-        val propertyDefinitions =
-            propertyDefinitions.first { propertyDefinition -> propertyDefinition.name == property.name }
-
-        return when (property.value) {
-            null -> verifyNullPropertyValue(
-                propertyDefinition = propertyDefinitions,
-                propertyName = property.name,
-                platformType = platformType,
-                environmentName = environmentName,
-            )
-
-            else -> verifyPropertyType(
-                propertyName = property.name,
-                propertyValue = property.value,
-                propertyDefinition = propertyDefinitions,
-                platformType = platformType,
-                environmentName = environmentName,
-            )
-        }
-    }
-
-    private fun verifyNullPropertyValue(
-        propertyDefinition: PropertyDefinition,
-        propertyName: String,
-        platformType: PlatformType,
-        environmentName: String,
-    ): Failure? =
-        if (!propertyDefinition.nullable) {
-            NullPropertyNotNullableOnSchema(
-                propertyName = propertyName,
-                platformType = platformType,
-                environmentName = environmentName,
-            )
-        } else {
-            null
-        }
-
-    private fun verifyPropertyType(
-        propertyName: String,
-        propertyValue: PropertyValue,
-        propertyDefinition: PropertyDefinition,
-        platformType: PlatformType,
-        environmentName: String
-    ): Failure? {
-        val propertyType = propertyValue.toPropertyType()
-
-        return if (propertyDefinition.propertyType != propertyType) {
-            PropertyTypeNotMatchSchema(
-                propertyName = propertyName,
-                platformType = platformType,
-                environmentName = environmentName,
-                propertyType = propertyType,
-            )
-        } else {
-            null
-        }
-    }
-
-    private fun PropertyValue.toPropertyType(): PropertyType =
-        when (this) {
-            is StringProperty -> PropertyType.STRING
-            is BooleanProperty -> PropertyType.BOOLEAN
         }
 
     private fun File.environmentsDirectoriesPaths(): List<String> =

@@ -6,19 +6,26 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.extensions.isVali
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
 
 internal data class CreateEnvironmentState(
-    val environmentsDirectoryPath: String? = null,
-    val environmentsDirectoryVerification: Verification? = null, //TODO: Fix
+    val environmentsDirectoryPathField: Field<String> =
+        Field(
+            value = "",
+            verification = null,
+        ),
 
-    val environmentName: String? = null,
-    val environmentNameVerification: Verification? = null, //TODO: Fix
+    val environmentName: String = "",
 
-    val environments: Set<Environment>? = null,
+    val environments: Set<Environment> = emptySet(),
 
-    val schema: Schema? = null,
-    val schemaVerification: Verification? = null, //TODO: Fix
+    val schema: Schema = Schema(
+        supportedPlatforms = emptySet(),
+        propertyDefinitions = emptySet(),
+    ),
 
     val step: Step = Step.SETUP_ENVIRONMENT,
 ) {
+    val environmentNameVerification: EnvironmentNameVerification
+        get() = environmentName.environmentNameVerification()
+
     fun isPreviousButtonEnabled(): Boolean =
         when (step) {
             Step.SETUP_ENVIRONMENT -> false
@@ -27,10 +34,8 @@ internal data class CreateEnvironmentState(
 
     fun isNextButtonEnabled(): Boolean =
         when (step) {
-            Step.SETUP_ENVIRONMENT ->
-                environmentsDirectoryVerification.isValid() && environmentNameVerification.isValid()
-
-            Step.SETUP_SCHEMA -> schemaVerification.isValid()
+            Step.SETUP_ENVIRONMENT -> environmentsDirectoryPathField.isValid() && environmentNameVerification.isValid()
+            Step.SETUP_SCHEMA -> schema.areEnvironmentsValid(environments).areEnvironmentsValid()
         }
 
     fun isFinishButtonEnabled(): Boolean =
@@ -39,8 +44,37 @@ internal data class CreateEnvironmentState(
             Step.SETUP_SCHEMA -> false
         }
 
+    private fun List<Schema.EnvironmentsValidationResult>.areEnvironmentsValid(): Boolean =
+        !any { environmentValidationResult ->
+            environmentValidationResult is Schema.EnvironmentsValidationResult.Failure
+        }
+
+    private fun String.environmentNameVerification(): EnvironmentNameVerification =
+        when {
+            isEmpty() -> EnvironmentNameVerification.IS_EMPTY
+            isDuplicated() -> EnvironmentNameVerification.IS_DUPLICATED
+            else -> EnvironmentNameVerification.VALID
+        }
+
+    private fun String.isDuplicated(): Boolean = environments.any { environment -> environment.name == this }
+
+    data class Field<T>(
+        val value: T,
+        val verification: Verification? = null,
+    ) {
+        fun isValid(): Boolean = verification.isValid()
+    }
+
     enum class Step {
         SETUP_ENVIRONMENT,
         SETUP_SCHEMA,
+    }
+
+    enum class EnvironmentNameVerification {
+        VALID,
+        IS_EMPTY,
+        IS_DUPLICATED;
+
+        fun isValid(): Boolean = this == VALID
     }
 }
