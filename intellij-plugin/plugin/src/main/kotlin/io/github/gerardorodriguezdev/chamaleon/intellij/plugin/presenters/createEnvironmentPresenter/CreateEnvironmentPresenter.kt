@@ -106,18 +106,22 @@ internal class CreateEnvironmentPresenter(
 
     private fun CreateEnvironmentAction.DialogAction.handle() {
         when (this) {
-            is CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked -> Unit //TODO: Finish
+            is CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked -> handle()
             is CreateEnvironmentAction.DialogAction.OnNextButtonClicked -> handle()
             is CreateEnvironmentAction.DialogAction.OnFinishButtonClicked -> Unit //TODO: Finish
         }
     }
 
+    private fun CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked.handle() {
+        when (mutableStateFlow.value.step) {
+            Step.SETUP_ENVIRONMENT -> Unit
+            Step.SETUP_SCHEMA -> mutableStateFlow.value = mutableStateFlow.value.copy(step = Step.SETUP_ENVIRONMENT)
+        }
+    }
+
     private fun CreateEnvironmentAction.DialogAction.OnNextButtonClicked.handle() {
         when (mutableStateFlow.value.step) {
-            Step.SETUP_ENVIRONMENT -> {
-                mutableStateFlow.value = mutableStateFlow.value.copy(step = Step.SETUP_SCHEMA)
-            }
-
+            Step.SETUP_ENVIRONMENT -> mutableStateFlow.value = mutableStateFlow.value.copy(step = Step.SETUP_SCHEMA)
             Step.SETUP_SCHEMA -> Unit
         }
     }
