@@ -31,7 +31,7 @@ internal class CreateEnvironmentPresenter(
     fun onAction(action: CreateEnvironmentAction) {
         when (action) {
             is CreateEnvironmentAction.SetupEnvironmentAction -> action.handle()
-            is CreateEnvironmentAction.SetupSchemaAction -> Unit //TODO: Finish
+            is CreateEnvironmentAction.SetupSchemaAction -> action.handle()
             is CreateEnvironmentAction.SetupPropertiesAction -> Unit //TODO: Finish
             is CreateEnvironmentAction.DialogAction -> action.handle()
         }
@@ -89,6 +89,29 @@ internal class CreateEnvironmentPresenter(
                         }
                     }
                 }
+        }
+    }
+
+    private fun CreateEnvironmentAction.SetupSchemaAction.handle() {
+        when (this) {
+            is CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
+                val currentSchema = mutableStateFlow.value.schema
+                mutableStateFlow.value = mutableStateFlow.value.copy(
+                    schema = currentSchema.copy(
+                        supportedPlatforms = if (currentSchema.supportedPlatforms.contains(newPlatformType)) {
+                            currentSchema.supportedPlatforms - newPlatformType
+                        } else {
+                            currentSchema.supportedPlatforms + newPlatformType
+                        }
+                    )
+                )
+            }
+
+            CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked -> TODO()
+            is CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged -> Unit
+            is CreateEnvironmentAction.SetupSchemaAction.OnPropertyTypeChanged -> TODO()
+            is CreateEnvironmentAction.SetupSchemaAction.OnNullableChanged -> TODO()
+            is CreateEnvironmentAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> TODO()
         }
     }
 
