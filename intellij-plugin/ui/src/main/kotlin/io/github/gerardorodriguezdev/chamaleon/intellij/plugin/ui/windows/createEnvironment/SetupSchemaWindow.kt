@@ -19,7 +19,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupSchemaAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupSchemaState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupSchemaState.PropertyDefinition
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupSchemaState.SupportedPlatform
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPlatformTypes
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupSchemaConstants.allPropertyTypes
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
@@ -65,7 +65,7 @@ fun SetupSchemaWindow(
 }
 
 private fun LazyListScope.supportedPlatformSection(
-    supportedPlatforms: ImmutableList<SupportedPlatform>,
+    supportedPlatforms: ImmutableList<PlatformType>,
     onSupportedPlatformChanged: (newPlatformType: PlatformType) -> Unit,
 ) {
     item {
@@ -174,25 +174,27 @@ private fun PropertyDefinitionSectionCard(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SupportedPlatforms(
-    supportedPlatforms: ImmutableList<SupportedPlatform>,
+    supportedPlatforms: ImmutableList<PlatformType>,
     onCheckedChanged: (newPlatformType: PlatformType) -> Unit
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        //TODO: Add all for case first
-        supportedPlatforms.forEach { supportedPlatform ->
+        allPlatformTypes.forEach { platformType ->
             InputCheckBox(
-                label = supportedPlatform.platformType.serialName,
-                isChecked = supportedPlatform.isChecked,
+                label = platformType.serialName,
+                isChecked = supportedPlatforms.contains(platformType),
                 forceLabelWidth = false,
-                onCheckedChanged = { onCheckedChanged(supportedPlatform.platformType) },
+                onCheckedChanged = {
+                    onCheckedChanged(platformType)
+                },
             )
         }
     }
 }
 
 private object SetupSchemaConstants {
+    val allPlatformTypes = PlatformType.entries
     val allPropertyTypes = PropertyType.entries
 }

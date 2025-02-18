@@ -20,6 +20,8 @@ public data class Schema(
         internal fun isValid(): Boolean = name.isNotEmpty()
     }
 
+    public fun isEmpty(): Boolean = propertyDefinitions.isEmpty() && supportedPlatforms.isEmpty()
+
     internal fun isValid(): ValidationResult {
         if (supportedPlatforms.isEmpty()) return ValidationResult.EMPTY_SUPPORTED_PLATFORMS
         if (propertyDefinitions.isEmpty()) return ValidationResult.EMPTY_PROPERTY_DEFINITIONS

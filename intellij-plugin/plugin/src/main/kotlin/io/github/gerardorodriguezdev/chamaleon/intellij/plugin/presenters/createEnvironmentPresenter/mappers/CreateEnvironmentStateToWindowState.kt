@@ -1,54 +1,80 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers
 
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Step
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupEnvironmentState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupSchemaState
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
-internal fun CreateEnvironmentState.toWindowState(): CreateEnvironmentWindowState =
+internal fun CreateEnvironmentState.toWindowState(stringsProvider: StringsProvider): CreateEnvironmentWindowState =
     when (step) {
         Step.SETUP_ENVIRONMENT -> {
             SetupEnvironmentState(
                 environmentsDirectoryPathField = Field(
                     value = environmentsDirectoryPath,
-                    verification = environmentsDirectoryProcessResult.toVerification(),
+                    verification = environmentsDirectoryProcessResult.toVerification(stringsProvider),
                 ),
                 environmentNameField = Field(
                     value = environmentName,
-                    verification = toEnvironmentNameVerification().toVerification()
+                    verification = toEnvironmentNameVerification().toVerification(stringsProvider)
                 )
             )
         }
 
-        //TODO: Update
         Step.SETUP_SCHEMA -> {
             SetupSchemaState(
-                title = "Update",
-                supportedPlatforms = persistentListOf(),
-                propertyDefinitions = persistentListOf(),
+                title = if (schema.isEmpty()) {
+                    stringsProvider.string(StringsKeys.createTemplate)
+                } else {
+                    stringsProvider.string(StringsKeys.updateTemplate)
+                },
+                supportedPlatforms = schema.supportedPlatforms.toPersistentList(),
+                propertyDefinitions = schema.propertyDefinitions.toPropertyDefinitions(),
             )
         }
     }
 
-private fun EnvironmentsDirectoryProcessResult.toVerification(): Field.Verification =
+private fun EnvironmentsDirectoryProcessResult.toVerification(stringsProvider: StringsProvider): Field.Verification =
     when (this) {
         is EnvironmentsDirectoryProcessResult.Success -> Field.Verification.Valid
         is EnvironmentsDirectoryProcessResult.Loading -> Field.Verification.Loading
         is EnvironmentsDirectoryProcessResult.Failure -> when (this) {
-            is EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments -> Field.Verification.Invalid("Invalid environments") //TODO: Fix
-            is EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory -> Field.Verification.Invalid("File not directory") //TODO: Fix
+            is EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments -> Field.Verification.Invalid(
+                stringsProvider.string(StringsKeys.invalidEnvironmentsFound)
+            )
+
+            is EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory -> Field.Verification.Invalid(
+                stringsProvider.string(StringsKeys.selectedFileNotDirectory)
+            )
+
             is EnvironmentsDirectoryProcessResult.Failure.EnvironmentsDirectoryNotFound -> Field.Verification.Valid
             is EnvironmentsDirectoryProcessResult.Failure.SchemaFileNotFound -> Field.Verification.Valid
         }
     }
 
-private fun EnvironmentNameVerification.toVerification(): Field.Verification =
+private fun EnvironmentNameVerification.toVerification(stringsProvider: StringsProvider): Field.Verification =
     when (this) {
         EnvironmentNameVerification.VALID -> Field.Verification.Valid
-        EnvironmentNameVerification.IS_EMPTY -> Field.Verification.Invalid("Environment name empty") //TODO: Fix
-        EnvironmentNameVerification.IS_DUPLICATED -> Field.Verification.Invalid("Environment name duplicated") //TODO: Fix
+        EnvironmentNameVerification.IS_EMPTY -> Field.Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameEmpty))
+        EnvironmentNameVerification.IS_DUPLICATED -> Field.Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
     }
+
+private fun Set<Schema.PropertyDefinition>.toPropertyDefinitions(): ImmutableList<SetupSchemaState.PropertyDefinition> =
+    map { propertyDefinition ->
+        propertyDefinition.toPropertyDefinition()
+    }.toPersistentList()
+
+private fun Schema.PropertyDefinition.toPropertyDefinition(): SetupSchemaState.PropertyDefinition =
+    SetupSchemaState.PropertyDefinition(
+        name = name,
+        propertyType = propertyType,
+        nullable = nullable,
+        supportedPlatforms = supportedPlatforms.toPersistentList(),
+    )

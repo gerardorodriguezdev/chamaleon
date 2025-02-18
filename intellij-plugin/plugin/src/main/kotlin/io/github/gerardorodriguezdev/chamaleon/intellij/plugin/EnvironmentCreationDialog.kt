@@ -21,6 +21,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toDialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
@@ -85,7 +86,7 @@ internal class EnvironmentCreationDialog(
     private fun collectState() {
         uiScope.launch {
             presenter.stateFlow.collect { createEnvironmentState ->
-                createEnvironmentWindowState.value = createEnvironmentState.toWindowState()
+                createEnvironmentWindowState.value = createEnvironmentState.toWindowState(BundleStringsProvider)
 
                 setDialogButtonsState(createEnvironmentState.toDialogButtonsState())
             }

@@ -45,19 +45,14 @@ sealed interface CreateEnvironmentWindowState {
 
     data class SetupSchemaState(
         val title: String,
-        val supportedPlatforms: ImmutableList<SupportedPlatform>,
+        val supportedPlatforms: ImmutableList<PlatformType>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
     ) : CreateEnvironmentWindowState {
-        data class SupportedPlatform(
-            val isChecked: Boolean,
-            val platformType: PlatformType,
-        )
-
         data class PropertyDefinition(
             val name: String,
             val propertyType: PropertyType,
             val nullable: Boolean,
-            val supportedPlatforms: ImmutableList<SupportedPlatform>,
+            val supportedPlatforms: ImmutableList<PlatformType>,
         )
     }
 
