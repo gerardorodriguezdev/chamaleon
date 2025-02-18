@@ -48,7 +48,7 @@ internal class EnvironmentCreationDialog(
         uiScope = uiScope,
         ioContext = Dispatchers.IO,
         projectDirectory = projectDirectory,
-        setupEnvironmentHandler = DefaultSetupEnvironmentHandler(environmentsProcessor),
+        setupEnvironmentHandler = DefaultSetupEnvironmentHandler(projectDirectory, environmentsProcessor),
         onEnvironmentsDirectorySelected = { selectFileDirectory(project) }
     )
 

@@ -43,6 +43,7 @@ internal interface SetupEnvironmentHandler {
 }
 
 internal class DefaultSetupEnvironmentHandler(
+    private val projectDirectory: File,
     private val environmentsProcessor: EnvironmentsProcessor,
 ) : SetupEnvironmentHandler {
     override fun handle(action: Action): Flow<SideEffect> =
@@ -58,7 +59,7 @@ internal class DefaultSetupEnvironmentHandler(
             }
 
             val environmentsDirectory = file.toEnvironmentsDirectory()
-            val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(file.path)
+            val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(projectDirectory.path)
 
             emit(Loading(environmentsDirectoryPath))
             val updateEnvironmentsDirectoryState = handleProcess(
