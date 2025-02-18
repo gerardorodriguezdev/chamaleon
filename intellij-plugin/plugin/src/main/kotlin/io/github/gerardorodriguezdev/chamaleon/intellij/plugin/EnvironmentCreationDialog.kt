@@ -16,9 +16,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentProcessor
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupSchemaPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.DefaultSetupEnvironmentHandler
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toDialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
@@ -48,24 +46,10 @@ internal class EnvironmentCreationDialog(
 
     private val presenter = CreateEnvironmentPresenter(
         uiScope = uiScope,
-        setupEnvironmentPresenterProvider = { stateHolder, uiScope ->
-            DefaultSetupEnvironmentPresenter(
-                projectDirectory = projectDirectory,
-                setupEnvironmentProcessorProvider = { projectDirectory ->
-                    DefaultSetupEnvironmentProcessor(
-                        projectDirectory = projectDirectory,
-                        environmentsProcessor = environmentsProcessor,
-                    )
-                },
-                uiScope = uiScope,
-                ioScope = Dispatchers.IO,
-                onSelectEnvironmentPathClicked = { selectFileDirectory(project) },
-                stateHolder = stateHolder,
-            )
-        },
-        setupSchemaPresenterProvider = { stateHolder ->
-            DefaultSetupSchemaPresenter(stateHolder)
-        }
+        ioContext = Dispatchers.IO,
+        projectDirectory = projectDirectory,
+        setupEnvironmentHandler = DefaultSetupEnvironmentHandler(environmentsProcessor),
+        onEnvironmentsDirectorySelected = { selectFileDirectory(project) }
     )
 
     private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(SetupEnvironmentState())
