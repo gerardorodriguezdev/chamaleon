@@ -1,5 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
 
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Step
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.SetupEnvironmentHandler
 import kotlinx.coroutines.CoroutineScope
@@ -43,12 +45,6 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    private fun CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
-        val environmentsDirectoryPath = onEnvironmentsDirectorySelected() ?: return
-        val environmentsDirectory = File(environmentsDirectoryPath)
-        process(environmentsDirectory)
-    }
-
     private fun process(environmentsDirectory: File) {
         processJob?.cancel()
 
@@ -58,13 +54,48 @@ internal class CreateEnvironmentPresenter(
                 .flowOn(ioContext)
                 .collect { sideEffect ->
                     when (sideEffect) {
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Success -> Unit //TODO: Finish
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Loading -> Unit //TODO: Finish
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.FileIsNotDirectory -> Unit //TODO: Finish
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.InvalidEnvironments -> Unit //TODO: Finish
+                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Success -> {
+                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
+                                environments = sideEffect.environments,
+                                schema = sideEffect.schema,
+                            )
+                        }
+
+                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Loading -> {
+                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Loading,
+                            )
+                        }
+
+                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.FileIsNotDirectory -> {
+                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory,
+                                environments = emptySet(),
+                                schema = Schema.emptySchema(),
+                            )
+                        }
+
+                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.InvalidEnvironments -> {
+                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments,
+                                environments = emptySet(),
+                                schema = Schema.emptySchema(),
+                            )
+                        }
                     }
                 }
         }
+    }
+
+    private fun CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
+        val environmentsDirectoryPath = onEnvironmentsDirectorySelected() ?: return
+        val environmentsDirectory = File(environmentsDirectoryPath)
+        process(environmentsDirectory)
     }
 
     private fun CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
