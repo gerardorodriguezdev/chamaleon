@@ -202,6 +202,7 @@ public data class Schema(
         }
     }
 
+    //TODO: Update
     public companion object {
         public fun emptySchema(): Schema = Schema(supportedPlatforms = emptySet(), propertyDefinitions = emptySet())
     }
