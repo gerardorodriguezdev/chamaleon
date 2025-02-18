@@ -19,7 +19,9 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupEnvironmentProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.DefaultSetupSchemaPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toDialogButtonsState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
@@ -101,11 +103,7 @@ internal class EnvironmentCreationDialog(
             presenter.stateFlow.collect { createEnvironmentState ->
                 createEnvironmentWindowState.value = createEnvironmentState.toWindowState()
 
-                setDialogButtonsState(
-                    isPreviousButtonEnabled = createEnvironmentState.isPreviousButtonEnabled(),
-                    isNextButtonEnabled = createEnvironmentState.isNextButtonEnabled(),
-                    isFinishButtonEnabled = createEnvironmentState.isFinishButtonEnabled(),
-                )
+                setDialogButtonsState(createEnvironmentState.toDialogButtonsState())
             }
         }
     }
