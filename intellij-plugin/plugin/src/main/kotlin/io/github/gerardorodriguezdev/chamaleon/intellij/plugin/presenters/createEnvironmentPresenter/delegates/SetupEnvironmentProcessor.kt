@@ -7,7 +7,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.results.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.SetupEnvironmentProcessor.SetupEnvironmentProcessorResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import java.io.File
 
@@ -47,10 +46,13 @@ internal class DefaultSetupEnvironmentProcessor(
 
             val environmentsDirectory = file.toEnvironmentsDirectory()
             val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(projectDirectory.path)
-            process(
+
+            emit(SetupEnvironmentProcessorResult.Loading(environmentsDirectoryPath))
+            val result = process(
                 environmentsDirectory = environmentsDirectory,
                 environmentsDirectoryPath = environmentsDirectoryPath
             )
+            emit(result)
         }
 
     private fun File.toEnvironmentsDirectory(): File =
@@ -62,15 +64,13 @@ internal class DefaultSetupEnvironmentProcessor(
     private fun File.containsEnvironmentsDirectoryName(): Boolean =
         path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
 
-    private suspend fun FlowCollector<SetupEnvironmentProcessorResult>.process(
+    private suspend fun process(
         environmentsDirectory: File,
         environmentsDirectoryPath: String
-    ) {
-        emit(SetupEnvironmentProcessorResult.Loading(environmentsDirectoryPath))
-
+    ): SetupEnvironmentProcessorResult {
         val result = environmentsProcessor.process(environmentsDirectory)
         val processorResult = result.toProcessorResult(environmentsDirectoryPath)
-        emit(processorResult)
+        return processorResult
     }
 
     private fun EnvironmentsProcessorResult.toProcessorResult(
