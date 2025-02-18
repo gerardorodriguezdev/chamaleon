@@ -7,6 +7,6 @@ data class Field<T>(
     sealed interface Verification {
         data object Valid : Verification
         data class Invalid(val reason: String) : Verification
-        data object InProgress : Verification
+        data object Loading : Verification
     }
 }

@@ -5,10 +5,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.base.S
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupEnvironmentAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Field
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Verification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates.SetupEnvironmentProcessor.SetupEnvironmentProcessorResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flowOn
@@ -25,7 +23,6 @@ internal class DefaultSetupEnvironmentPresenter(
     private val uiScope: CoroutineScope,
     private val ioScope: CoroutineContext,
     setupEnvironmentProcessorProvider: (projectDirectory: File) -> SetupEnvironmentProcessor,
-    private val stringsProvider: StringsProvider,
     private val stateHolder: StateHolder<CreateEnvironmentState>,
     private val onSelectEnvironmentPathClicked: () -> String?,
 ) : SetupEnvironmentPresenter {
@@ -62,77 +59,73 @@ internal class DefaultSetupEnvironmentPresenter(
             setupEnvironmentProcessor
                 .process(file)
                 .flowOn(ioScope)
-                .collect { processingResult ->
-                    when (processingResult) {
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success ->
-                            processingResult.updateSuccessProcessing()
+                .collect { processorResult ->
+                    when (processorResult) {
+                        is SetupEnvironmentProcessorResult.Success -> processorResult.updateSuccess()
 
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Loading ->
-                            processingResult.updateProcessingLoading()
+                        is SetupEnvironmentProcessorResult.Loading -> processorResult.updateLoading()
 
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound,
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound ->
-                            updateValidEmptyEnvironmentsDirectory()
+                        is SetupEnvironmentProcessorResult.Failure.EnvironmentsDirectoryNotFound,
+                        is SetupEnvironmentProcessorResult.Failure.SchemaFileNotFound ->
+                            processorResult.updateValidEmptyEnvironmentsDirectory()
 
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory ->
-                            updateInvalidEnvironmentsDirectory(
-                                reason = stringsProvider.string(StringsKeys.selectedFileNotDirectory),
-                                environmentsDirectoryPath = "",
-                            )
+                        is SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory ->
+                            processorResult.updateInvalidDirectory()
 
-                        is SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Failure.InvalidEnvironments ->
-                            updateInvalidEnvironmentsDirectory(
-                                reason = stringsProvider.string(StringsKeys.invalidEnvironmentsFound),
-                                environmentsDirectoryPath = stateHolder.state.environmentsDirectoryPathField.value,
-                            )
+                        is SetupEnvironmentProcessorResult.Failure.InvalidEnvironments ->
+                            processorResult.updateInvalidEnvironments()
                     }
                 }
         }
     }
 
-    private fun SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Loading.updateProcessingLoading() {
+    private fun SetupEnvironmentProcessorResult.Loading.updateLoading() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryPathField = Field(
-                    value = environmentsDirectoryPath,
-                    verification = Verification.InProgress,
-                )
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environmentsDirectoryProcessResult = Loading
             )
         }
     }
 
-    private fun SetupEnvironmentProcessor.SetupEnvironmentProcessorResult.Success.updateSuccessProcessing() {
+    private fun SetupEnvironmentProcessorResult.Success.updateSuccess() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryPathField =
-                    currentState.environmentsDirectoryPathField.copy(verification = Verification.Valid),
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environmentsDirectoryProcessResult = Success,
                 environments = environments,
                 schema = schema,
             )
         }
     }
 
-    private fun updateValidEmptyEnvironmentsDirectory() {
+    private fun SetupEnvironmentProcessorResult.Failure.updateValidEmptyEnvironmentsDirectory() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryPathField =
-                    currentState.environmentsDirectoryPathField.copy(verification = Verification.Valid),
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environmentsDirectoryProcessResult = Success,
                 environments = emptySet(),
                 schema = Schema.emptySchema(),
             )
         }
     }
 
-    private fun updateInvalidEnvironmentsDirectory(
-        reason: String,
-        environmentsDirectoryPath: String
-    ) {
+    private fun SetupEnvironmentProcessorResult.Failure.FileIsNotDirectory.updateInvalidDirectory() {
         stateHolder.updateState { currentState ->
             currentState.copy(
-                environmentsDirectoryPathField = Field(
-                    value = environmentsDirectoryPath,
-                    verification = Verification.Invalid(reason),
-                ),
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environmentsDirectoryProcessResult = Failure.FileIsNotDirectory,
+                environments = emptySet(),
+                schema = Schema.emptySchema(),
+            )
+        }
+    }
+
+    private fun SetupEnvironmentProcessorResult.Failure.InvalidEnvironments.updateInvalidEnvironments() {
+        stateHolder.updateState { currentState ->
+            currentState.copy(
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environmentsDirectoryProcessResult = Failure.InvalidEnvironments,
                 environments = emptySet(),
                 schema = Schema.emptySchema(),
             )

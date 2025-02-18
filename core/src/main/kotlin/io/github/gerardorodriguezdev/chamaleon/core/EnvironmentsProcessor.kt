@@ -191,7 +191,7 @@ internal class DefaultEnvironmentsProcessor(
         }
 
     private fun Schema.verifyEnvironments(environments: Set<Environment>): Failure? {
-        val environmentsValidationResult = areEnvironmentsValid(environments)
+        val environmentsValidationResult = environmentsValidationResults(environments)
         val failureEnvironmentValidationResult =
             environmentsValidationResult.filterIsInstance<Schema.EnvironmentsValidationResult.Failure>()
         return failureEnvironmentValidationResult.firstOrNull().toFailure()

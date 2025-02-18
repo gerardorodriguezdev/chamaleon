@@ -12,7 +12,7 @@ internal fun VerificationIcon(verification: Verification) {
     when (verification) {
         is Verification.Valid -> ValidIcon()
         is Verification.Invalid -> InvalidIcon(invalidVerification = verification)
-        is Verification.InProgress -> InProgressIcon()
+        is Verification.Loading -> InProgressIcon()
     }
 }
 

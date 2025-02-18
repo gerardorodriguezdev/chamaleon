@@ -44,7 +44,7 @@ public data class Schema(
         DUPLICATED_PROPERTY_DEFINITION,
     }
 
-    public fun areEnvironmentsValid(environments: Set<Environment>): List<EnvironmentsValidationResult> =
+    public fun environmentsValidationResults(environments: Set<Environment>): List<EnvironmentsValidationResult> =
         environments.map { environment ->
             val verifyEnvironmentContainsAllPlatformsResult = verifyEnvironmentContainsAllPlatforms(environment)
             if (verifyEnvironmentContainsAllPlatformsResult is Failure) {

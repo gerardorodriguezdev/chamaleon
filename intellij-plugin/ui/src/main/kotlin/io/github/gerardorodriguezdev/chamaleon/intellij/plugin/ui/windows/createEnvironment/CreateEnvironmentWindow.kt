@@ -39,8 +39,8 @@ fun CreateEnvironmentWindow(
 
 sealed interface CreateEnvironmentWindowState {
     data class SetupEnvironmentState(
-        val environmentsDirectoryPathField: Field<String>,
-        val environmentNameField: Field<String>,
+        val environmentsDirectoryPathField: Field<String> = Field(value = ""),
+        val environmentNameField: Field<String> = Field(value = ""),
     ) : CreateEnvironmentWindowState
 
     data class SetupSchemaState(

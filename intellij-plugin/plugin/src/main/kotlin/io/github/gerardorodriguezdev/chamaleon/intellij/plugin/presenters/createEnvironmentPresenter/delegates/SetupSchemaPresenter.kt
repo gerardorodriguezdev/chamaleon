@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.delegates
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.base.StateHolder
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupSchemaAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction.SetupSchemaAction.*
@@ -27,7 +26,7 @@ internal class DefaultSetupSchemaPresenter(
 
     private fun OnSupportedPlatformChanged.handle() {
         stateHolder.updateState { currentState ->
-            val currentSchema = currentState.schema.toSchemaOrDefault()
+            val currentSchema = currentState.schema
             val currentSupportedPlatforms = currentSchema.supportedPlatforms
             val newSupportedPlatforms = currentSupportedPlatforms + newPlatformType
             currentState.copy(
@@ -37,12 +36,4 @@ internal class DefaultSetupSchemaPresenter(
             )
         }
     }
-
-    private fun Schema?.toSchemaOrDefault(): Schema = this ?: emptySchema()
-
-    private fun emptySchema(): Schema =
-        Schema(
-            supportedPlatforms = emptySet(),
-            propertyDefinitions = emptySet(),
-        )
 }
