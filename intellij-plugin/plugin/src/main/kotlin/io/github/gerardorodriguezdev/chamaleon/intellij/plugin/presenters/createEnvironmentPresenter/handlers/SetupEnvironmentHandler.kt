@@ -17,7 +17,7 @@ internal interface SetupEnvironmentHandler {
     fun handle(action: Action): Flow<SideEffect>
 
     sealed interface Action {
-        data class Process(val environmentsDirectory: File) : Action
+        data class Process(val file: File) : Action
     }
 
     sealed interface SideEffect {
@@ -48,10 +48,10 @@ internal class DefaultSetupEnvironmentHandler(
 ) : SetupEnvironmentHandler {
     override fun handle(action: Action): Flow<SideEffect> =
         when (action) {
-            is Action.Process -> handleProcess(action.environmentsDirectory)
+            is Action.Process -> action.handle()
         }
 
-    private fun handleProcess(file: File): Flow<UpdateEnvironmentsDirectoryState> =
+    private fun Action.Process.handle(): Flow<UpdateEnvironmentsDirectoryState> =
         flow {
             if (!file.isDirectory) {
                 emit(Failure.FileIsNotDirectory(file.path))
@@ -62,6 +62,7 @@ internal class DefaultSetupEnvironmentHandler(
             val environmentsDirectoryPath = environmentsDirectory.path.removePrefix(projectDirectory.path)
 
             emit(Loading(environmentsDirectoryPath))
+
             val updateEnvironmentsDirectoryState = handleProcess(
                 environmentsDirectory = environmentsDirectory,
                 environmentsDirectoryPath = environmentsDirectoryPath
