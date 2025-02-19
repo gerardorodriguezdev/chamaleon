@@ -24,7 +24,9 @@ private fun CreateEnvironmentState.isNextButtonEnabled(): Boolean =
         Step.SETUP_ENVIRONMENT ->
             environmentsDirectoryProcessResult.isValid() && toEnvironmentNameVerification().isValid()
 
-        Step.SETUP_SCHEMA -> schema.environmentsValidationResults(environments).areEnvironmentsValid()
+        Step.SETUP_SCHEMA ->
+            schema.isValid().isValid() &&
+                    schema.environmentsValidationResults(environments).areEnvironmentsValid()
     }
 
 private fun CreateEnvironmentState.isFinishButtonEnabled(): Boolean =
@@ -32,6 +34,8 @@ private fun CreateEnvironmentState.isFinishButtonEnabled(): Boolean =
         Step.SETUP_ENVIRONMENT -> false
         Step.SETUP_SCHEMA -> false
     }
+
+private fun Schema.ValidationResult.isValid(): Boolean = this == Schema.ValidationResult.VALID
 
 private fun EnvironmentsDirectoryProcessResult.isValid(): Boolean = this is EnvironmentsDirectoryProcessResult.Success
 

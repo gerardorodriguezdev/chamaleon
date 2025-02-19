@@ -22,7 +22,7 @@ public data class Schema(
 
     public fun isEmpty(): Boolean = propertyDefinitions.isEmpty() && supportedPlatforms.isEmpty()
 
-    internal fun isValid(): ValidationResult {
+    public fun isValid(): ValidationResult {
         if (supportedPlatforms.isEmpty()) return ValidationResult.EMPTY_SUPPORTED_PLATFORMS
         if (propertyDefinitions.isEmpty()) return ValidationResult.EMPTY_PROPERTY_DEFINITIONS
         if (propertyDefinitions.any { propertyDefinition -> !propertyDefinition.isValid() }) {
@@ -38,7 +38,7 @@ public data class Schema(
         return ValidationResult.VALID
     }
 
-    internal enum class ValidationResult {
+    public enum class ValidationResult {
         VALID,
         EMPTY_SUPPORTED_PLATFORMS,
         EMPTY_PROPERTY_DEFINITIONS,
