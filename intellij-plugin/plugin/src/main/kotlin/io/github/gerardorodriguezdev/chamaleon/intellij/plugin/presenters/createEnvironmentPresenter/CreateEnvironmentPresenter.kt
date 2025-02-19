@@ -43,13 +43,12 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    private fun CreateEnvironmentAction.SetupEnvironmentAction.handle() {
+    private fun CreateEnvironmentAction.SetupEnvironmentAction.handle() =
         when (this) {
             is CreateEnvironmentAction.SetupEnvironmentAction.OnInit -> process(projectDirectory)
             is CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> handle()
             is CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
         }
-    }
 
     private fun process(environmentsDirectory: File) {
         processJob?.cancel()
@@ -102,26 +101,25 @@ internal class CreateEnvironmentPresenter(
         when (this) {
             is CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
                 mutableState = mutableState.updateSchema {
-                    val schemaWithSupportedPlatforms = updateSupportedPlatforms {
-                        if (isChecked) supportedPlatforms + newPlatformType else supportedPlatforms - newPlatformType
+                    updateSupportedPlatforms {
+                        if (isChecked) this + newPlatformType else this - newPlatformType
                     }
 
-                    schemaWithSupportedPlatforms
-                        .updatePropertyDefinitions {
-                            map { propertyDefinition ->
-                                propertyDefinition.copy(
-                                    supportedPlatforms =
-                                        propertyDefinition.supportedPlatforms intersect schemaWithSupportedPlatforms.supportedPlatforms,
-                                )
-                            }.toSet()
-                        }
+                    updatePropertyDefinitions { schema ->
+                        map { propertyDefinition ->
+                            propertyDefinition.copy(
+                                supportedPlatforms =
+                                    propertyDefinition.supportedPlatforms intersect schema.supportedPlatforms,
+                            )
+                        }.toSet()
+                    }
                 }
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked -> {
                 mutableState = mutableState.updateSchema {
-                    updatePropertyDefinitions {
-                        propertyDefinitions + emptyPropertyDefinition()
+                    updatePropertyDefinitions { schema ->
+                        this + schema.emptyPropertyDefinition()
                     }
                 }
             }
@@ -158,11 +156,11 @@ internal class CreateEnvironmentPresenter(
 
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> {
                 mutableState = mutableState.updateSchema {
-                    updatePropertyDefinitions {
+                    updatePropertyDefinitions { schema ->
                         updatePropertyDefinition(index) {
                             copy(
                                 supportedPlatforms = if (isChecked) {
-                                    if (this@updateSchema.supportedPlatforms.contains(newPlatformType)) {
+                                    if (schema.supportedPlatforms.contains(newPlatformType)) {
                                         supportedPlatforms + newPlatformType
                                     } else {
                                         supportedPlatforms
@@ -178,14 +176,11 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    private fun CreateEnvironmentState.updateSchema(block: Schema.() -> Schema): CreateEnvironmentState =
-        copy(schema = schema.block())
-
-    private fun Schema.updateSupportedPlatforms(block: Set<PlatformType>.() -> Set<PlatformType>): Schema =
-        copy(supportedPlatforms = supportedPlatforms.block())
-
-    private fun Schema.updatePropertyDefinitions(block: Set<PropertyDefinition>.() -> Set<PropertyDefinition>): Schema =
-        copy(propertyDefinitions = propertyDefinitions.block())
+    private fun CreateEnvironmentState.updateSchema(block: SchemaBuilder.() -> Unit): CreateEnvironmentState {
+        val schemaBuilder = SchemaBuilder(schema)
+        schemaBuilder.block()
+        return copy(schema = schemaBuilder.build())
+    }
 
     private fun Set<PropertyDefinition>.updatePropertyDefinition(
         index: Int,
@@ -232,5 +227,21 @@ internal class CreateEnvironmentPresenter(
             Step.SETUP_ENVIRONMENT -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
             Step.SETUP_SCHEMA -> Unit
         }
+    }
+
+    private class SchemaBuilder(private var schema: Schema) {
+        fun updateSupportedPlatforms(block: Set<PlatformType>.(schema: Schema) -> Set<PlatformType>) {
+            schema = schema.copy(
+                supportedPlatforms = schema.supportedPlatforms.block(schema)
+            )
+        }
+
+        fun updatePropertyDefinitions(block: Set<PropertyDefinition>.(schema: Schema) -> Set<PropertyDefinition>) {
+            schema = schema.copy(
+                propertyDefinitions = schema.propertyDefinitions.block(schema)
+            )
+        }
+
+        fun build(): Schema = schema
     }
 }
