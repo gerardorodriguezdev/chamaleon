@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.horizontalPadding
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.scrollbarWidth
@@ -18,37 +19,43 @@ import org.jetbrains.jewel.ui.component.VerticalScrollbar
 @Composable
 internal fun WindowContainer(
     modifier: Modifier = Modifier,
-    toolbar: @Composable (BoxScope.() -> Unit)? = null,
+    toolbar: @Composable (ColumnScope.() -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
-        val lazyListState = rememberLazyListState()
-
-        LazyColumn(
-            state = lazyListState,
-            contentPadding = PaddingValues(
-                top = verticalPadding,
-                bottom = verticalPadding,
-                start = horizontalPadding,
-                end = scrollbarWidth
-            ),
-            verticalArrangement = Arrangement.spacedBy(itemsSpacing),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            toolbar?.let {
-                stickyHeader {
-                    toolbar()
-                }
+    Column(modifier) {
+        toolbar?.let {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+            ) {
+                toolbar()
             }
-
-            content()
         }
 
-        VerticalScrollbar(
-            modifier = Modifier
-                .fillMaxHeight()
-                .align(Alignment.CenterEnd),
-            scrollState = lazyListState,
-        )
+        Box(modifier = Modifier.weight(1f)) {
+            val lazyListState = rememberLazyListState()
+
+            LazyColumn(
+                state = lazyListState,
+                contentPadding = PaddingValues(
+                    top = if (toolbar != null) 0.dp else verticalPadding,
+                    bottom = verticalPadding,
+                    start = horizontalPadding,
+                    end = scrollbarWidth
+                ),
+                verticalArrangement = Arrangement.spacedBy(itemsSpacing),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                content()
+            }
+
+            VerticalScrollbar(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .align(Alignment.CenterEnd),
+                scrollState = lazyListState,
+            )
+        }
     }
 }
