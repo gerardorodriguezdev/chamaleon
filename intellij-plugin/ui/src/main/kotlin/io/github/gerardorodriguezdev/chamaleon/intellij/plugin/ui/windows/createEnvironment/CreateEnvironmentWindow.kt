@@ -64,7 +64,7 @@ sealed interface CreateEnvironmentWindowState {
             val properties: ImmutableList<Property>,
         ) {
             data class Property(
-                val nameField: Field<String>,
+                val name: String,
                 val value: PropertyValue,
             )
         }

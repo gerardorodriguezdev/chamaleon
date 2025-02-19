@@ -44,7 +44,7 @@ fun SetupPropertiesWindow(
                     Section(enableDivider = true) {
                         InputTextField(
                             label = string(StringsKeys.name),
-                            value = property.nameField.value,
+                            value = property.name,
                             readOnly = true,
                         )
 
