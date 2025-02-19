@@ -54,12 +54,6 @@ private fun SetupSchemaAction.toSetupSchemaAction(): CreateEnvironmentAction.Set
 
 private fun SetupPropertiesAction.toSetupPropertiesAction(): CreateEnvironmentAction.SetupPropertiesAction =
     when (this) {
-        is SetupPropertiesAction.OnPropertyNameChanged ->
-            CreateEnvironmentAction.SetupPropertiesAction.OnPropertyNameChanged(
-                index = index,
-                newName = newName
-            )
-
         is SetupPropertiesAction.OnPropertyValueChanged ->
             CreateEnvironmentAction.SetupPropertiesAction.OnPropertyValueChanged(
                 index = index,

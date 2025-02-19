@@ -106,7 +106,6 @@ sealed interface CreateEnvironmentWindowAction {
     }
 
     sealed interface SetupPropertiesAction : CreateEnvironmentWindowAction {
-        data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupPropertiesAction
         data class OnPropertyValueChanged(val index: Int, val newValue: PropertyValue?) : SetupPropertiesAction
     }
 }

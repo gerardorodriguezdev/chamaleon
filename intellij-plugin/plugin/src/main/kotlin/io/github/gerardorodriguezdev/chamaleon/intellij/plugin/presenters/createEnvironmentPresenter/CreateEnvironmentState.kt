@@ -29,5 +29,6 @@ internal data class CreateEnvironmentState(
     enum class Step {
         SETUP_ENVIRONMENT,
         SETUP_SCHEMA,
+        SETUP_PROPERTIES,
     }
 }

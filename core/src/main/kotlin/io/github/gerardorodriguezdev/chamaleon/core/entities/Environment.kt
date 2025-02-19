@@ -31,7 +31,7 @@ public data class Environment(
         }
 
     @Suppress("ReturnCount")
-    internal fun isValid(): ValidationResult {
+    public fun isValid(): ValidationResult {
         if (name.isEmpty()) return ValidationResult.EMPTY_NAME
         if (platforms.isEmpty()) return ValidationResult.EMPTY_PLATFORMS
         if (platforms.any { platform -> !platform.isValid() }) return ValidationResult.INVALID_PLATFORM
@@ -39,7 +39,7 @@ public data class Environment(
         return ValidationResult.VALID
     }
 
-    internal enum class ValidationResult {
+    public enum class ValidationResult {
         VALID,
         EMPTY_NAME,
         EMPTY_PLATFORMS,

@@ -7,7 +7,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction.OnPropertyNameChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction.OnPropertyValueChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.PropertyValue
@@ -45,9 +44,8 @@ fun SetupPropertiesWindow(
                     Section(enableDivider = true) {
                         InputTextField(
                             label = string(StringsKeys.name),
-                            onValueChange = { newText ->
-                                onAction(OnPropertyNameChanged(index, newText))
-                            },
+                            value = property.nameField.value,
+                            readOnly = true,
                         )
 
                         InputPropertyValue(

@@ -220,13 +220,15 @@ internal class CreateEnvironmentPresenter(
         when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> Unit
             Step.SETUP_SCHEMA -> mutableState = mutableState.copy(step = Step.SETUP_ENVIRONMENT)
+            Step.SETUP_PROPERTIES -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
         }
     }
 
     private fun CreateEnvironmentAction.DialogAction.OnNextButtonClicked.handle() {
         when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
-            Step.SETUP_SCHEMA -> Unit
+            Step.SETUP_SCHEMA -> mutableState = mutableState.copy(step = Step.SETUP_PROPERTIES)
+            Step.SETUP_PROPERTIES -> Unit
         }
     }
 
