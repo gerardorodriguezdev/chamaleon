@@ -8,8 +8,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.Environments
 
 @Suppress("ReturnCount")
 public data class Schema(
-    val supportedPlatforms: Set<PlatformType>,
-    val propertyDefinitions: Set<PropertyDefinition>,
+    val supportedPlatforms: Set<PlatformType> = emptySet(),
+    val propertyDefinitions: Set<PropertyDefinition> = emptySet(),
 ) {
     public data class PropertyDefinition(
         val name: String,
@@ -200,10 +200,5 @@ public data class Schema(
                 val environmentName: String,
             ) : Failure
         }
-    }
-
-    //TODO: Update
-    public companion object {
-        public fun emptySchema(): Schema = Schema(supportedPlatforms = emptySet(), propertyDefinitions = emptySet())
     }
 }

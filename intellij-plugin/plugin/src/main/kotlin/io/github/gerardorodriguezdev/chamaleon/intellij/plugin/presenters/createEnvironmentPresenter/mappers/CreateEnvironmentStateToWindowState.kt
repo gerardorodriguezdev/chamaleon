@@ -62,8 +62,13 @@ private fun EnvironmentsDirectoryProcessResult.toVerification(stringsProvider: S
 private fun EnvironmentNameVerification.toVerification(stringsProvider: StringsProvider): Field.Verification =
     when (this) {
         EnvironmentNameVerification.VALID -> Field.Verification.Valid
-        EnvironmentNameVerification.IS_EMPTY -> Field.Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameEmpty))
-        EnvironmentNameVerification.IS_DUPLICATED -> Field.Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
+        EnvironmentNameVerification.IS_EMPTY -> Field.Verification.Invalid(
+            stringsProvider.string(StringsKeys.environmentNameEmpty)
+        )
+
+        EnvironmentNameVerification.IS_DUPLICATED -> Field.Verification.Invalid(
+            stringsProvider.string(StringsKeys.environmentNameIsDuplicated)
+        )
     }
 
 private fun Set<Schema.PropertyDefinition>.toPropertyDefinitions(): ImmutableList<SetupSchemaState.PropertyDefinition> =

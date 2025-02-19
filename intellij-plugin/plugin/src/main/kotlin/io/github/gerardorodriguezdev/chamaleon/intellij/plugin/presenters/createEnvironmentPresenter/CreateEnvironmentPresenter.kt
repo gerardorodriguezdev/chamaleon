@@ -76,7 +76,7 @@ internal class CreateEnvironmentPresenter(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory,
                                 environments = emptySet(),
-                                schema = Schema.emptySchema(),
+                                schema = Schema(),
                             )
                         }
 
@@ -85,7 +85,7 @@ internal class CreateEnvironmentPresenter(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments,
                                 environments = emptySet(),
-                                schema = Schema.emptySchema(),
+                                schema = Schema(),
                             )
                         }
                     }

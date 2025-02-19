@@ -100,7 +100,7 @@ internal class DefaultSetupEnvironmentHandler(
                 Success(
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     environments = emptySet(),
-                    schema = Schema.emptySchema(),
+                    schema = Schema(),
                 )
 
             is EnvironmentsProcessorResult.Failure.SchemaParsingError -> toUpdateEnvironmentsDirectoryState(
@@ -117,7 +117,7 @@ internal class DefaultSetupEnvironmentHandler(
             is SchemaParserResult.Failure.FileNotFound -> Success(
                 environmentsDirectoryPath = environmentsDirectoryPath,
                 environments = emptySet(),
-                schema = Schema.emptySchema(),
+                schema = Schema(),
             )
 
             else -> Failure.InvalidEnvironments(environmentsDirectoryPath)
