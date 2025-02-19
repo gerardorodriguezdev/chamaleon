@@ -26,6 +26,7 @@ internal class CreateEnvironmentPresenter(
     private val setupEnvironmentHandler: SetupEnvironmentHandler,
 
     private val onEnvironmentsDirectorySelected: () -> String?,
+    private val onFinishButtonClicked: (state: CreateEnvironmentState) -> Unit,
 ) {
     private val mutableStateFlow = MutableStateFlow<CreateEnvironmentState>(CreateEnvironmentState())
     val stateFlow: StateFlow<CreateEnvironmentState> = mutableStateFlow
@@ -211,7 +212,7 @@ internal class CreateEnvironmentPresenter(
         when (this) {
             is CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked -> handle()
             is CreateEnvironmentAction.DialogAction.OnNextButtonClicked -> handle()
-            is CreateEnvironmentAction.DialogAction.OnFinishButtonClicked -> Unit //TODO: Finish
+            is CreateEnvironmentAction.DialogAction.OnFinishButtonClicked -> onFinishButtonClicked(mutableState)
         }
     }
 

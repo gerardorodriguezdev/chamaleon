@@ -50,7 +50,10 @@ internal class EnvironmentCreationDialog(
         ioContext = Dispatchers.IO,
         projectDirectory = projectDirectory,
         setupEnvironmentHandler = DefaultSetupEnvironmentHandler(projectDirectory, environmentsProcessor),
-        onEnvironmentsDirectorySelected = { selectFileDirectory(project) }
+        onEnvironmentsDirectorySelected = { selectFileDirectory(project) },
+        onFinishButtonClicked = {
+            //TODO: Finish
+        }
     )
 
     private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(SetupEnvironmentState())
