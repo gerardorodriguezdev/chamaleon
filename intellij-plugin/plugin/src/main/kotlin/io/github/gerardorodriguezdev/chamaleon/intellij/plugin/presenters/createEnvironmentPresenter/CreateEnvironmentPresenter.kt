@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.creat
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.asDelegate
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Step
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.SetupEnvironmentHandler
@@ -26,6 +27,8 @@ internal class CreateEnvironmentPresenter(
 ) {
     private val mutableStateFlow = MutableStateFlow<CreateEnvironmentState>(CreateEnvironmentState())
     val stateFlow: StateFlow<CreateEnvironmentState> = mutableStateFlow
+
+    private var mutableState by mutableStateFlow.asDelegate()
 
     private var processJob: Job? = null
 
@@ -56,7 +59,7 @@ internal class CreateEnvironmentPresenter(
                 .collect { sideEffect ->
                     when (sideEffect) {
                         is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Success -> {
-                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                            mutableState = mutableState.copy(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
                                 environments = sideEffect.environments,
@@ -65,14 +68,14 @@ internal class CreateEnvironmentPresenter(
                         }
 
                         is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Loading -> {
-                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                            mutableState = mutableState.copy(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Loading,
                             )
                         }
 
                         is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.FileIsNotDirectory -> {
-                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                            mutableState = mutableState.copy(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory,
                                 environments = emptySet(),
@@ -81,7 +84,7 @@ internal class CreateEnvironmentPresenter(
                         }
 
                         is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.InvalidEnvironments -> {
-                            mutableStateFlow.value = mutableStateFlow.value.copy(
+                            mutableState = mutableState.copy(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments,
                                 environments = emptySet(),
@@ -98,8 +101,8 @@ internal class CreateEnvironmentPresenter(
     private fun CreateEnvironmentAction.SetupSchemaAction.handle() {
         when (this) {
             is CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
-                val currentSchema = mutableStateFlow.value.schema
-                mutableStateFlow.value = mutableStateFlow.value.copy(
+                val currentSchema = mutableState.schema
+                mutableState = mutableState.copy(
                     schema = currentSchema.copy(
                         supportedPlatforms = if (currentSchema.supportedPlatforms.contains(newPlatformType)) {
                             currentSchema.supportedPlatforms - newPlatformType
@@ -111,8 +114,8 @@ internal class CreateEnvironmentPresenter(
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked -> {
-                val currentSchema = mutableStateFlow.value.schema
-                mutableStateFlow.value = mutableStateFlow.value.copy(
+                val currentSchema = mutableState.schema
+                mutableState = mutableState.copy(
                     schema = currentSchema.copy(
                         propertyDefinitions = currentSchema.propertyDefinitions + Schema.PropertyDefinition(
                             //TODO: Empty prop def
@@ -126,8 +129,8 @@ internal class CreateEnvironmentPresenter(
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged -> {
-                val currentSchema = mutableStateFlow.value.schema
-                mutableStateFlow.value = mutableStateFlow.value.copy(
+                val currentSchema = mutableState.schema
+                mutableState = mutableState.copy(
                     schema = currentSchema.copy(
                         propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
                             if (index == currentIndex) {
@@ -141,8 +144,8 @@ internal class CreateEnvironmentPresenter(
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyTypeChanged -> {
-                val currentSchema = mutableStateFlow.value.schema
-                mutableStateFlow.value = mutableStateFlow.value.copy(
+                val currentSchema = mutableState.schema
+                mutableState = mutableState.copy(
                     schema = currentSchema.copy(
                         propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
                             if (index == currentIndex) {
@@ -158,8 +161,8 @@ internal class CreateEnvironmentPresenter(
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnNullableChanged -> {
-                val currentSchema = mutableStateFlow.value.schema
-                mutableStateFlow.value = mutableStateFlow.value.copy(
+                val currentSchema = mutableState.schema
+                mutableState = mutableState.copy(
                     schema = currentSchema.copy(
                         propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
                             if (index == currentIndex) {
@@ -174,8 +177,8 @@ internal class CreateEnvironmentPresenter(
 
             //TODO: Fix
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> {
-                val currentSchema = mutableStateFlow.value.schema
-                mutableStateFlow.value = mutableStateFlow.value.copy(
+                val currentSchema = mutableState.schema
+                mutableState = mutableState.copy(
                     schema = currentSchema.copy(
                         propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
                             if (index == currentIndex) {
@@ -207,7 +210,7 @@ internal class CreateEnvironmentPresenter(
     }
 
     private fun CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
-        mutableStateFlow.value = mutableStateFlow.value.copy(
+        mutableState = mutableState.copy(
             environmentName = newName,
         )
     }
@@ -221,15 +224,15 @@ internal class CreateEnvironmentPresenter(
     }
 
     private fun CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked.handle() {
-        when (mutableStateFlow.value.step) {
+        when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> Unit
-            Step.SETUP_SCHEMA -> mutableStateFlow.value = mutableStateFlow.value.copy(step = Step.SETUP_ENVIRONMENT)
+            Step.SETUP_SCHEMA -> mutableState = mutableState.copy(step = Step.SETUP_ENVIRONMENT)
         }
     }
 
     private fun CreateEnvironmentAction.DialogAction.OnNextButtonClicked.handle() {
-        when (mutableStateFlow.value.step) {
-            Step.SETUP_ENVIRONMENT -> mutableStateFlow.value = mutableStateFlow.value.copy(step = Step.SETUP_SCHEMA)
+        when (mutableState.step) {
+            Step.SETUP_ENVIRONMENT -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
             Step.SETUP_SCHEMA -> Unit
         }
     }
