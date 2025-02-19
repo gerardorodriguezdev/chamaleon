@@ -1,7 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
 
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.asDelegate
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Step
@@ -96,112 +98,109 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    //TODO: Common operations
-    //TODO: Return actual selected property?
     private fun CreateEnvironmentAction.SetupSchemaAction.handle() {
         when (this) {
             is CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
-                val currentSchema = mutableState.schema
-                mutableState = mutableState.copy(
-                    schema = currentSchema.copy(
-                        supportedPlatforms = if (currentSchema.supportedPlatforms.contains(newPlatformType)) {
-                            currentSchema.supportedPlatforms - newPlatformType
-                        } else {
-                            currentSchema.supportedPlatforms + newPlatformType
+                mutableState = mutableState.updateSchema {
+                    val schemaWithSupportedPlatforms = updateSupportedPlatforms {
+                        if (isChecked) supportedPlatforms + newPlatformType else supportedPlatforms - newPlatformType
+                    }
+
+                    schemaWithSupportedPlatforms
+                        .updatePropertyDefinitions {
+                            map { propertyDefinition ->
+                                propertyDefinition.copy(
+                                    supportedPlatforms =
+                                        propertyDefinition.supportedPlatforms intersect schemaWithSupportedPlatforms.supportedPlatforms,
+                                )
+                            }.toSet()
                         }
-                    )
-                )
+                }
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked -> {
-                val currentSchema = mutableState.schema
-                mutableState = mutableState.copy(
-                    schema = currentSchema.copy(
-                        propertyDefinitions = currentSchema.propertyDefinitions + Schema.PropertyDefinition(
-                            //TODO: Empty prop def
-                            name = "",
-                            propertyType = PropertyType.STRING,
-                            nullable = true,
-                            supportedPlatforms = currentSchema.supportedPlatforms,
-                        )
-                    )
-                )
+                mutableState = mutableState.updateSchema {
+                    updatePropertyDefinitions {
+                        propertyDefinitions + emptyPropertyDefinition()
+                    }
+                }
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged -> {
-                val currentSchema = mutableState.schema
-                mutableState = mutableState.copy(
-                    schema = currentSchema.copy(
-                        propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
-                            if (index == currentIndex) {
-                                propertyDefinition.copy(name = newName)
-                            } else {
-                                propertyDefinition
-                            }
-                        }.toSet()
-                    )
-                )
+                mutableState = mutableState.updateSchema {
+                    updatePropertyDefinitions {
+                        updatePropertyDefinition(index) {
+                            copy(name = newName)
+                        }
+                    }
+                }
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyTypeChanged -> {
-                val currentSchema = mutableState.schema
-                mutableState = mutableState.copy(
-                    schema = currentSchema.copy(
-                        propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
-                            if (index == currentIndex) {
-                                propertyDefinition.copy(
-                                    propertyType = newPropertyType,
-                                )
-                            } else {
-                                propertyDefinition
-                            }
-                        }.toSet()
-                    )
-                )
+                mutableState = mutableState.updateSchema {
+                    updatePropertyDefinitions {
+                        updatePropertyDefinition(index) {
+                            copy(propertyType = newPropertyType)
+                        }
+                    }
+                }
             }
 
             is CreateEnvironmentAction.SetupSchemaAction.OnNullableChanged -> {
-                val currentSchema = mutableState.schema
-                mutableState = mutableState.copy(
-                    schema = currentSchema.copy(
-                        propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
-                            if (index == currentIndex) {
-                                propertyDefinition.copy(nullable = newValue)
-                            } else {
-                                propertyDefinition
-                            }
-                        }.toSet()
-                    )
-                )
+                mutableState = mutableState.updateSchema {
+                    updatePropertyDefinitions {
+                        updatePropertyDefinition(index) {
+                            copy(nullable = newValue)
+                        }
+                    }
+                }
             }
 
-            //TODO: Fix
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> {
-                val currentSchema = mutableState.schema
-                mutableState = mutableState.copy(
-                    schema = currentSchema.copy(
-                        propertyDefinitions = currentSchema.propertyDefinitions.mapIndexed { currentIndex, propertyDefinition ->
-                            if (index == currentIndex) {
-                                propertyDefinition.copy(
-                                    supportedPlatforms = if (propertyDefinition.supportedPlatforms.contains(
-                                            newPlatformType
-                                        )
-                                    ) {
-                                        currentSchema.supportedPlatforms - newPlatformType
+                mutableState = mutableState.updateSchema {
+                    updatePropertyDefinitions {
+                        updatePropertyDefinition(index) {
+                            copy(
+                                supportedPlatforms = if (isChecked) {
+                                    if (this@updateSchema.supportedPlatforms.contains(newPlatformType)) {
+                                        supportedPlatforms + newPlatformType
                                     } else {
-                                        currentSchema.supportedPlatforms + newPlatformType
+                                        supportedPlatforms
                                     }
-                                )
-
-                            } else {
-                                propertyDefinition
-                            }
-                        }.toSet()
-                    )
-                )
+                                } else {
+                                    supportedPlatforms - newPlatformType
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
+
+    private fun CreateEnvironmentState.updateSchema(block: Schema.() -> Schema): CreateEnvironmentState =
+        copy(schema = schema.block())
+
+    private fun Schema.updateSupportedPlatforms(block: Set<PlatformType>.() -> Set<PlatformType>): Schema =
+        copy(supportedPlatforms = supportedPlatforms.block())
+
+    private fun Schema.updatePropertyDefinitions(block: Set<PropertyDefinition>.() -> Set<PropertyDefinition>): Schema =
+        copy(propertyDefinitions = propertyDefinitions.block())
+
+    private fun Set<PropertyDefinition>.updatePropertyDefinition(
+        index: Int,
+        block: PropertyDefinition.() -> PropertyDefinition,
+    ): Set<PropertyDefinition> =
+        mapIndexed { currentIndex, currentPropertyDefinition ->
+            if (currentIndex == index) currentPropertyDefinition.block() else currentPropertyDefinition
+        }.toSet()
+
+    private fun Schema.emptyPropertyDefinition(): PropertyDefinition = PropertyDefinition(
+        name = "",
+        propertyType = PropertyType.STRING,
+        nullable = true,
+        supportedPlatforms = supportedPlatforms,
+    )
 
     private fun CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
         val environmentsDirectoryPath = onEnvironmentsDirectorySelected() ?: return
@@ -210,9 +209,7 @@ internal class CreateEnvironmentPresenter(
     }
 
     private fun CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
-        mutableState = mutableState.copy(
-            environmentName = newName,
-        )
+        mutableState = mutableState.copy(environmentName = newName)
     }
 
     private fun CreateEnvironmentAction.DialogAction.handle() {

@@ -26,7 +26,10 @@ private fun SetupEnvironmentAction.toSetupEnvironmentAction(): CreateEnvironment
 private fun SetupSchemaAction.toSetupSchemaAction(): CreateEnvironmentAction.SetupSchemaAction =
     when (this) {
         is OnSupportedPlatformChanged ->
-            CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged(newPlatformType = newPlatformType)
+            CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged(
+                isChecked = isChecked,
+                newPlatformType = newPlatformType
+            )
 
         is OnAddPropertyDefinitionClicked -> CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked
 
@@ -44,6 +47,7 @@ private fun SetupSchemaAction.toSetupSchemaAction(): CreateEnvironmentAction.Set
         is OnPropertyDefinitionSupportedPlatformChanged ->
             CreateEnvironmentAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged(
                 index = index,
+                isChecked = isChecked,
                 newPlatformType = newPlatformType
             )
     }

@@ -18,13 +18,32 @@ sealed interface CreateEnvironmentAction {
     }
 
     sealed interface SetupSchemaAction : CreateEnvironmentAction {
-        data class OnSupportedPlatformChanged(val newPlatformType: PlatformType) : SetupSchemaAction
+        data class OnSupportedPlatformChanged(
+            val isChecked: Boolean,
+            val newPlatformType: PlatformType
+        ) : SetupSchemaAction
+
         data object OnAddPropertyDefinitionClicked : SetupSchemaAction
-        data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupSchemaAction
-        data class OnPropertyTypeChanged(val index: Int, val newPropertyType: PropertyType) : SetupSchemaAction
-        data class OnNullableChanged(val index: Int, val newValue: Boolean) : SetupSchemaAction
-        data class OnPropertyDefinitionSupportedPlatformChanged(val index: Int, val newPlatformType: PlatformType) :
-            SetupSchemaAction
+        data class OnPropertyNameChanged(
+            val index: Int,
+            val newName: String,
+        ) : SetupSchemaAction
+
+        data class OnPropertyTypeChanged(
+            val index: Int,
+            val newPropertyType: PropertyType
+        ) : SetupSchemaAction
+
+        data class OnNullableChanged(
+            val index: Int,
+            val newValue: Boolean,
+        ) : SetupSchemaAction
+
+        data class OnPropertyDefinitionSupportedPlatformChanged(
+            val index: Int,
+            val isChecked: Boolean,
+            val newPlatformType: PlatformType
+        ) : SetupSchemaAction
     }
 
     sealed interface SetupPropertiesAction : CreateEnvironmentAction {

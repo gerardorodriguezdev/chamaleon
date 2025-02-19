@@ -37,8 +37,8 @@ fun SetupSchemaWindow(
         content = {
             supportedPlatformSection(
                 supportedPlatforms = state.supportedPlatforms,
-                onSupportedPlatformChanged = { newSupportedPlatform ->
-                    onAction(OnSupportedPlatformChanged(newSupportedPlatform))
+                onSupportedPlatformChanged = { isChecked, newSupportedPlatform ->
+                    onAction(OnSupportedPlatformChanged(isChecked, newSupportedPlatform))
                 },
             )
 
@@ -56,8 +56,8 @@ fun SetupSchemaWindow(
                 onNullableChanged = { index, newValue ->
                     onAction(OnNullableChanged(index, newValue))
                 },
-                onSupportedPlatformChanged = { index, newSupportedPlatform ->
-                    onAction(OnPropertyDefinitionSupportedPlatformChanged(index, newSupportedPlatform))
+                onSupportedPlatformChanged = { index, isChecked, newSupportedPlatform ->
+                    onAction(OnPropertyDefinitionSupportedPlatformChanged(index, isChecked, newSupportedPlatform))
                 },
             )
         }
@@ -66,7 +66,7 @@ fun SetupSchemaWindow(
 
 private fun LazyListScope.supportedPlatformSection(
     supportedPlatforms: ImmutableList<PlatformType>,
-    onSupportedPlatformChanged: (newPlatformType: PlatformType) -> Unit,
+    onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
     item {
         Section(
@@ -90,7 +90,7 @@ private fun LazyListScope.propertyDefinitionsSection(
     onPropertyNameChanged: (index: Int, newName: String) -> Unit,
     onPropertyTypeChanged: (index: Int, newPropertyType: PropertyType) -> Unit,
     onNullableChanged: (index: Int, newValue: Boolean) -> Unit,
-    onSupportedPlatformChanged: (index: Int, platformType: PlatformType) -> Unit,
+    onSupportedPlatformChanged: (index: Int, isChecked: Boolean, platformType: PlatformType) -> Unit,
 ) {
     stickyHeader {
         PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked)
@@ -102,7 +102,13 @@ private fun LazyListScope.propertyDefinitionsSection(
             onPropertyNameChanged = { newName -> onPropertyNameChanged(index, newName) },
             onPropertyTypeChanged = { newPropertyType -> onPropertyTypeChanged(index, newPropertyType) },
             onNullableChanged = { newValue -> onNullableChanged(index, newValue) },
-            onSupportedPlatformChanged = { newPlatformType -> onSupportedPlatformChanged(index, newPlatformType) },
+            onSupportedPlatformChanged = { isChecked, newPlatformType ->
+                onSupportedPlatformChanged(
+                    index,
+                    isChecked,
+                    newPlatformType
+                )
+            },
         )
     }
 }
@@ -129,7 +135,7 @@ private fun PropertyDefinitionSectionCard(
     onPropertyNameChanged: (newName: String) -> Unit,
     onPropertyTypeChanged: (newPropertyType: PropertyType) -> Unit,
     onNullableChanged: (newValue: Boolean) -> Unit,
-    onSupportedPlatformChanged: (newPlatformType: PlatformType) -> Unit,
+    onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
     Section(enableDivider = true) {
         InputTextField(
@@ -175,7 +181,7 @@ private fun PropertyDefinitionSectionCard(
 @Composable
 private fun SupportedPlatforms(
     supportedPlatforms: ImmutableList<PlatformType>,
-    onCheckedChanged: (newPlatformType: PlatformType) -> Unit
+    onCheckedChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
@@ -186,8 +192,8 @@ private fun SupportedPlatforms(
                 label = platformType.serialName,
                 isChecked = supportedPlatforms.contains(platformType),
                 forceLabelWidth = false,
-                onCheckedChanged = {
-                    onCheckedChanged(platformType)
+                onCheckedChanged = { isChecked ->
+                    onCheckedChanged(isChecked, platformType)
                 },
             )
         }
