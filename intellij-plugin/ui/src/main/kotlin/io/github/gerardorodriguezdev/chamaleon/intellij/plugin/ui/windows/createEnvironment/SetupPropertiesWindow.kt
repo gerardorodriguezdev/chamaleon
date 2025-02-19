@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
@@ -49,6 +50,7 @@ fun SetupPropertiesWindow(
                         )
 
                         InputPropertyValue(
+                            platformType = platform.platformType,
                             index = index,
                             propertyValue = property.value,
                             onAction = onAction,
@@ -62,6 +64,7 @@ fun SetupPropertiesWindow(
 
 @Composable
 private fun InputPropertyValue(
+    platformType: PlatformType,
     index: Int,
     propertyValue: PropertyValue,
     onAction: (action: SetupPropertiesAction) -> Unit
@@ -69,6 +72,7 @@ private fun InputPropertyValue(
     when (propertyValue) {
         is StringProperty ->
             InputStringProperty(
+                platformType = platformType,
                 index = index,
                 property = propertyValue,
                 onAction = onAction,
@@ -76,6 +80,7 @@ private fun InputPropertyValue(
 
         is BooleanProperty ->
             InputBooleanProperty(
+                platformType = platformType,
                 index = index,
                 property = propertyValue,
                 onAction = onAction,
@@ -83,6 +88,7 @@ private fun InputPropertyValue(
 
         is NullableBooleanProperty ->
             InputNullableBooleanProperty(
+                platformType = platformType,
                 index = index,
                 property = propertyValue,
                 onAction = onAction,
@@ -92,6 +98,7 @@ private fun InputPropertyValue(
 
 @Composable
 private fun InputStringProperty(
+    platformType: PlatformType,
     index: Int,
     property: StringProperty,
     onAction: (action: SetupPropertiesAction) -> Unit,
@@ -102,6 +109,7 @@ private fun InputStringProperty(
         onValueChange = { newText ->
             onAction(
                 OnPropertyValueChanged(
+                    platformType = platformType,
                     index = index,
                     newValue = StringProperty(newText).toEntityPropertyValue(),
                 )
@@ -112,6 +120,7 @@ private fun InputStringProperty(
 
 @Composable
 private fun InputBooleanProperty(
+    platformType: PlatformType,
     index: Int,
     property: BooleanProperty,
     onAction: (action: SetupPropertiesAction) -> Unit
@@ -127,6 +136,7 @@ private fun InputBooleanProperty(
                     onClick = {
                         onAction(
                             OnPropertyValueChanged(
+                                platformType = platformType,
                                 index = index,
                                 newValue = BooleanProperty(boolean).toEntityPropertyValue(),
                             )
@@ -140,6 +150,7 @@ private fun InputBooleanProperty(
 
 @Composable
 private fun InputNullableBooleanProperty(
+    platformType: PlatformType,
     index: Int,
     property: NullableBooleanProperty,
     onAction: (action: SetupPropertiesAction) -> Unit
@@ -155,6 +166,7 @@ private fun InputNullableBooleanProperty(
                     onClick = {
                         onAction(
                             OnPropertyValueChanged(
+                                platformType = platformType,
                                 index = index,
                                 newValue = NullableBooleanProperty(nullableBoolean).toEntityPropertyValue(),
                             )

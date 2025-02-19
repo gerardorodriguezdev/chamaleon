@@ -37,7 +37,7 @@ internal class CreateEnvironmentPresenter(
         when (action) {
             is CreateEnvironmentAction.SetupEnvironmentAction -> action.handle()
             is CreateEnvironmentAction.SetupSchemaAction -> action.handle()
-            is CreateEnvironmentAction.SetupPropertiesAction -> Unit //TODO: Finish
+            is CreateEnvironmentAction.SetupPropertiesAction -> action.handle()
             is CreateEnvironmentAction.DialogAction -> action.handle()
         }
     }
@@ -205,6 +205,76 @@ internal class CreateEnvironmentPresenter(
     private fun CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
         mutableState = mutableState.copy(environmentName = newName)
     }
+
+    private fun CreateEnvironmentAction.SetupPropertiesAction.handle() =
+        when (this) {
+            is CreateEnvironmentAction.SetupPropertiesAction.OnPropertyValueChanged -> {
+                mutableState = mutableState.updateProperty(
+                    platformType = platformType,
+                    index = index,
+                    propertyValue = newValue,
+                )
+            }
+        }
+
+    private fun CreateEnvironmentState.updateProperty(
+        platformType: PlatformType,
+        index: Int,
+        propertyValue: PropertyValue?,
+    ): CreateEnvironmentState =
+        copy(
+            environments = environments.updateEnvironment(
+                environmentName = environmentName,
+                index = index,
+                platformType = platformType,
+                propertyValue = propertyValue,
+            )
+        )
+
+    private fun Set<Environment>.updateEnvironment(
+        environmentName: String,
+        platformType: PlatformType,
+        index: Int,
+        propertyValue: PropertyValue?,
+    ): Set<Environment> =
+        map { environment ->
+            if (environment.name == environmentName) {
+                environment.copy(
+                    platforms = environment.platforms.updatePlatform(
+                        platformType = platformType,
+                        index = index,
+                        propertyValue = propertyValue
+                    )
+                )
+            } else {
+                environment
+            }
+        }.toSet()
+
+    private fun Set<Platform>.updatePlatform(
+        platformType: PlatformType,
+        index: Int,
+        propertyValue: PropertyValue?,
+    ): Set<Platform> =
+        map { platform ->
+            if (platform.platformType == platformType) {
+                platform.copy(properties = platform.properties.updateProperty(index, propertyValue))
+            } else {
+                platform
+            }
+        }.toSet()
+
+    private fun Set<Platform.Property>.updateProperty(
+        index: Int,
+        propertyValue: PropertyValue?
+    ): Set<Platform.Property> =
+        mapIndexed { currentIndex, property ->
+            if (index == currentIndex) {
+                property.copy(value = propertyValue)
+            } else {
+                property
+            }
+        }.toSet()
 
     private fun CreateEnvironmentAction.DialogAction.handle() {
         when (this) {

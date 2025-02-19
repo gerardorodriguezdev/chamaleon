@@ -56,6 +56,7 @@ private fun SetupPropertiesAction.toSetupPropertiesAction(): CreateEnvironmentAc
     when (this) {
         is SetupPropertiesAction.OnPropertyValueChanged ->
             CreateEnvironmentAction.SetupPropertiesAction.OnPropertyValueChanged(
+                platformType = platformType,
                 index = index,
                 newValue = newValue
             )
