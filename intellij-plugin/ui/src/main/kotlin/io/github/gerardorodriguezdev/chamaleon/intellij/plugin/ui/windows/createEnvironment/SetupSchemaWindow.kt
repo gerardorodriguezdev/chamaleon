@@ -140,8 +140,13 @@ private fun PropertyDefinitionSectionCard(
     Section(enableDivider = true) {
         InputTextField(
             label = string(StringsKeys.propertyName),
-            value = propertyDefinition.name,
+            value = propertyDefinition.nameField.value,
             onValueChange = onPropertyNameChanged,
+            trailingIcon = {
+                propertyDefinition.nameField.verification?.let {
+                    VerificationIcon(verification = propertyDefinition.nameField.verification)
+                }
+            }
         )
 
         InputTextDropdown(

@@ -38,6 +38,7 @@ object StringsKeys {
     val selectedFileNotDirectory = StringKey("selected.file.not.directory")
     val environmentNameEmpty = StringKey("environment.name.empty")
     val environmentNameIsDuplicated = StringKey("environment.name.is.duplicated")
+    val propertyNameIsEmpty = StringKey("property.name.is.empty")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)

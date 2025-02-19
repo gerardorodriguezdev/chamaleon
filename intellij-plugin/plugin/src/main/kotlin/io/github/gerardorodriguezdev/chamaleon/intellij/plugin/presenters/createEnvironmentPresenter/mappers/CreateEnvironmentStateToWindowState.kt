@@ -36,7 +36,7 @@ internal fun CreateEnvironmentState.toWindowState(stringsProvider: StringsProvid
                     stringsProvider.string(StringsKeys.updateTemplate)
                 },
                 supportedPlatforms = schema.supportedPlatforms.toPersistentList(),
-                propertyDefinitions = schema.propertyDefinitions.toPropertyDefinitions(),
+                propertyDefinitions = schema.propertyDefinitions.toPropertyDefinitions(stringsProvider),
             )
         }
     }
@@ -71,14 +71,21 @@ private fun EnvironmentNameVerification.toVerification(stringsProvider: StringsP
         )
     }
 
-private fun Set<Schema.PropertyDefinition>.toPropertyDefinitions(): ImmutableList<SetupSchemaState.PropertyDefinition> =
+private fun Set<Schema.PropertyDefinition>.toPropertyDefinitions(stringsProvider: StringsProvider): ImmutableList<SetupSchemaState.PropertyDefinition> =
     map { propertyDefinition ->
-        propertyDefinition.toPropertyDefinition()
+        propertyDefinition.toPropertyDefinition(stringsProvider)
     }.toPersistentList()
 
-private fun Schema.PropertyDefinition.toPropertyDefinition(): SetupSchemaState.PropertyDefinition =
+private fun Schema.PropertyDefinition.toPropertyDefinition(stringsProvider: StringsProvider): SetupSchemaState.PropertyDefinition =
     SetupSchemaState.PropertyDefinition(
-        name = name,
+        nameField = Field(
+            value = name,
+            verification = if (name.isEmpty()) {
+                Field.Verification.Invalid(stringsProvider.string(StringsKeys.propertyNameIsEmpty))
+            } else {
+                Field.Verification.Valid
+            }
+        ),
         propertyType = propertyType,
         nullable = nullable,
         supportedPlatforms = supportedPlatforms.toPersistentList(),
