@@ -37,7 +37,7 @@ private fun CreateEnvironmentState.isFinishButtonEnabled(): Boolean =
     when (step) {
         Step.SETUP_ENVIRONMENT -> false
         Step.SETUP_SCHEMA -> false
-        Step.SETUP_PROPERTIES -> !environments.areEnvironmentsValid()
+        Step.SETUP_PROPERTIES -> environments.areEnvironmentsValid()
     }
 
 private fun Schema.ValidationResult.isValid(): Boolean = this == Schema.ValidationResult.VALID
@@ -50,6 +50,6 @@ private fun List<Schema.EnvironmentsValidationResult>.areEnvironmentsValid(): Bo
     }
 
 private fun Set<Environment>.areEnvironmentsValid(): Boolean =
-    any { environment ->
+    !any { environment ->
         environment.isValid() != Environment.ValidationResult.VALID
     }

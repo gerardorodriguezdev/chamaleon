@@ -1,8 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.entities.*
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.asDelegate
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult
@@ -227,7 +225,18 @@ internal class CreateEnvironmentPresenter(
     private fun CreateEnvironmentAction.DialogAction.OnNextButtonClicked.handle() {
         when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
-            Step.SETUP_SCHEMA -> mutableState = mutableState.copy(step = Step.SETUP_PROPERTIES)
+            Step.SETUP_SCHEMA -> {
+                val environments = mutableState.environments
+                mutableState = mutableState.copy(
+                    step = Step.SETUP_PROPERTIES,
+                    environments = if (!environments.contains(mutableState.environmentName)) {
+                        environments + initialEnvironments()
+                    } else {
+                        environments
+                    }
+                )
+            }
+
             Step.SETUP_PROPERTIES -> Unit
         }
     }
@@ -247,4 +256,45 @@ internal class CreateEnvironmentPresenter(
 
         fun build(): Schema = schema
     }
+
+    private fun Set<Environment>.contains(environmentName: String): Boolean =
+        any { environment -> environment.name == environmentName }
+
+    private fun initialEnvironments(): Set<Environment> =
+        setOf(
+            Environment(
+                name = mutableState.environmentName,
+                platforms = mutableState.schema.toPlatforms(),
+            )
+        )
+
+    private fun Schema.toPlatforms(): Set<Platform> =
+        supportedPlatforms.map { platformType ->
+            val propertiesForPlatform = propertiesForPlatform(platformType)
+
+            Platform(
+                platformType = platformType,
+                properties = propertiesForPlatform.toProperties()
+            )
+        }.toSet()
+
+
+    private fun List<PropertyDefinition>.toProperties(): Set<Platform.Property> =
+        map { propertyDefinition ->
+            Platform.Property(
+                name = propertyDefinition.name,
+                value = propertyDefinition.propertyType.toPropertyValue(),
+            )
+        }.toSet()
+
+    private fun PropertyType.toPropertyValue(): PropertyValue =
+        when (this) {
+            PropertyType.STRING -> PropertyValue.StringProperty("")
+            PropertyType.BOOLEAN -> PropertyValue.BooleanProperty(false)
+        }
+
+    private fun Schema.propertiesForPlatform(platformType: PlatformType): List<PropertyDefinition> =
+        propertyDefinitions.filter { propertyDefinition ->
+            propertyDefinition.supportedPlatforms.contains(platformType)
+        }
 }
