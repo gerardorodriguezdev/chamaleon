@@ -44,6 +44,7 @@ object StringsKeys {
     val noEnvironmentsFound = StringKey("no.environments.found")
     val errorAtEnvironmentsDirectories = StringKey("error.at.environments.directories")
     val gradlePluginVersionUsed = StringKey("gradle.plugin.version.used")
+    val generateEnvironment = StringKey("generate.environment")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)
