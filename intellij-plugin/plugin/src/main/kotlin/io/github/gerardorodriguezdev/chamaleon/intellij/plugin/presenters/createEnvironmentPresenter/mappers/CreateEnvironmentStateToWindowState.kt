@@ -1,9 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.EnvironmentsDirectoryProcessResult
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Step
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
@@ -29,80 +29,36 @@ internal fun CreateEnvironmentState.toWindowState(stringsProvider: StringsProvid
 
         Step.SETUP_SCHEMA -> {
             SetupSchemaState(
-                title = if (schema.isEmpty()) {
-                    stringsProvider.string(StringsKeys.createTemplate)
-                } else {
-                    stringsProvider.string(StringsKeys.updateTemplate)
-                },
-                supportedPlatforms = schema.supportedPlatforms.toPersistentList(),
-                propertyDefinitions = schema.propertyDefinitions.toPropertyDefinitions(stringsProvider),
+                title = toTitle(stringsProvider),
+                globalSupportedPlatforms = globalSupportedPlatforms.toPersistentList(),
+                propertyDefinitions = propertyDefinitions.toPropertyDefinitions(stringsProvider),
             )
         }
 
         Step.SETUP_PROPERTIES -> {
-            SetupPropertiesState(
-                platforms = environments
-                    .platforms(environmentName)
-                    .map { platform ->
-                        SetupPropertiesState.Platform(
-                            platformType = platform.platformType,
-                            properties = platform.properties.map { property ->
-                                val propertyDefinition = schema.propertyDefinition(property.name)
-                                property.toProperty(propertyDefinition)
-                            }.toPersistentList(),
-                        )
-                    }.toPersistentList()
-
-            )
+            SetupPropertiesState(platforms = platforms.toPlatforms())
         }
     }
-
-private fun Schema.propertyDefinition(propertyName: String): Schema.PropertyDefinition =
-    propertyDefinitions.first { propertyDefinition ->
-        propertyDefinition.name == propertyName
-    }
-
-private fun Set<Environment>.platforms(environmentName: String): Set<Platform> =
-    first { environment -> environment.name == environmentName }.platforms
-
-private fun Platform.Property.toProperty(
-    propertyDefinition: Schema.PropertyDefinition,
-): SetupPropertiesState.Platform.Property =
-    SetupPropertiesState.Platform.Property(
-        name = name,
-        value = value.toPropertyValue(propertyDefinition),
-    )
-
-private fun PropertyValue?.toPropertyValue(
-    propertyDefinition: Schema.PropertyDefinition,
-): SetupPropertiesState.PropertyValue {
-    return when (this) {
-        null -> when (propertyDefinition.propertyType) {
-            PropertyType.STRING -> SetupPropertiesState.PropertyValue.StringProperty("")
-            PropertyType.BOOLEAN -> SetupPropertiesState.PropertyValue.NullableBooleanProperty(null)
-        }
-
-        is PropertyValue.StringProperty -> SetupPropertiesState.PropertyValue.StringProperty(value)
-        is PropertyValue.BooleanProperty -> SetupPropertiesState.PropertyValue.BooleanProperty(value)
-    }
-}
 
 private fun EnvironmentsDirectoryProcessResult.toVerification(stringsProvider: StringsProvider): Field.Verification =
     when (this) {
         is EnvironmentsDirectoryProcessResult.Success -> Field.Verification.Valid
         is EnvironmentsDirectoryProcessResult.Loading -> Field.Verification.Loading
-        is EnvironmentsDirectoryProcessResult.Failure -> when (this) {
-            is EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments -> Field.Verification.Invalid(
-                stringsProvider.string(StringsKeys.invalidEnvironmentsFound)
-            )
+        is EnvironmentsDirectoryProcessResult.Failure -> toVerification(stringsProvider)
+    }
 
-            is EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory -> Field.Verification.Invalid(
-                stringsProvider.string(StringsKeys.selectedFileNotDirectory)
-            )
+private fun EnvironmentsDirectoryProcessResult.Failure.toVerification(stringsProvider: StringsProvider): Field.Verification =
+    when (this) {
+        is EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments -> Field.Verification.Invalid(
+            stringsProvider.string(StringsKeys.invalidEnvironmentsFound)
+        )
 
-            is EnvironmentsDirectoryProcessResult.Failure.EnvironmentsDirectoryNotFound -> Field.Verification.Valid
-            is EnvironmentsDirectoryProcessResult.Failure.SchemaFileNotFound -> Field.Verification.Valid
-        }
+        is EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory -> Field.Verification.Invalid(
+            stringsProvider.string(StringsKeys.selectedFileNotDirectory)
+        )
+
+        is EnvironmentsDirectoryProcessResult.Failure.EnvironmentsDirectoryNotFound -> Field.Verification.Valid
+        is EnvironmentsDirectoryProcessResult.Failure.SchemaFileNotFound -> Field.Verification.Valid
     }
 
 private fun EnvironmentNameVerification.toVerification(stringsProvider: StringsProvider): Field.Verification =
@@ -117,22 +73,60 @@ private fun EnvironmentNameVerification.toVerification(stringsProvider: StringsP
         )
     }
 
-private fun Set<Schema.PropertyDefinition>.toPropertyDefinitions(stringsProvider: StringsProvider): ImmutableList<SetupSchemaState.PropertyDefinition> =
+private fun CreateEnvironmentState.toTitle(stringsProvider: StringsProvider): String =
+    if (globalSupportedPlatforms.isEmpty() && propertyDefinitions.isEmpty()) {
+        stringsProvider.string(StringsKeys.createTemplate)
+    } else {
+        stringsProvider.string(StringsKeys.updateTemplate)
+    }
+
+private fun Set<PropertyDefinition>.toPropertyDefinitions(stringsProvider: StringsProvider): ImmutableList<SetupSchemaState.PropertyDefinition> =
     map { propertyDefinition ->
         propertyDefinition.toPropertyDefinition(stringsProvider)
     }.toPersistentList()
 
-private fun Schema.PropertyDefinition.toPropertyDefinition(stringsProvider: StringsProvider): SetupSchemaState.PropertyDefinition =
+private fun PropertyDefinition.toPropertyDefinition(stringsProvider: StringsProvider): SetupSchemaState.PropertyDefinition =
     SetupSchemaState.PropertyDefinition(
         nameField = Field(
             value = name,
-            verification = if (name.isEmpty()) {
-                Field.Verification.Invalid(stringsProvider.string(StringsKeys.propertyNameIsEmpty))
-            } else {
-                Field.Verification.Valid
-            }
+            verification = nameVerification(stringsProvider)
         ),
         propertyType = propertyType,
         nullable = nullable,
         supportedPlatforms = supportedPlatforms.toPersistentList(),
     )
+
+private fun PropertyDefinition.nameVerification(stringsProvider: StringsProvider): Field.Verification =
+    if (name.isEmpty()) {
+        Field.Verification.Invalid(stringsProvider.string(StringsKeys.propertyNameIsEmpty))
+    } else {
+        Field.Verification.Valid
+    }
+
+private fun Set<Platform>.toPlatforms(): ImmutableList<SetupPropertiesState.Platform> =
+    map { platform ->
+        SetupPropertiesState.Platform(
+            platformType = platform.platformType,
+            properties = platform.properties.toProperties()
+        )
+    }.toPersistentList()
+
+private fun Set<Property>.toProperties(): ImmutableList<SetupPropertiesState.Platform.Property> =
+    map { property ->
+        property.toProperty()
+    }.toPersistentList()
+
+private fun Property.toProperty(): SetupPropertiesState.Platform.Property =
+    SetupPropertiesState.Platform.Property(
+        name = name,
+        value = value.toPropertyValue(),
+    )
+
+internal fun PropertyValue.toPropertyValue(): SetupPropertiesState.Platform.Property.PropertyValue {
+    return when (this) {
+        is PropertyValue.StringProperty -> SetupPropertiesState.Platform.Property.PropertyValue.StringProperty(value)
+        is PropertyValue.BooleanProperty -> SetupPropertiesState.Platform.Property.PropertyValue.BooleanProperty(value)
+        is PropertyValue.NullableBooleanProperty ->
+            SetupPropertiesState.Platform.Property.PropertyValue.NullableBooleanProperty(value)
+    }
+}

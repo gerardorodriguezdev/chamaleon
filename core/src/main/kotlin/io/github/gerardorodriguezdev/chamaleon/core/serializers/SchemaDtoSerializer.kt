@@ -21,14 +21,14 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
     }
 
     override fun serialize(encoder: Encoder, schemaDto: SchemaDto) {
-        schemaDto.propertyDefinitionsDtos.verify(schemaDto.supportedPlatforms)
+        schemaDto.propertyDefinitionsDtos.verify(schemaDto.globalSupportedPlatforms)
 
         encoder.encodeStructure(descriptor) {
             encodeSerializableElement(
                 descriptor = descriptor,
                 index = SUPPORTED_PLATFORMS_INDEX,
                 serializer = supportedPlatformsSerializer,
-                value = schemaDto.supportedPlatforms
+                value = schemaDto.globalSupportedPlatforms
             )
 
             encodeSerializableElement(
@@ -42,15 +42,18 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
 
     override fun deserialize(decoder: Decoder): SchemaDto =
         decoder.decodeStructure(descriptor) {
-            val supportedPlatforms = supportedPlatforms()
+            val globalSupportedPlatforms = globalSupportedPlatforms()
             val propertyDefinitionsDtos = propertyDefinitionsDtos()
 
-            propertyDefinitionsDtos.verify(supportedPlatforms)
+            propertyDefinitionsDtos.verify(globalSupportedPlatforms)
 
-            SchemaDto(supportedPlatforms = supportedPlatforms, propertyDefinitionsDtos = propertyDefinitionsDtos)
+            SchemaDto(
+                globalSupportedPlatforms = globalSupportedPlatforms,
+                propertyDefinitionsDtos = propertyDefinitionsDtos
+            )
         }
 
-    private fun CompositeDecoder.supportedPlatforms(): Set<PlatformType> {
+    private fun CompositeDecoder.globalSupportedPlatforms(): Set<PlatformType> {
         verifyAndAdvanceIndex(SUPPORTED_PLATFORMS_INDEX)
         return decodeSerializableElement(
             descriptor = descriptor,
@@ -73,14 +76,14 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
         if (index != targetIndex) throw SerializationException("Missing required fields at index $index")
     }
 
-    private fun Set<PropertyDefinitionDto>.verify(supportedPlatforms: Set<PlatformType>) {
-        verifySupportedPlatforms(supportedPlatforms)
+    private fun Set<PropertyDefinitionDto>.verify(globalSupportedPlatforms: Set<PlatformType>) {
+        verifySupportedPlatforms(globalSupportedPlatforms)
         verifyUnique()
     }
 
-    private fun Set<PropertyDefinitionDto>.verifySupportedPlatforms(supportedPlatforms: Set<PlatformType>) {
+    private fun Set<PropertyDefinitionDto>.verifySupportedPlatforms(globalSupportedPlatforms: Set<PlatformType>) {
         forEach { propertyDefinitionDto ->
-            if (propertyDefinitionDto.containsUnsupportedPlatforms(supportedPlatforms)) {
+            if (propertyDefinitionDto.containsUnsupportedPlatforms(globalSupportedPlatforms)) {
                 throw SerializationException(
                     "Property definition '${propertyDefinitionDto.name}' contains unsupported platform"
                 )
@@ -88,8 +91,8 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
         }
     }
 
-    private fun PropertyDefinitionDto.containsUnsupportedPlatforms(supportedPlatforms: Set<PlatformType>): Boolean =
-        !supportedPlatforms.containsAll(this.supportedPlatforms)
+    private fun PropertyDefinitionDto.containsUnsupportedPlatforms(globalSupportedPlatforms: Set<PlatformType>): Boolean =
+        !globalSupportedPlatforms.containsAll(this.supportedPlatforms)
 
     private fun Set<PropertyDefinitionDto>.verifyUnique() {
         val uniqueNames = distinctBy { propertyDefinitionDto -> propertyDefinitionDto.name }

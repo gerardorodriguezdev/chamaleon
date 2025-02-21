@@ -8,7 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.Environments
 
 @Suppress("ReturnCount")
 public data class Schema(
-    val supportedPlatforms: Set<PlatformType> = emptySet(),
+    val globalSupportedPlatforms: Set<PlatformType> = emptySet(),
     val propertyDefinitions: Set<PropertyDefinition> = emptySet(),
 ) {
     public data class PropertyDefinition(
@@ -20,10 +20,8 @@ public data class Schema(
         internal fun isValid(): Boolean = name.isNotEmpty()
     }
 
-    public fun isEmpty(): Boolean = propertyDefinitions.isEmpty() && supportedPlatforms.isEmpty()
-
-    public fun isValid(): ValidationResult {
-        if (supportedPlatforms.isEmpty()) return ValidationResult.EMPTY_SUPPORTED_PLATFORMS
+    internal fun isValid(): ValidationResult {
+        if (this@Schema.globalSupportedPlatforms.isEmpty()) return ValidationResult.EMPTY_SUPPORTED_PLATFORMS
         if (propertyDefinitions.isEmpty()) return ValidationResult.EMPTY_PROPERTY_DEFINITIONS
         if (propertyDefinitions.any { propertyDefinition -> !propertyDefinition.isValid() }) {
             return ValidationResult.INVALID_PROPERTY_DEFINITION
@@ -38,7 +36,7 @@ public data class Schema(
         return ValidationResult.VALID
     }
 
-    public enum class ValidationResult {
+    internal enum class ValidationResult {
         VALID,
         EMPTY_SUPPORTED_PLATFORMS,
         EMPTY_PROPERTY_DEFINITIONS,
@@ -46,7 +44,7 @@ public data class Schema(
         DUPLICATED_PROPERTY_DEFINITION,
     }
 
-    public fun environmentsValidationResults(environments: Set<Environment>): List<EnvironmentsValidationResult> =
+    internal fun environmentsValidationResults(environments: Set<Environment>): List<EnvironmentsValidationResult> =
         environments.map { environment ->
             val verifyEnvironmentContainsAllPlatformsResult = verifyEnvironmentContainsAllPlatforms(environment)
             if (verifyEnvironmentContainsAllPlatformsResult is Failure) {
@@ -77,7 +75,9 @@ public data class Schema(
     }
 
     private fun Schema.containsAll(platformTypes: List<PlatformType>): Boolean =
-        supportedPlatforms.size == platformTypes.size && supportedPlatforms.containsAll(platformTypes)
+        this@containsAll.globalSupportedPlatforms.size == platformTypes.size && this@containsAll.globalSupportedPlatforms.containsAll(
+            platformTypes
+        )
 
     private fun Schema.verifyPlatformContainsAllProperties(
         platform: Platform,
@@ -107,7 +107,7 @@ public data class Schema(
     }
 
     private fun Schema.isPlatformNotSupported(platform: Platform): Boolean =
-        platform.platformType !in supportedPlatforms
+        platform.platformType !in this@isPlatformNotSupported.globalSupportedPlatforms
 
     private fun Schema.verifyPropertyTypeIsCorrect(
         property: Property,

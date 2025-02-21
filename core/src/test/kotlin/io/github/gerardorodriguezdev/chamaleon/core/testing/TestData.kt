@@ -48,7 +48,7 @@ object TestData {
     )
 
     val schema = Schema(
-        supportedPlatforms = allPlatforms,
+        globalSupportedPlatforms = allPlatforms,
         propertyDefinitions = setOf(
             PropertyDefinition(
                 name = HOST_PROPERTY_NAME,
@@ -78,7 +78,7 @@ object TestData {
     )
 
     val schemaWithRestrictedPlatform = Schema(
-        supportedPlatforms = setOf(
+        globalSupportedPlatforms = setOf(
             ANDROID,
             JVM,
         ),

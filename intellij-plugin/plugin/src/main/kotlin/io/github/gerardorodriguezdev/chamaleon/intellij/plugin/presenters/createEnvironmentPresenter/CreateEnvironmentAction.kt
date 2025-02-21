@@ -2,9 +2,9 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.creat
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property.PropertyValue
 
-sealed interface CreateEnvironmentAction {
+internal sealed interface CreateEnvironmentAction {
     sealed interface DialogAction : CreateEnvironmentAction {
         data object OnPreviousButtonClicked : DialogAction
         data object OnNextButtonClicked : DialogAction
@@ -50,7 +50,7 @@ sealed interface CreateEnvironmentAction {
         data class OnPropertyValueChanged(
             val platformType: PlatformType,
             val index: Int,
-            val newValue: PropertyValue?
+            val newValue: PropertyValue,
         ) : SetupPropertiesAction
     }
 }

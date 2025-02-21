@@ -1,11 +1,13 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers
 
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnEnvironmentNameChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupSchemaAction.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
 
 internal fun CreateEnvironmentWindowAction.toCreateEnvironmentAction(): CreateEnvironmentAction =
     when (this) {
@@ -54,10 +56,26 @@ private fun SetupSchemaAction.toSetupSchemaAction(): CreateEnvironmentAction.Set
 
 private fun SetupPropertiesAction.toSetupPropertiesAction(): CreateEnvironmentAction.SetupPropertiesAction =
     when (this) {
-        is SetupPropertiesAction.OnPropertyValueChanged ->
+        is SetupPropertiesAction.OnPropertyValueChanged -> {
             CreateEnvironmentAction.SetupPropertiesAction.OnPropertyValueChanged(
                 platformType = platformType,
                 index = index,
-                newValue = newValue
+                newValue = newValue.toPropertyValue()
             )
+        }
+    }
+
+private fun CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue.toPropertyValue(): Platform.Property.PropertyValue =
+    when (this) {
+        is CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue.StringProperty -> Platform.Property.PropertyValue.StringProperty(
+            value
+        )
+
+        is CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue.BooleanProperty -> Platform.Property.PropertyValue.BooleanProperty(
+            value
+        )
+
+        is CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue.NullableBooleanProperty -> Platform.Property.PropertyValue.NullableBooleanProperty(
+            value
+        )
     }

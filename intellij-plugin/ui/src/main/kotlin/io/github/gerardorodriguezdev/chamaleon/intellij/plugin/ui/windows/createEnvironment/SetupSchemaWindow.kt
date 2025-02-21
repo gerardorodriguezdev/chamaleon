@@ -35,8 +35,8 @@ fun SetupSchemaWindow(
         modifier = modifier,
         toolbar = { Toolbar(title = state.title, forceLabelWidth = false) },
         content = {
-            supportedPlatformSection(
-                supportedPlatforms = state.supportedPlatforms,
+            globalSupportedPlatformSection(
+                globalSupportedPlatforms = state.globalSupportedPlatforms,
                 onSupportedPlatformChanged = { isChecked, newSupportedPlatform ->
                     onAction(OnSupportedPlatformChanged(isChecked, newSupportedPlatform))
                 },
@@ -64,8 +64,8 @@ fun SetupSchemaWindow(
     )
 }
 
-private fun LazyListScope.supportedPlatformSection(
-    supportedPlatforms: ImmutableList<PlatformType>,
+private fun LazyListScope.globalSupportedPlatformSection(
+    globalSupportedPlatforms: ImmutableList<PlatformType>,
     onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
     item {
@@ -75,7 +75,7 @@ private fun LazyListScope.supportedPlatformSection(
             forceLabelWidth = false,
         ) {
             SupportedPlatforms(
-                supportedPlatforms = supportedPlatforms,
+                supportedPlatforms = globalSupportedPlatforms,
                 onCheckedChanged = onSupportedPlatformChanged,
             )
         }

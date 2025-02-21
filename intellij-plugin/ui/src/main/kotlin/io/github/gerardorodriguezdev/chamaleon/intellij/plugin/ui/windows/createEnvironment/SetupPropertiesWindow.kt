@@ -10,11 +10,10 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction.OnPropertyValueChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.PropertyValue.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allBooleans
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allNullableBooleans
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue as EntityPropertyValue
 
 @Composable
 fun SetupPropertiesWindow(
@@ -111,7 +110,7 @@ private fun InputStringProperty(
                 OnPropertyValueChanged(
                     platformType = platformType,
                     index = index,
-                    newValue = StringProperty(newText).toEntityPropertyValue(),
+                    newValue = StringProperty(newText),
                 )
             )
         },
@@ -138,7 +137,7 @@ private fun InputBooleanProperty(
                             OnPropertyValueChanged(
                                 platformType = platformType,
                                 index = index,
-                                newValue = BooleanProperty(boolean).toEntityPropertyValue(),
+                                newValue = BooleanProperty(boolean),
                             )
                         )
                     }
@@ -168,7 +167,7 @@ private fun InputNullableBooleanProperty(
                             OnPropertyValueChanged(
                                 platformType = platformType,
                                 index = index,
-                                newValue = NullableBooleanProperty(nullableBoolean).toEntityPropertyValue(),
+                                newValue = NullableBooleanProperty(nullableBoolean),
                             )
                         )
                     }
@@ -177,13 +176,6 @@ private fun InputNullableBooleanProperty(
         }
     )
 }
-
-private fun PropertyValue.toEntityPropertyValue(): EntityPropertyValue? =
-    when (this) {
-        is StringProperty -> EntityPropertyValue.StringProperty(value)
-        is BooleanProperty -> EntityPropertyValue.BooleanProperty(value)
-        is NullableBooleanProperty -> value?.let { EntityPropertyValue.BooleanProperty(value) }
-    }
 
 private object SetupPropertiesConstants {
     val allBooleans = booleanArrayOf(true, false)

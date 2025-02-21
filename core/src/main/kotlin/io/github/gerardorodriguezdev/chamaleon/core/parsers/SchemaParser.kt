@@ -72,7 +72,7 @@ internal class DefaultSchemaParser : SchemaParser {
 
     private fun SchemaDto.toSchema(): Schema =
         Schema(
-            supportedPlatforms = this@toSchema.supportedPlatforms,
+            globalSupportedPlatforms = this@toSchema.globalSupportedPlatforms,
             propertyDefinitions = propertyDefinitionsDtos.toPropertyDefinitions(),
         )
 
@@ -88,7 +88,7 @@ internal class DefaultSchemaParser : SchemaParser {
 
     private fun Schema.toSchemaDto(): SchemaDto =
         SchemaDto(
-            supportedPlatforms = this@toSchemaDto.supportedPlatforms,
+            globalSupportedPlatforms = this@toSchemaDto.globalSupportedPlatforms,
             propertyDefinitionsDtos = propertyDefinitions.toPropertyDefinitionsDtos(),
         )
 

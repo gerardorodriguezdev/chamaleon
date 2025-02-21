@@ -11,7 +11,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable(with = SchemaDtoSerializer::class)
 internal data class SchemaDto(
-    val supportedPlatforms: Set<PlatformType>,
+    @SerialName("supportedPlatforms")
+    val globalSupportedPlatforms: Set<PlatformType>,
     @SerialName("propertyDefinitions")
     val propertyDefinitionsDtos: Set<PropertyDefinitionDto>,
 ) {
