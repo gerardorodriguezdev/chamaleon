@@ -43,6 +43,7 @@ object StringsKeys {
     val deletePropertyDefinition = StringKey("delete.property.definition")
     val noEnvironmentsFound = StringKey("no.environments.found")
     val errorAtEnvironmentsDirectories = StringKey("error.at.environments.directories")
+    val gradlePluginVersionUsed = StringKey("gradle.plugin.version.used")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)

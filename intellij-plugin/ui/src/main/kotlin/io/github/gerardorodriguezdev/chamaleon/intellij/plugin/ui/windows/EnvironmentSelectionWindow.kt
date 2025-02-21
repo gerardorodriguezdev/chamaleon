@@ -29,6 +29,7 @@ fun EnvironmentSelectionWindow(
         state.environmentCardStates.isEmpty() -> EmptyWindow()
         else -> ContentWindow(
             modifier = modifier,
+            gradlePluginVersionUsed = state.gradlePluginVersionUsed,
             notificationErrorMessage = state.notificationErrorMessage,
             environmentCardStates = state.environmentCardStates,
             onRefresh = onRefresh,
@@ -51,6 +52,7 @@ private fun EmptyWindow() {
 
 @Composable
 private fun ContentWindow(
+    gradlePluginVersionUsed: String,
     notificationErrorMessage: String?,
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefresh: () -> Unit,
@@ -82,6 +84,11 @@ private fun ContentWindow(
                             tooltip = notificationErrorMessage,
                         )
                     }
+
+                    TooltipIcon(
+                        iconKey = AllIconsKeys.General.Information,
+                        tooltip = "${string(StringsKeys.gradlePluginVersionUsed)} $gradlePluginVersionUsed",
+                    )
                 }
             )
         },
@@ -115,6 +122,7 @@ private fun LazyListScope.environmentCards(
 }
 
 data class EnvironmentSelectionState(
+    val gradlePluginVersionUsed: String,
     val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
     val isLoading: Boolean = false,
     val notificationErrorMessage: String? = null,

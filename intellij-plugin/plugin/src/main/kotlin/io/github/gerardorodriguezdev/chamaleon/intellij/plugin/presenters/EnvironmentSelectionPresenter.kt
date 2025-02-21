@@ -7,6 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.Versions
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
@@ -27,7 +28,8 @@ internal class EnvironmentSelectionPresenter(
     ioDispatcher: CoroutineContext,
     private val onEnvironmentsDirectoryChanged: (environmentsDirectory: File) -> Unit,
 ) : Disposable {
-    private val mutableState = mutableStateOf(EnvironmentSelectionState())
+    private val mutableState =
+        mutableStateOf(EnvironmentSelectionState(gradlePluginVersionUsed = Versions.GRADLE_PLUGIN))
     val state: State<EnvironmentSelectionState> = mutableState
 
     private val ioScope = CoroutineScope(ioDispatcher)
