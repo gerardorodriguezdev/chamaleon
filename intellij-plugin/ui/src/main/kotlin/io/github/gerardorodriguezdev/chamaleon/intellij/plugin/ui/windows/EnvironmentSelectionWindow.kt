@@ -1,14 +1,19 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
@@ -19,15 +24,26 @@ fun EnvironmentSelectionWindow(
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (state.isLoading) {
-        LoadingWindow(modifier = modifier)
-    } else {
-        ContentWindow(
+    when {
+        state.isLoading -> LoadingWindow(modifier = modifier)
+        state.environmentCardStates.isEmpty() -> EmptyWindow()
+        else -> ContentWindow(
             modifier = modifier,
             environmentCardStates = state.environmentCardStates,
             onRefresh = onRefresh,
             onCreateEnvironment = onCreateEnvironment,
             onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+        )
+    }
+}
+
+@Composable
+private fun EmptyWindow() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = string(StringsKeys.noEnvironmentsFound),
+            modifier = Modifier.align(Alignment.Center),
+            textAlign = TextAlign.Center
         )
     }
 }
