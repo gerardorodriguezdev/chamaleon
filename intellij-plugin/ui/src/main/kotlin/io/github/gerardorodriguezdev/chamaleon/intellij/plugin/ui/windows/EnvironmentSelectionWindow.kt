@@ -14,8 +14,8 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 @Composable
 fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionState,
-    onRefreshClicked: () -> Unit,
-    onCreateEnvironmentClicked: () -> Unit,
+    onRefresh: () -> Unit,
+    onCreateEnvironment: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -25,8 +25,8 @@ fun EnvironmentSelectionWindow(
         ContentWindow(
             modifier = modifier,
             environmentCardStates = state.environmentCardStates,
-            onRefreshClicked = onRefreshClicked,
-            onCreateEnvironmentClicked = onCreateEnvironmentClicked,
+            onRefresh = onRefresh,
+            onCreateEnvironment = onCreateEnvironment,
             onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
         )
     }
@@ -35,8 +35,8 @@ fun EnvironmentSelectionWindow(
 @Composable
 private fun ContentWindow(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
-    onRefreshClicked: () -> Unit,
-    onCreateEnvironmentClicked: () -> Unit,
+    onRefresh: () -> Unit,
+    onCreateEnvironment: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -49,13 +49,13 @@ private fun ContentWindow(
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.Refresh,
                         tooltip = string(StringsKeys.refreshEnvironments),
-                        onClick = onRefreshClicked,
+                        onClick = onRefresh,
                     )
 
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.AddFile,
                         tooltip = string(StringsKeys.createEnvironment),
-                        onClick = onCreateEnvironmentClicked,
+                        onClick = onCreateEnvironment,
                     )
                 }
             )

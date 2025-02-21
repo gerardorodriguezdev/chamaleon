@@ -48,7 +48,7 @@ internal class CreateEnvironmentPresenter(
     private fun CreateEnvironmentAction.SetupEnvironmentAction.handle() =
         when (this) {
             is CreateEnvironmentAction.SetupEnvironmentAction.OnInit -> process(projectDirectory)
-            is CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked -> handle()
+            is CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> handle()
             is CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
         }
 
@@ -144,19 +144,19 @@ internal class CreateEnvironmentPresenter(
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnDeletePropertyDefinition -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions {
-                        removeItemAt(index)
-                    }
-            }
-
             is CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions {
                         updatePropertyDefinition(index) {
                             copy(name = newName)
                         }
+                    }
+            }
+
+            is CreateEnvironmentAction.SetupSchemaAction.OnDeletePropertyDefinition -> {
+                mutableState = mutableState
+                    .updatePropertyDefinitions {
+                        removeItemAt(index)
                     }
             }
 
@@ -253,7 +253,7 @@ internal class CreateEnvironmentPresenter(
             supportedPlatforms = globalSupportedPlatforms,
         )
 
-    private fun CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked.handle() {
+    private fun CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPath.handle() {
         val environmentsDirectoryPath = onEnvironmentsDirectorySelected() ?: return
         val environmentsDirectory = File(environmentsDirectoryPath)
         process(environmentsDirectory)
@@ -361,5 +361,5 @@ private fun CreateEnvironmentState.propertiesForPlatform(platformType: PlatformT
 
 private fun Set<PropertyDefinition>.removeItemAt(index: Int): Set<PropertyDefinition> =
     mapIndexedNotNull { currentIndex, item ->
-        if (index == currentIndex) item else null
+        if (index == currentIndex) null else item
     }.toSet()

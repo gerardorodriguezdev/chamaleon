@@ -11,7 +11,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnEnvironmentNameChanged
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupEnvironmentState
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
@@ -40,7 +40,7 @@ fun SetupEnvironmentWindow(
                             TooltipIconButton(
                                 iconKey = AllIconsKeys.Actions.NewFolder,
                                 tooltip = string(StringsKeys.selectEnvironmentsDirectoryLocation),
-                                onClick = { onAction(OnSelectEnvironmentPathClicked) }
+                                onClick = { onAction(OnSelectEnvironmentPath) }
                             )
 
                             state.environmentsDirectoryPathField.verification?.let {

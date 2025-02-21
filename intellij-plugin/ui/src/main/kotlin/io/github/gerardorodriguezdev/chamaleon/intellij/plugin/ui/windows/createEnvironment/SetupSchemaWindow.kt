@@ -1,13 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
@@ -44,11 +42,14 @@ fun SetupSchemaWindow(
 
             propertyDefinitionsSection(
                 propertyDefinitions = state.propertyDefinitions,
-                onAddPropertyDefinitionClicked = {
-                    onAction(OnAddPropertyDefinitionClicked)
+                onAddPropertyDefinition = {
+                    onAction(OnAddPropertyDefinition)
                 },
                 onPropertyNameChanged = { index, newName ->
                     onAction(OnPropertyNameChanged(index, newName))
+                },
+                onDeletePropertyDefinition = { index ->
+                    onAction(OnDeletePropertyDefinition(index))
                 },
                 onPropertyTypeChanged = { index, newPropertyType ->
                     onAction(OnPropertyTypeChanged(index, newPropertyType))
@@ -86,20 +87,22 @@ private fun LazyListScope.globalSupportedPlatformSection(
 @Suppress("LongParameterList")
 private fun LazyListScope.propertyDefinitionsSection(
     propertyDefinitions: ImmutableList<PropertyDefinition>,
-    onAddPropertyDefinitionClicked: () -> Unit,
+    onAddPropertyDefinition: () -> Unit,
     onPropertyNameChanged: (index: Int, newName: String) -> Unit,
+    onDeletePropertyDefinition: (index: Int) -> Unit,
     onPropertyTypeChanged: (index: Int, newPropertyType: PropertyType) -> Unit,
     onNullableChanged: (index: Int, newValue: Boolean) -> Unit,
     onSupportedPlatformChanged: (index: Int, isChecked: Boolean, platformType: PlatformType) -> Unit,
 ) {
     stickyHeader {
-        PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked = onAddPropertyDefinitionClicked)
+        PropertyDefinitionSectionTitle(onAddPropertyDefinition = onAddPropertyDefinition)
     }
 
     itemsIndexed(propertyDefinitions) { index, propertyDefinition ->
         PropertyDefinitionSectionCard(
             propertyDefinition = propertyDefinition,
             onPropertyNameChanged = { newName -> onPropertyNameChanged(index, newName) },
+            onDeletePropertyDefinition = { onDeletePropertyDefinition(index) },
             onPropertyTypeChanged = { newPropertyType -> onPropertyTypeChanged(index, newPropertyType) },
             onNullableChanged = { newValue -> onNullableChanged(index, newValue) },
             onSupportedPlatformChanged = { isChecked, newPlatformType ->
@@ -114,14 +117,14 @@ private fun LazyListScope.propertyDefinitionsSection(
 }
 
 @Composable
-private fun PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked: () -> Unit) {
+private fun PropertyDefinitionSectionTitle(onAddPropertyDefinition: () -> Unit) {
     Section(
         title = string(StringsKeys.propertyDefinitions),
         titleTrailingIcon = {
             TooltipIconButton(
                 iconKey = AllIconsKeys.General.Add,
                 tooltip = string(StringsKeys.addPropertyDefinitions),
-                onClick = onAddPropertyDefinitionClicked,
+                onClick = onAddPropertyDefinition,
             )
         },
         forceLabelWidth = true,
@@ -133,21 +136,35 @@ private fun PropertyDefinitionSectionTitle(onAddPropertyDefinitionClicked: () ->
 private fun PropertyDefinitionSectionCard(
     propertyDefinition: PropertyDefinition,
     onPropertyNameChanged: (newName: String) -> Unit,
+    onDeletePropertyDefinition: () -> Unit,
     onPropertyTypeChanged: (newPropertyType: PropertyType) -> Unit,
     onNullableChanged: (newValue: Boolean) -> Unit,
     onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
     Section(enableDivider = true) {
-        InputTextField(
-            label = string(StringsKeys.propertyName),
-            value = propertyDefinition.nameField.value,
-            onValueChange = onPropertyNameChanged,
-            trailingIcon = {
-                propertyDefinition.nameField.verification?.let {
-                    VerificationIcon(verification = propertyDefinition.nameField.verification)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            InputTextField(
+                modifier = Modifier.weight(1f),
+                label = string(StringsKeys.propertyName),
+                value = propertyDefinition.nameField.value,
+                onValueChange = onPropertyNameChanged,
+                trailingIcon = {
+                    propertyDefinition.nameField.verification?.let {
+                        VerificationIcon(verification = propertyDefinition.nameField.verification)
+                    }
                 }
-            }
-        )
+            )
+
+            TooltipIconButton(
+                iconKey = AllIconsKeys.Actions.Close,
+                tooltip = string(StringsKeys.deletePropertyDefinition),
+                onClick = onDeletePropertyDefinition,
+            )
+        }
 
         InputTextDropdown(
             label = string(StringsKeys.propertyType),

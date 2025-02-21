@@ -40,6 +40,7 @@ object StringsKeys {
     val environmentNameEmpty = StringKey("environment.name.empty")
     val environmentNameIsDuplicated = StringKey("environment.name.is.duplicated")
     val propertyNameIsEmpty = StringKey("property.name.is.empty")
+    val deletePropertyDefinition = StringKey("delete.property.definition")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)

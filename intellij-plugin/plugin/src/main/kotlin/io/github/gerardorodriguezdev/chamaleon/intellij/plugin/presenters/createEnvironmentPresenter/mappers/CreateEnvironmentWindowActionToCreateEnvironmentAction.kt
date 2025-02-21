@@ -5,7 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnEnvironmentNameChanged
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupSchemaAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
 
@@ -18,8 +18,8 @@ internal fun CreateEnvironmentWindowAction.toCreateEnvironmentAction(): CreateEn
 
 private fun SetupEnvironmentAction.toSetupEnvironmentAction(): CreateEnvironmentAction.SetupEnvironmentAction =
     when (this) {
-        is OnSelectEnvironmentPathClicked ->
-            CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPathClicked
+        is OnSelectEnvironmentPath ->
+            CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPath
 
         is OnEnvironmentNameChanged ->
             CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged(newName = newName)
@@ -33,10 +33,12 @@ private fun SetupSchemaAction.toSetupSchemaAction(): CreateEnvironmentAction.Set
                 newPlatformType = newPlatformType
             )
 
-        is OnAddPropertyDefinitionClicked -> CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinition
+        is OnAddPropertyDefinition -> CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinition
 
         is OnPropertyNameChanged ->
             CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged(index = index, newName = newName)
+
+        is OnDeletePropertyDefinition -> CreateEnvironmentAction.SetupSchemaAction.OnDeletePropertyDefinition(index)
 
         is OnPropertyTypeChanged -> CreateEnvironmentAction.SetupSchemaAction.OnPropertyTypeChanged(
             index = index,

@@ -87,7 +87,7 @@ sealed interface CreateEnvironmentWindowState {
 
 sealed interface CreateEnvironmentWindowAction {
     sealed interface SetupEnvironmentAction : CreateEnvironmentWindowAction {
-        data object OnSelectEnvironmentPathClicked : SetupEnvironmentAction
+        data object OnSelectEnvironmentPath : SetupEnvironmentAction
         data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
     }
 
@@ -96,7 +96,8 @@ sealed interface CreateEnvironmentWindowAction {
             val isChecked: Boolean, val newPlatformType: PlatformType
         ) : SetupSchemaAction
 
-        data object OnAddPropertyDefinitionClicked : SetupSchemaAction
+        data object OnAddPropertyDefinition : SetupSchemaAction
+        data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
         data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupSchemaAction
         data class OnPropertyTypeChanged(val index: Int, val newPropertyType: PropertyType) : SetupSchemaAction
         data class OnNullableChanged(val index: Int, val newValue: Boolean) : SetupSchemaAction

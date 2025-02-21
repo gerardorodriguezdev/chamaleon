@@ -41,10 +41,10 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                 Theme {
                     EnvironmentSelectionWindow(
                         state = environmentSelectionPresenter.state.value,
-                        onRefreshClicked = {
+                        onRefresh = {
                             project.scanProject()
                         },
-                        onCreateEnvironmentClicked = {
+                        onCreateEnvironment = {
                             val projectDirectoryPath = project.basePath ?: return@EnvironmentSelectionWindow
 
                             EnvironmentCreationDialog(

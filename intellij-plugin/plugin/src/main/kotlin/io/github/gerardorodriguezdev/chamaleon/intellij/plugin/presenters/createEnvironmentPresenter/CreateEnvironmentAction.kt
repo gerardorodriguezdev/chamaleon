@@ -13,7 +13,7 @@ internal sealed interface CreateEnvironmentAction {
 
     sealed interface SetupEnvironmentAction : CreateEnvironmentAction {
         data object OnInit : SetupEnvironmentAction
-        data object OnSelectEnvironmentPathClicked : SetupEnvironmentAction
+        data object OnSelectEnvironmentPath : SetupEnvironmentAction
         data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
     }
 
@@ -24,11 +24,13 @@ internal sealed interface CreateEnvironmentAction {
         ) : SetupSchemaAction
 
         data object OnAddPropertyDefinition : SetupSchemaAction
-        data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
+
         data class OnPropertyNameChanged(
             val index: Int,
             val newName: String,
         ) : SetupSchemaAction
+
+        data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
 
         data class OnPropertyTypeChanged(
             val index: Int,
