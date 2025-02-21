@@ -189,6 +189,7 @@ private fun SupportedPlatforms(
     onCheckedChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit
 ) {
     FlowRow(
+        verticalArrangement = Arrangement.Center,
         horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
         modifier = Modifier.fillMaxWidth(),
     ) {

@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.labelSpacing
 
 @Composable
 internal fun InputContainer(
@@ -17,7 +17,7 @@ internal fun InputContainer(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
+        horizontalArrangement = Arrangement.spacedBy(labelSpacing),
         modifier = modifier,
     ) {
         Label(label = label, forceLabelWidth = forceLabelWidth)
