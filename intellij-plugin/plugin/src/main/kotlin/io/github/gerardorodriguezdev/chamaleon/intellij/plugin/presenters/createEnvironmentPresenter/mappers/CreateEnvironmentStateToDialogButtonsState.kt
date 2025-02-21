@@ -32,11 +32,9 @@ private fun CreateEnvironmentState.isNextButtonEnabled(): Boolean =
     }
 
 private fun Set<PropertyDefinition>.areValid(globalSupportedPlatforms: Set<PlatformType>): Boolean =
-    !any {
-        !isNotEmpty() &&
-                !areNotDuplicated() &&
-                !any { propertyDefinition -> !propertyDefinition.isValid(globalSupportedPlatforms) }
-    }
+    isNotEmpty() &&
+            areNotDuplicated() &&
+            areAllValuesValid { propertyDefinition -> propertyDefinition.isValid(globalSupportedPlatforms) }
 
 private fun Set<PropertyDefinition>.areNotDuplicated(): Boolean =
     distinctBy { propertyDefinition -> propertyDefinition.name }.size == size
@@ -54,13 +52,13 @@ private fun CreateEnvironmentState.isFinishButtonEnabled(): Boolean =
     }
 
 private fun Set<Platform>.arePlatformsValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
-    !any { platform ->
-        !platform.properties.areUnique() &&
-                !platform.properties.areValuesValid(propertyDefinitions)
+    areAllValuesValid { platform ->
+        platform.properties.areUnique() &&
+                platform.properties.areValuesValid(propertyDefinitions)
     }
 
 private fun Set<Property>.areValuesValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
-    any { property -> !property.isValueValid(propertyDefinitions) }
+    areAllValuesValid { property -> property.isValueValid(propertyDefinitions) }
 
 private fun Property.isValueValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
     when (value) {
@@ -82,3 +80,6 @@ private fun Set<Property>.areUnique(): Boolean =
     distinctBy { property -> property.name }.size == size
 
 private fun EnvironmentsDirectoryProcessResult.isValid(): Boolean = this is EnvironmentsDirectoryProcessResult.Success
+
+private fun <T> Set<T>.areAllValuesValid(validationCondition: (item: T) -> Boolean): Boolean =
+    firstOrNull { item -> !validationCondition(item) } == null
