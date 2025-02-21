@@ -58,8 +58,9 @@ internal class DefaultEnvironmentsProcessor(
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         coroutineScope {
+            val environmentsDirectoryPath = environmentsDirectory.path
             if (!environmentsDirectory.exists()) {
-                return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectory.path)
+                return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectoryPath)
             }
 
             val filesParserResult = parseFiles(environmentsDirectory)
@@ -68,11 +69,12 @@ internal class DefaultEnvironmentsProcessor(
             }
 
             val (schema, environments, selectedEnvironmentName) = filesParserResult.successValue()
-            val environmentsVerificationResult = verifyEnvironments(schema, environments, selectedEnvironmentName)
+            val environmentsVerificationResult =
+                verifyEnvironments(environmentsDirectoryPath, schema, environments, selectedEnvironmentName)
             if (environmentsVerificationResult is Failure) return@coroutineScope environmentsVerificationResult
 
             return@coroutineScope Success(
-                environmentsDirectoryPath = environmentsDirectory.path,
+                environmentsDirectoryPath = environmentsDirectoryPath,
                 selectedEnvironmentName = selectedEnvironmentName,
                 environments = environments,
                 schema = schema,
@@ -112,21 +114,23 @@ internal class DefaultEnvironmentsProcessor(
     @Suppress("ReturnCount")
     private suspend fun parseFiles(environmentsDirectory: File): Result<FilesParserResult, Failure> =
         coroutineScope {
+            val environmentsDirectoryPath = environmentsDirectory.path
+
             val schemaParsing = async {
                 val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
                 val schemaParserResult = schemaParser.schemaParserResult(schemaFile)
-                schemaParserResult.schemaOrFailure()
+                schemaParserResult.schemaOrFailure(environmentsDirectoryPath)
             }
 
             val environmentsParsing = async {
                 val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
-                environmentsParserResult.environmentsOrFailure()
+                environmentsParserResult.environmentsOrFailure(environmentsDirectoryPath)
             }
 
             val propertiesParsing = async {
                 val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
                 val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
-                propertiesParserResult.selectedEnvironmentNameOrFailure()
+                propertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath)
             }
 
             val schemaParserResult = schemaParsing.await()
@@ -150,34 +154,37 @@ internal class DefaultEnvironmentsProcessor(
             ).toSuccess()
         }
 
-    private fun SchemaParserResult.schemaOrFailure(): Result<Schema, Failure> =
+    private fun SchemaParserResult.schemaOrFailure(
+        environmentsDirectoryPath: String,
+    ): Result<Schema, Failure> =
         when (this) {
             is SchemaParserResult.Success -> schema.toSuccess()
-            is SchemaParserResult.Failure -> SchemaParsingError(this).toFailure()
+            is SchemaParserResult.Failure -> SchemaParsingError(environmentsDirectoryPath, this).toFailure()
         }
 
-    private fun EnvironmentsParserResult.environmentsOrFailure(): Result<Set<Environment>, Failure> =
+    private fun EnvironmentsParserResult.environmentsOrFailure(environmentsDirectoryPath: String): Result<Set<Environment>, Failure> =
         when (this) {
             is EnvironmentsParserResult.Success -> environments.toSuccess()
-            is EnvironmentsParserResult.Failure -> EnvironmentsParsingError(this).toFailure()
+            is EnvironmentsParserResult.Failure -> EnvironmentsParsingError(environmentsDirectoryPath, this).toFailure()
         }
 
-    private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(): Result<String?, Failure> =
+    private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath: String): Result<String?, Failure> =
         when (this) {
             is PropertiesParserResult.Success -> selectedEnvironmentName.toSuccess()
-            is PropertiesParserResult.Failure -> PropertiesParsingError(this).toFailure()
+            is PropertiesParserResult.Failure -> PropertiesParsingError(environmentsDirectoryPath, this).toFailure()
         }
 
     @Suppress("ReturnCount")
     private suspend fun verifyEnvironments(
+        environmentsDirectoryPath: String,
         schema: Schema,
         environments: Set<Environment>,
         selectedEnvironmentName: String?,
     ): Failure? =
         coroutineScope {
-            val schemaVerification = async { schema.verifyEnvironments(environments) }
+            val schemaVerification = async { schema.verifyEnvironments(environmentsDirectoryPath, environments) }
             val selectedEnvironmentNameVerification =
-                async { selectedEnvironmentName?.verifyEnvironments(environments) }
+                async { selectedEnvironmentName?.verifyEnvironments(environmentsDirectoryPath, environments) }
 
             val schemaVerificationResult = schemaVerification.await()
             val selectedEnvironmentVerificationResult = selectedEnvironmentNameVerification.await()
@@ -190,34 +197,40 @@ internal class DefaultEnvironmentsProcessor(
             return@coroutineScope null
         }
 
-    private fun Schema.verifyEnvironments(environments: Set<Environment>): Failure? {
+    private fun Schema.verifyEnvironments(environmentsDirectoryPath: String, environments: Set<Environment>): Failure? {
         val environmentsValidationResult = environmentsValidationResults(environments)
         val failureEnvironmentValidationResult =
             environmentsValidationResult.filterIsInstance<Schema.EnvironmentsValidationResult.Failure>()
-        return failureEnvironmentValidationResult.firstOrNull().toFailure()
+        return failureEnvironmentValidationResult.firstOrNull().toFailure(environmentsDirectoryPath)
     }
 
-    private fun Schema.EnvironmentsValidationResult.Failure?.toFailure(): Failure? =
+    private fun Schema.EnvironmentsValidationResult.Failure?.toFailure(environmentsDirectoryPath: String): Failure? =
         when (this) {
             null -> null
             is Schema.EnvironmentsValidationResult.Failure.NullPropertyNotNullableOnSchema ->
                 NullPropertyNotNullableOnSchema(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
                     propertyName = propertyName,
                     platformType = platformType,
                     environmentName = environmentName,
                 )
 
             is Schema.EnvironmentsValidationResult.Failure.PlatformsNotEqualToSchema ->
-                PlatformsNotEqualToSchema(environmentName = environmentName)
+                PlatformsNotEqualToSchema(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
+                    environmentName = environmentName
+                )
 
             is Schema.EnvironmentsValidationResult.Failure.PropertiesNotEqualToSchema ->
                 PropertiesNotEqualToSchema(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
                     environmentName = environmentName,
                     platformType = platformType,
                 )
 
             is Schema.EnvironmentsValidationResult.Failure.PropertyTypeNotMatchSchema ->
                 PropertyTypeNotMatchSchema(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
                     environmentName = environmentName,
                     platformType = platformType,
                     propertyName = propertyName,
@@ -225,9 +238,13 @@ internal class DefaultEnvironmentsProcessor(
                 )
         }
 
-    private fun String.verifyEnvironments(environments: Set<Environment>): Failure? =
+    private fun String.verifyEnvironments(
+        environmentsDirectoryPath: String,
+        environments: Set<Environment>
+    ): Failure? =
         if (!environments.any { environment -> environment.name == this }) {
             SelectedEnvironmentInvalid(
+                environmentsDirectoryPath = environmentsDirectoryPath,
                 selectedEnvironmentName = this,
                 environmentNames = environments.joinToString { environment -> environment.name }
             )

@@ -7,6 +7,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionState
 import kotlinx.collections.immutable.ImmutableList
@@ -19,6 +21,7 @@ import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 internal class EnvironmentSelectionPresenter(
+    private val stringsProvider: StringsProvider,
     private val environmentsProcessor: EnvironmentsProcessor,
     private val uiDispatcher: CoroutineContext,
     ioDispatcher: CoroutineContext,
@@ -37,15 +40,30 @@ internal class EnvironmentSelectionPresenter(
         ioScope
             .launch {
                 val environmentsProcessorResults = environmentsProcessor.processRecursively(projectDirectory)
+                val notificationErrorMessage = environmentsProcessorResults.toNotificationErrorMessage()
                 val environmentCardStates = environmentsProcessorResults.toEnvironmentCardStates(projectDirectory)
 
                 withContext(uiDispatcher) {
                     mutableState.value = mutableState.value.copy(
+                        notificationErrorMessage = notificationErrorMessage,
                         environmentCardStates = environmentCardStates,
                         isLoading = false,
                     )
                 }
             }
+    }
+
+    private fun List<EnvironmentsProcessorResult>.toNotificationErrorMessage(): String? {
+        val environmentsDirectoryPathsWithErrors =
+            filterIsInstance<EnvironmentsProcessorResult.Failure>().map { failure -> failure.environmentsDirectoryPath }
+        if (environmentsDirectoryPathsWithErrors.isEmpty()) return null
+        return buildString {
+            appendLine(stringsProvider.string(StringsKeys.errorAtEnvironmentsDirectories))
+
+            environmentsDirectoryPathsWithErrors.forEach { environmentsDirectoryPath ->
+                appendLine("- $environmentsDirectoryPath")
+            }
+        }
     }
 
     private fun List<EnvironmentsProcessorResult>.toEnvironmentCardStates(

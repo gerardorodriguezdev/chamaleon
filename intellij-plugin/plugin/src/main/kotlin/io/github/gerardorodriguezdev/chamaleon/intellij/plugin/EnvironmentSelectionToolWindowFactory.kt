@@ -10,6 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.Enviro
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.stringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.swing.Swing
@@ -21,6 +22,7 @@ import java.io.File
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val environmentsProcessor = EnvironmentsProcessor.create()
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
+        stringsProvider = stringsProvider,
         environmentsProcessor = environmentsProcessor,
         uiDispatcher = Dispatchers.Swing,
         ioDispatcher = Dispatchers.IO,

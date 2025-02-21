@@ -29,6 +29,7 @@ fun EnvironmentSelectionWindow(
         state.environmentCardStates.isEmpty() -> EmptyWindow()
         else -> ContentWindow(
             modifier = modifier,
+            notificationErrorMessage = state.notificationErrorMessage,
             environmentCardStates = state.environmentCardStates,
             onRefresh = onRefresh,
             onCreateEnvironment = onCreateEnvironment,
@@ -50,6 +51,7 @@ private fun EmptyWindow() {
 
 @Composable
 private fun ContentWindow(
+    notificationErrorMessage: String?,
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefresh: () -> Unit,
     onCreateEnvironment: () -> Unit,
@@ -73,6 +75,13 @@ private fun ContentWindow(
                         tooltip = string(StringsKeys.createEnvironment),
                         onClick = onCreateEnvironment,
                     )
+
+                    notificationErrorMessage?.let {
+                        TooltipIcon(
+                            iconKey = AllIconsKeys.Nodes.ErrorIntroduction,
+                            tooltip = notificationErrorMessage,
+                        )
+                    }
                 }
             )
         },
@@ -108,4 +117,5 @@ private fun LazyListScope.environmentCards(
 data class EnvironmentSelectionState(
     val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
     val isLoading: Boolean = false,
+    val notificationErrorMessage: String? = null,
 )

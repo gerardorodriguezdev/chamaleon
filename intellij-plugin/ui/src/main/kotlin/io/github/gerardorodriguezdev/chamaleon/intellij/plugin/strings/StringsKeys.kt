@@ -42,6 +42,7 @@ object StringsKeys {
     val propertyNameIsEmpty = StringKey("property.name.is.empty")
     val deletePropertyDefinition = StringKey("delete.property.definition")
     val noEnvironmentsFound = StringKey("no.environments.found")
+    val errorAtEnvironmentsDirectories = StringKey("error.at.environments.directories")
 
     @JvmInline
     value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)

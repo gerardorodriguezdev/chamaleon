@@ -14,25 +14,40 @@ public sealed interface EnvironmentsProcessorResult {
     ) : EnvironmentsProcessorResult
 
     public sealed interface Failure : EnvironmentsProcessorResult {
-        public data class EnvironmentsDirectoryNotFound(val environmentsDirectoryPath: String) : Failure
+        public val environmentsDirectoryPath: String
 
-        public data class SchemaParsingError(val schemaParsingError: SchemaParserResult.Failure) : Failure
+        public data class EnvironmentsDirectoryNotFound(
+            override val environmentsDirectoryPath: String
+        ) : Failure
+
+        public data class SchemaParsingError(
+            override val environmentsDirectoryPath: String,
+            val schemaParsingError: SchemaParserResult.Failure
+        ) : Failure
 
         public data class PropertiesParsingError(
+            override val environmentsDirectoryPath: String,
             val propertiesParsingError: PropertiesParserResult.Failure
         ) : Failure
 
         public data class EnvironmentsParsingError(
+            override val environmentsDirectoryPath: String,
             val environmentsParsingError: EnvironmentsParserResult.Failure,
         ) : Failure
 
-        public data class PlatformsNotEqualToSchema(val environmentName: String) : Failure
+        public data class PlatformsNotEqualToSchema(
+            override val environmentsDirectoryPath: String,
+            val environmentName: String
+        ) : Failure
+
         public data class PropertiesNotEqualToSchema(
+            override val environmentsDirectoryPath: String,
             val platformType: PlatformType,
             val environmentName: String
         ) : Failure
 
         public data class PropertyTypeNotMatchSchema(
+            override val environmentsDirectoryPath: String,
             val propertyName: String,
             val platformType: PlatformType,
             val environmentName: String,
@@ -40,12 +55,14 @@ public sealed interface EnvironmentsProcessorResult {
         ) : Failure
 
         public data class NullPropertyNotNullableOnSchema(
+            override val environmentsDirectoryPath: String,
             val propertyName: String,
             val platformType: PlatformType,
             val environmentName: String,
         ) : Failure
 
         public data class SelectedEnvironmentInvalid(
+            override val environmentsDirectoryPath: String,
             val selectedEnvironmentName: String,
             val environmentNames: String
         ) : Failure
