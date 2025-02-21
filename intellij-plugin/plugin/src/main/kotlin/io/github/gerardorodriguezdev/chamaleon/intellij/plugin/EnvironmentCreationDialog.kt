@@ -7,8 +7,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.toSize
+import com.intellij.codeInspection.ex.GlobalInspectionContextImpl.NOTIFICATION_GROUP
+import com.intellij.notification.NotificationType
+import com.intellij.notification.Notifications
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
@@ -27,10 +33,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTh
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupEnvironmentState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
@@ -51,7 +54,9 @@ internal class EnvironmentCreationDialog(
         projectDirectory = projectDirectory,
         setupEnvironmentHandler = DefaultSetupEnvironmentHandler(projectDirectory, environmentsProcessor),
         onEnvironmentsDirectorySelected = { selectFileDirectory(project) },
-        onFinishButtonClicked = {}
+        onFinishButtonClicked = {
+            generateEnvironments(project)
+        }
     )
 
     private val createEnvironmentWindowState = mutableStateOf<CreateEnvironmentWindowState>(SetupEnvironmentState())
@@ -111,6 +116,53 @@ internal class EnvironmentCreationDialog(
             null
         )
         return selectedDirectory?.path
+    }
+
+    //TODO: Refactor
+    private fun generateEnvironments(project: Project) {
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Running Background Task", true) {
+            override fun run(indicator: ProgressIndicator) {
+                runBlocking {
+                    withContext(Dispatchers.Default) {
+                        try {
+                            for (i in 0..100) {
+                                if (indicator.isCanceled) {
+                                    break
+                                }
+                                indicator.fraction = i.toDouble() / 100
+                                delay(50)
+                            }
+                            withContext(Dispatchers.Main) {
+                                showNotification(
+                                    project,
+                                    "Task Completed",
+                                    "The background task has finished.",
+                                    NotificationType.INFORMATION
+                                )
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                showNotification(
+                                    project,
+                                    "Task Failed",
+                                    "The background task failed: ${e.message}",
+                                    NotificationType.ERROR
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    private fun showNotification(project: Project?, title: String, message: String, type: NotificationType) {
+        val notification = NOTIFICATION_GROUP.createNotification(
+            title = title,
+            content = message,
+            type = type
+        )
+        Notifications.Bus.notify(notification, project)
     }
 
     private companion object {
