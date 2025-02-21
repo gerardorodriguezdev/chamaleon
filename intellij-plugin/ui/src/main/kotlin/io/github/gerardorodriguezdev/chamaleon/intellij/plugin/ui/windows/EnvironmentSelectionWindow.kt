@@ -123,7 +123,7 @@ private fun LazyListScope.environmentCards(
 
 data class EnvironmentSelectionState(
     val gradlePluginVersionUsed: String,
-    val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val notificationErrorMessage: String? = null,
+    val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),
 )

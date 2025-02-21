@@ -14,10 +14,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.Env
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -29,17 +26,21 @@ internal class EnvironmentSelectionPresenter(
     private val onEnvironmentsDirectoryChanged: (environmentsDirectory: File) -> Unit,
 ) : Disposable {
     private val mutableState =
-        mutableStateOf(EnvironmentSelectionState(gradlePluginVersionUsed = Versions.GRADLE_PLUGIN))
+        mutableStateOf(
+            EnvironmentSelectionState(gradlePluginVersionUsed = Versions.GRADLE_PLUGIN)
+        )
     val state: State<EnvironmentSelectionState> = mutableState
 
     private val ioScope = CoroutineScope(ioDispatcher)
+    private var scanProjectJob: Job? = null
+    private var updateSelectedEnvironmentJob: Job? = null
 
     fun scanProject(projectDirectory: File) {
-        if (mutableState.value.isLoading) return
+        scanProjectJob?.cancel()
 
         mutableState.value = mutableState.value.copy(isLoading = true)
 
-        ioScope
+        scanProjectJob = ioScope
             .launch {
                 val environmentsProcessorResults = environmentsProcessor.processRecursively(projectDirectory)
                 val notificationErrorMessage = environmentsProcessorResults.toNotificationErrorMessage()
@@ -89,7 +90,9 @@ internal class EnvironmentSelectionPresenter(
         environmentsDirectoryPath: String,
         newSelectedEnvironment: String?
     ) {
-        ioScope
+        updateSelectedEnvironmentJob?.cancel()
+
+        updateSelectedEnvironmentJob = ioScope
             .launch {
                 val environmentsDirectory = File(projectDirectory.path + environmentsDirectoryPath)
 
