@@ -27,7 +27,7 @@ private fun ValidIcon() {
 @Composable
 private fun InvalidIcon(invalidVerification: Verification.Invalid) {
     TooltipIcon(
-        iconKey = AllIconsKeys.RunConfigurations.InvalidConfigurationLayer,
+        iconKey = AllIconsKeys.Nodes.ErrorIntroduction,
         tooltip = invalidVerification.reason,
     )
 }
