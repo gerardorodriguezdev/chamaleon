@@ -137,10 +137,17 @@ internal class CreateEnvironmentPresenter(
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked -> {
+            is CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinition -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions { globalSupportedPlatforms ->
                         this + emptyPropertyDefinition(globalSupportedPlatforms)
+                    }
+            }
+
+            is CreateEnvironmentAction.SetupSchemaAction.OnDeletePropertyDefinition -> {
+                mutableState = mutableState
+                    .updatePropertyDefinitions {
+                        removeItemAt(index)
                     }
             }
 
@@ -351,3 +358,8 @@ private fun CreateEnvironmentState.propertiesForPlatform(platformType: PlatformT
     propertyDefinitions.filter { propertyDefinition ->
         propertyDefinition.supportedPlatforms.contains(platformType)
     }
+
+private fun Set<PropertyDefinition>.removeItemAt(index: Int): Set<PropertyDefinition> =
+    mapIndexedNotNull { currentIndex, item ->
+        if (index == currentIndex) item else null
+    }.toSet()

@@ -33,7 +33,7 @@ private fun SetupSchemaAction.toSetupSchemaAction(): CreateEnvironmentAction.Set
                 newPlatformType = newPlatformType
             )
 
-        is OnAddPropertyDefinitionClicked -> CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinitionClicked
+        is OnAddPropertyDefinitionClicked -> CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinition
 
         is OnPropertyNameChanged ->
             CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged(index = index, newName = newName)

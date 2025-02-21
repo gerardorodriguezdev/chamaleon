@@ -23,7 +23,8 @@ internal sealed interface CreateEnvironmentAction {
             val newPlatformType: PlatformType
         ) : SetupSchemaAction
 
-        data object OnAddPropertyDefinitionClicked : SetupSchemaAction
+        data object OnAddPropertyDefinition : SetupSchemaAction
+        data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
         data class OnPropertyNameChanged(
             val index: Int,
             val newName: String,
