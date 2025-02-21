@@ -67,7 +67,10 @@ internal class CreateEnvironmentPresenter(
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
                                 environmentsNames = sideEffect.environments.environmentNames(),
                                 globalSupportedPlatforms = sideEffect.schema.globalSupportedPlatforms,
-                                propertyDefinitions = sideEffect.schema.propertyDefinitions.toPropertyDefinitions()
+                                propertyDefinitions = sideEffect.schema.propertyDefinitions.toPropertyDefinitions(),
+                                allowUpdatingSchema =
+                                    sideEffect.schema.globalSupportedPlatforms.isEmpty() &&
+                                            sideEffect.schema.propertyDefinitions.isEmpty()
                             )
                         }
 
@@ -116,6 +119,8 @@ internal class CreateEnvironmentPresenter(
         }.toSet()
 
     private fun CreateEnvironmentAction.SetupSchemaAction.handle() {
+        if (!mutableState.allowUpdatingSchema) return
+
         when (this) {
             is CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
                 mutableState = mutableState
@@ -275,7 +280,21 @@ internal class CreateEnvironmentPresenter(
     private fun CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked.handle() {
         when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> Unit
-            Step.SETUP_SCHEMA -> mutableState = mutableState.copy(step = Step.SETUP_ENVIRONMENT)
+            Step.SETUP_SCHEMA ->
+                mutableState = mutableState.copy(
+                    step = Step.SETUP_ENVIRONMENT,
+                    globalSupportedPlatforms = if (mutableState.allowUpdatingSchema) {
+                        emptySet()
+                    } else {
+                        mutableState.globalSupportedPlatforms
+                    },
+                    propertyDefinitions = if (mutableState.allowUpdatingSchema) {
+                        emptySet()
+                    } else {
+                        mutableState.propertyDefinitions
+                    },
+                )
+
             Step.SETUP_PROPERTIES ->
                 mutableState = mutableState.copy(
                     step = Step.SETUP_SCHEMA,

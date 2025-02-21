@@ -10,6 +10,7 @@ internal data class CreateEnvironmentState(
     val environmentName: String = "",
     val environmentsNames: Set<String> = emptySet(),
 
+    val allowUpdatingSchema: Boolean = false,
     val globalSupportedPlatforms: Set<PlatformType> = emptySet(),
     val propertyDefinitions: Set<PropertyDefinition> = emptySet(),
 

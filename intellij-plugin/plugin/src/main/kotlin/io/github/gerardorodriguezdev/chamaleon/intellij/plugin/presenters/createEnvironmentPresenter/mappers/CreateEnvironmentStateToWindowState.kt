@@ -77,7 +77,7 @@ private fun CreateEnvironmentState.toTitle(stringsProvider: StringsProvider): St
     if (globalSupportedPlatforms.isEmpty() && propertyDefinitions.isEmpty()) {
         stringsProvider.string(StringsKeys.createTemplate)
     } else {
-        stringsProvider.string(StringsKeys.updateTemplate)
+        stringsProvider.string(StringsKeys.selectedTemplate)
     }
 
 private fun Set<PropertyDefinition>.toPropertyDefinitions(stringsProvider: StringsProvider): ImmutableList<SetupSchemaState.PropertyDefinition> =
