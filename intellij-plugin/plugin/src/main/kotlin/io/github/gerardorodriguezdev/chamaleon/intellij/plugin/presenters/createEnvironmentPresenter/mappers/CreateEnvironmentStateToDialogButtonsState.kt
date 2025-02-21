@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog.DialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property
 
 internal fun CreateEnvironmentState.toDialogButtonsState(): DialogButtonsState =
     DialogButtonsState(
@@ -33,11 +34,11 @@ private fun CreateEnvironmentState.isNextButtonEnabled(): Boolean =
 private fun Set<PropertyDefinition>.areValid(globalSupportedPlatforms: Set<PlatformType>): Boolean =
     !any {
         !isNotEmpty() &&
-                !areUnique() &&
+                !areNotDuplicated() &&
                 !any { propertyDefinition -> !propertyDefinition.isValid(globalSupportedPlatforms) }
     }
 
-private fun Set<PropertyDefinition>.areUnique(): Boolean =
+private fun Set<PropertyDefinition>.areNotDuplicated(): Boolean =
     distinctBy { propertyDefinition -> propertyDefinition.name }.size == size
 
 private fun PropertyDefinition.isValid(globalSupportedPlatforms: Set<PlatformType>): Boolean =
@@ -58,18 +59,18 @@ private fun Set<Platform>.arePlatformsValid(propertyDefinitions: Set<PropertyDef
                 !platform.properties.areValuesValid(propertyDefinitions)
     }
 
-private fun Set<Platform.Property>.areValuesValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
+private fun Set<Property>.areValuesValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
     any { property -> !property.isValueValid(propertyDefinitions) }
 
-private fun Platform.Property.isValueValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
+private fun Property.isValueValid(propertyDefinitions: Set<PropertyDefinition>): Boolean =
     when (value) {
-        is Platform.Property.PropertyValue.StringProperty -> {
+        is Property.PropertyValue.StringProperty -> {
             val propertyDefinition = propertyDefinitions.propertyDefinition(name)
             if (propertyDefinition.nullable) true else value.value.isNotEmpty()
         }
 
-        is Platform.Property.PropertyValue.BooleanProperty -> true
-        is Platform.Property.PropertyValue.NullableBooleanProperty -> true
+        is Property.PropertyValue.BooleanProperty -> true
+        is Property.PropertyValue.NullableBooleanProperty -> true
     }
 
 private fun Set<PropertyDefinition>.propertyDefinition(name: String): PropertyDefinition =
@@ -77,7 +78,7 @@ private fun Set<PropertyDefinition>.propertyDefinition(name: String): PropertyDe
         propertyDefinition.name == name
     }
 
-private fun Set<Platform.Property>.areUnique(): Boolean =
+private fun Set<Property>.areUnique(): Boolean =
     distinctBy { property -> property.name }.size == size
 
 private fun EnvironmentsDirectoryProcessResult.isValid(): Boolean = this is EnvironmentsDirectoryProcessResult.Success
