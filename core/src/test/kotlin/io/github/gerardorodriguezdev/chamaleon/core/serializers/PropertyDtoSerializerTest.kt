@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
-class PropertySerializerTest {
+class PropertyDtoSerializerTest {
     @Nested
     inner class Serialize {
         @Test
