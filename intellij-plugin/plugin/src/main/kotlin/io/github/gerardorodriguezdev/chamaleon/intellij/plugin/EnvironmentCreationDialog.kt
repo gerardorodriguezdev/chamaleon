@@ -16,16 +16,19 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.DefaultSetupEnvironmentHandler
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toCreateEnvironmentAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toDialogButtonsState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.toWindowState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
@@ -33,7 +36,10 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTh
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupEnvironmentState
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
@@ -44,7 +50,7 @@ import javax.swing.JComponent
 internal class EnvironmentCreationDialog(
     project: Project,
     projectDirectory: File,
-    environmentsProcessor: EnvironmentsProcessor,
+    private val environmentsProcessor: EnvironmentsProcessor,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
     private val uiScope = CoroutineScope(Dispatchers.Swing)
 
@@ -54,8 +60,8 @@ internal class EnvironmentCreationDialog(
         projectDirectory = projectDirectory,
         setupEnvironmentHandler = DefaultSetupEnvironmentHandler(projectDirectory, environmentsProcessor),
         onEnvironmentsDirectorySelected = { selectFileDirectory(project) },
-        onFinishButtonClicked = {
-            generateEnvironments(project)
+        onFinishButtonClicked = { createEnvironmentState ->
+            createEnvironmentState.generateEnvironments(project)
         }
     )
 
@@ -119,50 +125,104 @@ internal class EnvironmentCreationDialog(
     }
 
     //TODO: Refactor
-    private fun generateEnvironments(project: Project) {
-        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Running Background Task", true) {
-            override fun run(indicator: ProgressIndicator) {
-                runBlocking {
-                    withContext(Dispatchers.Default) {
-                        try {
-                            for (i in 0..100) {
-                                if (indicator.isCanceled) {
-                                    break
-                                }
-                                indicator.fraction = i.toDouble() / 100
-                                delay(50)
-                            }
-                            withContext(Dispatchers.Main) {
-                                showNotification(
-                                    project,
-                                    "Task Completed",
-                                    "The background task has finished.",
-                                    NotificationType.INFORMATION
-                                )
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                showNotification(
-                                    project,
-                                    "Task Failed",
-                                    "The background task failed: ${e.message}",
-                                    NotificationType.ERROR
-                                )
-                            }
-                        }
-                    }
-                }
+    //TODO: Manage errors
+    //TODO: Review isCanceled
+    //TODO: If error cleanup
+    private fun CreateEnvironmentState.generateEnvironments(project: Project) {
+        project.backgroundTask(
+            taskName = string(StringsKeys.generateEnvironment)
+        ) { indicator ->
+            indicator.fraction = 1.0
+
+            //TODO: More resilient
+            val environmentsDirectory = File(project.basePath + environmentsDirectoryPath)
+            if (!environmentsDirectory.exists()) {
+                environmentsDirectory.mkdirs()
             }
-        })
+
+            val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
+            val addSchemaResult = environmentsProcessor.addSchema(
+                schemaFile = schemaFile,
+                newSchema = toSchema(),
+            )
+            if (addSchemaResult is AddSchemaResult.Failure) {
+                //TODO: Remove
+                println(addSchemaResult)
+
+                project.showFailureNotification()
+                indicator.cancel()
+                return@backgroundTask
+            }
+            indicator.fraction = 50.0
+
+            val addEnvironmentsResult = environmentsProcessor.addEnvironments(
+                environmentsDirectory = environmentsDirectory,
+                environments = setOf(toEnvironment())
+            )
+            if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
+                //TODO: Remove
+                println(addEnvironmentsResult)
+
+                project.showFailureNotification()
+                indicator.cancel()
+            }
+            indicator.fraction = 100.0
+
+            project.showSuccessNotification(environmentsDirectory)
+        }
     }
 
-    private fun showNotification(project: Project?, title: String, message: String, type: NotificationType) {
+    private fun Project.backgroundTask(
+        taskName: String,
+        task: (indicator: ProgressIndicator) -> Unit
+    ) {
+        ProgressManager.getInstance().run(
+            object : Task.Backgroundable(this, taskName, true) {
+                override fun run(indicator: ProgressIndicator) {
+                    task(indicator)
+                }
+            }
+        )
+    }
+
+    //TODO: Lexemes
+    private fun Project.showSuccessNotification(environmentsDirectory: File) {
+        showNotification(
+            title = "Title",
+            message = "Successful",
+            type = NotificationType.INFORMATION,
+        )
+
+        environmentsDirectory.onEnvironmentsDirectoryChanged()
+        //TODO: Notify plugin to update files as well
+    }
+
+    //TODO: Lexemes
+    //TODO: All errors notified ok
+    private fun Project.showFailureNotification() {
+        showNotification(
+            title = "Title",
+            message = "Error environment",
+            type = NotificationType.ERROR,
+        )
+    }
+
+    private fun Project.showNotification(
+        title: String,
+        message: String,
+        type: NotificationType,
+    ) {
         val notification = NOTIFICATION_GROUP.createNotification(
             title = title,
             content = message,
             type = type
         )
-        Notifications.Bus.notify(notification, project)
+        Notifications.Bus.notify(notification, this)
+    }
+
+    //TODO: Global extension
+    private fun File.onEnvironmentsDirectoryChanged() {
+        VfsUtil.markDirtyAndRefresh(true, true, true, this)
     }
 
     private companion object {

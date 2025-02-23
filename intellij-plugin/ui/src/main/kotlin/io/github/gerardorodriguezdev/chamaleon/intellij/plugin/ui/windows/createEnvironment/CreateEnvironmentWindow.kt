@@ -68,7 +68,11 @@ sealed interface CreateEnvironmentWindowState {
                 val value: PropertyValue,
             ) {
                 sealed class PropertyValue {
-                    data class StringProperty(val value: String) : PropertyValue() {
+                    data class StringProperty(val valueField: Field<String>) : PropertyValue() {
+                        override fun toString(): String = valueField.value.toString()
+                    }
+
+                    data class NullableStringProperty(val value: String) : PropertyValue() {
                         override fun toString(): String = value.toString()
                     }
 
@@ -93,7 +97,8 @@ sealed interface CreateEnvironmentWindowAction {
 
     sealed interface SetupSchemaAction : CreateEnvironmentWindowAction {
         data class OnSupportedPlatformChanged(
-            val isChecked: Boolean, val newPlatformType: PlatformType
+            val isChecked: Boolean,
+            val newPlatformType: PlatformType,
         ) : SetupSchemaAction
 
         data object OnAddPropertyDefinition : SetupSchemaAction

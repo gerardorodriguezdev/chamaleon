@@ -1,13 +1,16 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.FileIsEmpty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult.Failure.Serialization
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Failure.FileIsEmpty
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Failure.Serialization
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.LOCAL_ENVIRONMENT_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData.PRODUCTION_ENVIRONMENT_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentFileNameExtractor
+import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentFileNameMatcher
+import io.github.gerardorodriguezdev.chamaleon.core.testing.fakes.FakeEnvironmentNameExtractor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -18,10 +21,9 @@ class DefaultEnvironmentsParserTest {
     @TempDir
     lateinit var environmentsDirectory: File
 
-    private var environmentFileMatcher: (environmentFile: File) -> Boolean = { _ -> true }
-    private var environmentNameExtractor: (environmentFile: File) -> String = { _ -> LOCAL_ENVIRONMENT_NAME }
-    private var environmentFileNameExtractor: (environmentName: String) -> String =
-        { environmentName -> environmentName }
+    private val environmentFileMatcher = FakeEnvironmentFileNameMatcher()
+    private val environmentNameExtractor = FakeEnvironmentNameExtractor()
+    private var environmentFileNameExtractor = FakeEnvironmentFileNameExtractor()
 
     private val defaultEnvironmentsParser by lazy {
         DefaultEnvironmentsParser(
@@ -33,7 +35,7 @@ class DefaultEnvironmentsParserTest {
 
     @Test
     fun `GIVEN file not found WHEN environmentsParserResult THEN returns empty set`() {
-        environmentFileMatcher = { false }
+        environmentFileMatcher.environmentFileMatchResult = false
         val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = emptySet())
 
         val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
@@ -74,7 +76,7 @@ class DefaultEnvironmentsParserTest {
     fun `GIVEN environmentsDirectory not found WHEN addEnvironments THEN returns error`() {
         val result = defaultEnvironmentsParser.addEnvironments(
             environmentsDirectory = environmentsDirectory,
-            environments = emptySet(),
+            newEnvironments = emptySet(),
         )
 
         assertIs<AddEnvironmentsResult.Failure.EmptyEnvironments>(result)
@@ -86,7 +88,7 @@ class DefaultEnvironmentsParserTest {
 
         val addEnvironmentsResult = defaultEnvironmentsParser.addEnvironments(
             environmentsDirectory = environmentsDirectory,
-            environments = setOf(
+            newEnvironments = setOf(
                 Environment(
                     name = ENVIRONMENT_FILE_NAME,
                     platforms = setOf(TestData.jvmPlatform),
@@ -101,7 +103,7 @@ class DefaultEnvironmentsParserTest {
     fun `GIVEN environments WHEN addEnvironments THEN returns success`() {
         val addEnvironmentsResult = defaultEnvironmentsParser.addEnvironments(
             environmentsDirectory = environmentsDirectory,
-            environments = setOf(
+            newEnvironments = setOf(
                 TestData.environment,
                 TestData.environment.copy(name = "production"),
             ),

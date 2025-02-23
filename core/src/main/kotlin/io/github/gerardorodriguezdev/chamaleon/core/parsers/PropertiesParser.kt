@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddOrUpdateSelectedEnvironmentResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -16,7 +16,7 @@ public interface PropertiesParser {
 }
 
 internal class DefaultPropertiesParser : PropertiesParser {
-    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         return try {
             if (!propertiesFile.exists()) return PropertiesParserResult.Success()
@@ -28,34 +28,39 @@ internal class DefaultPropertiesParser : PropertiesParser {
 
             return PropertiesParserResult.Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
         } catch (error: Exception) {
-            PropertiesParserResult.Failure.Serialization(error)
+            PropertiesParserResult.Failure.Serialization(propertiesFilePath = propertiesFile.path, throwable = error)
         }
     }
 
-    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun addOrUpdateSelectedEnvironment(
         propertiesFile: File,
         newSelectedEnvironment: String?,
     ): AddOrUpdateSelectedEnvironmentResult {
         return try {
             if (propertiesFile.isDirectory) {
-                return AddOrUpdateSelectedEnvironmentResult.Failure.InvalidFile(propertiesFile.path)
-            }
-            if (!propertiesFile.exists()) {
-                propertiesFile.createNewFile()
-            }
-            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty()) {
-                return AddOrUpdateSelectedEnvironmentResult.Failure.EnvironmentNameIsEmpty(propertiesFile.path)
-            }
-            val propertiesDto =
-                PropertiesDto(
-                    selectedEnvironmentName = newSelectedEnvironment
+                return AddOrUpdateSelectedEnvironmentResult.Failure.InvalidFile(
+                    propertiesFilePath = propertiesFile.path,
                 )
+            }
+
+            if (!propertiesFile.exists()) propertiesFile.createNewFile()
+
+            if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty()) {
+                return AddOrUpdateSelectedEnvironmentResult.Failure.EnvironmentNameIsEmpty(
+                    propertiesFilePath = propertiesFile.path,
+                )
+            }
+
+            val propertiesDto = PropertiesDto(newSelectedEnvironment)
             val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
+
             return AddOrUpdateSelectedEnvironmentResult.Success
         } catch (error: Exception) {
-            return AddOrUpdateSelectedEnvironmentResult.Failure.Serialization(error)
+            return AddOrUpdateSelectedEnvironmentResult.Failure.Serialization(
+                propertiesFilePath = propertiesFile.path,
+                throwable = error
+            )
         }
     }
 }

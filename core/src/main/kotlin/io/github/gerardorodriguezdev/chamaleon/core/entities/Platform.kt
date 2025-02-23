@@ -3,7 +3,6 @@ package io.github.gerardorodriguezdev.chamaleon.core.entities
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
 
-@Suppress("ReturnCount")
 public data class Platform(
     val platformType: PlatformType,
     val properties: Set<Property>,
@@ -35,22 +34,5 @@ public data class Platform(
     public data class Property(
         val name: String,
         val value: PropertyValue?,
-    ) {
-        internal fun isValid(): Boolean {
-            if (name.isEmpty()) return false
-            if (value == null) return true
-            if (!value.isValid()) return false
-            return true
-        }
-    }
-
-    internal fun isValid(): Boolean {
-        if (properties.any { property -> !property.isValid() }) return false
-
-        val uniqueProperties = properties.distinctBy { property -> property.name }
-        val containsDuplicateProperties = uniqueProperties.size != properties.size
-        if (containsDuplicateProperties) return false
-
-        return true
-    }
+    )
 }

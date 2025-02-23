@@ -4,9 +4,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.*
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -46,8 +46,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private fun Project.environmentsProcessorResult(): EnvironmentsProcessorResult {
+        val environmentsDirectory = environmentsDirectory()
         return runBlocking {
-            val environmentsDirectory = environmentsDirectory()
             environmentsProcessor.process(environmentsDirectory.asFile)
         }
     }
@@ -80,49 +80,49 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
             is Failure.PropertiesParsingError -> propertiesParsingError.toErrorMessage()
 
-            is Failure.PlatformsNotEqualToSchema ->
+            is Failure.EnvironmentMissingPlatforms ->
                 "Platforms of environment '$environmentName' are not equal to schema"
 
-            is Failure.PropertiesNotEqualToSchema ->
+            is Failure.PropertyNotEqualToPropertyDefinition ->
                 "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
 
-            is Failure.PropertyTypeNotMatchSchema ->
+            is Failure.PropertyTypeNotEqualToPropertyDefinition ->
                 "Value of property '$propertyName' for platform '$platformType' " +
                         "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
 
-            is Failure.NullPropertyNotNullableOnSchema ->
+            is Failure.NullPropertyNotNullable ->
                 "Value on property '$propertyName' for platform '$platformType' on environment " +
                         "'$environmentName' was null and is not marked as nullable on schema"
 
-            is Failure.SelectedEnvironmentInvalid ->
+            is Failure.SelectedEnvironmentNotFound ->
                 "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
                         "[$environmentNames]"
         }
 
     private fun SchemaParserResult.Failure.toErrorMessage(): String =
         when (this) {
-            is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '$path'"
-            is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '$path' is empty"
+            is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '$schemaFilePath'"
+            is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '$schemaFilePath' is empty"
             is SchemaParserResult.Failure.Serialization ->
                 "Schema parsing failed with error '${throwable.message}'"
 
             is SchemaParserResult.Failure.EmptySupportedPlatforms ->
-                "'$SCHEMA_FILE' on '$path' has empty supported platforms"
+                "'$SCHEMA_FILE' on '$schemaFilePath' has empty supported platforms"
 
             is SchemaParserResult.Failure.EmptyPropertyDefinitions ->
-                "'$SCHEMA_FILE' on '$path' has empty property definitions"
+                "'$SCHEMA_FILE' on '$schemaFilePath' has empty property definitions"
 
             is SchemaParserResult.Failure.InvalidPropertyDefinition ->
-                "'$SCHEMA_FILE' on '$path' contains invalid property definitions"
+                "'$SCHEMA_FILE' on '$schemaFilePath' contains invalid property definitions"
 
             is SchemaParserResult.Failure.DuplicatedPropertyDefinition ->
-                "'$SCHEMA_FILE' on '$path' contains duplicated property definitions"
+                "'$SCHEMA_FILE' on '$schemaFilePath' contains duplicated property definitions"
         }
 
     private fun EnvironmentsParserResult.Failure.toErrorMessage(): String =
         when (this) {
-            is EnvironmentsParserResult.Failure.FileIsEmpty -> "Environments file on '$path' is empty"
-            is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$path'"
+            is EnvironmentsParserResult.Failure.FileIsEmpty -> "Environments file on '$environmentsDirectoryPath' is empty"
+            is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$environmentsDirectoryPath'"
             is EnvironmentsParserResult.Failure.Serialization ->
                 "Environment parsing failed with error '${throwable.message}'"
         }

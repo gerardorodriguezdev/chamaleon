@@ -66,10 +66,10 @@ internal class CreateEnvironmentPresenter(
                                 environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
                                 environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
                                 environmentsNames = sideEffect.environments.environmentNames(),
-                                globalSupportedPlatforms = sideEffect.schema.globalSupportedPlatforms,
+                                globalSupportedPlatforms = sideEffect.schema.globalSupportedPlatformTypes,
                                 propertyDefinitions = sideEffect.schema.propertyDefinitions.toPropertyDefinitions(),
                                 allowUpdatingSchema =
-                                    sideEffect.schema.globalSupportedPlatforms.isEmpty() &&
+                                    sideEffect.schema.globalSupportedPlatformTypes.isEmpty() &&
                                             sideEffect.schema.propertyDefinitions.isEmpty()
                             )
                         }
@@ -114,7 +114,7 @@ internal class CreateEnvironmentPresenter(
                 name = propertyDefinition.name,
                 propertyType = propertyDefinition.propertyType,
                 nullable = propertyDefinition.nullable,
-                supportedPlatforms = propertyDefinition.supportedPlatforms,
+                supportedPlatforms = propertyDefinition.supportedPlatformTypes,
             )
         }.toSet()
 

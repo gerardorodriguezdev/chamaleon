@@ -1,9 +1,11 @@
-package io.github.gerardorodriguezdev.chamaleon.core.entities.results
+package io.github.gerardorodriguezdev.chamaleon.core.results
 
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
 
 public sealed interface EnvironmentsProcessorResult {
     public data class Success(
@@ -14,55 +16,67 @@ public sealed interface EnvironmentsProcessorResult {
     ) : EnvironmentsProcessorResult
 
     public sealed interface Failure : EnvironmentsProcessorResult {
-        public val environmentsDirectoryPath: String
-
         public data class EnvironmentsDirectoryNotFound(
-            override val environmentsDirectoryPath: String
+            val environmentsDirectoryPath: String
+        ) : Failure
+
+        public data class InvalidEnvironmentsDirectory(
+            val environmentsDirectoryPath: String
         ) : Failure
 
         public data class SchemaParsingError(
-            override val environmentsDirectoryPath: String,
+            val environmentsDirectoryPath: String,
             val schemaParsingError: SchemaParserResult.Failure
         ) : Failure
 
         public data class PropertiesParsingError(
-            override val environmentsDirectoryPath: String,
+            val environmentsDirectoryPath: String,
             val propertiesParsingError: PropertiesParserResult.Failure
         ) : Failure
 
         public data class EnvironmentsParsingError(
-            override val environmentsDirectoryPath: String,
             val environmentsParsingError: EnvironmentsParserResult.Failure,
         ) : Failure
 
-        public data class PlatformsNotEqualToSchema(
-            override val environmentsDirectoryPath: String,
-            val environmentName: String
+        public data class EnvironmentMissingPlatforms(
+            val environmentsDirectoryPath: String,
+            val environmentName: String,
+            val schemaPlatformTypes: Set<PlatformType>,
+            val environmentPlatformTypes: Set<PlatformType>,
         ) : Failure
 
-        public data class PropertiesNotEqualToSchema(
-            override val environmentsDirectoryPath: String,
+        public data class PlatformMissingProperties(
+            val environmentsDirectoryPath: String,
+            val environmentName: String,
             val platformType: PlatformType,
-            val environmentName: String
+            val schemaPropertyDefinitions: Set<PropertyDefinition>,
+            val platformProperties: Set<Property>,
         ) : Failure
 
-        public data class PropertyTypeNotMatchSchema(
-            override val environmentsDirectoryPath: String,
+        public data class PropertyNotEqualToPropertyDefinition(
+            val environmentsDirectoryPath: String,
+            val platformType: PlatformType,
+            val environmentName: String,
+            val propertyName: String,
+        ) : Failure
+
+        public data class PropertyTypeNotEqualToPropertyDefinition(
+            val environmentsDirectoryPath: String,
             val propertyName: String,
             val platformType: PlatformType,
             val environmentName: String,
             val propertyType: PropertyType,
         ) : Failure
 
-        public data class NullPropertyNotNullableOnSchema(
-            override val environmentsDirectoryPath: String,
+        public data class NullPropertyNotNullable(
+            val environmentsDirectoryPath: String,
             val propertyName: String,
             val platformType: PlatformType,
             val environmentName: String,
         ) : Failure
 
-        public data class SelectedEnvironmentInvalid(
-            override val environmentsDirectoryPath: String,
+        public data class SelectedEnvironmentNotFound(
+            val environmentsDirectoryPath: String,
             val selectedEnvironmentName: String,
             val environmentNames: String
         ) : Failure

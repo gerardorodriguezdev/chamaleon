@@ -1,5 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.testing
 
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
@@ -18,8 +19,11 @@ object TestData {
     const val IS_DEBUG_PROPERTY_NAME = "IS_DEBUG"
     const val IS_PRODUCTION_PROPERTY_NAME = "IS_PRODUCTION"
     const val DOMAIN = "www.domain.com"
+    val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME)
+    val productionEnvironmentFileName =
+        EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME)
 
-    val allPlatforms = setOf(
+    val allPlatformsTypes = setOf(
         ANDROID,
         WASM,
         JS,
@@ -48,37 +52,37 @@ object TestData {
     )
 
     val schema = Schema(
-        globalSupportedPlatforms = allPlatforms,
+        globalSupportedPlatformTypes = allPlatformsTypes,
         propertyDefinitions = setOf(
             PropertyDefinition(
                 name = HOST_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = true,
-                supportedPlatforms = emptySet(),
+                supportedPlatformTypes = emptySet(),
             ),
             PropertyDefinition(
                 name = DOMAIN_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = false,
-                supportedPlatforms = emptySet(),
+                supportedPlatformTypes = emptySet(),
             ),
             PropertyDefinition(
                 name = IS_DEBUG_PROPERTY_NAME,
                 propertyType = PropertyType.BOOLEAN,
                 nullable = true,
-                supportedPlatforms = emptySet(),
+                supportedPlatformTypes = emptySet(),
             ),
             PropertyDefinition(
                 name = IS_PRODUCTION_PROPERTY_NAME,
                 propertyType = PropertyType.BOOLEAN,
                 nullable = false,
-                supportedPlatforms = emptySet(),
+                supportedPlatformTypes = emptySet(),
             )
         )
     )
 
-    val schemaWithRestrictedPlatform = Schema(
-        globalSupportedPlatforms = setOf(
+    val schemaWithRestrictedPlatformTypes = Schema(
+        globalSupportedPlatformTypes = setOf(
             ANDROID,
             JVM,
         ),
@@ -87,13 +91,13 @@ object TestData {
                 name = HOST_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = true,
-                supportedPlatforms = setOf(ANDROID)
+                supportedPlatformTypes = setOf(ANDROID)
             ),
             PropertyDefinition(
                 name = DOMAIN_PROPERTY_NAME,
                 propertyType = PropertyType.STRING,
                 nullable = false,
-                supportedPlatforms = emptySet(),
+                supportedPlatformTypes = emptySet(),
             ),
         )
     )

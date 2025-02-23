@@ -20,7 +20,7 @@ internal class SchemaDtoSerializerTest {
     inner class Serialize {
         @Test
         fun `GIVEN empty supported platforms WHEN serialize THEN throws error`() {
-            val schemaDto = SchemaDto(globalSupportedPlatforms = emptySet(), propertyDefinitionsDtos = emptySet())
+            val schemaDto = SchemaDto(globalSupportedPlatformTypes = emptySet(), propertyDefinitionsDtos = emptySet())
 
             assertThrows<SerializationException> {
                 Json.encodeToJsonElement(schemaDto)
@@ -30,7 +30,10 @@ internal class SchemaDtoSerializerTest {
         @Test
         fun `GIVEN empty property definitions dtos WHEN serialize THEN throws error`() {
             val schemaDto =
-                SchemaDto(globalSupportedPlatforms = TestData.allPlatforms, propertyDefinitionsDtos = emptySet())
+                SchemaDto(
+                    globalSupportedPlatformTypes = TestData.allPlatformsTypes,
+                    propertyDefinitionsDtos = emptySet()
+                )
 
             assertThrows<SerializationException> {
                 Json.encodeToJsonElement(schemaDto)
@@ -40,12 +43,12 @@ internal class SchemaDtoSerializerTest {
         @Test
         fun `GIVEN property definitions dtos with unsupported platforms WHEN serialize THEN throws error`() {
             val schemaDto = SchemaDto(
-                globalSupportedPlatforms = setOf(PlatformType.ANDROID),
+                globalSupportedPlatformTypes = setOf(PlatformType.ANDROID),
                 propertyDefinitionsDtos = setOf(
                     PropertyDefinitionDto(
                         name = HOST_PROPERTY_NAME,
                         propertyType = PropertyType.STRING,
-                        supportedPlatforms = setOf(PlatformType.JVM),
+                        supportedPlatformTypes = setOf(PlatformType.JVM),
                     )
                 ),
             )
@@ -58,7 +61,7 @@ internal class SchemaDtoSerializerTest {
         @Test
         fun `GIVEN property definitions dtos with empty name WHEN serialize THEN throws error`() {
             val schemaDto = SchemaDto(
-                globalSupportedPlatforms = setOf(PlatformType.ANDROID),
+                globalSupportedPlatformTypes = setOf(PlatformType.ANDROID),
                 propertyDefinitionsDtos = setOf(
                     PropertyDefinitionDto(
                         name = "",
@@ -75,7 +78,7 @@ internal class SchemaDtoSerializerTest {
         @Test
         fun `GIVEN duplicated property definitions dtos WHEN serialize THEN throws error`() {
             val schemaDto = SchemaDto(
-                globalSupportedPlatforms = setOf(PlatformType.ANDROID),
+                globalSupportedPlatformTypes = setOf(PlatformType.ANDROID),
                 propertyDefinitionsDtos = setOf(
                     PropertyDefinitionDto(
                         name = HOST_PROPERTY_NAME,
@@ -94,7 +97,6 @@ internal class SchemaDtoSerializerTest {
         }
 
         @Test
-        @Suppress("MaximumLineLength", "MaxLineLength")
         fun `GIVEN valid schema dto WHEN serialize THEN returns json`() {
             //language=json
             val expectedJson =
@@ -246,13 +248,13 @@ internal class SchemaDtoSerializerTest {
 
     companion object {
         val validSchemaDto = SchemaDto(
-            globalSupportedPlatforms = setOf(PlatformType.ANDROID, PlatformType.JVM),
+            globalSupportedPlatformTypes = setOf(PlatformType.ANDROID, PlatformType.JVM),
             propertyDefinitionsDtos = setOf(
                 PropertyDefinitionDto(
                     name = HOST_PROPERTY_NAME,
                     propertyType = PropertyType.STRING,
                     nullable = true,
-                    supportedPlatforms = setOf(PlatformType.JVM),
+                    supportedPlatformTypes = setOf(PlatformType.JVM),
                 )
             )
         )

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kmp.serialization)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.kmp.binary.compability.validator)
+    alias(libs.plugins.kmp.ksp)
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"
@@ -23,6 +24,10 @@ kotlin {
     dependencies {
         implementation(libs.kmp.serialization)
         implementation(libs.kmp.coroutines)
+        implementation(libs.kmp.arrow.core)
+        implementation(libs.kmp.arrow.optics)
+
+        ksp(libs.kmp.arrow.optics.plugin)
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)

@@ -1,9 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.PropertiesParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddOrUpdateSelectedEnvironmentResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.io.TempDir
 import java.io.File

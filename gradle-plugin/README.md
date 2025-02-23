@@ -39,7 +39,7 @@ You can see a sample on [Sample Gradle Project](../samples/gradle-project)
 ### 3. Use your environments properties on your module's `build.gradle.kts` file
 
 ```kotlin
-val myPropertyValue = chamaleon.selectedEnvironment().jvmPlatform().propertyStringValue("YourPropertyName")
+val myPropertyValue = chamaleon.selectedEnvironment().jvmPlatform.propertyStringValue("YourPropertyName")
 
 // When building the project, this should print `YourPropertyValueForLocalEnvironment`
 println(myPropertyValue)
@@ -168,7 +168,7 @@ tasks.named<JavaExec>("run") {
     val selectedEnvironment = chamaleon.selectedEnvironment()
 
     // Iterate through all jvm platform properties
-    selectedEnvironment.jvmPlatform().properties.forEach { property ->
+    selectedEnvironment.jvmPlatform.properties.forEach { property ->
 
         // Add each property to the jvm environment when running the server with the `run` task
         environment(property.name, property.value.toString())

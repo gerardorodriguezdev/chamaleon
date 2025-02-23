@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddOrUpdateSelectedEnvironmentResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.FakeEnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.TestData

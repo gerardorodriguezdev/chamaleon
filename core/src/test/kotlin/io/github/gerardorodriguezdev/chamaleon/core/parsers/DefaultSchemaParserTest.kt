@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.SchemaParserResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -43,8 +43,8 @@ class DefaultSchemaParserTest {
     }
 
     @Test
-    fun `GIVEN empty supported platforms WHEN schemaParserResult THEN returns failure`() {
-        createSchemaFile(emptySupportedPlatformsSchema)
+    fun `GIVEN empty supported platform types WHEN schemaParserResult THEN returns failure`() {
+        createSchemaFile(emptySupportedPlatformTypesSchema)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -89,9 +89,9 @@ class DefaultSchemaParserTest {
     }
 
     @Test
-    fun `GIVEN valid schema file with supported platforms WHEN schemaParserResult THEN returns schemaDto`() {
-        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.schemaWithRestrictedPlatform)
-        createSchemaFile(validSchemaWithRestrictedPlatforms)
+    fun `GIVEN valid schema file with supported platform types WHEN schemaParserResult THEN returns schemaDto`() {
+        val expectedSchemaParserResult = SchemaParserResult.Success(TestData.schemaWithRestrictedPlatformTypes)
+        createSchemaFile(validSchemaWithRestrictedPlatformTypes)
 
         val actualSchemaParserResult = defaultSchemaParser.schemaParserResult(schemaFile)
 
@@ -120,7 +120,7 @@ class DefaultSchemaParserTest {
                 }
             """.trimIndent()
 
-        val emptySupportedPlatformsSchema =
+        val emptySupportedPlatformTypesSchema =
             //language=json
             """
                 {
@@ -215,7 +215,7 @@ class DefaultSchemaParserTest {
                 }
             """.trimIndent()
 
-        val validSchemaWithRestrictedPlatforms =
+        val validSchemaWithRestrictedPlatformTypes =
             //language=JSON
             """
                 {

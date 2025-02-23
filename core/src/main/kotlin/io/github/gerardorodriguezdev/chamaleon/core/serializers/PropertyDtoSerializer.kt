@@ -13,8 +13,8 @@ import kotlinx.serialization.json.*
 
 internal object PropertyDtoSerializer : KSerializer<PropertyDto> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("PropertyDto") {
-        element<String>(elementName = "name")
-        element<JsonElement>(elementName = "value", isOptional = true)
+        element<String>("name")
+        element<JsonElement>("value", isOptional = true)
     }
 
     override fun serialize(
@@ -28,23 +28,21 @@ internal object PropertyDtoSerializer : KSerializer<PropertyDto> {
             if (value.name.isEmpty()) throw SerializationException("PropertyDto name was empty")
             put(key = "name", element = JsonPrimitive(value.name))
 
-            value.value?.let { propertyValue ->
-                put(
-                    key = "value",
-                    element = when (propertyValue) {
-                        is PropertyValue.StringProperty -> {
-                            if (propertyValue.value.isEmpty()) {
-                                throw SerializationException(
-                                    "StringProperty value was empty"
-                                )
-                            }
-                            JsonPrimitive(propertyValue.value)
+            val propertyValue = value.value
+            put(
+                key = "value",
+                element = when (propertyValue) {
+                    null -> JsonNull
+                    is PropertyValue.StringProperty -> {
+                        if (propertyValue.value.isEmpty()) {
+                            throw SerializationException("StringProperty value was empty")
                         }
-
-                        is PropertyValue.BooleanProperty -> JsonPrimitive(propertyValue.value)
+                        JsonPrimitive(propertyValue.value)
                     }
-                )
-            }
+
+                    is PropertyValue.BooleanProperty -> JsonPrimitive(propertyValue.value)
+                }
+            )
         }
 
         jsonEncoder.encodeJsonElement(jsonObject)
@@ -61,14 +59,15 @@ internal object PropertyDtoSerializer : KSerializer<PropertyDto> {
 
         val valueElement = jsonObject["value"]
         val value = when {
+            valueElement == null -> null
             valueElement is JsonNull -> null
-            valueElement?.jsonPrimitive?.isString == true -> {
+            valueElement.jsonPrimitive.isString == true -> {
                 val stringValue = valueElement.jsonPrimitive.content
                 if (stringValue.isEmpty()) throw SerializationException("StringProperty value was empty")
                 PropertyValue.StringProperty(stringValue)
             }
 
-            valueElement?.jsonPrimitive?.booleanOrNull != null ->
+            valueElement.jsonPrimitive.booleanOrNull != null ->
                 PropertyValue.BooleanProperty(valueElement.jsonPrimitive.boolean)
 
             else -> throw SerializationException("Unsupported value type: $valueElement")

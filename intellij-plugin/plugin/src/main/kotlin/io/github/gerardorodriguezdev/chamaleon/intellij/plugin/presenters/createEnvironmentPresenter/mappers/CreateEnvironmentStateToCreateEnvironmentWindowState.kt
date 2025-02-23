@@ -96,6 +96,7 @@ private fun PropertyDefinition.toPropertyDefinition(stringsProvider: StringsProv
         supportedPlatforms = supportedPlatforms.toPersistentList(),
     )
 
+//TODO: Mention duplicate
 private fun PropertyDefinition.nameVerification(stringsProvider: StringsProvider): Field.Verification =
     if (name.isEmpty()) {
         Field.Verification.Invalid(stringsProvider.string(StringsKeys.propertyNameIsEmpty))

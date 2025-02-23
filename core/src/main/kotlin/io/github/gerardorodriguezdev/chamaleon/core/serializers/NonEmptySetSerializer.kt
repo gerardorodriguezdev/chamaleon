@@ -13,17 +13,13 @@ public class NonEmptySetSerializer<T>(elementSerializer: KSerializer<T>) : KSeri
     override val descriptor: SerialDescriptor = delegate.descriptor
 
     override fun serialize(encoder: Encoder, value: Set<T>) {
-        if (value.isEmpty()) {
-            throw SerializationException("Set cannot be empty")
-        }
+        if (value.isEmpty()) throw SerializationException("Set cannot be empty")
         delegate.serialize(encoder, value)
     }
 
     override fun deserialize(decoder: Decoder): Set<T> {
         val result = delegate.deserialize(decoder)
-        if (result.isEmpty()) {
-            throw SerializationException("Set cannot be empty")
-        }
+        if (result.isEmpty()) throw SerializationException("Set cannot be empty")
         return result
     }
 }

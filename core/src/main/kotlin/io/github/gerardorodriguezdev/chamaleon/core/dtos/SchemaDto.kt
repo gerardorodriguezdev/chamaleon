@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable(with = SchemaDtoSerializer::class)
 internal data class SchemaDto(
     @SerialName("supportedPlatforms")
-    val globalSupportedPlatforms: Set<PlatformType>,
+    val globalSupportedPlatformTypes: Set<PlatformType>,
     @SerialName("propertyDefinitions")
     val propertyDefinitionsDtos: Set<PropertyDefinitionDto>,
 ) {
@@ -22,8 +22,10 @@ internal data class SchemaDto(
         @Serializable(with = NonEmptyStringSerializer::class)
         val name: String,
         val propertyType: PropertyType,
+        @EncodeDefault
         val nullable: Boolean = false,
         @EncodeDefault
-        val supportedPlatforms: Set<PlatformType> = emptySet(),
+        @SerialName("supportedPlatforms")
+        val supportedPlatformTypes: Set<PlatformType> = emptySet(),
     )
 }

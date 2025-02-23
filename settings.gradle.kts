@@ -18,6 +18,7 @@ dependencyResolutionManagement {
 }
 
 include(
+    ":shared",
     ":core",
     ":gradle-plugin",
     ":intellij-plugin:plugin",

@@ -4,9 +4,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddOrUpdateSelectedEnvironmentResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddOrUpdateSelectedEnvironmentResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.Versions
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
@@ -56,6 +56,7 @@ internal class EnvironmentSelectionPresenter(
             }
     }
 
+    //TODO: More error info
     private fun List<EnvironmentsProcessorResult>.toNotificationErrorMessage(): String? {
         val environmentsDirectoryPathsWithErrors =
             filterIsInstance<EnvironmentsProcessorResult.Failure>().map { failure -> failure.environmentsDirectoryPath }

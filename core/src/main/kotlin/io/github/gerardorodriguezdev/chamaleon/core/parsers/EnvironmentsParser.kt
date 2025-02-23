@@ -1,10 +1,15 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
+import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
+import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
+import io.github.gerardorodriguezdev.chamaleon.core.matchers.EnvironmentFileNameMatcher
+import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -13,17 +18,16 @@ public interface EnvironmentsParser {
     public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
     public fun addEnvironments(
         environmentsDirectory: File,
-        environments: Set<Environment>,
+        newEnvironments: Set<Environment>,
     ): AddEnvironmentsResult
 }
 
 internal class DefaultEnvironmentsParser(
-    val environmentFileMatcher: (File) -> Boolean,
-    val environmentNameExtractor: (File) -> String,
-    val environmentFileNameExtractor: (environmentName: String) -> String,
+    val environmentFileMatcher: EnvironmentFileNameMatcher,
+    val environmentNameExtractor: EnvironmentNameExtractor,
+    val environmentFileNameExtractor: EnvironmentFileNameExtractor,
 ) : EnvironmentsParser {
 
-    @Suppress("ReturnCount", "TooGenericExceptionCaught")
     override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult {
         try {
             val environmentsDirectoryFiles = environmentsDirectory.listFiles()
@@ -32,53 +36,78 @@ internal class DefaultEnvironmentsParser(
             val environments = environmentsFiles.map { environmentFile ->
                 val environmentName = environmentNameExtractor(environmentFile)
                 if (environmentName.isEmpty()) {
-                    return EnvironmentsParserResult.Failure.EnvironmentNameEmpty(environmentFile.path)
+                    return EnvironmentsParserResult.Failure.EnvironmentNameEmpty(
+                        environmentsDirectoryPath = environmentsDirectory.path,
+                        environmentFilePath = environmentFile.path
+                    )
                 }
 
                 val fileContent = environmentFile.readText()
                 if (fileContent.isEmpty()) {
-                    return EnvironmentsParserResult.Failure.FileIsEmpty(environmentFile.path)
+                    return EnvironmentsParserResult.Failure.FileIsEmpty(
+                        environmentsDirectoryPath = environmentsDirectory.path,
+                        environmentFilePath = environmentFile.path
+                    )
                 }
 
                 val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)
 
-                Environment(
-                    name = environmentName,
-                    platforms = platformDtos.toPlatforms(),
-                )
+                Environment(name = environmentName, platforms = platformDtos.toPlatforms())
             }
 
-            return EnvironmentsParserResult.Success(environments = environments.toSet())
+            return EnvironmentsParserResult.Success(environments.toSet())
         } catch (error: Exception) {
-            return EnvironmentsParserResult.Failure.Serialization(error)
+            return EnvironmentsParserResult.Failure.Serialization(
+                environmentsDirectoryPath = environmentsDirectory.path,
+                throwable = error
+            )
         }
     }
 
-    @Suppress("ReturnCount", "TooGenericExceptionCaught")
+    private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
+        map { platformDto ->
+            Platform(
+                platformDto.platformType,
+                platformDto.properties.toProperties(),
+            )
+        }.toSet()
+
+    private fun Set<PropertyDto>.toProperties(): Set<Property> =
+        map { propertyDto ->
+            Property(
+                name = propertyDto.name,
+                value = propertyDto.value,
+            )
+        }.toSet()
+
     override fun addEnvironments(
         environmentsDirectory: File,
-        environments: Set<Environment>,
+        newEnvironments: Set<Environment>,
     ): AddEnvironmentsResult {
         return try {
             if (!environmentsDirectory.isDirectory) {
-                return AddEnvironmentsResult.Failure.InvalidDirectory(environmentsDirectory.path)
-            }
-            if (environments.isEmpty()) {
-                return AddEnvironmentsResult.Failure.EmptyEnvironments(environmentsDirectory.path)
+                return AddEnvironmentsResult.Failure.InvalidDirectory(
+                    environmentsDirectoryPath = environmentsDirectory.path
+                )
             }
 
-            environments.forEach { environment ->
-                val validationResult = environment.validationResult(environmentsDirectory.path)
-                if (validationResult != null) return validationResult
+            if (newEnvironments.isEmpty()) {
+                return AddEnvironmentsResult.Failure.EmptyEnvironments(
+                    environmentsDirectoryPath = environmentsDirectory.path
+                )
+            }
 
+            newEnvironments.forEach { environment ->
                 val environmentFileName = environmentFileNameExtractor(environment.name)
                 val environmentFile = File(environmentsDirectory, environmentFileName)
 
                 if (environmentFile.exists()) {
                     return AddEnvironmentsResult.Failure.FileAlreadyPresent(
-                        environmentFile.path
+                        environmentsDirectoryPath = environmentFile.path,
+                        environmentName = environmentFileName,
                     )
                 }
+
                 environmentFile.createNewFile()
 
                 val platformDtos = environment.platforms.toPlatformDtos()
@@ -88,50 +117,26 @@ internal class DefaultEnvironmentsParser(
 
             AddEnvironmentsResult.Success
         } catch (error: Exception) {
-            AddEnvironmentsResult.Failure.Serialization(error)
+            AddEnvironmentsResult.Failure.Serialization(
+                environmentsDirectoryPath = environmentsDirectory.path,
+                throwable = error
+            )
         }
     }
-
-    private fun Environment.validationResult(path: String): AddEnvironmentsResult.Failure? =
-        when (isValid()) {
-            Environment.ValidationResult.VALID -> null
-            Environment.ValidationResult.EMPTY_PLATFORMS -> AddEnvironmentsResult.Failure.EmptyPlatforms(path)
-            Environment.ValidationResult.INVALID_PLATFORM -> AddEnvironmentsResult.Failure.InvalidPlatforms(path)
-            Environment.ValidationResult.EMPTY_NAME -> AddEnvironmentsResult.Failure.EmptyEnvironmentName(path)
-        }
-
-    private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
-        map { platformDto ->
-            Platform(
-                platformType = platformDto.platformType,
-                properties = platformDto.properties.toProperties(),
-            )
-        }.toSet()
-
-    private fun Set<PlatformDto.PropertyDto>.toProperties(): Set<Platform.Property> =
-        map { propertyDto ->
-            Platform.Property(
-                name = propertyDto.name,
-                value = propertyDto.value,
-            )
-        }.toSet()
 
     private fun Set<Platform>.toPlatformDtos(): Set<PlatformDto> =
-        map { platform -> platform.toPlatformDto() }.toSet()
+        map { platform ->
+            PlatformDto(
+                platform.platformType,
+                platform.properties.toPropertyDtos()
+            )
+        }.toSet()
 
-    private fun Platform.toPlatformDto(): PlatformDto =
-        PlatformDto(
-            platformType = platformType,
-            properties = properties.toPropertyDtos()
-        )
-
-    private fun Set<Platform.Property>.toPropertyDtos(): Set<PlatformDto.PropertyDto> =
-        mapNotNull { property -> property.toPropertyDto() }.toSet()
-
-    private fun Platform.Property.toPropertyDto(): PlatformDto.PropertyDto? {
-        return PlatformDto.PropertyDto(
-            name = name,
-            value = value ?: return null,
-        )
-    }
+    private fun Set<Property>.toPropertyDtos(): Set<PropertyDto> =
+        map { property ->
+            PropertyDto(
+                name = property.name,
+                value = property.value,
+            )
+        }.toSet()
 }

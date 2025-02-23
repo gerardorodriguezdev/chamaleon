@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.serializers
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
 import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.utils.containsDuplicates
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -21,14 +22,14 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
     }
 
     override fun serialize(encoder: Encoder, schemaDto: SchemaDto) {
-        schemaDto.propertyDefinitionsDtos.verify(schemaDto.globalSupportedPlatforms)
+        schemaDto.propertyDefinitionsDtos.verify(schemaDto.globalSupportedPlatformTypes)
 
         encoder.encodeStructure(descriptor) {
             encodeSerializableElement(
                 descriptor = descriptor,
                 index = SUPPORTED_PLATFORMS_INDEX,
                 serializer = supportedPlatformsSerializer,
-                value = schemaDto.globalSupportedPlatforms
+                value = schemaDto.globalSupportedPlatformTypes
             )
 
             encodeSerializableElement(
@@ -48,7 +49,7 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
             propertyDefinitionsDtos.verify(globalSupportedPlatforms)
 
             SchemaDto(
-                globalSupportedPlatforms = globalSupportedPlatforms,
+                globalSupportedPlatformTypes = globalSupportedPlatforms,
                 propertyDefinitionsDtos = propertyDefinitionsDtos
             )
         }
@@ -85,18 +86,18 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
         forEach { propertyDefinitionDto ->
             if (propertyDefinitionDto.containsUnsupportedPlatforms(globalSupportedPlatforms)) {
                 throw SerializationException(
-                    "Property definition '${propertyDefinitionDto.name}' contains unsupported platform"
+                    "Property definition '${propertyDefinitionDto.name}' contains unsupported platforms"
                 )
             }
         }
     }
 
     private fun PropertyDefinitionDto.containsUnsupportedPlatforms(globalSupportedPlatforms: Set<PlatformType>): Boolean =
-        !globalSupportedPlatforms.containsAll(this.supportedPlatforms)
+        !globalSupportedPlatforms.containsAll(supportedPlatformTypes)
 
     private fun Set<PropertyDefinitionDto>.verifyUnique() {
-        val uniqueNames = distinctBy { propertyDefinitionDto -> propertyDefinitionDto.name }
-        if (uniqueNames.size != this.size) {
+        val containsDuplicates = containsDuplicates { propertyDefinitionDto -> propertyDefinitionDto.name }
+        if (containsDuplicates) {
             throw SerializationException("Duplicated property definition")
         }
     }
