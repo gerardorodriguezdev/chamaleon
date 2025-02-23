@@ -7,6 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
+//TODO: Validations with either
 public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
     public fun addOrUpdateSelectedEnvironment(

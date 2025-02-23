@@ -8,6 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefini
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure.*
 
+//TODO: Binds
 internal fun Schema.areEnvironmentsValidOrFailure(
     environmentsDirectoryPath: String,
     environments: Set<Environment>

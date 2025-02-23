@@ -10,6 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
+//TODO: Validations with either
 public interface SchemaParser {
     public fun schemaParserResult(schemaFile: File): SchemaParserResult
     public fun addSchema(
@@ -58,7 +59,9 @@ internal class DefaultSchemaParser : SchemaParser {
         return try {
             if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFilePath = schemaFile.path)
 
-            if (schemaFile.exists()) schemaFile.createNewFile()
+            if (!schemaFile.exists()) schemaFile.createNewFile()
+
+            //TODO: Error if already exists
 
             val schemaDto = newSchema.toSchemaDto()
             val schemaFileContent = PrettyJson.encodeToString(schemaDto)

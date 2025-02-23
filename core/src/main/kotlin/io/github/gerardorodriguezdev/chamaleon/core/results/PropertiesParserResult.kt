@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.results
 
 public sealed interface PropertiesParserResult {
     public data class Success(val selectedEnvironmentName: String? = null) : PropertiesParserResult
+
     public sealed interface Failure : PropertiesParserResult {
         public val propertiesFilePath: String
 

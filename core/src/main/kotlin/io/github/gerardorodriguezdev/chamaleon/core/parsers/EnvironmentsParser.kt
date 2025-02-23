@@ -14,6 +14,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
+//TODO: Validations with either
 public interface EnvironmentsParser {
     public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
     public fun addEnvironments(
@@ -85,14 +86,14 @@ internal class DefaultEnvironmentsParser(
         newEnvironments: Set<Environment>,
     ): AddEnvironmentsResult {
         return try {
-            if (!environmentsDirectory.isDirectory) {
-                return AddEnvironmentsResult.Failure.InvalidDirectory(
+            if (newEnvironments.isEmpty()) {
+                return AddEnvironmentsResult.Failure.EmptyEnvironments(
                     environmentsDirectoryPath = environmentsDirectory.path
                 )
             }
 
-            if (newEnvironments.isEmpty()) {
-                return AddEnvironmentsResult.Failure.EmptyEnvironments(
+            if (!environmentsDirectory.isDirectory) {
+                return AddEnvironmentsResult.Failure.InvalidDirectory(
                     environmentsDirectoryPath = environmentsDirectory.path
                 )
             }
