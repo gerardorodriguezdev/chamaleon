@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.entities
+package io.github.gerardorodriguezdev.chamaleon.core.models
 
 import io.github.gerardorodriguezdev.chamaleon.core.testing.TestData
 import org.junit.jupiter.api.Test

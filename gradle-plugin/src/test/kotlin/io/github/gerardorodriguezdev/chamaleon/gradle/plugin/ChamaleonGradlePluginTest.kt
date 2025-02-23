@@ -1,11 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME

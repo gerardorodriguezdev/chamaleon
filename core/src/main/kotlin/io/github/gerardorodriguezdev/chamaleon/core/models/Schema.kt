@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.entities
+package io.github.gerardorodriguezdev.chamaleon.core.models
 
 public data class Schema(
     val globalSupportedPlatformTypes: Set<PlatformType> = emptySet(),

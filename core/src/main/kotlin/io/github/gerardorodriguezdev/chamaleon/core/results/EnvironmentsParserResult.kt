@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 
 public sealed interface EnvironmentsParserResult {
     public data class Success(val environments: Set<Environment>) : EnvironmentsParserResult

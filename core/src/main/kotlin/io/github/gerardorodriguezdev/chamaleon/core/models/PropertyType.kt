@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.entities
+package io.github.gerardorodriguezdev.chamaleon.core.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

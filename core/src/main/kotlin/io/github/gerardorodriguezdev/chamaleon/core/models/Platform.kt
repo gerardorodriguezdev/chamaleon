@@ -1,7 +1,7 @@
-package io.github.gerardorodriguezdev.chamaleon.core.entities
+package io.github.gerardorodriguezdev.chamaleon.core.models
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 
 public data class Platform(
     val platformType: PlatformType,

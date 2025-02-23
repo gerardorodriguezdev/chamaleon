@@ -1,11 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 
 public sealed interface EnvironmentsProcessorResult {
     public data class Success(

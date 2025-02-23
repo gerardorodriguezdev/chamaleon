@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.validators
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure.SelectedEnvironmentNotFound
 import io.github.gerardorodriguezdev.chamaleon.core.utils.containsBy

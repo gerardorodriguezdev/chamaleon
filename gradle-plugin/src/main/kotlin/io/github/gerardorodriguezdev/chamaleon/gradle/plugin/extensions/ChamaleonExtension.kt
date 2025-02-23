@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 

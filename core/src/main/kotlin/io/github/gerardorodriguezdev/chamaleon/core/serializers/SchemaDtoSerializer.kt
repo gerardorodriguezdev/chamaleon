@@ -2,7 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.utils.containsDuplicates
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException

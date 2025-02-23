@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 
 public sealed interface SchemaParserResult {
     public data class Success(val schema: Schema) : SchemaParserResult

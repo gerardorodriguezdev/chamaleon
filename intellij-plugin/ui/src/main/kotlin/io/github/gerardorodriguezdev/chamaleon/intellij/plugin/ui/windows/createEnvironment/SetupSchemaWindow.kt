@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string

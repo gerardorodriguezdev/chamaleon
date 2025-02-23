@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.dtos
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyStringSerializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.SchemaDtoSerializer
 import kotlinx.serialization.EncodeDefault

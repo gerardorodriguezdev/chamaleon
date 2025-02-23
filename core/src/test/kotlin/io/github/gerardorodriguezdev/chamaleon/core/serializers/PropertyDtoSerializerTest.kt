@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement

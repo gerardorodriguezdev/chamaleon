@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.testing.fakes
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.EnvironmentsParser
 import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult

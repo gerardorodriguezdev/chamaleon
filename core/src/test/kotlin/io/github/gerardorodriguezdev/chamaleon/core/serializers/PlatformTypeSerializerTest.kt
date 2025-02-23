@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest

@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.entities
+package io.github.gerardorodriguezdev.chamaleon.core.models
 
 public sealed class PropertyValue {
     internal abstract fun isValid(): Boolean

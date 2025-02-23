@@ -2,8 +2,8 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.results.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson

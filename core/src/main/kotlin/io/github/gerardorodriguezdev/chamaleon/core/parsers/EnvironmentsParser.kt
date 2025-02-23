@@ -2,12 +2,12 @@ package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.matchers.EnvironmentFileNameMatcher
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson

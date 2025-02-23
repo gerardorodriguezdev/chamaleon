@@ -1,10 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.core.validators
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.*
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.BooleanProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Schema.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.core.models.*
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure.*
 

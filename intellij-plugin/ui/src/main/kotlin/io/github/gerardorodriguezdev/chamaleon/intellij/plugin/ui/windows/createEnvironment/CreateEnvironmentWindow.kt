@@ -2,8 +2,8 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue

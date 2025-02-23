@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import org.gradle.api.DefaultTask
