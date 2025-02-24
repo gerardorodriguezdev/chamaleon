@@ -23,7 +23,7 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
     }
 
     override fun serialize(encoder: Encoder, schemaDto: SchemaDto) {
-        schemaDto.propertyDefinitionsDtos.verify(schemaDto.globalSupportedPlatformTypes)
+        verify(schemaDto.globalSupportedPlatformTypes, schemaDto.propertyDefinitionsDtos)
 
         encoder.encodeStructure(descriptor) {
             encodeSerializableElement(
@@ -47,7 +47,7 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
             val globalSupportedPlatforms = globalSupportedPlatforms()
             val propertyDefinitionsDtos = propertyDefinitionsDtos()
 
-            propertyDefinitionsDtos.verify(globalSupportedPlatforms)
+            verify(globalSupportedPlatforms, propertyDefinitionsDtos)
 
             SchemaDto(
                 globalSupportedPlatformTypes = globalSupportedPlatforms,
@@ -78,9 +78,9 @@ internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
         if (index != targetIndex) throw SerializationException("Missing required fields at index $index")
     }
 
-    private fun Set<PropertyDefinitionDto>.verify(globalSupportedPlatforms: Set<PlatformType>) {
-        verifySupportedPlatforms(globalSupportedPlatforms)
-        verifyUnique()
+    private fun verify(globalSupportedPlatforms: Set<PlatformType>, propertyDefinitions: Set<PropertyDefinitionDto>) {
+        propertyDefinitions.verifySupportedPlatforms(globalSupportedPlatforms)
+        propertyDefinitions.verifyUnique()
     }
 
     private fun Set<PropertyDefinitionDto>.verifySupportedPlatforms(globalSupportedPlatforms: Set<PlatformType>) {

@@ -27,7 +27,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
 
-//TODO: Binds
 public interface EnvironmentsProcessor {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
@@ -58,28 +57,25 @@ internal class DefaultEnvironmentsProcessor(
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         coroutineScope {
             val environmentsDirectoryPath = environmentsDirectory.path
-
             if (!environmentsDirectory.isDirectory) {
                 return@coroutineScope InvalidEnvironmentsDirectory(environmentsDirectoryPath)
             }
-
             if (!environmentsDirectory.exists()) {
                 return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectoryPath)
             }
 
-            parseFiles(environmentsDirectoryPath, environmentsDirectory)
+            parseFiles(environmentsDirectory)
                 .fold(
                     ifLeft = { failure -> failure },
                     ifRight = { success -> success }
                 )
         }
 
-    private suspend fun parseFiles(
-        environmentsDirectoryPath: String,
-        environmentsDirectory: File
-    ): Either<Failure, Success> =
+    private suspend fun parseFiles(environmentsDirectory: File): Either<Failure, Success> =
         coroutineScope {
             either {
+                val environmentsDirectoryPath = environmentsDirectory.path
+
                 val schemaParsing = async {
                     val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
                     val schemaParserResult = schemaParser.schemaParserResult(schemaFile)
@@ -97,7 +93,7 @@ internal class DefaultEnvironmentsProcessor(
                     propertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath)
                 }
 
-                environmentsProcessorSuccessOrFailure(
+                environmentsProcessorResult(
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     schema = schemaParsing.await().bind(),
                     environments = environmentsParsing.await().bind(),
@@ -111,10 +107,11 @@ internal class DefaultEnvironmentsProcessor(
         environmentsDirectoryPath: String,
     ): Either<Failure, Schema> =
         when (this) {
-            is SchemaParserResult.Failure -> SchemaParsingError(
-                environmentsDirectoryPath = environmentsDirectoryPath,
-                schemaParsingError = this
-            ).left()
+            is SchemaParserResult.Failure ->
+                SchemaParsingError(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
+                    schemaParsingError = this
+                ).left()
 
             is SchemaParserResult.Success -> schema.right()
         }
@@ -127,15 +124,16 @@ internal class DefaultEnvironmentsProcessor(
 
     private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath: String): Either<Failure, String?> =
         when (this) {
-            is PropertiesParserResult.Failure -> PropertiesParsingError(
-                environmentsDirectoryPath = environmentsDirectoryPath,
-                propertiesParsingError = this
-            ).left()
+            is PropertiesParserResult.Failure ->
+                PropertiesParsingError(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
+                    propertiesParsingError = this
+                ).left()
 
             is PropertiesParserResult.Success -> selectedEnvironmentName.right()
         }
 
-    private fun environmentsProcessorSuccessOrFailure(
+    private fun environmentsProcessorResult(
         environmentsDirectoryPath: String,
         schema: Schema,
         environments: Set<Environment>,
@@ -165,13 +163,14 @@ internal class DefaultEnvironmentsProcessor(
 
     override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
         coroutineScope {
+            if (!rootDirectory.isDirectory) return@coroutineScope emptyList()
+            if (!rootDirectory.exists()) return@coroutineScope emptyList()
+
             rootDirectory
                 .environmentsDirectoriesPaths()
                 .map { environmentsDirectoryPath ->
                     async {
-                        val environmentsDirectory = File(environmentsDirectoryPath)
-                        val environmentsProcessorResult = process(environmentsDirectory)
-                        environmentsProcessorResult
+                        process(environmentsDirectory = File(environmentsDirectoryPath))
                     }
                 }
                 .awaitAll()

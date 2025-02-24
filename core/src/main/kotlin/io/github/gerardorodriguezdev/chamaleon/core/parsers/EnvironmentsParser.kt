@@ -13,7 +13,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
-//TODO: Validations with either
 public interface EnvironmentsParser {
     public fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult
     public fun addEnvironments(
@@ -53,7 +52,7 @@ internal class DefaultEnvironmentsParser(
                 val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)
 
                 Environment(name = environmentName, platforms = platformDtos.toPlatforms())
-            }
+            }.toSet()
 
             return EnvironmentsParserResult.Success(environments.toSet())
         } catch (error: Exception) {
@@ -64,20 +63,19 @@ internal class DefaultEnvironmentsParser(
         }
     }
 
-    private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
-        map { platformDto -> PlatformMapperImpl.toModel(platformDto) }.toSet()
+    private fun Set<PlatformDto>.toPlatforms(): Set<Platform> = map { PlatformMapperImpl.toModel(it) }.toSet()
 
     override fun addEnvironments(
         environmentsDirectory: File,
         newEnvironments: Set<Environment>,
     ): AddEnvironmentsResult {
-        return try {
-            if (newEnvironments.isEmpty()) {
-                return AddEnvironmentsResult.Failure.EmptyEnvironments(
-                    environmentsDirectoryPath = environmentsDirectory.path
-                )
-            }
+        if (newEnvironments.isEmpty()) {
+            return AddEnvironmentsResult.Failure.EmptyEnvironments(
+                environmentsDirectoryPath = environmentsDirectory.path
+            )
+        }
 
+        return try {
             if (!environmentsDirectory.isDirectory) {
                 return AddEnvironmentsResult.Failure.InvalidDirectory(
                     environmentsDirectoryPath = environmentsDirectory.path
@@ -111,6 +109,5 @@ internal class DefaultEnvironmentsParser(
         }
     }
 
-    private fun Set<Platform>.toPlatformDtos(): Set<PlatformDto> =
-        map { platform -> PlatformMapperImpl.toDto(platform) }.toSet()
+    private fun Set<Platform>.toPlatformDtos(): Set<PlatformDto> = map { PlatformMapperImpl.toDto(it) }.toSet()
 }

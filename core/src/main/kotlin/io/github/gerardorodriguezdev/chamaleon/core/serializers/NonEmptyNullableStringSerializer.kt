@@ -13,9 +13,11 @@ internal object NonEmptyNullableStringSerializer : KSerializer<String?> {
         PrimitiveSerialDescriptor("NonEmptyNullableString", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: String?) {
-        if (value == null) return
-        if (value.isEmpty()) throw SerializationException("String was empty")
-        encoder.encodeString(value)
+        when {
+            value == null -> return
+            value.isEmpty() -> throw SerializationException("String was empty")
+            else -> encoder.encodeString(value)
+        }
     }
 
     override fun deserialize(decoder: Decoder): String? {

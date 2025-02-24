@@ -5,7 +5,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcesso
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure.SelectedEnvironmentNotFound
 import io.github.gerardorodriguezdev.chamaleon.core.utils.containsBy
 
-//TODO: Binds
 internal fun String.isSelectedEnvironmentValidOrFailure(
     environmentsDirectoryPath: String,
     environments: Set<Environment>

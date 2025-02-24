@@ -7,7 +7,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
-//TODO: Validations with either
 public interface PropertiesParser {
     public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
     public fun addOrUpdateSelectedEnvironment(
@@ -20,6 +19,7 @@ internal class DefaultPropertiesParser : PropertiesParser {
 
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         return try {
+            if (!propertiesFile.isFile) return PropertiesParserResult.Failure.InvalidFile(propertiesFile.path)
             if (!propertiesFile.exists()) return PropertiesParserResult.Success()
 
             val propertiesFileContent = propertiesFile.readText()
@@ -38,19 +38,18 @@ internal class DefaultPropertiesParser : PropertiesParser {
         newSelectedEnvironment: String?,
     ): AddOrUpdateSelectedEnvironmentResult {
         return try {
-            if (propertiesFile.isDirectory) {
+            if (!propertiesFile.isFile) {
                 return AddOrUpdateSelectedEnvironmentResult.Failure.InvalidFile(
                     propertiesFilePath = propertiesFile.path,
                 )
             }
-
-            if (!propertiesFile.exists()) propertiesFile.createNewFile()
-
             if (newSelectedEnvironment != null && newSelectedEnvironment.isEmpty()) {
                 return AddOrUpdateSelectedEnvironmentResult.Failure.EnvironmentNameIsEmpty(
                     propertiesFilePath = propertiesFile.path,
                 )
             }
+
+            if (!propertiesFile.exists()) propertiesFile.createNewFile()
 
             val propertiesDto = PropertiesDto(newSelectedEnvironment)
             val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)

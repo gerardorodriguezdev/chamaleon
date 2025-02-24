@@ -8,6 +8,7 @@ public sealed interface SchemaParserResult {
     public sealed interface Failure : SchemaParserResult {
         public val schemaFilePath: String
 
+        public data class InvalidFile(override val schemaFilePath: String) : Failure
         public data class FileNotFound(override val schemaFilePath: String) : Failure
         public data class FileIsEmpty(override val schemaFilePath: String) : Failure
         public data class EmptySupportedPlatforms(override val schemaFilePath: String) : Failure

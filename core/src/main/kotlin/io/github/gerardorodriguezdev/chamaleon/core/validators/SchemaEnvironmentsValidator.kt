@@ -8,7 +8,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefini
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure.*
 
-//TODO: Binds
 internal fun Schema.areEnvironmentsValidOrFailure(
     environmentsDirectoryPath: String,
     environments: Set<Environment>
@@ -66,8 +65,7 @@ private fun Schema.environmentContainsAllPlatformsOrFailure(
     } else null
 }
 
-private fun Environment.platformTypes(): Set<PlatformType> =
-    platforms.map { platform -> platform.platformType }.toSet()
+private fun Environment.platformTypes(): Set<PlatformType> = platforms.map { platform -> platform.platformType }.toSet()
 
 private fun Schema.propertyDefinitionsForPlatform(platform: Platform): Set<PropertyDefinition> =
     propertyDefinitions

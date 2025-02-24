@@ -9,19 +9,16 @@ import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.serialization.json.Json
 import java.io.File
 
-//TODO: Validations with either
 public interface SchemaParser {
     public fun schemaParserResult(schemaFile: File): SchemaParserResult
-    public fun addSchema(
-        schemaFile: File,
-        newSchema: Schema
-    ): AddSchemaResult
+    public fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult
 }
 
 internal class DefaultSchemaParser : SchemaParser {
 
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
         return try {
+            if (!schemaFile.isFile) return SchemaParserResult.Failure.InvalidFile(schemaFilePath = schemaFile.path)
             if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFilePath = schemaFile.path)
 
             val schemaFileContent = schemaFile.readText()
@@ -35,16 +32,12 @@ internal class DefaultSchemaParser : SchemaParser {
         }
     }
 
-    override fun addSchema(
-        schemaFile: File,
-        newSchema: Schema
-    ): AddSchemaResult {
+    override fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult {
         return try {
-            if (schemaFile.isDirectory) return AddSchemaResult.Failure.InvalidFile(schemaFilePath = schemaFile.path)
+            if (!schemaFile.isFile) return AddSchemaResult.Failure.InvalidFile(schemaFilePath = schemaFile.path)
+            if (!schemaFile.exists()) return AddSchemaResult.Failure.FileAlreadyPresent(schemaFilePath = schemaFile.path)
 
-            if (!schemaFile.exists()) schemaFile.createNewFile()
-
-            //TODO: Error if already exists
+            schemaFile.createNewFile()
 
             val schemaDto = SchemaMapperImpl.toDto(newSchema)
             val schemaFileContent = PrettyJson.encodeToString(schemaDto)
