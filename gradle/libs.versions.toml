@@ -15,7 +15,7 @@ kmp-coroutines = "1.10.1"
 intellij-jewel = "0.25.0"
 kmp-immutable = "0.3.8"
 kmp-binary-compability-validator = "0.17.0"
-jvm-test-parameterized = "5.11.4"
+jvm-test-parameterized = "5.12.0"
 
 # Releases
 release = "1.0.8"
