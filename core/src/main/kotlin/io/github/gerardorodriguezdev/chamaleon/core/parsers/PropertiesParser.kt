@@ -55,7 +55,7 @@ internal class DefaultPropertiesParser : PropertiesParser {
             val propertiesFileContent = PrettyJson.encodeToString(propertiesDto)
             propertiesFile.writeText(propertiesFileContent)
 
-            return AddOrUpdateSelectedEnvironmentResult.Success
+            AddOrUpdateSelectedEnvironmentResult.Success
         } catch (error: Exception) {
             return AddOrUpdateSelectedEnvironmentResult.Failure.Serialization(
                 propertiesFilePath = propertiesFile.path,
