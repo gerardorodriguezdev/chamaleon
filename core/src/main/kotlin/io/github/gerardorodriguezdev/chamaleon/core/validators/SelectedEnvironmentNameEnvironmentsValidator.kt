@@ -15,4 +15,6 @@ internal fun String.isSelectedEnvironmentValidOrFailure(
             selectedEnvironmentName = this,
             environmentNames = environments.joinToString { environment -> environment.name }
         )
-    } else null
+    } else {
+        null
+    }

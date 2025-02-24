@@ -55,20 +55,15 @@ internal class DefaultEnvironmentsProcessor(
 ) : EnvironmentsProcessor {
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
-        coroutineScope {
-            val environmentsDirectoryPath = environmentsDirectory.path
-            if (!environmentsDirectory.isDirectory) {
-                return@coroutineScope InvalidEnvironmentsDirectory(environmentsDirectoryPath)
-            }
-            if (!environmentsDirectory.exists()) {
-                return@coroutineScope EnvironmentsDirectoryNotFound(environmentsDirectoryPath)
-            }
-
-            parseFiles(environmentsDirectory)
-                .fold(
-                    ifLeft = { failure -> failure },
-                    ifRight = { success -> success }
-                )
+        when {
+            !environmentsDirectory.isDirectory -> InvalidEnvironmentsDirectory(environmentsDirectory.path)
+            !environmentsDirectory.exists() -> EnvironmentsDirectoryNotFound(environmentsDirectory.path)
+            else ->
+                parseFiles(environmentsDirectory)
+                    .fold(
+                        ifLeft = { it },
+                        ifRight = { it }
+                    )
         }
 
     private suspend fun parseFiles(environmentsDirectory: File): Either<Failure, Success> =
@@ -101,7 +96,6 @@ internal class DefaultEnvironmentsProcessor(
                 ).bind()
             }
         }
-
 
     private fun SchemaParserResult.schemaOrFailure(
         environmentsDirectoryPath: String,
@@ -163,17 +157,19 @@ internal class DefaultEnvironmentsProcessor(
 
     override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
         coroutineScope {
-            if (!rootDirectory.isDirectory) return@coroutineScope emptyList()
-            if (!rootDirectory.exists()) return@coroutineScope emptyList()
-
-            rootDirectory
-                .environmentsDirectoriesPaths()
-                .map { environmentsDirectoryPath ->
-                    async {
-                        process(environmentsDirectory = File(environmentsDirectoryPath))
-                    }
-                }
-                .awaitAll()
+            when {
+                !rootDirectory.isDirectory -> emptyList()
+                !rootDirectory.exists() -> emptyList()
+                else ->
+                    rootDirectory
+                        .environmentsDirectoriesPaths()
+                        .map { environmentsDirectoryPath ->
+                            async {
+                                process(environmentsDirectory = File(environmentsDirectoryPath))
+                            }
+                        }
+                        .awaitAll()
+            }
         }
 
     private fun File.environmentsDirectoriesPaths(): List<String> =

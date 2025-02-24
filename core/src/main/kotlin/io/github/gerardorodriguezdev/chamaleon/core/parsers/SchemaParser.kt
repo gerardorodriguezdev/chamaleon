@@ -22,7 +22,9 @@ internal class DefaultSchemaParser : SchemaParser {
             if (!schemaFile.exists()) return SchemaParserResult.Failure.FileNotFound(schemaFilePath = schemaFile.path)
 
             val schemaFileContent = schemaFile.readText()
-            if (schemaFileContent.isEmpty()) return SchemaParserResult.Failure.FileIsEmpty(schemaFilePath = schemaFile.path)
+            if (schemaFileContent.isEmpty()) return SchemaParserResult.Failure.FileIsEmpty(
+                schemaFilePath = schemaFile.path
+            )
 
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
 
@@ -35,7 +37,9 @@ internal class DefaultSchemaParser : SchemaParser {
     override fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult {
         return try {
             if (!schemaFile.isFile) return AddSchemaResult.Failure.InvalidFile(schemaFilePath = schemaFile.path)
-            if (!schemaFile.exists()) return AddSchemaResult.Failure.FileAlreadyPresent(schemaFilePath = schemaFile.path)
+            if (!schemaFile.exists()) return AddSchemaResult.Failure.FileAlreadyPresent(
+                schemaFilePath = schemaFile.path
+            )
 
             schemaFile.createNewFile()
 

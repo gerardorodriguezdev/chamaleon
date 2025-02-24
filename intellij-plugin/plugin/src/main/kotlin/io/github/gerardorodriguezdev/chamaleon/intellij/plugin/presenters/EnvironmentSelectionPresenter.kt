@@ -95,7 +95,7 @@ internal class EnvironmentSelectionPresenter(
 
         updateSelectedEnvironmentJob = ioScope
             .launch {
-                val environmentsDirectory = File(projectDirectory.path + environmentsDirectoryPath)
+                val environmentsDirectory = File(projectDirectory.path, environmentsDirectoryPath)
 
                 val addOrUpdateSelectedEnvironmentResult = environmentsProcessor.addOrUpdateSelectedEnvironment(
                     environmentsDirectory = environmentsDirectory,

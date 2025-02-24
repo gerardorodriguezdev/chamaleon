@@ -135,7 +135,7 @@ internal class EnvironmentCreationDialog(
             indicator.fraction = 1.0
 
             //TODO: More resilient
-            val environmentsDirectory = File(project.basePath + environmentsDirectoryPath)
+            val environmentsDirectory = File(project.basePath, environmentsDirectoryPath)
             if (!environmentsDirectory.exists()) {
                 environmentsDirectory.mkdirs()
             }
