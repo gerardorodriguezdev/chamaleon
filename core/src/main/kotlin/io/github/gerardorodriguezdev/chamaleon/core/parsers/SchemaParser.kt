@@ -1,9 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto
-import io.github.gerardorodriguezdev.chamaleon.core.dtos.SchemaDto.PropertyDefinitionDto
+import io.github.gerardorodriguezdev.chamaleon.core.mappers.SchemaMapperImpl
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.results.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
@@ -30,27 +29,11 @@ internal class DefaultSchemaParser : SchemaParser {
 
             val schemaDto = Json.decodeFromString<SchemaDto>(schemaFileContent)
 
-            SchemaParserResult.Success(schemaDto.toSchema())
+            SchemaParserResult.Success(SchemaMapperImpl.toModel(schemaDto))
         } catch (error: Exception) {
             SchemaParserResult.Failure.Serialization(schemaFilePath = schemaFile.path, throwable = error)
         }
     }
-
-    private fun SchemaDto.toSchema(): Schema =
-        Schema(
-            globalSupportedPlatformTypes,
-            propertyDefinitionsDtos.toPropertyDefinitions(),
-        )
-
-    private fun Set<PropertyDefinitionDto>.toPropertyDefinitions(): Set<PropertyDefinition> =
-        map { propertyDefinitionDto ->
-            PropertyDefinition(
-                name = propertyDefinitionDto.name,
-                propertyType = propertyDefinitionDto.propertyType,
-                nullable = propertyDefinitionDto.nullable,
-                supportedPlatformTypes = propertyDefinitionDto.supportedPlatformTypes,
-            )
-        }.toSet()
 
     override fun addSchema(
         schemaFile: File,
@@ -63,7 +46,7 @@ internal class DefaultSchemaParser : SchemaParser {
 
             //TODO: Error if already exists
 
-            val schemaDto = newSchema.toSchemaDto()
+            val schemaDto = SchemaMapperImpl.toDto(newSchema)
             val schemaFileContent = PrettyJson.encodeToString(schemaDto)
             schemaFile.writeText(schemaFileContent)
 
@@ -72,20 +55,4 @@ internal class DefaultSchemaParser : SchemaParser {
             AddSchemaResult.Failure.Serialization(schemaFilePath = schemaFile.path, throwable = error)
         }
     }
-
-    private fun Schema.toSchemaDto(): SchemaDto =
-        SchemaDto(
-            globalSupportedPlatformTypes,
-            propertyDefinitions.toPropertyDefinitionsDtos(),
-        )
-
-    private fun Set<PropertyDefinition>.toPropertyDefinitionsDtos(): Set<PropertyDefinitionDto> =
-        map { propertyDefinition ->
-            PropertyDefinitionDto(
-                name = propertyDefinition.name,
-                propertyType = propertyDefinition.propertyType,
-                nullable = propertyDefinition.nullable,
-                supportedPlatformTypes = propertyDefinition.supportedPlatformTypes,
-            )
-        }.toSet()
 }

@@ -2,7 +2,7 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
     kotlin("jvm")
-    alias(libs.plugins.kmp.compose)
+    alias(libs.plugins.kmp.compose.api)
     alias(libs.plugins.kmp.compose.compiler)
 }
 

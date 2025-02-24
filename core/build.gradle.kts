@@ -25,9 +25,9 @@ kotlin {
         implementation(libs.kmp.serialization)
         implementation(libs.kmp.coroutines)
         implementation(libs.kmp.arrow.core)
-        implementation(libs.kmp.arrow.optics)
+        implementation(libs.kmp.konvert.api)
 
-        ksp(libs.kmp.arrow.optics.plugin)
+        ksp(libs.kmp.konvert.plugin)
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)

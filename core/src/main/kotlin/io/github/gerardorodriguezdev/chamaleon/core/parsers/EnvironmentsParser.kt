@@ -1,13 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
 import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
-import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
+import io.github.gerardorodriguezdev.chamaleon.core.mappers.PlatformMapperImpl
 import io.github.gerardorodriguezdev.chamaleon.core.matchers.EnvironmentFileNameMatcher
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
@@ -66,20 +65,7 @@ internal class DefaultEnvironmentsParser(
     }
 
     private fun Set<PlatformDto>.toPlatforms(): Set<Platform> =
-        map { platformDto ->
-            Platform(
-                platformDto.platformType,
-                platformDto.properties.toProperties(),
-            )
-        }.toSet()
-
-    private fun Set<PropertyDto>.toProperties(): Set<Property> =
-        map { propertyDto ->
-            Property(
-                name = propertyDto.name,
-                value = propertyDto.value,
-            )
-        }.toSet()
+        map { platformDto -> PlatformMapperImpl.toModel(platformDto) }.toSet()
 
     override fun addEnvironments(
         environmentsDirectory: File,
@@ -126,18 +112,5 @@ internal class DefaultEnvironmentsParser(
     }
 
     private fun Set<Platform>.toPlatformDtos(): Set<PlatformDto> =
-        map { platform ->
-            PlatformDto(
-                platform.platformType,
-                platform.properties.toPropertyDtos()
-            )
-        }.toSet()
-
-    private fun Set<Property>.toPropertyDtos(): Set<PropertyDto> =
-        map { property ->
-            PropertyDto(
-                name = property.name,
-                value = property.value,
-            )
-        }.toSet()
+        map { platform -> PlatformMapperImpl.toDto(platform) }.toSet()
 }

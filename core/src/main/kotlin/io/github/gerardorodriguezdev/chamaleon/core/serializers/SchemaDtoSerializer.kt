@@ -13,6 +13,7 @@ import kotlinx.serialization.encoding.*
 internal object SchemaDtoSerializer : KSerializer<SchemaDto> {
     private const val SUPPORTED_PLATFORMS_INDEX = 0
     private const val PROPERTY_DEFINITIONS_DTOS_INDEX = 1
+
     private val supportedPlatformsSerializer = NonEmptySetSerializer(PlatformType.serializer())
     private val propertyDefinitionsDtosSerializer = NonEmptySetSerializer(PropertyDefinitionDto.serializer())
 
