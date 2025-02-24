@@ -6,7 +6,7 @@ java = "17"
 # Libraries
 kmp-serialization = "1.8.0"
 gradle-publish = "1.3.0"
-detekt = "1.23.7"
+detekt = "1.23.8"
 detekt-compose = "0.4.22"
 maven-publish = "0.30.0"
 intellij = "2.2.1"
