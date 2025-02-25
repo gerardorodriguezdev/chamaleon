@@ -16,7 +16,7 @@ class FakeEnvironmentsParser(
         ),
     var addEnvironmentsResult: AddEnvironmentsResult = AddEnvironmentsResult.Success,
 ) : EnvironmentsParser {
-    override fun environmentsParserResult(environmentsDirectory: File): EnvironmentsParserResult =
+    override fun parse(environmentsDirectory: File): EnvironmentsParserResult =
         environmentsParserResult
 
     override fun addEnvironments(

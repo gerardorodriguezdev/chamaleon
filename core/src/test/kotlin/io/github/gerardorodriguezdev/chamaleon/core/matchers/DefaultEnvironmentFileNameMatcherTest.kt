@@ -14,16 +14,14 @@ class DefaultEnvironmentFileNameMatcherTest {
     @TempDir
     lateinit var directory: File
 
-    private val environmentFileNameMatcher = DefaultEnvironmentFileNameMatcher()
-
     @ParameterizedTest
     @MethodSource("environmentFileMatcherTestData")
-    fun `GIVEN environment file name WHEN matching THEN matches correctly`(
-        expected: Boolean,
+    fun `GIVEN environmentFile WHEN invoked THEN matches correctly`(
         environmentFileName: String,
+        expected: Boolean,
     ) {
         val environmentFile = File(directory, environmentFileName)
-        val actual = environmentFileNameMatcher(environmentFile)
+        val actual = DefaultEnvironmentFileNameMatcher(environmentFile)
         assertEquals(expected = expected, actual = actual)
     }
 
@@ -32,18 +30,18 @@ class DefaultEnvironmentFileNameMatcherTest {
         fun environmentFileMatcherTestData(): List<Arguments> =
             listOf(
                 // Valid
-                Arguments.of(true, localEnvironmentFileName),
-                Arguments.of(true, productionEnvironmentFileName),
+                Arguments.of(localEnvironmentFileName, true),
+                Arguments.of(productionEnvironmentFileName, true),
 
                 // Invalid environment file name
-                Arguments.of(false, "local.environment.chamaleon.jso"),
-                Arguments.of(false, "chamaleon.json"),
-                Arguments.of(false, "local.json"),
-                Arguments.of(false, "local.environment.json"),
-                Arguments.of(false, "local.chamaleon.json"),
-                Arguments.of(false, EnvironmentsProcessor.ENVIRONMENT_FILE_SUFFIX),
-                Arguments.of(false, EnvironmentsProcessor.SCHEMA_FILE),
-                Arguments.of(false, EnvironmentsProcessor.PROPERTIES_FILE),
+                Arguments.of("local.environment.chamaleon.jso", false),
+                Arguments.of("chamaleon.json", false),
+                Arguments.of("local.json", false),
+                Arguments.of("local.environment.json", false),
+                Arguments.of("local.chamaleon.json", false),
+                Arguments.of(EnvironmentsProcessor.ENVIRONMENT_FILE_SUFFIX, false),
+                Arguments.of(EnvironmentsProcessor.SCHEMA_FILE, false),
+                Arguments.of(EnvironmentsProcessor.PROPERTIES_FILE, false),
             )
     }
 }

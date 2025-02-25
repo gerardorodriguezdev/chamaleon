@@ -81,18 +81,18 @@ internal class DefaultEnvironmentsProcessor(
 
                 val schemaParsing = async {
                     val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
-                    val schemaParserResult = schemaParser.schemaParserResult(schemaFile)
+                    val schemaParserResult = schemaParser.parse(schemaFile)
                     schemaParserResult.schemaOrFailure(environmentsDirectoryPath)
                 }
 
                 val environmentsParsing = async {
-                    val environmentsParserResult = environmentsParser.environmentsParserResult(environmentsDirectory)
+                    val environmentsParserResult = environmentsParser.parse(environmentsDirectory)
                     environmentsParserResult.environmentsOrFailure()
                 }
 
                 val propertiesParsing = async {
                     val propertiesFile = File(environmentsDirectory, PROPERTIES_FILE)
-                    val propertiesParserResult = propertiesParser.propertiesParserResult(propertiesFile)
+                    val propertiesParserResult = propertiesParser.parse(propertiesFile)
                     propertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath)
                 }
 

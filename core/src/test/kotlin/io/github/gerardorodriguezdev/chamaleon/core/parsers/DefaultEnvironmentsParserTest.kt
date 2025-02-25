@@ -38,7 +38,7 @@ class DefaultEnvironmentsParserTest {
         environmentFileMatcher.environmentFileMatchResult = false
         val expectedEnvironmentsParserResult = EnvironmentsParserResult.Success(environments = emptySet())
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.parse(environmentsDirectory)
 
         assertEquals(expected = expectedEnvironmentsParserResult, actual = actualEnvironmentsParserResult)
     }
@@ -47,7 +47,7 @@ class DefaultEnvironmentsParserTest {
     fun `GIVEN file empty WHEN environmentsParserResult THEN returns error`() {
         createEnvironmentsFile()
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.parse(environmentsDirectory)
 
         assertIs<FileIsEmpty>(actualEnvironmentsParserResult)
     }
@@ -56,7 +56,7 @@ class DefaultEnvironmentsParserTest {
     fun `GIVEN invalid environments WHEN environmentsParserResult THEN returns error`() {
         createEnvironmentsFile(invalidEnvironments)
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.parse(environmentsDirectory)
 
         assertIs<Serialization>(actualEnvironmentsParserResult)
     }
@@ -67,7 +67,7 @@ class DefaultEnvironmentsParserTest {
             EnvironmentsParserResult.Success(environments = setOf(TestData.environment))
         createEnvironmentsFile(completeValidEnvironments)
 
-        val actualEnvironmentsParserResult = defaultEnvironmentsParser.environmentsParserResult(environmentsDirectory)
+        val actualEnvironmentsParserResult = defaultEnvironmentsParser.parse(environmentsDirectory)
 
         assertEquals(expected = expectedEnvironmentsParserResult, actual = actualEnvironmentsParserResult)
     }

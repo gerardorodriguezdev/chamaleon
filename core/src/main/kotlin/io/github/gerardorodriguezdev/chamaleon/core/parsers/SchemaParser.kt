@@ -9,12 +9,12 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface SchemaParser {
-    public fun schemaParserResult(schemaFile: File): SchemaParserResult
+    public fun parse(schemaFile: File): SchemaParserResult
 }
 
 internal object DefaultSchemaParser : SchemaParser {
 
-    override fun schemaParserResult(schemaFile: File): SchemaParserResult {
+    override fun parse(schemaFile: File): SchemaParserResult {
         return try {
             if (!schemaFile.isFile) return Failure.InvalidFile(schemaFilePath = schemaFile.path)
             if (!schemaFile.exists()) return Failure.FileNotFound(schemaFilePath = schemaFile.path)

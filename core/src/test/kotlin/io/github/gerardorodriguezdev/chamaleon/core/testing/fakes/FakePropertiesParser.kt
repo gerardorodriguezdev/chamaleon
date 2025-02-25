@@ -13,7 +13,7 @@ class FakePropertiesParser(
     var addOrUpdateSelectedEnvironmentResult: AddOrUpdateSelectedEnvironmentResult =
         AddOrUpdateSelectedEnvironmentResult.Success,
 ) : PropertiesParser {
-    override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult = propertiesParserResult
+    override fun parse(propertiesFile: File): PropertiesParserResult = propertiesParserResult
     override fun addOrUpdateSelectedEnvironment(
         propertiesFile: File,
         newSelectedEnvironment: String?

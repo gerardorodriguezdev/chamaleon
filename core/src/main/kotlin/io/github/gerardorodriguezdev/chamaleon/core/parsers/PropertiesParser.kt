@@ -8,12 +8,12 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 public interface PropertiesParser {
-    public fun propertiesParserResult(propertiesFile: File): PropertiesParserResult
+    public fun parse(propertiesFile: File): PropertiesParserResult
 }
 
 internal object DefaultPropertiesParser : PropertiesParser {
 
-    override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
+    override fun parse(propertiesFile: File): PropertiesParserResult {
         return try {
             if (!propertiesFile.isFile) return Failure.InvalidFile(propertiesFile.path)
             if (!propertiesFile.exists()) return Success()

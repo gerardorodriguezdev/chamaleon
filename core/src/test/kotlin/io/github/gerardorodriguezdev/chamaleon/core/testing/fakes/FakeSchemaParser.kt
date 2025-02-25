@@ -11,7 +11,7 @@ class FakeSchemaParser(
     var schemaParserResult: SchemaParserResult = SchemaParserResult.Success(TestData.schema),
     var addSchemaResult: AddSchemaResult = AddSchemaResult.Success,
 ) : SchemaParser {
-    override fun schemaParserResult(schemaFile: File): SchemaParserResult = schemaParserResult
+    override fun parse(schemaFile: File): SchemaParserResult = schemaParserResult
     override fun addSchema(
         schemaFile: File,
         newSchema: Schema

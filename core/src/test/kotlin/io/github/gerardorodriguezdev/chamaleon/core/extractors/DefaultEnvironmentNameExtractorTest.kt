@@ -16,16 +16,14 @@ class DefaultEnvironmentNameExtractorTest {
     @TempDir
     lateinit var directory: File
 
-    private val environmentNameExtractor = DefaultEnvironmentNameExtractor()
-
     @ParameterizedTest
     @MethodSource("environmentNameExtractorTestData")
-    fun `GIVEN environmentFile WHEN extracting environment name THEN extracts correctly`(
-        expected: String,
-        environmentFileName: String
+    fun `GIVEN environmentFileName WHEN invoked THEN extracts environmentName correctly`(
+        environmentFileName: String,
+        expected: String
     ) {
         val environmentFile = File(directory, environmentFileName)
-        val actual = environmentNameExtractor(environmentFile)
+        val actual = DefaultEnvironmentNameExtractor(environmentFile)
         assertEquals(expected = expected, actual = actual)
     }
 
@@ -33,8 +31,8 @@ class DefaultEnvironmentNameExtractorTest {
         @JvmStatic
         fun environmentNameExtractorTestData(): List<Arguments> =
             listOf(
-                Arguments.of(LOCAL_ENVIRONMENT_NAME, localEnvironmentFileName),
-                Arguments.of(PRODUCTION_ENVIRONMENT_NAME, productionEnvironmentFileName),
+                Arguments.of(localEnvironmentFileName, LOCAL_ENVIRONMENT_NAME),
+                Arguments.of(productionEnvironmentFileName, PRODUCTION_ENVIRONMENT_NAME),
             )
     }
 }
