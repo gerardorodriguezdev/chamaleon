@@ -9,10 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
-import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultEnvironmentsGenerator
-import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultPropertiesGenerator
-import io.github.gerardorodriguezdev.chamaleon.core.generators.EnvironmentsGenerator
-import io.github.gerardorodriguezdev.chamaleon.core.generators.PropertiesGenerator
+import io.github.gerardorodriguezdev.chamaleon.core.generators.*
 import io.github.gerardorodriguezdev.chamaleon.core.matchers.DefaultEnvironmentFileNameMatcher
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
@@ -31,7 +28,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
 
-public interface EnvironmentsProcessor : EnvironmentsGenerator, PropertiesGenerator {
+public interface EnvironmentsProcessor : EnvironmentsGenerator, PropertiesGenerator, SchemaGenerator {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
 
@@ -59,7 +56,11 @@ internal class DefaultEnvironmentsProcessor(
         environmentFileNameExtractor = DefaultEnvironmentFileNameExtractor,
     ),
     private val propertiesGenerator: PropertiesGenerator = DefaultPropertiesGenerator,
-) : EnvironmentsProcessor, EnvironmentsGenerator by environmentsGenerator, PropertiesGenerator by propertiesGenerator {
+    private val schemaGenerator: SchemaGenerator = DefaultSchemaGenerator,
+) : EnvironmentsProcessor,
+    EnvironmentsGenerator by environmentsGenerator,
+    PropertiesGenerator by propertiesGenerator,
+    SchemaGenerator by schemaGenerator {
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         when {
