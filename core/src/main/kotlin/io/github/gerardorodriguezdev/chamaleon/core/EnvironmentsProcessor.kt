@@ -10,7 +10,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultEnvironmentsGenerator
+import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultPropertiesGenerator
 import io.github.gerardorodriguezdev.chamaleon.core.generators.EnvironmentsGenerator
+import io.github.gerardorodriguezdev.chamaleon.core.generators.PropertiesGenerator
 import io.github.gerardorodriguezdev.chamaleon.core.matchers.DefaultEnvironmentFileNameMatcher
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
@@ -29,7 +31,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
 
-public interface EnvironmentsProcessor : EnvironmentsGenerator {
+public interface EnvironmentsProcessor : EnvironmentsGenerator, PropertiesGenerator {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
 
@@ -56,7 +58,8 @@ internal class DefaultEnvironmentsProcessor(
     private val environmentsGenerator: EnvironmentsGenerator = DefaultEnvironmentsGenerator(
         environmentFileNameExtractor = DefaultEnvironmentFileNameExtractor,
     ),
-) : EnvironmentsProcessor, EnvironmentsGenerator by environmentsGenerator {
+    private val propertiesGenerator: PropertiesGenerator = DefaultPropertiesGenerator,
+) : EnvironmentsProcessor, EnvironmentsGenerator by environmentsGenerator, PropertiesGenerator by propertiesGenerator {
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         when {
