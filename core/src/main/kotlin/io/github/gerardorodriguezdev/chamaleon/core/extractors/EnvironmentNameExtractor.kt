@@ -5,6 +5,6 @@ import java.io.File
 
 internal interface EnvironmentNameExtractor : (File) -> String
 
-internal class DefaultEnvironmentNameExtractor : EnvironmentNameExtractor {
+internal object DefaultEnvironmentNameExtractor : EnvironmentNameExtractor {
     override fun invoke(environmentFile: File): String = environmentFile.name.removeSuffix(ENVIRONMENT_FILE_SUFFIX)
 }

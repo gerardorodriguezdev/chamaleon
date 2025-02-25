@@ -5,7 +5,7 @@ import java.io.File
 
 internal interface EnvironmentFileNameMatcher : (File) -> Boolean
 
-internal class DefaultEnvironmentFileNameMatcher : EnvironmentFileNameMatcher {
+internal object DefaultEnvironmentFileNameMatcher : EnvironmentFileNameMatcher {
     override fun invoke(environmentFile: File): Boolean =
         environmentFile.name != ENVIRONMENT_FILE_SUFFIX && environmentFile.name.endsWith(ENVIRONMENT_FILE_SUFFIX)
 }

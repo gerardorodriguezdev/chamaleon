@@ -9,6 +9,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
+import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultEnvironmentsGenerator
+import io.github.gerardorodriguezdev.chamaleon.core.generators.EnvironmentsGenerator
 import io.github.gerardorodriguezdev.chamaleon.core.matchers.DefaultEnvironmentFileNameMatcher
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
@@ -27,7 +29,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
 
-public interface EnvironmentsProcessor {
+public interface EnvironmentsProcessor : EnvironmentsGenerator {
     public suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult>
 
@@ -45,14 +47,16 @@ public interface EnvironmentsProcessor {
 }
 
 internal class DefaultEnvironmentsProcessor(
-    val schemaParser: SchemaParser = DefaultSchemaParser(),
-    val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(
-        environmentFileMatcher = DefaultEnvironmentFileNameMatcher(),
-        environmentNameExtractor = DefaultEnvironmentNameExtractor(),
-        environmentFileNameExtractor = DefaultEnvironmentFileNameExtractor(),
+    private val schemaParser: SchemaParser = DefaultSchemaParser,
+    private val environmentsParser: EnvironmentsParser = DefaultEnvironmentsParser(
+        environmentFileMatcher = DefaultEnvironmentFileNameMatcher,
+        environmentNameExtractor = DefaultEnvironmentNameExtractor,
     ),
-    val propertiesParser: PropertiesParser = DefaultPropertiesParser(),
-) : EnvironmentsProcessor {
+    private val propertiesParser: PropertiesParser = DefaultPropertiesParser,
+    private val environmentsGenerator: EnvironmentsGenerator = DefaultEnvironmentsGenerator(
+        environmentFileNameExtractor = DefaultEnvironmentFileNameExtractor,
+    ),
+) : EnvironmentsProcessor, EnvironmentsGenerator by environmentsGenerator {
 
     override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
         when {
@@ -134,18 +138,18 @@ internal class DefaultEnvironmentsProcessor(
         selectedEnvironmentName: String?,
     ): Either<Failure, Success> =
         either {
-            val schemaValidation = schema.areEnvironmentsValidOrFailure(
-                environmentsDirectoryPath = environmentsDirectoryPath,
-                environments = environments
-            )
-            if (schemaValidation is Failure) raise(schemaValidation)
-
             val selectedEnvironmentNameValidation =
                 selectedEnvironmentName?.isSelectedEnvironmentValidOrFailure(
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     environments = environments
                 )
             if (selectedEnvironmentNameValidation is Failure) raise(selectedEnvironmentNameValidation)
+
+            val schemaValidation = schema.areEnvironmentsValidOrFailure(
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                environments = environments
+            )
+            if (schemaValidation is Failure) raise(schemaValidation)
 
             Success(
                 environmentsDirectoryPath = environmentsDirectoryPath,

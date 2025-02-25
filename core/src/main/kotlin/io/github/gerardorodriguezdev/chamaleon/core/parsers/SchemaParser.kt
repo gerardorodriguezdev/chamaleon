@@ -14,7 +14,7 @@ public interface SchemaParser {
     public fun addSchema(schemaFile: File, newSchema: Schema): AddSchemaResult
 }
 
-internal class DefaultSchemaParser : SchemaParser {
+internal object DefaultSchemaParser : SchemaParser {
 
     override fun schemaParserResult(schemaFile: File): SchemaParserResult {
         return try {

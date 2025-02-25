@@ -15,7 +15,7 @@ public interface PropertiesParser {
     ): AddOrUpdateSelectedEnvironmentResult
 }
 
-internal class DefaultPropertiesParser : PropertiesParser {
+internal object DefaultPropertiesParser : PropertiesParser {
 
     override fun propertiesParserResult(propertiesFile: File): PropertiesParserResult {
         return try {
