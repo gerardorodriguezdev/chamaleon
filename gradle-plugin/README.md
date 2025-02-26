@@ -146,13 +146,13 @@ targetConfigs {
 
     create("wasm") {
         // Get the property for the wasm platform
-        val host = selectedEnvironment.wasmPlatform().propertyStringValue("HOST")
+        val host = selectedEnvironment.wasmPlatform.propertyStringValue("HOST")
         buildConfigField(FieldSpec.Type.STRING, name = "HOST", value = host)
     }
 
     create("android") {
         // Get the property for the android platform
-        val host = selectedEnvironment.androidPlatform().propertyStringValue("HOST")
+        val host = selectedEnvironment.androidPlatform.propertyStringValue("HOST")
         buildConfigField(FieldSpec.Type.STRING, name = "HOST", value = host)
     }
 }

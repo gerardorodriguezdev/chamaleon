@@ -2,7 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.models
 
 public data class Schema(
     val globalSupportedPlatformTypes: Set<PlatformType> = emptySet(),
-    val propertyDefinitions: Set<PropertyDefinition> = emptySet(),
+    val propertyDefinitionsMap: Map<String, PropertyDefinition> = emptyMap(),
 ) {
     public data class PropertyDefinition(
         val name: String,

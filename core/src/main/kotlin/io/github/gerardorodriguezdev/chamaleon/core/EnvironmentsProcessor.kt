@@ -99,7 +99,7 @@ internal class DefaultEnvironmentsProcessor(
                 environmentsProcessorResult(
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     schema = schemaParsing.await().bind(),
-                    environments = environmentsParsing.await().bind(),
+                    environmentsMap = environmentsParsing.await().bind(),
                     selectedEnvironmentName = propertiesParsing.await().bind(),
                 ).bind()
             }
@@ -118,10 +118,10 @@ internal class DefaultEnvironmentsProcessor(
             is SchemaParserResult.Success -> schema.right()
         }
 
-    private fun EnvironmentsParserResult.environmentsOrFailure(): Either<Failure, Set<Environment>> =
+    private fun EnvironmentsParserResult.environmentsOrFailure(): Either<Failure, Map<String, Environment>> =
         when (this) {
             is EnvironmentsParserResult.Failure -> EnvironmentsParsingError(this).left()
-            is EnvironmentsParserResult.Success -> environments.right()
+            is EnvironmentsParserResult.Success -> environmentsMap.right()
         }
 
     private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath: String): Either<Failure, String?> =
@@ -138,27 +138,27 @@ internal class DefaultEnvironmentsProcessor(
     private fun environmentsProcessorResult(
         environmentsDirectoryPath: String,
         schema: Schema,
-        environments: Set<Environment>,
+        environmentsMap: Map<String, Environment>,
         selectedEnvironmentName: String?,
     ): Either<Failure, Success> =
         either {
             val selectedEnvironmentNameValidation =
                 selectedEnvironmentName?.isSelectedEnvironmentValidOrFailure(
                     environmentsDirectoryPath = environmentsDirectoryPath,
-                    environments = environments
+                    environmentsMap = environmentsMap,
                 )
             if (selectedEnvironmentNameValidation is Failure) raise(selectedEnvironmentNameValidation)
 
             val schemaValidation = schema.areEnvironmentsValidOrFailure(
                 environmentsDirectoryPath = environmentsDirectoryPath,
-                environments = environments
+                environmentsMap = environmentsMap,
             )
             if (schemaValidation is Failure) raise(schemaValidation)
 
             Success(
                 environmentsDirectoryPath = environmentsDirectoryPath,
                 schema = schema,
-                environments = environments,
+                environmentsMap = environmentsMap,
                 selectedEnvironmentName = selectedEnvironmentName,
             )
         }

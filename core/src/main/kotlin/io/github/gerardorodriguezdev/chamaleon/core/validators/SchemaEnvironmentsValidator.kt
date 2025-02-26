@@ -10,9 +10,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcesso
 
 internal fun Schema.areEnvironmentsValidOrFailure(
     environmentsDirectoryPath: String,
-    environments: Set<Environment>
+    environmentsMap: Map<String, Environment>
 ): Failure? =
-    environments.firstNotNullOfOrNull { environment ->
+    environmentsMap.values.firstNotNullOfOrNull { environment ->
         val context = Context(
             schema = this,
             environment = environment,
@@ -25,7 +25,7 @@ private fun Context.isEnvironmentValidOrFailure(): Failure? {
     val environmentContainsAllPlatformsResult = environmentContainsAllPlatformsOrFailure()
     if (environmentContainsAllPlatformsResult is Failure) return environmentContainsAllPlatformsResult
 
-    return environment.platforms.firstNotNullOfOrNull { platform ->
+    return environment.platformsMap.values.firstNotNullOfOrNull { platform ->
         isPlatformValidOrFailure(platform)
     }
 }
@@ -45,18 +45,18 @@ private fun Context.environmentContainsAllPlatformsOrFailure(): Failure? {
 }
 
 private fun Context.isPlatformValidOrFailure(platform: Platform): Failure? {
-    val propertyDefinitionsForPlatform = propertyDefinitionsForPlatform(platform)
+    val propertyDefinitionsForPlatformMap = propertyDefinitionsForPlatformMap(platform)
 
     val platformContainsAllPropertiesResult =
         platformContainsAllPropertiesOrFailure(
-            propertyDefinitionsForPlatform = propertyDefinitionsForPlatform,
+            propertyDefinitionsForPlatformMap = propertyDefinitionsForPlatformMap,
             platform = platform,
         )
     if (platformContainsAllPropertiesResult is Failure) return platformContainsAllPropertiesResult
 
-    return platform.properties.firstNotNullOfOrNull { property ->
+    return platform.propertiesMap.values.firstNotNullOfOrNull { property ->
         isPropertyValidOrFailure(
-            propertyDefinitionsForPlatform = propertyDefinitionsForPlatform,
+            propertyDefinitionsForPlatformMap = propertyDefinitionsForPlatformMap,
             property = property,
             platformType = platform.platformType,
         )
@@ -64,11 +64,11 @@ private fun Context.isPlatformValidOrFailure(platform: Platform): Failure? {
 }
 
 private fun Context.isPropertyValidOrFailure(
-    propertyDefinitionsForPlatform: Set<PropertyDefinition>,
+    propertyDefinitionsForPlatformMap: Map<String, PropertyDefinition>,
     property: Property,
     platformType: PlatformType,
 ): Failure? {
-    val propertyDefinition = propertyDefinitionsForPlatform.propertyDefinition(property)
+    val propertyDefinition = propertyDefinitionsForPlatformMap.propertyDefinition(property)
 
     return isPropertyTypeValidOrFailure(
         propertyDefinition = propertyDefinition,
@@ -77,10 +77,10 @@ private fun Context.isPropertyValidOrFailure(
     )
 }
 
-private fun Environment.platformTypes(): Set<PlatformType> = platforms.map { platform -> platform.platformType }.toSet()
+private fun Environment.platformTypes(): Set<PlatformType> = platformsMap.keys
 
-private fun Context.propertyDefinitionsForPlatform(platform: Platform): Set<PropertyDefinition> =
-    schema.propertyDefinitions
+private fun Context.propertyDefinitionsForPlatformMap(platform: Platform): Map<String, PropertyDefinition> =
+    schema.propertyDefinitionsMap.values
         .filter { propertyDefinition ->
             val platformType = platform.platformType
             if (propertyDefinition.supportedPlatformTypes.isEmpty()) {
@@ -88,14 +88,15 @@ private fun Context.propertyDefinitionsForPlatform(platform: Platform): Set<Prop
             } else {
                 propertyDefinition.supportedPlatformTypes.contains(platformType)
             }
-        }.toSet()
+        }
+        .associateBy { propertyDefinition -> propertyDefinition.name }
 
 private fun Context.platformContainsAllPropertiesOrFailure(
-    propertyDefinitionsForPlatform: Set<PropertyDefinition>,
+    propertyDefinitionsForPlatformMap: Map<String, PropertyDefinition>,
     platform: Platform,
 ): Failure? {
-    val platformPropertiesNames = platform.properties.map { property -> property.name }
-    val propertyDefinitionsNames = propertyDefinitionsForPlatform.map { property -> property.name }
+    val platformPropertiesNames = platform.propertiesMap.keys
+    val propertyDefinitionsNames = propertyDefinitionsForPlatformMap.keys
     val platformContainsAllProperties = platformPropertiesNames == propertyDefinitionsNames
 
     return if (!platformContainsAllProperties) {
@@ -103,16 +104,16 @@ private fun Context.platformContainsAllPropertiesOrFailure(
             environmentsDirectoryPath = environmentsDirectoryPath,
             environmentName = environment.name,
             platformType = platform.platformType,
-            schemaPropertyDefinitions = schema.propertyDefinitions,
-            platformProperties = platform.properties,
+            schemaPropertyDefinitions = schema.propertyDefinitionsMap.values.toSet(),
+            platformProperties = platform.propertiesMap.values.toSet(),
         )
     } else {
         null
     }
 }
 
-private fun Set<PropertyDefinition>.propertyDefinition(property: Property): PropertyDefinition =
-    first { propertyDefinition -> propertyDefinition.name == property.name }
+private fun Map<String, PropertyDefinition>.propertyDefinition(property: Property): PropertyDefinition =
+    getValue(property.name)
 
 private fun Context.isPropertyTypeValidOrFailure(
     propertyDefinition: PropertyDefinition,
@@ -178,7 +179,7 @@ private fun PropertyValue.toPropertyType(): PropertyType =
         is BooleanProperty -> PropertyType.BOOLEAN
     }
 
-private data class Context(
+private class Context(
     val schema: Schema,
     val environment: Environment,
     val environmentsDirectoryPath: String,

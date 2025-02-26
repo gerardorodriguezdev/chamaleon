@@ -11,10 +11,6 @@ public sealed interface SchemaParserResult {
         public data class InvalidFile(override val schemaFilePath: String) : Failure
         public data class FileNotFound(override val schemaFilePath: String) : Failure
         public data class FileIsEmpty(override val schemaFilePath: String) : Failure
-        public data class EmptySupportedPlatforms(override val schemaFilePath: String) : Failure
-        public data class EmptyPropertyDefinitions(override val schemaFilePath: String) : Failure
-        public data class InvalidPropertyDefinition(override val schemaFilePath: String) : Failure
-        public data class DuplicatedPropertyDefinition(override val schemaFilePath: String) : Failure
         public data class Serialization(override val schemaFilePath: String, val throwable: Throwable) : Failure
     }
 }

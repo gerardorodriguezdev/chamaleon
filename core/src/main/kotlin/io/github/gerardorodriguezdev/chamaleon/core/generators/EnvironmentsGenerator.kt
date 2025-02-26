@@ -90,14 +90,14 @@ internal class DefaultEnvironmentsGenerator(
     private fun Operation.execute() {
         environmentFile.createNewFile()
 
-        val platformDtos = environment.platforms.toPlatformDtos()
+        val platformDtos = environment.platformsMap.values.toPlatformDtos()
         val platformDtosJson = PrettyJson.encodeToString(platformDtos)
         environmentFile.writeText(platformDtosJson)
     }
 
-    private fun Set<Platform>.toPlatformDtos(): Set<PlatformDto> = map { PlatformMapperImpl.toDto(it) }.toSet()
+    private fun Collection<Platform>.toPlatformDtos(): Set<PlatformDto> = map { PlatformMapperImpl.toDto(it) }.toSet()
 
-    private data class Operation(
+    private class Operation(
         val environmentFile: File,
         val environment: Environment,
     )

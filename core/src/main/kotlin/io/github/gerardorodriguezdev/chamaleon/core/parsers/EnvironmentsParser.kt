@@ -44,11 +44,13 @@ internal class DefaultEnvironmentsParser(
                 }
 
                 val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)
+                val platformsMap = platformDtos.toPlatforms().associateBy { platform -> platform.platformType }
 
-                Environment(name = environmentName, platforms = platformDtos.toPlatforms())
-            }.toSet()
+                Environment(name = environmentName, platformsMap = platformsMap)
+            }
 
-            return Success(environments.toSet())
+            val environmentsMap = environments.associateBy { environment -> environment.name }
+            return Success(environmentsMap)
         } catch (error: Exception) {
             return Failure.Serialization(
                 environmentsDirectoryPath = environmentsDirectory.path,
@@ -57,5 +59,5 @@ internal class DefaultEnvironmentsParser(
         }
     }
 
-    private fun Set<PlatformDto>.toPlatforms(): Set<Platform> = map { PlatformMapperImpl.toModel(it) }.toSet()
+    private fun Set<PlatformDto>.toPlatforms(): List<Platform> = map { PlatformMapperImpl.toModel(it) }
 }

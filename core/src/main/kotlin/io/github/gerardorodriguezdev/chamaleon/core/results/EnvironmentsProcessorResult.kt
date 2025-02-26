@@ -11,7 +11,7 @@ public sealed interface EnvironmentsProcessorResult {
     public data class Success(
         val environmentsDirectoryPath: String,
         val selectedEnvironmentName: String? = null,
-        val environments: Set<Environment>,
+        val environmentsMap: Map<String, Environment>,
         val schema: Schema,
     ) : EnvironmentsProcessorResult
 
