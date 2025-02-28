@@ -1,15 +1,13 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-public sealed class PropertyValue {
-    internal abstract fun isValid(): Boolean
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 
-    public data class StringProperty(val value: String) : PropertyValue() {
-        override fun isValid(): Boolean = value.isNotEmpty()
-        override fun toString(): String = value
+public sealed class PropertyValue {
+    public data class StringProperty(val value: NonEmptyString) : PropertyValue() {
+        override fun toString(): String = value.value
     }
 
     public data class BooleanProperty(val value: Boolean) : PropertyValue() {
-        override fun isValid(): Boolean = true
         override fun toString(): String = value.toString()
     }
 }

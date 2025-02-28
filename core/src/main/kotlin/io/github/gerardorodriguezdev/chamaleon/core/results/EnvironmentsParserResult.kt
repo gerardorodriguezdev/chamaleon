@@ -1,9 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
 
 public sealed class EnvironmentsParserResult {
-    internal data class Success(val environmentsMap: Map<String, Environment>) : EnvironmentsParserResult()
+    internal data class Success(val environments: NonEmptyKeyStore<String, Environment>?) : EnvironmentsParserResult()
 
     public sealed class Failure : EnvironmentsParserResult() {
         public abstract val environmentsDirectoryPath: String
@@ -13,7 +14,7 @@ public sealed class EnvironmentsParserResult {
             val environmentFilePath: String,
         ) : Failure()
 
-        public data class EnvironmentNameEmpty(
+        public data class InvalidEnvironmentFile(
             override val environmentsDirectoryPath: String,
             val environmentFilePath: String,
         ) : Failure()

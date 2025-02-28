@@ -1,9 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.core.extractors
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 
-internal interface EnvironmentFileNameExtractor : (String) -> String
+internal interface EnvironmentFileNameExtractor : (NonEmptyString) -> NonEmptyString
 
 internal object DefaultEnvironmentFileNameExtractor : EnvironmentFileNameExtractor {
-    override fun invoke(environmentName: String): String = EnvironmentsProcessor.environmentFileName(environmentName)
+    override fun invoke(environmentName: NonEmptyString): NonEmptyString =
+        EnvironmentsProcessor.environmentFileName(environmentName)
 }

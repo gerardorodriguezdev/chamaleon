@@ -1,63 +1,60 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.isEnvironmentFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
-import io.github.gerardorodriguezdev.chamaleon.core.mappers.PlatformMapperImpl
-import io.github.gerardorodriguezdev.chamaleon.core.matchers.EnvironmentFileNameMatcher
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile
 import kotlinx.serialization.json.Json
-import java.io.File
 
 public interface EnvironmentsParser {
-    public fun parse(environmentsDirectory: File): EnvironmentsParserResult
+    public fun parse(environmentsDirectory: ExistingDirectory): EnvironmentsParserResult
 }
 
 internal class DefaultEnvironmentsParser(
-    private val environmentFileMatcher: EnvironmentFileNameMatcher,
     private val environmentNameExtractor: EnvironmentNameExtractor,
 ) : EnvironmentsParser {
 
-    override fun parse(environmentsDirectory: File): EnvironmentsParserResult {
+    override fun parse(environmentsDirectory: ExistingDirectory): EnvironmentsParserResult {
         try {
-            val environmentsDirectoryFiles = environmentsDirectory.listFiles()
-            val environmentsFiles = environmentsDirectoryFiles.filter { file -> environmentFileMatcher(file) }
-
-            val environments = environmentsFiles.map { environmentFile ->
-                val environmentName = environmentNameExtractor(environmentFile)
-                if (environmentName.isEmpty()) {
-                    return Failure.EnvironmentNameEmpty(
-                        environmentsDirectoryPath = environmentsDirectory.path,
-                        environmentFilePath = environmentFile.path
-                    )
+            val environmentsDirectoryFiles = environmentsDirectory.directory.listFiles()
+            val environmentsFiles = environmentsDirectoryFiles
+                .filter { file -> file.isEnvironmentFile() }
+                .map { file ->
+                    val validFile = ValidFile.of(file)
+                    validFile ?: return Failure.InvalidEnvironmentFile(environmentsDirectory.directory.path, file.path)
                 }
+                .mapNotNull { file -> file.toExistingFile() }
 
-                val fileContent = environmentFile.readText()
-                if (fileContent.isEmpty()) {
-                    return Failure.FileIsEmpty(
-                        environmentsDirectoryPath = environmentsDirectory.path,
-                        environmentFilePath = environmentFile.path
-                    )
-                }
+            val environments = environmentsFiles
+                .map { environmentFile ->
+                    val fileContent = environmentFile.file.readText()
+                    if (fileContent.isEmpty()) {
+                        return Failure.FileIsEmpty(
+                            environmentsDirectoryPath = environmentsDirectory.directory.path,
+                            environmentFilePath = environmentFile.file.path
+                        )
+                    }
 
-                val platformDtos = Json.decodeFromString<Set<PlatformDto>>(fileContent)
-                val platformsMap = platformDtos.toPlatforms().associateBy { platform -> platform.platformType }
+                    val environmentName = environmentNameExtractor(environmentFile)
+                    val platforms = Json.decodeFromString<NonEmptyKeyStore<PlatformType, Platform>>(fileContent)
 
-                Environment(name = environmentName, platformsMap = platformsMap)
-            }
+                    Environment(name = environmentName, platforms = platforms)
+                }.toSet()
 
-            val environmentsMap = environments.associateBy { environment -> environment.name }
-            return Success(environmentsMap)
+            val environmentsKeyStore = NonEmptyKeyStore.of(environments)
+            return Success(environmentsKeyStore)
         } catch (error: Exception) {
             return Failure.Serialization(
-                environmentsDirectoryPath = environmentsDirectory.path,
+                environmentsDirectoryPath = environmentsDirectory.directory.path,
                 throwable = error
             )
         }
     }
-
-    private fun Set<PlatformDto>.toPlatforms(): List<Platform> = map { PlatformMapperImpl.toModel(it) }
 }

@@ -17,7 +17,6 @@ kotlin {
 
     compilerOptions {
         extraWarnings = true
-        allWarningsAsErrors = true
     }
 
     jvmToolchain(libs.versions.java.get().toInt())

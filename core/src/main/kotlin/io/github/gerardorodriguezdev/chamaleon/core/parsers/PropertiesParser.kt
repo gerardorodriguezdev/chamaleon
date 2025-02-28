@@ -1,29 +1,28 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.dtos.PropertiesDto
+import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile
 import kotlinx.serialization.json.Json
-import java.io.File
 
 public interface PropertiesParser {
-    public fun parse(propertiesFile: File): PropertiesParserResult
+    public fun parse(propertiesFile: ValidFile): PropertiesParserResult
 }
 
 internal object DefaultPropertiesParser : PropertiesParser {
 
-    override fun parse(propertiesFile: File): PropertiesParserResult {
+    override fun parse(propertiesFile: ValidFile): PropertiesParserResult {
         return try {
-            if (!propertiesFile.isFile) return Failure.InvalidFile(propertiesFile.path)
-            if (!propertiesFile.exists()) return Success()
+            val propertiesFile = propertiesFile.toExistingFile() ?: return Success(Properties())
 
-            val propertiesFileContent = propertiesFile.readText()
-            if (propertiesFileContent.isEmpty()) return Success()
+            val propertiesFileContent = propertiesFile.file.readText()
+            if (propertiesFileContent.isEmpty()) return Success(properties = Properties())
 
-            val propertiesDto = Json.decodeFromString<PropertiesDto>(propertiesFileContent)
+            val properties = Json.decodeFromString<Properties>(propertiesFileContent)
 
-            return Success(selectedEnvironmentName = propertiesDto.selectedEnvironmentName)
+            return Success(properties = properties)
         } catch (error: Exception) {
             Failure.Serialization(propertiesFilePath = propertiesFile.path, throwable = error)
         }

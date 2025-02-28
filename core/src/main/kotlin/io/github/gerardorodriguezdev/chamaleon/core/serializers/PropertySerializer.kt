@@ -1,9 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
-import io.github.gerardorodriguezdev.chamaleon.core.dtos.PlatformDto.PropertyDto
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -13,48 +14,43 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-internal object PropertyDtoSerializer : KSerializer<PropertyDto> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("PropertyDto") {
+internal object PropertySerializer : KSerializer<Property> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Property") {
         element<String>("name")
         element<JsonElement>("value", isOptional = true)
     }
 
-    override fun serialize(encoder: Encoder, value: PropertyDto) {
+    override fun serialize(encoder: Encoder, value: Property) {
         if (encoder !is JsonEncoder) throw SerializationException("This class can only be serialized to JSON")
-        encoder.encodeJsonElement(
-            jsonObject(value)
-        )
+        val jsonObject = jsonObject(value)
+        encoder.encodeJsonElement(jsonObject)
     }
 
-    private fun jsonObject(propertyDto: PropertyDto): JsonObject =
+    private fun jsonObject(property: Property): JsonObject =
         buildJsonObject {
-            if (propertyDto.name.isEmpty()) throw SerializationException("PropertyDto name was empty")
-            put(key = "name", element = JsonPrimitive(propertyDto.name))
+            put(key = "name", element = JsonPrimitive(property.name.value))
 
-            put(key = "value", element = propertyDto.value.toJsonElement())
+            put(key = "value", element = property.value.toJsonElement())
         }
 
     private fun PropertyValue?.toJsonElement(): JsonElement =
         when (this) {
             null -> JsonNull
-            is StringProperty -> {
-                if (value.isEmpty()) throw SerializationException("StringProperty value was empty")
-                JsonPrimitive(value)
-            }
-
+            is StringProperty -> JsonPrimitive(value.value)
             is BooleanProperty -> JsonPrimitive(value)
         }
 
-    override fun deserialize(decoder: Decoder): PropertyDto {
+    override fun deserialize(decoder: Decoder): Property {
         if (decoder !is JsonDecoder) throw SerializationException("This class can only be deserialized from JSON")
 
         val jsonObject = decoder.decodeJsonElement().jsonObject
 
         val name = jsonObject["name"]?.jsonPrimitive?.content
-        if (name.isNullOrEmpty()) throw SerializationException("PropertyDto name was empty")
+        val nonEmptyName = name?.let { NonEmptyString.of(it) }
+        if (nonEmptyName == null) throw SerializationException("Property name was empty")
 
         val valueElement = jsonObject["value"]
-        return PropertyDto(name = name, value = valueElement.toPropertyValueOrNull())
+        return Property(name = nonEmptyName, value = valueElement.toPropertyValueOrNull())
     }
 
     private fun JsonElement?.toPropertyValueOrNull(): PropertyValue? =
@@ -63,8 +59,9 @@ internal object PropertyDtoSerializer : KSerializer<PropertyDto> {
             this is JsonNull -> null
             jsonPrimitive.isString == true -> {
                 val stringValue = jsonPrimitive.content
-                if (stringValue.isEmpty()) throw SerializationException("StringProperty value was empty")
-                StringProperty(stringValue)
+                val nonEmptyString = NonEmptyString.of(stringValue)
+                if (nonEmptyString == null) throw SerializationException("StringProperty value was empty")
+                StringProperty(nonEmptyString)
             }
 
             jsonPrimitive.booleanOrNull != null -> BooleanProperty(jsonPrimitive.boolean)
