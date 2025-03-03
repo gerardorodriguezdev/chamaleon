@@ -20,6 +20,13 @@ public class ExistingDirectory private constructor(public val directory: File) {
     public fun nonEmptyStringPath(): NonEmptyString = directory.path.toUnsafeNonEmptyString()
 
     public companion object {
+        public fun File.toUnsafeExistingDirectory(): ExistingDirectory =
+            if (!isDirectory || !exists()) {
+                throw IllegalStateException("Existing directory invalid")
+            } else {
+                ExistingDirectory(this)
+            }
+
         public fun File.toExistingDirectory(): ExistingDirectory? =
             if (isDirectory && exists()) ExistingDirectory(this) else null
 

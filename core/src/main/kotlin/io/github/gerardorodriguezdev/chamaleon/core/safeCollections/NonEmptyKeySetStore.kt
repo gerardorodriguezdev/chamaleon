@@ -22,6 +22,15 @@ public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
         this === other || value == other || value.values.toSet() == other
 
     public companion object {
+        public fun <K, V : KeyProvider<K>> Set<V>.toUnsafeNonEmptyKeyStore(): NonEmptyKeySetStore<K, V> {
+            return if (isEmpty()) {
+                throw IllegalStateException("Non empty key set store was empty")
+            } else {
+                NonEmptyKeySetStore<K, V>(
+                    associateBy { item -> item.key })
+            }
+        }
+
         public fun <K, V : KeyProvider<K>> Set<V>.toNonEmptyKeySetStore(): NonEmptyKeySetStore<K, V>? {
             return if (isEmpty()) null else NonEmptyKeySetStore<K, V>(associateBy { item -> item.key })
         }
