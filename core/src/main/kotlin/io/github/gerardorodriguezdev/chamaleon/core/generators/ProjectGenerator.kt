@@ -106,17 +106,17 @@ internal class DefaultProjectGenerator(
                     .map { (_, environment) ->
                         async {
                             val environmentFileName = environmentFileNameExtractor(environment.name)
-                            val environmentFile =
+                            val environmentValidFile =
                                 EnvironmentsProcessor.environmentValidFile(environmentsDirectory, environmentFileName)
-                            if (environmentFile == null) {
+                            if (environmentValidFile == null) {
                                 return@async Failure.InvalidEnvironmentFile(
                                     environmentsDirectory.directory.path
                                 )
                             }
 
                             val platformsJson = PrettyJson.encodeToString(environment.platforms)
-                            val existingFile = environmentFile.toExistingFile(createIfNotPresent = true)
-                            existingFile?.file?.writeText(platformsJson)
+                            val environmentExistingFile = environmentValidFile.toExistingFile(createIfNotPresent = true)
+                            environmentExistingFile?.file?.writeText(platformsJson)
                         }
                     }
                     .awaitAll()
