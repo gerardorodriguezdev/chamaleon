@@ -4,6 +4,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
@@ -28,8 +30,8 @@ internal class DefaultCommandParserTest {
             platformType = PlatformType.JVM,
             properties = listOf(
                 Platform.Property(
-                    name = HOST_PROPERTY_NAME,
-                    value = PropertyValue.StringProperty(HOST_PROPERTY_VALUE),
+                    name = HOST_PROPERTY_NAME.toUnsafeNonEmptyString(),
+                    value = PropertyValue.StringProperty(HOST_PROPERTY_VALUE.toUnsafeNonEmptyString()),
                 )
             )
         )
@@ -75,20 +77,22 @@ internal class DefaultCommandParserTest {
                     command = VALID_COMMAND,
                     expectedResult = Success(
                         environment = Environment(
-                            name = PRODUCTION_ENVIRONMENT_NAME,
+                            name = PRODUCTION_ENVIRONMENT_NAME.toUnsafeNonEmptyString(),
                             platforms = setOf(
                                 Platform(
                                     platformType = PlatformType.JVM,
-                                    properties = setOf(
-                                        Platform.Property(
-                                            name = HOST_PROPERTY_NAME,
-                                            value = PropertyValue.StringProperty(
-                                                value = HOST_PROPERTY_VALUE,
-                                            )
-                                        )
-                                    ),
+                                    properties = (
+                                            setOf(
+                                                Platform.Property(
+                                                    name = HOST_PROPERTY_NAME.toUnsafeNonEmptyString(),
+                                                    value = PropertyValue.StringProperty(
+                                                        value = HOST_PROPERTY_VALUE.toUnsafeNonEmptyString(),
+                                                    )
+                                                )
+                                            ).toUnsafeNonEmptyKeyStore()
+                                            ),
                                 )
-                            ),
+                            ).toUnsafeNonEmptyKeyStore(),
                         )
                     ),
                 ),

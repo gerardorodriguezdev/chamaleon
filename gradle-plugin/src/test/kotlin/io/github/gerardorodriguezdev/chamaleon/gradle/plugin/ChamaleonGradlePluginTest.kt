@@ -6,6 +6,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
@@ -50,10 +52,11 @@ class ChamaleonGradlePluginTest {
         val project = buildProject()
 
         val extension = project.extension()
-        assertEquals(expected = expectedEnvironments, actual = extension.environments.get())
+        val extensionProject = extension.project.get()
+        assertEquals(expected = expectedEnvironments, actual = extensionProject.environments)
         assertEquals(
             expected = LOCAL_ENVIRONMENT_NAME,
-            actual = extension.selectedEnvironmentName.get()
+            actual = extensionProject.selectedEnvironment()?.name?.value,
         )
     }
 
@@ -170,8 +173,8 @@ class ChamaleonGradlePluginTest {
                             platformType = PlatformType.JVM,
                             properties = listOf(
                                 Property(
-                                    name = PROPERTY_NAME,
-                                    value = StringProperty(LOCAL_ENVIRONMENT_PROPERTY_VALUE)
+                                    name = PROPERTY_NAME.toUnsafeNonEmptyString(),
+                                    value = StringProperty(LOCAL_ENVIRONMENT_PROPERTY_VALUE.toUnsafeNonEmptyString())
                                 )
                             )
                         )
@@ -233,21 +236,34 @@ class ChamaleonGradlePluginTest {
         val expectedEnvironments =
             setOf(
                 Environment(
-                    name = PRODUCTION_ENVIRONMENT_NAME,
-                    platforms = setOf(expectedPlatform(PRODUCTION_ENVIRONMENT_PROPERTY_VALUE)),
+                    name = PRODUCTION_ENVIRONMENT_NAME.toUnsafeNonEmptyString(),
+                    platforms =
+                        setOf(
+                            expectedPlatform(
+                                PRODUCTION_ENVIRONMENT_PROPERTY_VALUE
+                            )
+                        ).toUnsafeNonEmptyKeyStore(),
                 ),
                 Environment(
-                    name = LOCAL_ENVIRONMENT_NAME,
-                    platforms = setOf(expectedPlatform(LOCAL_ENVIRONMENT_PROPERTY_VALUE)),
+                    name = LOCAL_ENVIRONMENT_NAME.toUnsafeNonEmptyString(),
+                    platforms =
+                        setOf(
+                            expectedPlatform(
+                                LOCAL_ENVIRONMENT_PROPERTY_VALUE
+                            )
+                        ).toUnsafeNonEmptyKeyStore(),
                 ),
-            )
+            ).toUnsafeNonEmptyKeyStore()
 
         private fun expectedPlatform(value: String): Platform =
             Platform(
                 platformType = PlatformType.JVM,
                 properties = setOf(
-                    Property(name = PROPERTY_NAME, value = StringProperty(value)),
-                )
+                    Property(
+                        name = PROPERTY_NAME.toUnsafeNonEmptyString(),
+                        value = StringProperty(value.toUnsafeNonEmptyString())
+                    ),
+                ).toUnsafeNonEmptyKeyStore()
             )
 
         private fun Project.extension(): ChamaleonExtension {
