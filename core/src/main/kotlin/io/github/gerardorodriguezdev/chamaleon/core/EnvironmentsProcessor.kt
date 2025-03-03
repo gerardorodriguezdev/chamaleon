@@ -6,10 +6,12 @@ import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.propertiesValidFile
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
-import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultProjectGenerator
-import io.github.gerardorodriguezdev.chamaleon.core.generators.ProjectGenerator
+import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultProjectUpdater
+import io.github.gerardorodriguezdev.chamaleon.core.generators.ProjectUpdater
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
@@ -26,7 +28,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import java.io.File
 
-public interface EnvironmentsProcessor : ProjectGenerator {
+public interface EnvironmentsProcessor : ProjectUpdater {
     public suspend fun process(environmentsDirectory: ExistingDirectory): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: ExistingDirectory): List<EnvironmentsProcessorResult>
 
@@ -66,11 +68,11 @@ internal class DefaultEnvironmentsProcessor(
         environmentNameExtractor = DefaultEnvironmentNameExtractor,
     ),
     private val propertiesParser: PropertiesParser = DefaultPropertiesParser,
-    private val projectGenerator: ProjectGenerator = DefaultProjectGenerator(
+    private val projectUpdater: ProjectUpdater = DefaultProjectUpdater(
         environmentFileNameExtractor = DefaultEnvironmentFileNameExtractor,
     ),
 ) : EnvironmentsProcessor,
-    ProjectGenerator by projectGenerator {
+    ProjectUpdater by projectUpdater {
 
     override suspend fun process(environmentsDirectory: ExistingDirectory): EnvironmentsProcessorResult =
         parseFiles(environmentsDirectory)
@@ -83,7 +85,7 @@ internal class DefaultEnvironmentsProcessor(
         coroutineScope {
             either {
                 val schemaParsing = async {
-                    val schemaFile = EnvironmentsProcessor.schemaExistingFile(environmentsDirectory)
+                    val schemaFile = schemaExistingFile(environmentsDirectory)
                     ensureNotNull(schemaFile) { Failure.InvalidSchemaFile(environmentsDirectory.directory.path) }
                     val schemaParserResult = schemaParser.parse(schemaFile)
                     schemaParserResult.schemaOrFailure(environmentsDirectory.directory.path)
@@ -95,7 +97,7 @@ internal class DefaultEnvironmentsProcessor(
                 }
 
                 val propertiesParsing = async {
-                    val propertiesFile = EnvironmentsProcessor.propertiesValidFile(environmentsDirectory)
+                    val propertiesFile = propertiesValidFile(environmentsDirectory)
                     ensureNotNull(propertiesFile) { Failure.InvalidPropertiesFile(environmentsDirectory.directory.path) }
                     val propertiesParserResult = propertiesParser.parse(propertiesFile)
                     propertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectory.directory.path)

@@ -19,12 +19,13 @@ public class Project private constructor(
     public val properties: Properties,
     public val environments: NonEmptyKeySetStore<String, Environment>? = null,
 ) {
+    public fun selectedEnvironment(): Environment? = environments?.get(properties.selectedEnvironmentName?.value)
 
     public fun propertiesValidFile(): ValidFile? = EnvironmentsProcessor.propertiesValidFile(environmentsDirectory)
 
     public fun schemaValidFile(): ValidFile? = EnvironmentsProcessor.schemaValidFile(environmentsDirectory)
 
-    public fun addEnvironment(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
+    public fun addEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
         val newEnvironments = environments?.addValues(newEnvironments)
 
         val projectValidationResult = projectOf(

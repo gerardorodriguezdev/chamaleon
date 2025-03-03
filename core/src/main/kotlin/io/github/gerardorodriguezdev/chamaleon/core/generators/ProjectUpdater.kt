@@ -1,12 +1,13 @@
 package io.github.gerardorodriguezdev.chamaleon.core.generators
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.environmentValidFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
-import io.github.gerardorodriguezdev.chamaleon.core.generators.GenerateProjectResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
@@ -15,30 +16,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-public interface ProjectGenerator {
-    public suspend fun updateProject(project: Project): GenerateProjectResult
+public interface ProjectUpdater {
+    public suspend fun updateProject(project: Project): UpdateProjectResult
 }
 
-public sealed interface GenerateProjectResult {
-    public data object Success : GenerateProjectResult
-    public sealed interface Failure : GenerateProjectResult {
-        public val environmentsDirectoryPath: String
-
-        public data class InvalidPropertiesFile(override val environmentsDirectoryPath: String) : Failure
-        public data class InvalidSchemaFile(override val environmentsDirectoryPath: String) : Failure
-        public data class InvalidEnvironmentFile(override val environmentsDirectoryPath: String) : Failure
-
-        public data class Serialization(
-            override val environmentsDirectoryPath: String, val throwable: Throwable
-        ) : Failure
-    }
-}
-
-internal class DefaultProjectGenerator(
+internal class DefaultProjectUpdater(
     private val environmentFileNameExtractor: EnvironmentFileNameExtractor,
-) : ProjectGenerator {
+) : ProjectUpdater {
 
-    override suspend fun updateProject(project: Project): GenerateProjectResult {
+    override suspend fun updateProject(project: Project): UpdateProjectResult {
         val propertiesFile = project.propertiesValidFile()?.toExistingFile(createIfNotPresent = true)
         if (propertiesFile == null) return Failure.InvalidPropertiesFile(project.environmentsDirectory.directory.path)
 
@@ -67,7 +53,7 @@ internal class DefaultProjectGenerator(
             if (updateEnvironmentsResult is Failure) return updateEnvironmentsResult
         }
 
-        return GenerateProjectResult.Success
+        return UpdateProjectResult.Success
     }
 
     private fun updateSchema(environmentsDirectoryPath: String, schemaFile: ExistingFile, newSchema: Schema): Failure? {
@@ -106,8 +92,7 @@ internal class DefaultProjectGenerator(
                     .map { (_, environment) ->
                         async {
                             val environmentFileName = environmentFileNameExtractor(environment.name)
-                            val environmentValidFile =
-                                EnvironmentsProcessor.environmentValidFile(environmentsDirectory, environmentFileName)
+                            val environmentValidFile = environmentValidFile(environmentsDirectory, environmentFileName)
                             if (environmentValidFile == null) {
                                 return@async Failure.InvalidEnvironmentFile(
                                     environmentsDirectory.directory.path
