@@ -9,7 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -98,7 +98,7 @@ internal class DefaultProjectGenerator(
 
     private suspend fun updateEnvironments(
         environmentsDirectory: ExistingDirectory,
-        newEnvironments: NonEmptyKeyStore<String, Environment>,
+        newEnvironments: NonEmptyKeySetStore<String, Environment>,
     ): Failure? =
         coroutineScope {
             return@coroutineScope try {

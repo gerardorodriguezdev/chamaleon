@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet.Companion.toNonEmptySet
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.SetSerializer
@@ -19,7 +20,7 @@ public class NonEmptySetSerializer<T>(elementSerializer: KSerializer<T>) : KSeri
 
     override fun deserialize(decoder: Decoder): NonEmptySet<T> {
         val set = delegate.deserialize(decoder)
-        val nonEmptySet = NonEmptySet.of(set)
+        val nonEmptySet = set.toNonEmptySet()
         if (nonEmptySet == null) throw SerializationException("NonEmpty set cannot be empty")
         return nonEmptySet
     }

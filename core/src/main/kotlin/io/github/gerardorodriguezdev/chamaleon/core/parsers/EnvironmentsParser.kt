@@ -9,7 +9,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserRe
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile.Companion.toValidFile
 import kotlinx.serialization.json.Json
 
@@ -43,13 +44,13 @@ internal class DefaultEnvironmentsParser(
                     }
 
                     val environmentName = environmentNameExtractor(environmentFile)
-                    val platforms = Json.decodeFromString<NonEmptyKeyStore<PlatformType, Platform>>(fileContent)
+                    val platforms = Json.decodeFromString<NonEmptyKeySetStore<PlatformType, Platform>>(fileContent)
 
                     Environment(name = environmentName, platforms = platforms)
                 }.toSet()
 
-            val environmentsKeyStore = NonEmptyKeyStore.of(environments)
-            return Success(environmentsKeyStore)
+            val environmentsKeySetStore = environments.toNonEmptyKeySetStore()
+            return Success(environmentsKeySetStore)
         } catch (error: Exception) {
             return Failure.Serialization(
                 environmentsDirectoryPath = environmentsDirectory.directory.path,

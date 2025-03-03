@@ -1,12 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 
 public data class Environment(
     val name: NonEmptyString,
-    val platforms: NonEmptyKeyStore<PlatformType, Platform>,
+    val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
 ) : KeyProvider<String> {
     override val key: String = name.value
 

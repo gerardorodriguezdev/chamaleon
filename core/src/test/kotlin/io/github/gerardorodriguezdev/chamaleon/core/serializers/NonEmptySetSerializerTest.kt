@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet.Companion.toUnsafeNonEmptySet
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -16,7 +17,7 @@ class NonEmptySetSerializerTest {
         fun `GIVEN non empty set WHEN serialize THEN returns json`() {
             //language=json
             val expectedJson = """{"set":[1,2,3]}""".trimIndent()
-            val nullableString = IntSet(NonEmptySet.unsafe(setOf(1, 2, 3)))
+            val nullableString = IntSet(setOf(1, 2, 3).toUnsafeNonEmptySet())
 
             val actualJson = Json.encodeToString(nullableString)
 
@@ -44,7 +45,7 @@ class NonEmptySetSerializerTest {
 
         @Test
         fun `GIVEN valid non empty set WHEN deserialize THEN returns set`() {
-            val expectedSet = IntSet(NonEmptySet.unsafe(setOf(1, 2, 3)))
+            val expectedSet = IntSet(setOf(1, 2, 3).toUnsafeNonEmptySet())
             val json =
                 //language=json
                 """

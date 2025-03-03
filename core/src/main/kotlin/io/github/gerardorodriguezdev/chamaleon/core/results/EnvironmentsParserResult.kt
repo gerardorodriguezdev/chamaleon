@@ -1,10 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 
 public sealed class EnvironmentsParserResult {
-    internal data class Success(val environments: NonEmptyKeyStore<String, Environment>?) : EnvironmentsParserResult()
+    internal data class Success(val environments: NonEmptyKeySetStore<String, Environment>?) :
+        EnvironmentsParserResult()
 
     public sealed class Failure : EnvironmentsParserResult() {
         public abstract val environmentsDirectoryPath: String

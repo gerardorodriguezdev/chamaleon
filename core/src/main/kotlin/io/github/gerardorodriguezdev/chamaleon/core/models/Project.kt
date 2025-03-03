@@ -9,7 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationRes
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile
 
@@ -17,14 +17,14 @@ public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
     public val schema: Schema,
     public val properties: Properties,
-    public val environments: NonEmptyKeyStore<String, Environment>? = null,
+    public val environments: NonEmptyKeySetStore<String, Environment>? = null,
 ) {
 
     public fun propertiesValidFile(): ValidFile? = EnvironmentsProcessor.propertiesValidFile(environmentsDirectory)
 
     public fun schemaValidFile(): ValidFile? = EnvironmentsProcessor.schemaValidFile(environmentsDirectory)
 
-    public fun addEnvironment(newEnvironments: NonEmptyKeyStore<String, Environment>): Project? {
+    public fun addEnvironment(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
         val newEnvironments = environments?.addValues(newEnvironments)
 
         val projectValidationResult = projectOf(
@@ -58,7 +58,7 @@ public class Project private constructor(
             environmentsDirectory: ExistingDirectory,
             schema: Schema,
             properties: Properties,
-            environments: NonEmptyKeyStore<String, Environment>? = null,
+            environments: NonEmptyKeySetStore<String, Environment>? = null,
         ): ProjectValidationResult {
             val isSelectedEnvironmentOnEnvironmentsResult = properties.isSelectedEnvironmentOnEnvironmentsOrFailure(
                 environmentsDirectoryPath = environmentsDirectory.directory.path,
@@ -84,7 +84,7 @@ public class Project private constructor(
 
         private fun Properties.isSelectedEnvironmentOnEnvironmentsOrFailure(
             environmentsDirectoryPath: String,
-            environments: NonEmptyKeyStore<String, Environment>?,
+            environments: NonEmptyKeySetStore<String, Environment>?,
         ): Failure? =
             when {
                 selectedEnvironmentName == null -> null
@@ -107,7 +107,7 @@ public class Project private constructor(
 
         internal fun Schema.areEnvironmentsValidOrFailure(
             environmentsDirectoryPath: String,
-            environments: NonEmptyKeyStore<String, Environment>?,
+            environments: NonEmptyKeySetStore<String, Environment>?,
         ): Failure? =
             environments?.values?.firstNotNullOfOrNull { environment ->
                 val context = Context(

@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.SchemaSerializer
@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 public class Schema private constructor(
     @SerialName("supportedPlatforms")
     public val globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
-    public val propertyDefinitions: NonEmptyKeyStore<String, PropertyDefinition>,
+    public val propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
 ) {
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
@@ -30,7 +30,7 @@ public class Schema private constructor(
     public companion object {
         public fun schemaOf(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
-            propertyDefinitions: NonEmptyKeyStore<String, PropertyDefinition>,
+            propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
         ): Schema? {
             propertyDefinitions.values.forEach { propertyDefinition ->
                 if (!propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)) return null

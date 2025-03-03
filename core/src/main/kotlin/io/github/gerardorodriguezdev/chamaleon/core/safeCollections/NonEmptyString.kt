@@ -10,6 +10,10 @@ public value class NonEmptyString private constructor(public val value: String) 
     public fun append(input: String): NonEmptyString = NonEmptyString(value + input)
     public fun removeSuffix(suffix: String): NonEmptyString = NonEmptyString(value.removeSuffix(suffix))
 
+    override fun toString(): String {
+        return value
+    }
+
     public companion object {
         public fun String.toUnsafeNonEmptyString(): NonEmptyString =
             if (isEmpty()) {

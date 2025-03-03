@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.models
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.PropertySerializer
 import kotlinx.serialization.Serializable
@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class Platform(
     val platformType: PlatformType,
-    val properties: NonEmptyKeyStore<String, Property>,
+    val properties: NonEmptyKeySetStore<String, Property>,
 ) : KeyProvider<PlatformType> {
     override val key: PlatformType = platformType
 

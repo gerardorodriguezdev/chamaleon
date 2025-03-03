@@ -12,6 +12,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultProjectGen
 import io.github.gerardorodriguezdev.chamaleon.core.generators.ProjectGenerator
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
@@ -122,7 +123,7 @@ internal class DefaultEnvironmentsProcessor(
             is SchemaParserResult.Success -> schema.right()
         }
 
-    private fun EnvironmentsParserResult.environmentsOrFailure(): Either<Failure, NonEmptyKeyStore<String, Environment>?> =
+    private fun EnvironmentsParserResult.environmentsOrFailure(): Either<Failure, NonEmptyKeySetStore<String, Environment>?> =
         when (this) {
             is EnvironmentsParserResult.Failure -> Failure.EnvironmentsParsing(
                 environmentsDirectoryPath = environmentsDirectoryPath,
@@ -146,10 +147,10 @@ internal class DefaultEnvironmentsProcessor(
     private fun project(
         environmentsDirectory: ExistingDirectory,
         schema: Schema,
-        environments: NonEmptyKeyStore<String, Environment>?,
+        environments: NonEmptyKeySetStore<String, Environment>?,
         properties: Properties,
     ): Either<Failure, Project> {
-        val projectValidationResult = Project.projectOf(
+        val projectValidationResult = projectOf(
             environmentsDirectory = environmentsDirectory,
             schema = schema,
             environments = environments,

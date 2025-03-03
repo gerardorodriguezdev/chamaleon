@@ -4,7 +4,6 @@ import java.io.File
 
 public class ValidDirectory private constructor(public val directory: File) {
     public companion object {
-        public fun validDirectoryOf(directory: File): ValidDirectory? =
-            if (directory.isDirectory) ValidDirectory(directory) else null
+        public fun File.validDirectoryOf(): ValidDirectory? = if (isDirectory) ValidDirectory(this) else null
     }
 }

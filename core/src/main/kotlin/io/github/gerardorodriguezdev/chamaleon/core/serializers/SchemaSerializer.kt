@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -66,7 +66,7 @@ internal object SchemaSerializer : KSerializer<Schema> {
         )
     }
 
-    private fun CompositeDecoder.propertyDefinitions(): NonEmptyKeyStore<String, PropertyDefinition> {
+    private fun CompositeDecoder.propertyDefinitions(): NonEmptyKeySetStore<String, PropertyDefinition> {
         verifyAndAdvanceIndex(PROPERTY_DEFINITIONS_INDEX)
         return decodeSerializableElement(
             descriptor = descriptor,
