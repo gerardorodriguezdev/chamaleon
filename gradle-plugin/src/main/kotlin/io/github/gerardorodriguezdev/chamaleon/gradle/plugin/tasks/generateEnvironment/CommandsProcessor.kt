@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult.Failure
@@ -62,11 +63,12 @@ internal class DefaultCommandsProcessor(
             .map { (environmentName, environments) ->
                 Environment(
                     name = environmentName,
-                    platforms = environments.mergePlatforms(),
+                    platforms = environments.mergePlatforms().toNonEmptyKeySetStore()
+                        ?: return@mergeDuplicatedEnvironments emptySet()
                 )
             }
             .toSet()
 
     private fun List<Environment>.mergePlatforms(): Set<Platform> =
-        flatMap { environment -> environment.platforms }.toSet()
+        flatMap { environment -> environment.platforms.values }.toSet()
 }

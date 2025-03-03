@@ -5,6 +5,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
@@ -32,7 +34,7 @@ internal interface CommandParser {
         private fun List<Property>.toStringPairs(): String =
             joinToString(separator = "=") { property -> property.toStringPair() }
 
-        private fun Property.toStringPair(): String = "$name=$value"
+        private fun Property.toStringPair(): String = "${name.value}=$value"
     }
 }
 
@@ -44,25 +46,29 @@ internal class DefaultCommandParser : CommandParser {
 
         val (environmentNameString, platformTypeString, propertiesString) = regexResult.destructured
 
-        if (environmentNameString.isEmpty()) return Failure.InvalidCommand(command)
+        val environmentName = environmentNameString.toNonEmptyString()
+        if (environmentName == null) return Failure.InvalidCommand(command)
 
         val platformType = platformTypeString.toPlatformType() ?: return Failure.InvalidPlatformType(
             command = command,
             platformTypeString = platformTypeString,
         )
-        val properties = propertiesString.toProperties()
 
-        if (properties.isEmpty()) return Failure.InvalidCommand(command)
+        val properties = propertiesString.toProperties().toNonEmptyKeySetStore()
+        if (properties == null) return Failure.InvalidCommand(command)
+
+        val platforms = setOf(
+            Platform(
+                platformType = platformType,
+                properties = properties,
+            )
+        ).toNonEmptyKeySetStore()
+        if (platforms == null) return Failure.InvalidCommand(command)
 
         return Success(
             environment = Environment(
-                name = environmentNameString,
-                platforms = setOf(
-                    Platform(
-                        platformType = platformType,
-                        properties = properties,
-                    )
-                )
+                name = environmentName,
+                platforms = platforms
             )
         )
     }
@@ -70,11 +76,14 @@ internal class DefaultCommandParser : CommandParser {
     private fun String.toPlatformType(): PlatformType? =
         PlatformType.values().firstOrNull { platformType -> platformType.serialName == this }
 
-    private fun String.toProperties(): Set<Property> =
-        this
-            .propertyStrings()
-            .mapNotNull { propertyString -> propertyString.toProperty() }
+    private fun String.toProperties(): Set<Property> {
+        return propertyStrings()
+            .map { propertyString ->
+                val property = propertyString.toProperty()
+                property ?: return@toProperties emptySet()
+            }
             .toSet()
+    }
 
     private fun String.propertyStrings(): List<String> = split(",")
 
@@ -89,17 +98,18 @@ internal class DefaultCommandParser : CommandParser {
         if (propertyValueString.isNullOrEmpty()) return null
 
         return Property(
-            name = propertyNameString,
-            value = propertyValueString.toPropertyValue(),
+            name = propertyNameString.toNonEmptyString() ?: return null,
+            value = propertyValueString.toPropertyValue() ?: return null,
         )
     }
 
-    private fun String.toPropertyValue(): PropertyValue {
+    private fun String.toPropertyValue(): PropertyValue? {
         val booleanValue = toBooleanStrictOrNull()
         return if (booleanValue != null) {
             PropertyValue.BooleanProperty(booleanValue)
         } else {
-            PropertyValue.StringProperty(this)
+            val value = toNonEmptyString() ?: return null
+            PropertyValue.StringProperty(value)
         }
     }
 

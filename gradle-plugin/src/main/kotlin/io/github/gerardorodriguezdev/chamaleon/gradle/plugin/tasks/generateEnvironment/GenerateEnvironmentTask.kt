@@ -2,16 +2,17 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
@@ -21,14 +22,14 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
     @get:Input
     public abstract val generateEnvironmentCommands: ListProperty<String>
 
-    @get:OutputDirectory
-    public abstract val environmentsDirectory: DirectoryProperty
+    @get:Input
+    public abstract val project: Property<Project>
 
     @TaskAction
     public fun generateEnvironment() {
         val commands = generateEnvironmentCommands.get()
         val environments = environments(commands)
-        generateEnvironments(environmentsDirectory.get().asFile, environments)
+        generateEnvironments(environments)
     }
 
     private fun environments(commands: List<String>): Set<Environment> {
@@ -49,16 +50,32 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
                 "Platform type '$platformTypeString' on $command is not valid"
         }
 
-    private fun generateEnvironments(environmentsDirectory: File, environments: Set<Environment>) {
-        val addEnvironmentsResult = environmentsProcessor.addEnvironments(
-            environmentsDirectory = environmentsDirectory,
-            environments = environments,
+    private fun generateEnvironments(environments: Set<Environment>) {
+        val project = project.get()
+        val environmentsNonEmptyKeyStore = environments.toNonEmptyKeySetStore()
+        if (environmentsNonEmptyKeyStore == null) {
+            throw GenerateEnvironmentTaskException(
+                message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
+            )
+        }
+
+        val newProject = project.addEnvironments(
+            newEnvironments = environmentsNonEmptyKeyStore,
         )
 
-        if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
+        if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                message = "Error generating environments file on '${environmentsDirectory.path}'"
+                message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
             )
+        }
+
+        runBlocking {
+            val updateProjectResult = environmentsProcessor.updateProject(newProject)
+            if (updateProjectResult is UpdateProjectResult.Failure) {
+                throw GenerateEnvironmentTaskException(
+                    message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
+                )
+            }
         }
     }
 

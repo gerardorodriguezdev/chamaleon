@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
 import java.io.File
 
 internal object SampleResources {
@@ -12,13 +13,17 @@ internal object SampleResources {
     private val propertiesFileContent = readSampleResource(PROPERTIES_FILE_NAME)
     val propertiesResource = Resource(PROPERTIES_FILE_NAME, propertiesFileContent)
 
-    private val localEnvironmentFileName = EnvironmentsProcessor.environmentFileName("local")
-    private val localEnvironmentFileContent = readSampleResource(localEnvironmentFileName)
-    val localEnvironmentResource = Resource(localEnvironmentFileName, localEnvironmentFileContent)
+    private const val LOCAL_ENVIRONMENT_NAME = "local"
+    private val localEnvironmentFileName =
+        EnvironmentsProcessor.environmentFileName(LOCAL_ENVIRONMENT_NAME.toUnsafeNonEmptyString())
+    private val localEnvironmentFileContent = readSampleResource(localEnvironmentFileName.value)
+    val localEnvironmentResource = Resource(localEnvironmentFileName.value, localEnvironmentFileContent)
 
-    private val productionEnvironmentFileName = EnvironmentsProcessor.environmentFileName("production")
-    private val productionEnvironmentFileContent = readSampleResource(productionEnvironmentFileName)
-    val productionEnvironmentResource = Resource(productionEnvironmentFileName, productionEnvironmentFileContent)
+    private const val PRODUCTION_ENVIRONMENT_NAME = "production"
+    private val productionEnvironmentFileName =
+        EnvironmentsProcessor.environmentFileName(PRODUCTION_ENVIRONMENT_NAME.toUnsafeNonEmptyString())
+    private val productionEnvironmentFileContent = readSampleResource(productionEnvironmentFileName.value)
+    val productionEnvironmentResource = Resource(productionEnvironmentFileName.value, productionEnvironmentFileContent)
 
     val resources = listOf(
         schemaResource,

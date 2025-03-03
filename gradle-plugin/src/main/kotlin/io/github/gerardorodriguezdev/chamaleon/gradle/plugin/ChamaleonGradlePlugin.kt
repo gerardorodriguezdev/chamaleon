@@ -7,6 +7,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory.Companion.toUnsafeExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -23,9 +26,9 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
         with(target) {
-            createExtension()
+            val extension = createExtension()
             registerGenerateSampleTask()
-            registerSelectEnvironmentTask()
+            registerSelectEnvironmentTask(extension)
             registerGenerateEnvironmentTask()
         }
     }
@@ -46,91 +49,87 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private fun Project.environmentsProcessorResult(): EnvironmentsProcessorResult {
-        val environmentsDirectory = environmentsDirectory()
         return runBlocking {
-            environmentsProcessor.process(environmentsDirectory.asFile)
+            val environmentsExistingDirectory = environmentsExistingDirectory()
+            environmentsProcessor.process(environmentsExistingDirectory)
         }
     }
 
     private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
 
+    private fun Project.environmentsExistingDirectory(): ExistingDirectory =
+        layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME).asFile.toUnsafeExistingDirectory()
+
     private fun handleSuccess(extension: ChamaleonExtension, success: Success) {
-        extension.environments.set(success.environments)
-        extension.selectedEnvironmentName.set(success.selectedEnvironmentName)
+        extension.project.set(success.project)
     }
 
     private fun handleFailure(failure: Failure) {
-        when (failure) {
-            is Failure.EnvironmentsDirectoryNotFound -> Unit
-            else -> throw ChamaleonGradlePluginException(
-                message = failure.toErrorMessage()
-            )
-        }
+        throw ChamaleonGradlePluginException(
+            message = failure.toErrorMessage()
+        )
     }
 
     @Suppress("Indentation")
     private fun Failure.toErrorMessage(): String =
         when (this) {
-            is Failure.EnvironmentsDirectoryNotFound ->
-                "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
+            is Failure.SchemaParsing -> error.toErrorMessage()
 
-            is Failure.SchemaParsingError -> schemaParsingError.toErrorMessage()
+            is Failure.EnvironmentsParsing -> error.toErrorMessage()
 
-            is Failure.EnvironmentsParsingError -> environmentsParsingError.toErrorMessage()
+            is Failure.PropertiesParsing -> error.toErrorMessage()
 
-            is Failure.PropertiesParsingError -> propertiesParsingError.toErrorMessage()
+            is Failure.ProjectValidation -> error.toErrorMessage()
 
-            is Failure.EnvironmentMissingPlatforms ->
-                "Platforms of environment '$environmentName' are not equal to schema"
-
-            is Failure.PropertyNotEqualToPropertyDefinition ->
-                "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
-
-            is Failure.PropertyTypeNotEqualToPropertyDefinition ->
-                "Value of property '$propertyName' for platform '$platformType' " +
-                        "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
-
-            is Failure.NullPropertyNotNullable ->
-                "Value on property '$propertyName' for platform '$platformType' on environment " +
-                        "'$environmentName' was null and is not marked as nullable on schema"
-
-            is Failure.SelectedEnvironmentNotFound ->
-                "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
-                        "[$environmentNames]"
+            is Failure.InvalidPropertiesFile -> "Invalid properties file at '$environmentsDirectoryPath'"
+            is Failure.InvalidSchemaFile -> "Invalid schema file at '$environmentsDirectoryPath'"
         }
 
     private fun SchemaParserResult.Failure.toErrorMessage(): String =
         when (this) {
-            is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '$schemaFilePath'"
             is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '$schemaFilePath' is empty"
             is SchemaParserResult.Failure.Serialization ->
                 "Schema parsing failed with error '${throwable.message}'"
-
-            is SchemaParserResult.Failure.EmptySupportedPlatforms ->
-                "'$SCHEMA_FILE' on '$schemaFilePath' has empty supported platforms"
-
-            is SchemaParserResult.Failure.EmptyPropertyDefinitions ->
-                "'$SCHEMA_FILE' on '$schemaFilePath' has empty property definitions"
-
-            is SchemaParserResult.Failure.InvalidPropertyDefinition ->
-                "'$SCHEMA_FILE' on '$schemaFilePath' contains invalid property definitions"
-
-            is SchemaParserResult.Failure.DuplicatedPropertyDefinition ->
-                "'$SCHEMA_FILE' on '$schemaFilePath' contains duplicated property definitions"
         }
 
     private fun EnvironmentsParserResult.Failure.toErrorMessage(): String =
         when (this) {
             is EnvironmentsParserResult.Failure.FileIsEmpty -> "Environments file on '$environmentsDirectoryPath' is empty"
-            is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$environmentsDirectoryPath'"
             is EnvironmentsParserResult.Failure.Serialization ->
                 "Environment parsing failed with error '${throwable.message}'"
+
+            is EnvironmentsParserResult.Failure.InvalidEnvironmentFile ->
+                "Invalid environments file on '$environmentsDirectoryPath' with path '${environmentFilePath}'"
         }
 
     private fun PropertiesParserResult.Failure.toErrorMessage(): String =
         when (this) {
             is PropertiesParserResult.Failure.Serialization ->
                 "Properties parsing failed with error '${throwable.message}'"
+        }
+
+    private fun ProjectValidationResult.Failure.toErrorMessage(): String =
+        when (this) {
+            is ProjectValidationResult.Failure.EnvironmentMissingPlatforms ->
+                "Platforms of environment '$environmentName' are not equal to schema"
+
+            is ProjectValidationResult.Failure.PropertyNotEqualToPropertyDefinition ->
+                "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
+
+            is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
+                "Value of property '$propertyName' for platform '$platformType' " +
+                        "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
+
+            is ProjectValidationResult.Failure.NullPropertyNotNullable ->
+                "Value on property '$propertyName' for platform '$platformType' on environment " +
+                        "'$environmentName' was null and is not marked as nullable on schema"
+
+            is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->
+                "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
+                        "[$environmentNames]"
+
+            is ProjectValidationResult.Failure.PlatformMissingProperties ->
+                "Platforms of environment '$environmentName' are not equal to schema"
         }
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
@@ -147,34 +146,41 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             )
         }
 
-    private fun Project.registerSelectEnvironmentTask(): TaskProvider<Task> =
+    private fun Project.registerSelectEnvironmentTask(extension: ChamaleonExtension): TaskProvider<Task> =
         tasks.register(SELECT_ENVIRONMENT_TASK_NAME) {
             val newSelectedEnvironment = providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
-            val environmentsDirectory = environmentsDirectory()
 
             doLast {
-                val addOrUpdateSelectedEnvironmentResult = environmentsProcessor.addOrUpdateSelectedEnvironment(
-                    environmentsDirectory = environmentsDirectory.asFile,
-                    newSelectedEnvironment = newSelectedEnvironment
-                )
+                val nonEmptyNewSelectedEnvironmentName = newSelectedEnvironment?.toNonEmptyString()
+                if (nonEmptyNewSelectedEnvironmentName == null) {
+                    throw ChamaleonGradlePluginException("")
+                }
 
-                if (addOrUpdateSelectedEnvironmentResult is AddEnvironmentsResult.Failure) {
-                    @Suppress("Indentation")
-                    throw ChamaleonGradlePluginException(
-                        message = "Error updating selected environment '$newSelectedEnvironment' on environments " +
-                                "directory $environmentsDirectory"
-                    )
+                val newProject = extension.project.get().updateProperties(
+                    newSelectedEnvironmentName = nonEmptyNewSelectedEnvironmentName,
+                )
+                if (newProject == null) {
+                    throw ChamaleonGradlePluginException("Error updating project")
+                }
+
+                runBlocking {
+                    val updateProjectResult = environmentsProcessor.updateProject(newProject)
+
+                    if (updateProjectResult is Failure) {
+                        @Suppress("Indentation")
+                        throw ChamaleonGradlePluginException(
+                            "Error updating selected environment '$newSelectedEnvironment' on environments " + "directory ${newProject.environmentsDirectory}"
+                        )
+                    }
                 }
             }
         }
 
     private fun Project.registerGenerateEnvironmentTask(): TaskProvider<GenerateEnvironmentTask> =
         tasks.register(GENERATE_ENVIRONMENT_TASK_NAME, GenerateEnvironmentTask::class.java) {
-            val environmentsDirectory = environmentsDirectory()
             val generateEnvironmentCommands =
                 providers.gradlePropertiesPrefixedBy(GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
-            this.environmentsDirectory.set(environmentsDirectory)
             this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
         }
 
