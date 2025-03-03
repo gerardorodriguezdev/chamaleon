@@ -8,7 +8,10 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefini
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.*
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile
 
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
@@ -17,16 +20,14 @@ public class Project private constructor(
     public val environments: NonEmptyKeyStore<String, Environment>? = null,
 ) {
 
-    public fun propertiesValidFile(): ValidFile =
-        requireNotNull(EnvironmentsProcessor.propertiesValidFile(environmentsDirectory))
+    public fun propertiesValidFile(): ValidFile? = EnvironmentsProcessor.propertiesValidFile(environmentsDirectory)
 
-    public fun schemaExistingFile(): ExistingFile =
-        requireNotNull(EnvironmentsProcessor.schemaExistingFile(environmentsDirectory))
+    public fun schemaValidFile(): ValidFile? = EnvironmentsProcessor.schemaValidFile(environmentsDirectory)
 
     public fun addEnvironment(newEnvironments: NonEmptyKeyStore<String, Environment>): Project? {
         val newEnvironments = environments?.addValues(newEnvironments)
 
-        val projectValidationResult = of(
+        val projectValidationResult = projectOf(
             environmentsDirectory = environmentsDirectory,
             schema = schema,
             properties = properties,
@@ -53,7 +54,7 @@ public class Project private constructor(
     }
 
     public companion object {
-        public fun of(
+        public fun projectOf(
             environmentsDirectory: ExistingDirectory,
             schema: Schema,
             properties: Properties,
@@ -215,8 +216,8 @@ public class Project private constructor(
             propertyDefinition: PropertyDefinition,
             property: Property,
             platformType: PlatformType,
-        ): Failure? {
-            return when (property.value) {
+        ): Failure? =
+            when (property.value) {
                 null -> isPropertyValueNullableOrFailure(
                     propertyDefinition = propertyDefinition,
                     propertyName = property.name.value,
@@ -230,7 +231,6 @@ public class Project private constructor(
                     platformType = platformType,
                 )
             }
-        }
 
         private fun Context.isPropertyValueNullableOrFailure(
             propertyDefinition: PropertyDefinition,

@@ -4,6 +4,6 @@ import java.io.File
 
 public class ExistingFile private constructor(public val file: File) {
     public companion object {
-        public fun of(file: File): ExistingFile? = if (file.isFile && file.exists()) ExistingFile(file) else null
+        public fun File.toExistingFile(): ExistingFile? = if (isFile && exists()) ExistingFile(this) else null
     }
 }

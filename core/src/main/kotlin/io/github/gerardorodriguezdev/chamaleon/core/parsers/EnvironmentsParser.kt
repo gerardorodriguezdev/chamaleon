@@ -10,7 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserRe
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile.Companion.toValidFile
 import kotlinx.serialization.json.Json
 
 public interface EnvironmentsParser {
@@ -27,7 +27,7 @@ internal class DefaultEnvironmentsParser(
             val environmentsFiles = environmentsDirectoryFiles
                 .filter { file -> file.isEnvironmentFile() }
                 .map { file ->
-                    val validFile = ValidFile.of(file)
+                    val validFile = file.toValidFile()
                     validFile ?: return Failure.InvalidEnvironmentFile(environmentsDirectory.directory.path, file.path)
                 }
                 .mapNotNull { file -> file.toExistingFile() }

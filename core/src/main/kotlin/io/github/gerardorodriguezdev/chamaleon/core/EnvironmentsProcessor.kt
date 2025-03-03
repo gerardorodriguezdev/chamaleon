@@ -19,6 +19,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.*
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory.Companion.toExistingDirectory
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -40,13 +41,13 @@ public interface EnvironmentsProcessor : ProjectGenerator {
         internal fun File.isEnvironmentFile(): Boolean =
             name != ENVIRONMENT_FILE_SUFFIX && name.endsWith(ENVIRONMENT_FILE_SUFFIX)
 
+        public fun schemaExistingFile(environmentsDirectory: ExistingDirectory): ExistingFile? =
+            environmentsDirectory.existingFile(SCHEMA_FILE)
+
         public fun environmentValidFile(
             environmentsDirectory: ExistingDirectory,
             environmentName: NonEmptyString
         ): ValidFile? = environmentsDirectory.validFile(environmentFileName(environmentName))
-
-        public fun schemaExistingFile(environmentsDirectory: ExistingDirectory): ExistingFile? =
-            environmentsDirectory.existingFile(SCHEMA_FILE)
 
         public fun schemaValidFile(environmentsDirectory: ExistingDirectory): ValidFile? =
             environmentsDirectory.validFile(SCHEMA_FILE)
@@ -148,7 +149,7 @@ internal class DefaultEnvironmentsProcessor(
         environments: NonEmptyKeyStore<String, Environment>?,
         properties: Properties,
     ): Either<Failure, Project> {
-        val projectValidationResult = Project.of(
+        val projectValidationResult = Project.projectOf(
             environmentsDirectory = environmentsDirectory,
             schema = schema,
             environments = environments,
@@ -183,7 +184,7 @@ internal class DefaultEnvironmentsProcessor(
             .map { environmentFile -> environmentFile.path }
             .toList()
             .mapNotNull { environmentsDirectoryPath ->
-                ExistingDirectory.of(environmentsDirectoryPath)
+                environmentsDirectoryPath.toExistingDirectory()
             }
 
     private val File.isEnvironmentsDirectory: Boolean get() = isDirectory && name == ENVIRONMENTS_DIRECTORY_NAME

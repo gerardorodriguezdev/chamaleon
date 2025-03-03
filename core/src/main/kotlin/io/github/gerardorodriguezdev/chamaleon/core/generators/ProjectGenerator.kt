@@ -16,7 +16,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 public interface ProjectGenerator {
-    public suspend fun generateProject(project: Project): GenerateProjectResult
+    public suspend fun updateProject(project: Project): GenerateProjectResult
 }
 
 public sealed interface GenerateProjectResult {
@@ -24,6 +24,8 @@ public sealed interface GenerateProjectResult {
     public sealed interface Failure : GenerateProjectResult {
         public val environmentsDirectoryPath: String
 
+        public data class InvalidPropertiesFile(override val environmentsDirectoryPath: String) : Failure
+        public data class InvalidSchemaFile(override val environmentsDirectoryPath: String) : Failure
         public data class InvalidEnvironmentFile(override val environmentsDirectoryPath: String) : Failure
 
         public data class Serialization(
@@ -36,17 +38,23 @@ internal class DefaultProjectGenerator(
     private val environmentFileNameExtractor: EnvironmentFileNameExtractor,
 ) : ProjectGenerator {
 
-    override suspend fun generateProject(project: Project): GenerateProjectResult {
+    override suspend fun updateProject(project: Project): GenerateProjectResult {
+        val propertiesFile = project.propertiesValidFile()?.toExistingFile(createIfNotPresent = true)
+        if (propertiesFile == null) return Failure.InvalidPropertiesFile(project.environmentsDirectory.directory.path)
+
         val updatePropertiesResult = updateProperties(
             environmentsDirectoryPath = project.environmentsDirectory.directory.path,
-            propertiesFile = project.propertiesValidFile().toSafeExistingFile(),
+            propertiesFile = propertiesFile,
             newProperties = project.properties,
         )
         if (updatePropertiesResult is Failure) return updatePropertiesResult
 
+        val schemaFile = project.schemaValidFile()?.toExistingFile(createIfNotPresent = true)
+        if (schemaFile == null) return Failure.InvalidSchemaFile(project.environmentsDirectory.directory.path)
+
         val updateSchemaResult = updateSchema(
             environmentsDirectoryPath = project.environmentsDirectory.directory.path,
-            schemaFile = project.schemaExistingFile(),
+            schemaFile = schemaFile,
             newSchema = project.schema,
         )
         if (updateSchemaResult is Failure) return updateSchemaResult
@@ -107,7 +115,8 @@ internal class DefaultProjectGenerator(
                             }
 
                             val platformsJson = PrettyJson.encodeToString(environment.platforms)
-                            environmentFile.toSafeExistingFile().file.writeText(platformsJson)
+                            val existingFile = environmentFile.toExistingFile(createIfNotPresent = true)
+                            existingFile?.file?.writeText(platformsJson)
                         }
                     }
                     .awaitAll()

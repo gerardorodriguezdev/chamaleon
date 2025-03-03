@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toNonEmptyString
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -18,7 +19,7 @@ internal object NonEmptyStringSerializer : KSerializer<NonEmptyString> {
 
     override fun deserialize(decoder: Decoder): NonEmptyString {
         val string = decoder.decodeString()
-        val nonEmptyString = NonEmptyString.of(string)
+        val nonEmptyString = string.toNonEmptyString()
         if (nonEmptyString == null) throw SerializationException("NonEmpty string cannot be empty")
         return nonEmptyString
     }

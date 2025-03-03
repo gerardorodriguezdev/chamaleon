@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toNonEmptyString
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -46,7 +46,7 @@ internal object PropertySerializer : KSerializer<Property> {
         val jsonObject = decoder.decodeJsonElement().jsonObject
 
         val name = jsonObject["name"]?.jsonPrimitive?.content
-        val nonEmptyName = name?.let { NonEmptyString.of(it) }
+        val nonEmptyName = name?.toNonEmptyString()
         if (nonEmptyName == null) throw SerializationException("Property name was empty")
 
         val valueElement = jsonObject["value"]
@@ -59,9 +59,9 @@ internal object PropertySerializer : KSerializer<Property> {
             this is JsonNull -> null
             jsonPrimitive.isString == true -> {
                 val stringValue = jsonPrimitive.content
-                val nonEmptyString = NonEmptyString.of(stringValue)
-                if (nonEmptyString == null) throw SerializationException("StringProperty value was empty")
-                StringProperty(nonEmptyString)
+                val nonEmptyStringValue = stringValue.toNonEmptyString()
+                if (nonEmptyStringValue == null) throw SerializationException("StringProperty value was empty")
+                StringProperty(nonEmptyStringValue)
             }
 
             jsonPrimitive.booleanOrNull != null -> BooleanProperty(jsonPrimitive.boolean)

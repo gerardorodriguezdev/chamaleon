@@ -2,6 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
@@ -50,7 +51,7 @@ internal object SchemaSerializer : KSerializer<Schema> {
             val globalSupportedPlatforms = globalSupportedPlatforms()
             val propertyDefinitions = propertyDefinitions()
 
-            val schema = Schema.of(globalSupportedPlatforms, propertyDefinitions)
+            val schema = schemaOf(globalSupportedPlatforms, propertyDefinitions)
             if (schema == null) throw SerializationException("Property definition contains unsupported platforms")
 
             schema

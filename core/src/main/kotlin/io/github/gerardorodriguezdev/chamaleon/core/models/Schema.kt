@@ -28,7 +28,7 @@ public class Schema private constructor(
     }
 
     public companion object {
-        public fun of(
+        public fun schemaOf(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeyStore<String, PropertyDefinition>,
         ): Schema? {

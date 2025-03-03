@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -17,7 +18,7 @@ class NonEmptyStringSerializerTest {
         fun `GIVEN non empty string WHEN serialize THEN returns json`() {
             //language=json
             val expectedJson = """{"value":"value"}""".trimIndent()
-            val str = Str(value = NonEmptyString.unsafe("value"))
+            val str = Str(value = "value".toUnsafeNonEmptyString())
 
             val actualJson = Json.encodeToString(str)
 
@@ -45,7 +46,7 @@ class NonEmptyStringSerializerTest {
 
         @Test
         fun `GIVEN valid string WHEN deserialize THEN returns nullable string`() {
-            val expectedStr = Str(value = NonEmptyString.unsafe("value"))
+            val expectedStr = Str(value = "value".toUnsafeNonEmptyString())
             val json =
                 //language=json
                 """
