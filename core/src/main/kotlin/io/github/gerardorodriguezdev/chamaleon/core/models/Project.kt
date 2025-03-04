@@ -14,6 +14,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
+//TODO: Review
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
     public val schema: Schema,

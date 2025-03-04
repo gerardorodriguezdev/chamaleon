@@ -32,6 +32,8 @@ public class Schema private constructor(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
         ): Schema? {
+
+            //TODO: Sep?
             propertyDefinitions.values.forEach { propertyDefinition ->
                 if (!propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)) return null
             }

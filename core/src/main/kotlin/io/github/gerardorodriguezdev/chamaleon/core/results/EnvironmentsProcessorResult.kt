@@ -12,10 +12,6 @@ public sealed interface EnvironmentsProcessorResult {
             override val environmentsDirectoryPath: String,
         ) : Failure
 
-        public data class InvalidPropertiesFile(
-            override val environmentsDirectoryPath: String,
-        ) : Failure
-
         public data class SchemaParsing(
             override val environmentsDirectoryPath: String,
             val error: SchemaParserResult.Failure

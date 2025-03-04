@@ -15,11 +15,6 @@ public sealed class EnvironmentsParserResult {
             val environmentFilePath: String,
         ) : Failure()
 
-        public data class InvalidEnvironmentFile(
-            override val environmentsDirectoryPath: String,
-            val environmentFilePath: String,
-        ) : Failure()
-
         public data class Serialization(
             override val environmentsDirectoryPath: String,
             val throwable: Throwable,

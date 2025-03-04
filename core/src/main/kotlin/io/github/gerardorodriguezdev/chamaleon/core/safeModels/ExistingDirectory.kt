@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Co
 import java.io.File
 import java.io.IOException
 
+//TODO: Ordering function conditions (valid/invalid)
 public class ExistingDirectory private constructor(private val directory: File) {
     public val path: NonEmptyString = directory.path.toUnsafeNonEmptyString()
 
@@ -50,8 +51,8 @@ public class ExistingDirectory private constructor(private val directory: File) 
 
     public companion object {
         public fun NonEmptyString.existingDirectory(
-            createIfNotPresent: Boolean = false,
             fileName: NonEmptyString,
+            createIfNotPresent: Boolean = false,
         ): ExistingDirectory? {
             val directory = File(fileName.value)
 

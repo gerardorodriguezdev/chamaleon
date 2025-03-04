@@ -14,6 +14,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
+//TODO: Chainng
 internal object PropertySerializer : KSerializer<Property> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Property") {
         element<String>("name")
@@ -58,6 +59,7 @@ internal object PropertySerializer : KSerializer<Property> {
             this == null -> null
             this is JsonNull -> null
             jsonPrimitive.isString == true -> {
+                //TODO: Sep?
                 val stringValue = jsonPrimitive.content
                 val nonEmptyStringValue = stringValue.toNonEmptyString()
                 if (nonEmptyStringValue == null) throw SerializationException("StringProperty value was empty")

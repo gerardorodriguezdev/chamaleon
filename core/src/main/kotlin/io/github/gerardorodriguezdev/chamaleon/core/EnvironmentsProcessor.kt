@@ -37,7 +37,7 @@ public interface EnvironmentsProcessor : ProjectUpdater {
     public companion object {
         public const val SCHEMA_FILE: String = "template.chamaleon.json"
         public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
-        internal const val ENVIRONMENT_FILE_SUFFIX: String = ".environment.chamaleon.json"
+        public const val ENVIRONMENT_FILE_SUFFIX: String = ".environment.chamaleon.json"
         public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
 
         public fun environmentFileName(environmentName: NonEmptyString): NonEmptyString =

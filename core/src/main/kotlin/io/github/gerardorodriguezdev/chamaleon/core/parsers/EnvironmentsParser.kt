@@ -13,6 +13,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetSto
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import kotlinx.serialization.json.Json
 
+//TODO: Single parser?
 public interface EnvironmentsParser {
     public fun parse(environmentsDirectory: ExistingDirectory): EnvironmentsParserResult
 }
@@ -24,6 +25,7 @@ internal class DefaultEnvironmentsParser(
     override fun parse(environmentsDirectory: ExistingDirectory): EnvironmentsParserResult {
         try {
             //TODO: Case where env dir has invalid env files
+            //TODO: Sep file?
             val environmentsFiles = environmentsDirectory.existingFiles { fileName -> fileName.isEnvironmentFileName() }
 
             val environments = environmentsFiles

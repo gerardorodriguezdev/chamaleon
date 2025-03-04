@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyKeyStoreSerializer
 import kotlinx.serialization.Serializable
 
+//TODO: Use of it in funs instead of full name
 @Serializable(with = NonEmptyKeyStoreSerializer::class)
 public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
     public val value: Map<K, V>
