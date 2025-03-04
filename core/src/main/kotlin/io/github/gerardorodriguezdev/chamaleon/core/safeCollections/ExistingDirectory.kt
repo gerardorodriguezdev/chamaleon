@@ -1,33 +1,73 @@
 package io.github.gerardorodriguezdev.chamaleon.core.safeCollections
 
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile.Companion.toExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile.Companion.toValidFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
 import java.io.File
+import java.io.IOException
 
-public class ExistingDirectory private constructor(public val directory: File) {
+public class ExistingDirectory private constructor(private val directory: File) {
+    public val path: NonEmptyString = directory.path.toUnsafeNonEmptyString()
 
-    public fun existingFile(fileName: String): ExistingFile? =
-        if (fileName.isEmpty()) null else File(directory, fileName).toExistingFile()
+    public fun existingFile(
+        fileName: NonEmptyString,
+        createIfNotPresent: Boolean = false,
+    ): ExistingFile? {
+        val file = File(directory, fileName.value)
+        if (createIfNotPresent) {
+            try {
+                file.createNewFile()
+            } catch (_: IOException) {
+                return null
+            }
+        }
 
-    public fun validFile(fileName: NonEmptyString): ValidFile? = File(directory, fileName.value).toValidFile()
+        return if (file.isFile && file.exists()) {
+            ExistingFile(
+                name = fileName,
+                path = path,
+                readContentDelegate = { file.readText() },
+                writeContentDelegate = { file.writeText(it) }
+            )
+        } else null
+    }
 
-    public fun validFile(fileName: String): ValidFile? =
-        if (fileName.isEmpty()) null else File(directory, fileName).toValidFile()
+    public fun existingDirectories(filter: (directoryName: String) -> Boolean): List<ExistingDirectory> =
+        directory
+            .walkTopDown()
+            .filter { file -> file.isDirectory && file.exists() && filter(file.name) }
+            .map { file -> ExistingDirectory(file) }
+            .toList()
+
+    public fun existingFiles(filter: (fileName: String) -> Boolean): List<ExistingFile> =
+        directory
+            .listFiles()
+            .filter { file -> file.isFile && file.exists() && filter(file.name) }
+            .mapNotNull { file ->
+                existingFile(
+                    fileName = file.name.toUnsafeNonEmptyString(),
+                )
+            }
+            .toList()
 
     public companion object {
-        public fun File.toUnsafeExistingDirectory(): ExistingDirectory =
-            if (!isDirectory || !exists()) {
-                throw IllegalStateException("Existing directory invalid")
-            } else {
-                ExistingDirectory(this)
+        public fun NonEmptyString.existingDirectory(
+            createIfNotPresent: Boolean = false,
+            fileName: NonEmptyString,
+        ): ExistingDirectory? {
+            val directory = File(fileName.value)
+
+            if (createIfNotPresent) {
+                try {
+                    if (!directory.exists()) {
+                        directory.mkdir()
+                    }
+                } catch (_: IOException) {
+                    return null
+                }
             }
 
-        public fun File.toExistingDirectory(): ExistingDirectory? =
-            if (isDirectory && exists()) ExistingDirectory(this) else null
-
-        public fun NonEmptyString.toExistingDirectory(): ExistingDirectory? = File(value).toExistingDirectory()
-
-        public fun String.toExistingDirectory(): ExistingDirectory? =
-            if (isEmpty()) null else File(this).toExistingDirectory()
+            return if (directory.exists() && directory.isDirectory) {
+                ExistingDirectory(directory)
+            } else null
+        }
     }
 }

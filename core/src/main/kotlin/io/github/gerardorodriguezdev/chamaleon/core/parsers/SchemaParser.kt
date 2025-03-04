@@ -15,10 +15,10 @@ internal object DefaultSchemaParser : SchemaParser {
 
     override fun parse(schemaFile: ExistingFile): SchemaParserResult {
         return try {
-            val schemaFileContent = schemaFile.file.readText()
+            val schemaFileContent = schemaFile.readContent()
             if (schemaFileContent.isEmpty()) {
                 return Failure.FileIsEmpty(
-                    schemaFilePath = schemaFile.file.path
+                    schemaFilePath = schemaFile.path.value
                 )
             }
 
@@ -26,7 +26,7 @@ internal object DefaultSchemaParser : SchemaParser {
 
             Success(schema)
         } catch (error: Exception) {
-            Failure.Serialization(schemaFilePath = schemaFile.file.path, throwable = error)
+            Failure.Serialization(schemaFilePath = schemaFile.path.value, throwable = error)
         }
     }
 }

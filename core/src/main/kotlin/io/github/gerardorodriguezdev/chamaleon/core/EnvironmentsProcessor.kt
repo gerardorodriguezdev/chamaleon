@@ -6,7 +6,7 @@ import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.propertiesValidFile
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.propertiesExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
@@ -21,12 +21,14 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.*
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory.Companion.toExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import java.io.File
 
 public interface EnvironmentsProcessor : ProjectUpdater {
     public suspend fun process(environmentsDirectory: ExistingDirectory): EnvironmentsProcessorResult
@@ -41,22 +43,20 @@ public interface EnvironmentsProcessor : ProjectUpdater {
         public fun environmentFileName(environmentName: NonEmptyString): NonEmptyString =
             environmentName.append(ENVIRONMENT_FILE_SUFFIX)
 
-        internal fun File.isEnvironmentFile(): Boolean =
-            name != ENVIRONMENT_FILE_SUFFIX && name.endsWith(ENVIRONMENT_FILE_SUFFIX)
+        internal fun String.isEnvironmentFileName(): Boolean =
+            this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
 
-        public fun schemaExistingFile(environmentsDirectory: ExistingDirectory): ExistingFile? =
-            environmentsDirectory.existingFile(SCHEMA_FILE)
+        public fun ExistingDirectory.schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
+            existingFile(
+                fileName = SCHEMA_FILE.toUnsafeNonEmptyString(),
+                createIfNotPresent = createIfNotPresent
+            )
 
-        public fun environmentValidFile(
-            environmentsDirectory: ExistingDirectory,
-            environmentName: NonEmptyString
-        ): ValidFile? = environmentsDirectory.validFile(environmentFileName(environmentName))
-
-        public fun schemaValidFile(environmentsDirectory: ExistingDirectory): ValidFile? =
-            environmentsDirectory.validFile(SCHEMA_FILE)
-
-        public fun propertiesValidFile(environmentsDirectory: ExistingDirectory): ValidFile? =
-            environmentsDirectory.validFile(PROPERTIES_FILE)
+        public fun ExistingDirectory.propertiesExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
+            existingFile(
+                fileName = PROPERTIES_FILE.toUnsafeNonEmptyString(),
+                createIfNotPresent = createIfNotPresent,
+            )
 
         public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
     }
@@ -85,10 +85,10 @@ internal class DefaultEnvironmentsProcessor(
         coroutineScope {
             either {
                 val schemaParsing = async {
-                    val schemaFile = schemaExistingFile(environmentsDirectory)
-                    ensureNotNull(schemaFile) { Failure.InvalidSchemaFile(environmentsDirectory.directory.path) }
+                    val schemaFile = environmentsDirectory.schemaExistingFile()
+                    ensureNotNull(schemaFile) { Failure.InvalidSchemaFile(environmentsDirectory.path.value) }
                     val schemaParserResult = schemaParser.parse(schemaFile)
-                    schemaParserResult.schemaOrFailure(environmentsDirectory.directory.path)
+                    schemaParserResult.schemaOrFailure(environmentsDirectory.path.value)
                 }
 
                 val environmentsParsing = async {
@@ -97,10 +97,14 @@ internal class DefaultEnvironmentsProcessor(
                 }
 
                 val propertiesParsing = async {
-                    val propertiesFile = propertiesValidFile(environmentsDirectory)
-                    ensureNotNull(propertiesFile) { Failure.InvalidPropertiesFile(environmentsDirectory.directory.path) }
+                    val propertiesFile = environmentsDirectory.propertiesExistingFile()
+                    if (propertiesFile == null) {
+                        return@async PropertiesParserResult.Success()
+                            .propertiesOrFailure(environmentsDirectory.path.value)
+                    }
+
                     val propertiesParserResult = propertiesParser.parse(propertiesFile)
-                    propertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectory.directory.path)
+                    propertiesParserResult.propertiesOrFailure(environmentsDirectory.path.value)
                 }
 
                 val project = project(
@@ -135,7 +139,7 @@ internal class DefaultEnvironmentsProcessor(
             is EnvironmentsParserResult.Success -> environments.right()
         }
 
-    private fun PropertiesParserResult.selectedEnvironmentNameOrFailure(environmentsDirectoryPath: String): Either<Failure, Properties> =
+    private fun PropertiesParserResult.propertiesOrFailure(environmentsDirectoryPath: String): Either<Failure, Properties> =
         when (this) {
             is PropertiesParserResult.Failure ->
                 Failure.PropertiesParsing(
@@ -162,7 +166,7 @@ internal class DefaultEnvironmentsProcessor(
         return when (projectValidationResult) {
             is ProjectValidationResult.Success -> projectValidationResult.project.right()
             is ProjectValidationResult.Failure -> Failure.ProjectValidation(
-                environmentsDirectoryPath = environmentsDirectory.directory.path,
+                environmentsDirectoryPath = environmentsDirectory.path.value,
                 error = projectValidationResult
             ).left()
         }
@@ -181,14 +185,5 @@ internal class DefaultEnvironmentsProcessor(
         }
 
     private fun ExistingDirectory.environmentsDirectoriesPaths(): List<ExistingDirectory> =
-        directory
-            .walkTopDown()
-            .filter { file -> file.isEnvironmentsDirectory }
-            .map { environmentFile -> environmentFile.path }
-            .toList()
-            .mapNotNull { environmentsDirectoryPath ->
-                environmentsDirectoryPath.toExistingDirectory()
-            }
-
-    private val File.isEnvironmentsDirectory: Boolean get() = isDirectory && name == ENVIRONMENTS_DIRECTORY_NAME
+        existingDirectories { directoryName -> directoryName == ENVIRONMENTS_DIRECTORY_NAME }
 }

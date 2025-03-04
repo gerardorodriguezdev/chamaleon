@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.isEnvironmentFile
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.isEnvironmentFileName
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
@@ -11,7 +11,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserRe
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile.Companion.toValidFile
 import kotlinx.serialization.json.Json
 
 public interface EnvironmentsParser {
@@ -24,22 +23,16 @@ internal class DefaultEnvironmentsParser(
 
     override fun parse(environmentsDirectory: ExistingDirectory): EnvironmentsParserResult {
         try {
-            val environmentsDirectoryFiles = environmentsDirectory.directory.listFiles()
-            val environmentsFiles = environmentsDirectoryFiles
-                .filter { file -> file.isEnvironmentFile() }
-                .map { file ->
-                    val validFile = file.toValidFile()
-                    validFile ?: return Failure.InvalidEnvironmentFile(environmentsDirectory.directory.path, file.path)
-                }
-                .mapNotNull { file -> file.toExistingFile() }
+            //TODO: Case where env dir has invalid env files
+            val environmentsFiles = environmentsDirectory.existingFiles { fileName -> fileName.isEnvironmentFileName() }
 
             val environments = environmentsFiles
                 .map { environmentFile ->
-                    val fileContent = environmentFile.file.readText()
+                    val fileContent = environmentFile.readContent()
                     if (fileContent.isEmpty()) {
                         return Failure.FileIsEmpty(
-                            environmentsDirectoryPath = environmentsDirectory.directory.path,
-                            environmentFilePath = environmentFile.file.path
+                            environmentsDirectoryPath = environmentsDirectory.path.value,
+                            environmentFilePath = environmentFile.path.value
                         )
                     }
 
@@ -53,7 +46,7 @@ internal class DefaultEnvironmentsParser(
             return Success(environmentsKeySetStore)
         } catch (error: Exception) {
             return Failure.Serialization(
-                environmentsDirectoryPath = environmentsDirectory.directory.path,
+                environmentsDirectoryPath = environmentsDirectory.path.value,
                 throwable = error
             )
         }

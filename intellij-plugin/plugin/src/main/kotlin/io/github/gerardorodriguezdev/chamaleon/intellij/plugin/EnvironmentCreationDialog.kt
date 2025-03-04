@@ -21,8 +21,6 @@ import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.results.AddEnvironmentsResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.AddSchemaResult
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter

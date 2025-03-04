@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.core.generators
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.environmentValidFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
@@ -25,21 +24,21 @@ internal class DefaultProjectUpdater(
 ) : ProjectUpdater {
 
     override suspend fun updateProject(project: Project): UpdateProjectResult {
-        val propertiesFile = project.propertiesValidFile()?.toExistingFile(createIfNotPresent = true)
-        if (propertiesFile == null) return Failure.InvalidPropertiesFile(project.environmentsDirectory.directory.path)
+        val propertiesFile = project.propertiesExistingFile(createIfNotPresent = true)
+        if (propertiesFile == null) return Failure.InvalidPropertiesFile(project.environmentsDirectory.path.value)
 
         val updatePropertiesResult = updateProperties(
-            environmentsDirectoryPath = project.environmentsDirectory.directory.path,
+            environmentsDirectoryPath = project.environmentsDirectory.path.value,
             propertiesFile = propertiesFile,
             newProperties = project.properties,
         )
         if (updatePropertiesResult is Failure) return updatePropertiesResult
 
-        val schemaFile = project.schemaValidFile()?.toExistingFile(createIfNotPresent = true)
-        if (schemaFile == null) return Failure.InvalidSchemaFile(project.environmentsDirectory.directory.path)
+        val schemaFile = project.schemaExistingFile(createIfNotPresent = true)
+        if (schemaFile == null) return Failure.InvalidSchemaFile(project.environmentsDirectory.path.value)
 
         val updateSchemaResult = updateSchema(
-            environmentsDirectoryPath = project.environmentsDirectory.directory.path,
+            environmentsDirectoryPath = project.environmentsDirectory.path.value,
             schemaFile = schemaFile,
             newSchema = project.schema,
         )
@@ -59,7 +58,7 @@ internal class DefaultProjectUpdater(
     private fun updateSchema(environmentsDirectoryPath: String, schemaFile: ExistingFile, newSchema: Schema): Failure? {
         return try {
             val schemaFileContent = PrettyJson.encodeToString(newSchema)
-            schemaFile.file.writeText(schemaFileContent)
+            schemaFile.writeContent(schemaFileContent)
 
             null
         } catch (error: Exception) {
@@ -74,7 +73,7 @@ internal class DefaultProjectUpdater(
     ): Failure? {
         return try {
             val propertiesFileContent = PrettyJson.encodeToString(newProperties)
-            propertiesFile.file.writeText(propertiesFileContent)
+            propertiesFile.writeContent(propertiesFileContent)
 
             null
         } catch (error: Exception) {
@@ -92,16 +91,18 @@ internal class DefaultProjectUpdater(
                     .map { (_, environment) ->
                         async {
                             val environmentFileName = environmentFileNameExtractor(environment.name)
-                            val environmentValidFile = environmentValidFile(environmentsDirectory, environmentFileName)
-                            if (environmentValidFile == null) {
+                            val environmentExistingFile = environmentsDirectory.existingFile(
+                                fileName = environmentFileName,
+                                createIfNotPresent = true
+                            )
+                            if (environmentExistingFile == null) {
                                 return@async Failure.InvalidEnvironmentFile(
-                                    environmentsDirectory.directory.path
+                                    environmentsDirectory.path.value
                                 )
                             }
 
                             val platformsJson = PrettyJson.encodeToString(environment.platforms)
-                            val environmentExistingFile = environmentValidFile.toExistingFile(createIfNotPresent = true)
-                            environmentExistingFile?.file?.writeText(platformsJson)
+                            environmentExistingFile.writeContent(platformsJson)
                         }
                     }
                     .awaitAll()
@@ -109,7 +110,7 @@ internal class DefaultProjectUpdater(
                 null
             } catch (error: Exception) {
                 Failure.Serialization(
-                    environmentsDirectoryPath = environmentsDirectory.directory.path,
+                    environmentsDirectoryPath = environmentsDirectory.path.value,
                     throwable = error
                 )
             }

@@ -103,17 +103,17 @@ internal class DefaultSetupEnvironmentHandler(
                     schema = Schema(),
                 )
 
-            is EnvironmentsProcessorResult.Failure.SchemaParsingError -> toUpdateEnvironmentsDirectoryState(
+            is EnvironmentsProcessorResult.Failure.SchemaParsing -> toUpdateEnvironmentsDirectoryState(
                 environmentsDirectoryPath
             )
 
             else -> Failure.InvalidEnvironments(environmentsDirectoryPath)
         }
 
-    private fun EnvironmentsProcessorResult.Failure.SchemaParsingError.toUpdateEnvironmentsDirectoryState(
+    private fun EnvironmentsProcessorResult.Failure.SchemaParsing.toUpdateEnvironmentsDirectoryState(
         environmentsDirectoryPath: String,
     ): UpdateEnvironmentsDirectoryState =
-        when (schemaParsingError) {
+        when (error) {
             is SchemaParserResult.Failure.FileNotFound -> Success(
                 environmentsDirectoryPath = environmentsDirectoryPath,
                 environments = emptySet(),

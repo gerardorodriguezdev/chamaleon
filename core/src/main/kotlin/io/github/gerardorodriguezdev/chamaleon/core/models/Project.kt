@@ -1,6 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.propertiesExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
@@ -9,9 +10,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationRes
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ValidFile
 
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
@@ -21,9 +22,11 @@ public class Project private constructor(
 ) {
     public fun selectedEnvironment(): Environment? = environments?.get(properties.selectedEnvironmentName?.value)
 
-    public fun propertiesValidFile(): ValidFile? = EnvironmentsProcessor.propertiesValidFile(environmentsDirectory)
+    public fun propertiesExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
+        environmentsDirectory.propertiesExistingFile(createIfNotPresent)
 
-    public fun schemaValidFile(): ValidFile? = EnvironmentsProcessor.schemaValidFile(environmentsDirectory)
+    public fun schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
+        environmentsDirectory.schemaExistingFile(createIfNotPresent)
 
     public fun addEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
         val newEnvironments = environments?.addValues(newEnvironments)
@@ -62,13 +65,13 @@ public class Project private constructor(
             environments: NonEmptyKeySetStore<String, Environment>? = null,
         ): ProjectValidationResult {
             val isSelectedEnvironmentOnEnvironmentsResult = properties.isSelectedEnvironmentOnEnvironmentsOrFailure(
-                environmentsDirectoryPath = environmentsDirectory.directory.path,
+                environmentsDirectoryPath = environmentsDirectory.path.value,
                 environments = environments
             )
             if (isSelectedEnvironmentOnEnvironmentsResult != null) return isSelectedEnvironmentOnEnvironmentsResult
 
             val areEnvironmentsValid = schema.areEnvironmentsValidOrFailure(
-                environmentsDirectoryPath = environmentsDirectory.directory.path,
+                environmentsDirectoryPath = environmentsDirectory.path.value,
                 environments = environments,
             )
             if (areEnvironmentsValid != null) return areEnvironmentsValid

@@ -9,5 +9,5 @@ internal interface EnvironmentNameExtractor : (ExistingFile) -> NonEmptyString
 
 internal object DefaultEnvironmentNameExtractor : EnvironmentNameExtractor {
     override fun invoke(environmentFile: ExistingFile): NonEmptyString =
-        environmentFile.file.toNonEmptyString().removeSuffix(ENVIRONMENT_FILE_SUFFIX)
+        environmentFile.toNonEmptyString().removeSuffix(ENVIRONMENT_FILE_SUFFIX)
 }
