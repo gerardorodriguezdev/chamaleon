@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.extractors
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 internal interface EnvironmentFileNameExtractor : (NonEmptyString) -> NonEmptyString
 

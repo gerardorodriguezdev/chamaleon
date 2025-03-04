@@ -4,8 +4,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer

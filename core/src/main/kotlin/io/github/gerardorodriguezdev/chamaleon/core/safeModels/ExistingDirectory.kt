@@ -1,6 +1,6 @@
-package io.github.gerardorodriguezdev.chamaleon.core.safeCollections
+package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import java.io.File
 import java.io.IOException
 

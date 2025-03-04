@@ -9,10 +9,10 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefini
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,

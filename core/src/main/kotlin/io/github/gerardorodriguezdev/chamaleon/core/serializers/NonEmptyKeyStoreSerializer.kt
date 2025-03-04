@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.KeyProvider
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.SetSerializer

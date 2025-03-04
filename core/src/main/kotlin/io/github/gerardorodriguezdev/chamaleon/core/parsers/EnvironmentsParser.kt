@@ -8,9 +8,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import kotlinx.serialization.json.Json
 
 public interface EnvironmentsParser {

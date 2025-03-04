@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor

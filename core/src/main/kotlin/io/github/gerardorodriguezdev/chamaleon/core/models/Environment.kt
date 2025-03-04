@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.KeyProvider
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 public data class Environment(
     val name: NonEmptyString,

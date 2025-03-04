@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.PropertiesParserResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import kotlinx.serialization.json.Json
 
 public interface PropertiesParser {

@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.safeCollections
+package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptySetSerializer
 import kotlinx.serialization.Serializable
@@ -14,6 +14,7 @@ public class NonEmptySet<T> private constructor(public val value: Set<T>) : Set<
         this === other || value == other
 
     public companion object {
+        //TODO: Dup this
         public fun <T> Set<T>.toUnsafeNonEmptySet(): NonEmptySet<T> =
             if (this.isEmpty()) {
                 throw IllegalStateException("Non empty set was empty")

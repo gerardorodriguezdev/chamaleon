@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask

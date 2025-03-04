@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.safeCollections
+package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyKeyStoreSerializer
 import kotlinx.serialization.Serializable
@@ -22,6 +22,7 @@ public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
         this === other || value == other || value.values.toSet() == other
 
     public companion object {
+        //TODO: Dup this
         public fun <K, V : KeyProvider<K>> Set<V>.toUnsafeNonEmptyKeyStore(): NonEmptyKeySetStore<K, V> {
             return if (isEmpty()) {
                 throw IllegalStateException("Non empty key set store was empty")

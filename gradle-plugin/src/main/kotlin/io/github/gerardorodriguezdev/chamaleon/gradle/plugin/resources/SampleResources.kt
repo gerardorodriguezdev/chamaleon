@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import java.io.File
 
 internal object SampleResources {

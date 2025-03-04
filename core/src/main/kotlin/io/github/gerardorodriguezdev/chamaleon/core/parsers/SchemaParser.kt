@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import kotlinx.serialization.json.Json
 
 public interface SchemaParser {

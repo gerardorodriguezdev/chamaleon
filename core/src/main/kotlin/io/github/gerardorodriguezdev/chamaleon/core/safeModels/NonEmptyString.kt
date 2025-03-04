@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.safeCollections
+package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyStringSerializer
 import kotlinx.serialization.Serializable
@@ -14,6 +14,7 @@ public value class NonEmptyString private constructor(public val value: String) 
     }
 
     public companion object {
+        //TODO: Dup this
         public fun String.toUnsafeNonEmptyString(): NonEmptyString =
             if (isEmpty()) {
                 throw IllegalStateException("NonEmptyString was empty")

@@ -21,11 +21,11 @@ import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toUnsafeNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -43,7 +43,7 @@ public interface EnvironmentsProcessor : ProjectUpdater {
         public fun environmentFileName(environmentName: NonEmptyString): NonEmptyString =
             environmentName.append(ENVIRONMENT_FILE_SUFFIX)
 
-        internal fun String.isEnvironmentFileName(): Boolean =
+        public fun String.isEnvironmentFileName(): Boolean =
             this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
 
         public fun ExistingDirectory.schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =

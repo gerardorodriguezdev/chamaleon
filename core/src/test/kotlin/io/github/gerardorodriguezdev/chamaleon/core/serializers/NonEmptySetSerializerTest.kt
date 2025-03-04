@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptySet.Companion.toUnsafeNonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json

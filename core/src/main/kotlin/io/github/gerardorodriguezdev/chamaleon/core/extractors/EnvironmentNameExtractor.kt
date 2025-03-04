@@ -1,9 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.core.extractors
 
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENT_FILE_SUFFIX
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString.Companion.toNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 
 internal interface EnvironmentNameExtractor : (ExistingFile) -> NonEmptyString
 

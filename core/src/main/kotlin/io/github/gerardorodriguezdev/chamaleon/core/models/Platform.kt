@@ -2,9 +2,9 @@ package io.github.gerardorodriguezdev.chamaleon.core.models
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.KeyProvider
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.PropertySerializer
 import kotlinx.serialization.Serializable
 

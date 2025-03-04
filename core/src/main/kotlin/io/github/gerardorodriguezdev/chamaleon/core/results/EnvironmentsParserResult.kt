@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 
 public sealed class EnvironmentsParserResult {
     internal data class Success(val environments: NonEmptyKeySetStore<String, Environment>?) :

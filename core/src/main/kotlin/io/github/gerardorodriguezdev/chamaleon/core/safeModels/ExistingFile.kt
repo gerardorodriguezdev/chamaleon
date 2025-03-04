@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.safeCollections
+package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 
 //TODO: Could this be closed?
 public class ExistingFile(

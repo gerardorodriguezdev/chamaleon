@@ -7,9 +7,9 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.ExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeCollections.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
