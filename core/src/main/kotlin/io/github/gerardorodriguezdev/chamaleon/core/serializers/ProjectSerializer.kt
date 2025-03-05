@@ -7,35 +7,35 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
-import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 public interface ProjectSerializer {
-    public suspend fun updateProject(project: Project): UpdateProjectResult
+    public suspend fun serialize(project: Project): ProjectSerializationResult
 }
 
 internal class DefaultProjectSerializer(
     private val environmentFileNameExtractor: EnvironmentFileNameExtractor,
 ) : ProjectSerializer {
 
-    override suspend fun updateProject(project: Project): UpdateProjectResult =
+    override suspend fun serialize(project: Project): ProjectSerializationResult =
         either {
             catch(
                 block = {
                     coroutineScope {
-                        val updatePropertiesResult = async { project.updateProperties() }
-                        val updateSchemaResult = async { project.updateSchema() }
-                        val updateEnvironmentsResult = async { project.updateEnvironments() }
+                        val propertiesSerializationResult = async { project.serializeProperties() }
+                        val schemaSerializationResult = async { project.serializeSchema() }
+                        val environmentsSerializationResult = async { project.serializeEnvironments() }
 
-                        updatePropertiesResult.await().bind()
-                        updateSchemaResult.await().bind()
-                        updateEnvironmentsResult.await().bind()
+                        propertiesSerializationResult.await().bind()
+                        schemaSerializationResult.await().bind()
+                        environmentsSerializationResult.await().bind()
 
-                        UpdateProjectResult.Success
+                        ProjectSerializationResult.Success
                     }
                 },
                 catch = { error ->
@@ -50,7 +50,7 @@ internal class DefaultProjectSerializer(
             ifRight = { it }
         )
 
-    private fun Project.updateProperties(): Either<Failure, Unit> =
+    private fun Project.serializeProperties(): Either<Failure, Unit> =
         either {
             val propertiesFile = propertiesExistingFile(createIfNotPresent = true)
             ensureNotNull(propertiesFile) { Failure.InvalidPropertiesFile(environmentsDirectory.path.value) }
@@ -59,7 +59,7 @@ internal class DefaultProjectSerializer(
             propertiesFile.writeContent(propertiesFileContent)
         }
 
-    private fun Project.updateSchema(): Either<Failure, Unit> =
+    private fun Project.serializeSchema(): Either<Failure, Unit> =
         either {
             val schemaFile = schemaExistingFile(createIfNotPresent = true)
             ensureNotNull(schemaFile) { Failure.InvalidSchemaFile(environmentsDirectory.path.value) }
@@ -68,7 +68,7 @@ internal class DefaultProjectSerializer(
             schemaFile.writeContent(schemaFileContent)
         }
 
-    private suspend fun Project.updateEnvironments(): Either<Failure, Unit> =
+    private suspend fun Project.serializeEnvironments(): Either<Failure, Unit> =
         either {
             if (environments == null) return Unit.right()
 

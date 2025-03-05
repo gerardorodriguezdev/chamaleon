@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
-import io.github.gerardorodriguezdev.chamaleon.core.results.UpdateProjectResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import kotlinx.coroutines.runBlocking
@@ -70,8 +70,8 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         }
 
         runBlocking {
-            val updateProjectResult = environmentsProcessor.updateProject(newProject)
-            if (updateProjectResult is UpdateProjectResult.Failure) {
+            val updateProjectResult = environmentsProcessor.serialize(newProject)
+            if (updateProjectResult is ProjectSerializationResult.Failure) {
                 throw GenerateEnvironmentTaskException(
                     message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
                 )

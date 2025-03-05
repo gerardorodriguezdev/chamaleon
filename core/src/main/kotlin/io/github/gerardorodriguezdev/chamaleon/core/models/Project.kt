@@ -44,7 +44,7 @@ public class Project private constructor(
         }
     }
 
-    public fun updateProperties(newSelectedEnvironmentName: NonEmptyString): Project? {
+    public fun serializeProperties(newSelectedEnvironmentName: NonEmptyString): Project? {
         if (environments?.contains(newSelectedEnvironmentName.value) == false) return null
 
         return Project(

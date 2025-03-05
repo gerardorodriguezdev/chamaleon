@@ -156,7 +156,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                     throw ChamaleonGradlePluginException("")
                 }
 
-                val newProject = extension.project.get().updateProperties(
+                val newProject = extension.project.get().serializeProperties(
                     newSelectedEnvironmentName = nonEmptyNewSelectedEnvironmentName,
                 )
                 if (newProject == null) {
@@ -164,7 +164,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                 }
 
                 runBlocking {
-                    val updateProjectResult = environmentsProcessor.updateProject(newProject)
+                    val updateProjectResult = environmentsProcessor.serialize(newProject)
 
                     if (updateProjectResult is Failure) {
                         @Suppress("Indentation")
