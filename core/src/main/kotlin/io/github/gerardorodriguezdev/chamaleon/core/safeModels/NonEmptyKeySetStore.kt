@@ -3,11 +3,14 @@ package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyKeyStoreSerializer
 import kotlinx.serialization.Serializable
 
-//TODO: Use of it in funs instead of full name
 @Serializable(with = NonEmptyKeyStoreSerializer::class)
 public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
     public val value: Map<K, V>
 ) : Map<K, V> by value {
+
+    init {
+        if (value.isEmpty()) throw IllegalStateException("Non empty key set store was empty")
+    }
 
     public fun addValues(input: NonEmptyKeySetStore<K, V>): NonEmptyKeySetStore<K, V> {
         val newValues = value.values.toSet() + input.values.toSet()
@@ -16,25 +19,17 @@ public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
     }
 
     override fun toString(): String = value.values.toSet().toString()
-
     override fun hashCode(): Int = value.values.toSet().hashCode()
-
-    override fun equals(other: Any?): Boolean =
-        this === other || value == other || value.values.toSet() == other
+    override fun equals(other: Any?): Boolean = this === other || value == other || value.values.toSet() == other
 
     public companion object {
-        //TODO: Dup this
-        public fun <K, V : KeyProvider<K>> Set<V>.toUnsafeNonEmptyKeyStore(): NonEmptyKeySetStore<K, V> {
-            return if (isEmpty()) {
-                throw IllegalStateException("Non empty key set store was empty")
-            } else {
-                NonEmptyKeySetStore<K, V>(
-                    associateBy { item -> item.key })
-            }
+        public fun <K, V : KeyProvider<K>> Set<V>.toNonEmptyKeySetStore(): NonEmptyKeySetStore<K, V>? {
+            return if (isEmpty()) null else NonEmptyKeySetStore<K, V>(toMap())
         }
 
-        public fun <K, V : KeyProvider<K>> Set<V>.toNonEmptyKeySetStore(): NonEmptyKeySetStore<K, V>? {
-            return if (isEmpty()) null else NonEmptyKeySetStore<K, V>(associateBy { item -> item.key })
-        }
+        public fun <K, V : KeyProvider<K>> Set<V>.toUnsafeNonEmptyKeyStore(): NonEmptyKeySetStore<K, V> =
+            NonEmptyKeySetStore<K, V>(toMap())
+
+        private fun <K, V : KeyProvider<K>> Set<V>.toMap(): Map<K, V> = associateBy { item -> item.key }
     }
 }

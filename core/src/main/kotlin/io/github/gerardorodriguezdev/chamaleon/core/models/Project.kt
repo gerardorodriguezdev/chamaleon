@@ -13,6 +13,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetSto
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 
+//TODO: Refactor
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
     public val schema: Schema,
@@ -71,8 +72,10 @@ public class Project private constructor(
                 createIfNotPresent = createIfNotPresent
             )
 
-        internal fun String.isEnvironmentFileName(): Boolean =
+        public fun String.isEnvironmentFileName(): Boolean =
             this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
+
+        public fun String.isEnvironmentsDirectory(): Boolean = this == ENVIRONMENTS_DIRECTORY_NAME
 
         public fun projectOf(
             environmentsDirectory: ExistingDirectory,

@@ -19,8 +19,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
@@ -48,7 +48,7 @@ import javax.swing.JComponent
 internal class EnvironmentCreationDialog(
     project: Project,
     projectDirectory: File,
-    private val environmentsProcessor: EnvironmentsProcessor,
+    private val projectDeserializer: ProjectDeserializer,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
     private val uiScope = CoroutineScope(Dispatchers.Swing)
 
@@ -56,7 +56,7 @@ internal class EnvironmentCreationDialog(
         uiScope = uiScope,
         ioContext = Dispatchers.IO,
         projectDirectory = projectDirectory,
-        setupEnvironmentHandler = DefaultSetupEnvironmentHandler(projectDirectory, environmentsProcessor),
+        setupEnvironmentHandler = DefaultSetupEnvironmentHandler(projectDirectory, projectDeserializer),
         onEnvironmentsDirectorySelected = { selectFileDirectory(project) },
         onFinishButtonClicked = { createEnvironmentState ->
             createEnvironmentState.generateEnvironments(project)
@@ -139,7 +139,7 @@ internal class EnvironmentCreationDialog(
             }
 
             val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
-            val addSchemaResult = environmentsProcessor.addSchema(
+            val addSchemaResult = projectDeserializer.addSchema(
                 schemaFile = schemaFile,
                 newSchema = toSchema(),
             )
@@ -153,7 +153,7 @@ internal class EnvironmentCreationDialog(
             }
             indicator.fraction = 50.0
 
-            val addEnvironmentsResult = environmentsProcessor.addEnvironments(
+            val addEnvironmentsResult = projectDeserializer.addEnvironments(
                 environmentsDirectory = environmentsDirectory,
                 environments = setOf(toEnvironment())
             )

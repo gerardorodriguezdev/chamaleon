@@ -5,7 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 
 object TestData {
     const val ENVIRONMENTS_DIRECTORY_PATH = "/environments"
@@ -41,7 +41,7 @@ object TestData {
         )
     )
 
-    val successEnvironmentsProcessorResult = EnvironmentsProcessorResult.Success(
+    val successProjectDeserializationResult = ProjectDeserializationResult.Success(
         environmentsDirectoryPath = ENVIRONMENTS_DIRECTORY_PATH,
         selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME,
         environments = setOf(

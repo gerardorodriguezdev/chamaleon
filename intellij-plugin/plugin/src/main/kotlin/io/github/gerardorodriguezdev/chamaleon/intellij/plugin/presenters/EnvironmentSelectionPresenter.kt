@@ -3,9 +3,9 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.Versions
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
@@ -19,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
 
 internal class EnvironmentSelectionPresenter(
     private val stringsProvider: StringsProvider,
-    private val environmentsProcessor: EnvironmentsProcessor,
+    private val projectDeserializer: ProjectDeserializer,
     private val uiDispatcher: CoroutineContext,
     ioDispatcher: CoroutineContext,
     private val onEnvironmentsDirectoryChanged: (environmentsDirectory: File) -> Unit,
@@ -41,7 +41,7 @@ internal class EnvironmentSelectionPresenter(
 
         scanProjectJob = ioScope
             .launch {
-                val environmentsProcessorResults = environmentsProcessor.processRecursively(projectDirectory)
+                val environmentsProcessorResults = projectDeserializer.deserializeRecursively(projectDirectory)
                 val notificationErrorMessage = environmentsProcessorResults.toNotificationErrorMessage()
                 val environmentCardStates = environmentsProcessorResults.toEnvironmentCardStates(projectDirectory)
 
@@ -56,9 +56,9 @@ internal class EnvironmentSelectionPresenter(
     }
 
     //TODO: More error info
-    private fun List<EnvironmentsProcessorResult>.toNotificationErrorMessage(): String? {
+    private fun List<ProjectDeserializationResult>.toNotificationErrorMessage(): String? {
         val environmentsDirectoryPathsWithErrors =
-            filterIsInstance<EnvironmentsProcessorResult.Failure>().map { failure -> failure.environmentsDirectoryPath }
+            filterIsInstance<ProjectDeserializationResult.Failure>().map { failure -> failure.environmentsDirectoryPath }
         if (environmentsDirectoryPathsWithErrors.isEmpty()) return null
         return buildString {
             appendLine(stringsProvider.string(StringsKeys.errorAtEnvironmentsDirectories))
@@ -69,7 +69,7 @@ internal class EnvironmentSelectionPresenter(
         }
     }
 
-    private fun List<EnvironmentsProcessorResult>.toEnvironmentCardStates(
+    private fun List<ProjectDeserializationResult>.toEnvironmentCardStates(
         projectDirectory: File,
     ): ImmutableList<EnvironmentCardState> =
         filterIsInstance<Success>()
@@ -96,7 +96,7 @@ internal class EnvironmentSelectionPresenter(
             .launch {
                 val environmentsDirectory = File(projectDirectory.path, environmentsDirectoryPath)
 
-                val addOrUpdateSelectedEnvironmentResult = environmentsProcessor.addOrUpdateSelectedEnvironment(
+                val addOrUpdateSelectedEnvironmentResult = projectDeserializer.addOrUpdateSelectedEnvironment(
                     environmentsDirectory = environmentsDirectory,
                     newSelectedEnvironment = newSelectedEnvironment,
                 )

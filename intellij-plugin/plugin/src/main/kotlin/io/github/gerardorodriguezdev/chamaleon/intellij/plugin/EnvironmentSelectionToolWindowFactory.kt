@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
@@ -20,10 +20,10 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import java.io.File
 
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
-    private val environmentsProcessor = EnvironmentsProcessor.create()
+    private val projectDeserializer = ProjectDeserializer.create()
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
         stringsProvider = stringsProvider,
-        environmentsProcessor = environmentsProcessor,
+        projectDeserializer = projectDeserializer,
         uiDispatcher = Dispatchers.Swing,
         ioDispatcher = Dispatchers.IO,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->
@@ -52,7 +52,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             EnvironmentCreationDialog(
                                 project = project,
                                 projectDirectory = File(projectDirectoryPath),
-                                environmentsProcessor = environmentsProcessor,
+                                projectDeserializer = projectDeserializer,
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->

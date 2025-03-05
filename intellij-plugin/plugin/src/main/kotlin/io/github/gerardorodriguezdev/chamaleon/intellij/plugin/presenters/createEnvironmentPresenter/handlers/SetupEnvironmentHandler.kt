@@ -1,10 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaParserResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.SetupEnvironmentHandler.Action
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.SetupEnvironmentHandler.SideEffect
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState
@@ -44,7 +43,7 @@ internal interface SetupEnvironmentHandler {
 
 internal class DefaultSetupEnvironmentHandler(
     private val projectDirectory: File,
-    private val environmentsProcessor: EnvironmentsProcessor,
+    private val projectDeserializer: ProjectDeserializer,
 ) : SetupEnvironmentHandler {
     override fun handle(action: Action): Flow<SideEffect> =
         when (action) {
@@ -74,43 +73,43 @@ internal class DefaultSetupEnvironmentHandler(
         environmentsDirectory: File,
         environmentsDirectoryPath: String
     ): UpdateEnvironmentsDirectoryState =
-        environmentsProcessor
+        projectDeserializer
             .process(environmentsDirectory)
             .toUpdateEnvironmentsDirectoryState(environmentsDirectoryPath)
 
-    private fun EnvironmentsProcessorResult.toUpdateEnvironmentsDirectoryState(
+    private fun ProjectDeserializationResult.toUpdateEnvironmentsDirectoryState(
         environmentsDirectoryPath: String,
     ): UpdateEnvironmentsDirectoryState =
         when (this) {
-            is EnvironmentsProcessorResult.Success ->
+            is ProjectDeserializationResult.Success ->
                 Success(
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     environments = environments,
                     schema = schema,
                 )
 
-            is EnvironmentsProcessorResult.Failure -> toUpdateEnvironmentsDirectoryState(environmentsDirectoryPath)
+            is ProjectDeserializationResult.Failure -> toUpdateEnvironmentsDirectoryState(environmentsDirectoryPath)
         }
 
-    private fun EnvironmentsProcessorResult.Failure.toUpdateEnvironmentsDirectoryState(
+    private fun ProjectDeserializationResult.Failure.toUpdateEnvironmentsDirectoryState(
         environmentsDirectoryPath: String,
     ): UpdateEnvironmentsDirectoryState =
         when (this) {
-            is EnvironmentsProcessorResult.Failure.EnvironmentsDirectoryNotFound ->
+            is ProjectDeserializationResult.Failure.EnvironmentsDirectoryNotFound ->
                 Success(
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     environments = emptySet(),
                     schema = Schema(),
                 )
 
-            is EnvironmentsProcessorResult.Failure.SchemaParsing -> toUpdateEnvironmentsDirectoryState(
+            is ProjectDeserializationResult.Failure.SchemaParsing -> toUpdateEnvironmentsDirectoryState(
                 environmentsDirectoryPath
             )
 
             else -> Failure.InvalidEnvironments(environmentsDirectoryPath)
         }
 
-    private fun EnvironmentsProcessorResult.Failure.SchemaParsing.toUpdateEnvironmentsDirectoryState(
+    private fun ProjectDeserializationResult.Failure.SchemaParsing.toUpdateEnvironmentsDirectoryState(
         environmentsDirectoryPath: String,
     ): UpdateEnvironmentsDirectoryState =
         when (error) {
@@ -127,8 +126,8 @@ internal class DefaultSetupEnvironmentHandler(
         if (containsEnvironmentsDirectoryName()) this else appendEnvironmentsDirectoryName()
 
     private fun File.containsEnvironmentsDirectoryName(): Boolean =
-        path.endsWith(EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+        path.endsWith(ProjectDeserializer.ENVIRONMENTS_DIRECTORY_NAME)
 
     private fun File.appendEnvironmentsDirectoryName(): File =
-        File(this, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+        File(this, ProjectDeserializer.ENVIRONMENTS_DIRECTORY_NAME)
 }

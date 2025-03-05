@@ -1,15 +1,15 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.results.*
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.PROPERTIES_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -22,7 +22,7 @@ import org.gradle.api.tasks.TaskProvider
 
 @Suppress("TooManyFunctions")
 public class ChamaleonGradlePlugin : Plugin<Project> {
-    private val environmentsProcessor = EnvironmentsProcessor.create()
+    private val projectDeserializer = ProjectDeserializer.create()
 
     override fun apply(target: Project) {
         with(target) {
@@ -48,10 +48,10 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.environmentsProcessorResult(): EnvironmentsProcessorResult {
+    private fun Project.environmentsProcessorResult(): ProjectDeserializationResult {
         return runBlocking {
             val environmentsExistingDirectory = environmentsExistingDirectory()
-            environmentsProcessor.process(environmentsExistingDirectory)
+            projectDeserializer.process(environmentsExistingDirectory)
         }
     }
 
@@ -164,7 +164,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                 }
 
                 runBlocking {
-                    val updateProjectResult = environmentsProcessor.serialize(newProject)
+                    val updateProjectResult = projectDeserializer.serialize(newProject)
 
                     if (updateProjectResult is Failure) {
                         @Suppress("Indentation")

@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation
 
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.EnvironmentSelectionPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.FakeEnvironmentsProcessor
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.FakeProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing.TestData
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.EnvironmentCardState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionState
@@ -22,9 +22,9 @@ class EnvironmentSelectionPresenterTest {
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var projectDirectory: File
     private var environmentDirectoryChangedEvents = mutableListOf<File>()
-    private val environmentsProcessor = FakeEnvironmentsProcessor()
+    private val environmentsProcessor = FakeProjectDeserializer()
     private val presenter = EnvironmentSelectionPresenter(
-        environmentsProcessor = environmentsProcessor,
+        projectDeserializer = environmentsProcessor,
         uiDispatcher = dispatcher,
         ioDispatcher = dispatcher,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->

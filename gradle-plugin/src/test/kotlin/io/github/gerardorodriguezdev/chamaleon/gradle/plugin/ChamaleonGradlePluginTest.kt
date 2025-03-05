@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
@@ -8,6 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
@@ -115,7 +115,7 @@ class ChamaleonGradlePluginTest {
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
         val propertiesFile =
-            environmentsFiles.first { environmentFile -> environmentFile.name == EnvironmentsProcessor.PROPERTIES_FILE }
+            environmentsFiles.first { environmentFile -> environmentFile.name == ProjectDeserializer.PROPERTIES_FILE }
         val propertiesFileContent = propertiesFile.readText()
         assertEquals(
             expected = propertiesFileContentWithProductionEnvironmentSelected,
@@ -140,7 +140,7 @@ class ChamaleonGradlePluginTest {
         SampleResources.resources.writeAll(environmentsDirectory)
     }
 
-    private fun environmentsDirectory(): File = File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+    private fun environmentsDirectory(): File = File(directory, ProjectDeserializer.ENVIRONMENTS_DIRECTORY_NAME)
 
     private fun helpTaskBuildResult(): BuildResult =
         GradleRunner

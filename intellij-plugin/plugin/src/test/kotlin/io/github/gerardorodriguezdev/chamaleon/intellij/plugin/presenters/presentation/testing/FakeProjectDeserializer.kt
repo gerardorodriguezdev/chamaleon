@@ -1,16 +1,16 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.presentation.testing
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import java.io.File
 
 @Suppress("LongParameterList")
-class FakeEnvironmentsProcessor(
-    var processEnvironmentsProcessorResult: EnvironmentsProcessorResult = TestData.successEnvironmentsProcessorResult,
-    var processRecursivelyResult: List<EnvironmentsProcessorResult> = listOf(
-        TestData.successEnvironmentsProcessorResult
+class FakeProjectDeserializer(
+    var processProjectDeserializationResult: ProjectDeserializationResult = TestData.successProjectDeserializationResult,
+    var processRecursivelyResult: List<ProjectDeserializationResult> = listOf(
+        TestData.successProjectDeserializationResult
     ),
 
     var addOrUpdateSelectedEnvironment: AddOrUpdateSelectedEnvironmentResult =
@@ -21,12 +21,12 @@ class FakeEnvironmentsProcessor(
 
     var addSchemaResult: AddSchemaResult = AddSchemaResult.Success,
     var isSchemaValidResult: Boolean = true,
-) : EnvironmentsProcessor {
+) : ProjectDeserializer {
 
-    override suspend fun process(environmentsDirectory: File): EnvironmentsProcessorResult =
-        processEnvironmentsProcessorResult
+    override suspend fun process(environmentsDirectory: File): ProjectDeserializationResult =
+        processProjectDeserializationResult
 
-    override suspend fun processRecursively(rootDirectory: File): List<EnvironmentsProcessorResult> =
+    override suspend fun processRecursively(rootDirectory: File): List<ProjectDeserializationResult> =
         processRecursivelyResult
 
     override fun addOrUpdateSelectedEnvironment(

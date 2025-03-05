@@ -6,22 +6,18 @@ import kotlinx.serialization.Serializable
 @Serializable(with = NonEmptyStringSerializer::class)
 @JvmInline
 public value class NonEmptyString private constructor(public val value: String) {
-    public fun append(input: String): NonEmptyString = NonEmptyString(value + input)
-    public fun removeSuffix(suffix: String): NonEmptyString = NonEmptyString(value.removeSuffix(suffix))
 
-    override fun toString(): String {
-        return value
+    init {
+        if (value.isEmpty()) throw IllegalArgumentException("NonEmptyString was empty")
     }
 
+    public fun append(input: String): NonEmptyString = NonEmptyString(value + input)
+    public fun removeSuffix(suffix: String): NonEmptyString = NonEmptyString(value.removeSuffix(suffix))
+    override fun toString(): String = value
+
     public companion object {
-        //TODO: Dup this
-        public fun String.toUnsafeNonEmptyString(): NonEmptyString =
-            if (isEmpty()) {
-                throw IllegalStateException("NonEmptyString was empty")
-            } else NonEmptyString(this)
-
         public fun String.toNonEmptyString(): NonEmptyString? = if (isEmpty()) null else NonEmptyString(this)
-
         public fun ExistingFile.toNonEmptyString(): NonEmptyString = NonEmptyString(name.value)
+        public fun String.toUnsafeNonEmptyString(): NonEmptyString = NonEmptyString(this)
     }
 }

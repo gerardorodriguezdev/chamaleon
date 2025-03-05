@@ -1,10 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -16,7 +16,7 @@ import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
-    private val environmentsProcessor = EnvironmentsProcessor.create()
+    private val projectDeserializer = ProjectDeserializer.create()
     private val commandsProcessor = CommandsProcessor.create()
 
     @get:Input
@@ -70,7 +70,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         }
 
         runBlocking {
-            val updateProjectResult = environmentsProcessor.serialize(newProject)
+            val updateProjectResult = projectDeserializer.serialize(newProject)
             if (updateProjectResult is ProjectSerializationResult.Failure) {
                 throw GenerateEnvironmentTaskException(
                     message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
