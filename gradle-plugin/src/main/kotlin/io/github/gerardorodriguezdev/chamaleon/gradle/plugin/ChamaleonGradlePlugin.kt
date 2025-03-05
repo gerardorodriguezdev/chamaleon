@@ -156,7 +156,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                     throw ChamaleonGradlePluginException("")
                 }
 
-                val newProject = extension.project.get().serializeProperties(
+                val newProject = extension.project.get().updateProperties(
                     newSelectedEnvironmentName = nonEmptyNewSelectedEnvironmentName,
                 )
                 if (newProject == null) {

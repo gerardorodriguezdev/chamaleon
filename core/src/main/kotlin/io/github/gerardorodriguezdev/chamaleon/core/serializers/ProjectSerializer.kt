@@ -7,6 +7,8 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.propertiesExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
@@ -52,7 +54,7 @@ internal class DefaultProjectSerializer(
 
     private fun Project.serializeProperties(): Either<Failure, Unit> =
         either {
-            val propertiesFile = propertiesExistingFile(createIfNotPresent = true)
+            val propertiesFile = environmentsDirectory.propertiesExistingFile(createIfNotPresent = true)
             ensureNotNull(propertiesFile) { Failure.InvalidPropertiesFile(environmentsDirectory.path.value) }
 
             val propertiesFileContent = PrettyJson.encodeToString(properties)
@@ -61,7 +63,7 @@ internal class DefaultProjectSerializer(
 
     private fun Project.serializeSchema(): Either<Failure, Unit> =
         either {
-            val schemaFile = schemaExistingFile(createIfNotPresent = true)
+            val schemaFile = environmentsDirectory.schemaExistingFile(createIfNotPresent = true)
             ensureNotNull(schemaFile) { Failure.InvalidSchemaFile(environmentsDirectory.path.value) }
 
             val schemaFileContent = PrettyJson.encodeToString(schema)

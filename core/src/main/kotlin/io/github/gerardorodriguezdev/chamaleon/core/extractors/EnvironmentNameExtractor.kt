@@ -1,6 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.extractors
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENT_FILE_SUFFIX
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENT_FILE_SUFFIX
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString

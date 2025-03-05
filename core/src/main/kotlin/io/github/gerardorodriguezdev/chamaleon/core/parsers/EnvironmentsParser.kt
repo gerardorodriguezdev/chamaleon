@@ -1,10 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.core.parsers
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.isEnvironmentFileName
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentFileName
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsParserResult.Success

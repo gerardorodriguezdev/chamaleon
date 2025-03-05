@@ -1,7 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.propertiesExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
@@ -13,6 +11,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
@@ -21,12 +20,6 @@ public class Project private constructor(
     public val environments: NonEmptyKeySetStore<String, Environment>? = null,
 ) {
     public fun selectedEnvironment(): Environment? = environments?.get(properties.selectedEnvironmentName?.value)
-
-    public fun propertiesExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
-        environmentsDirectory.propertiesExistingFile(createIfNotPresent)
-
-    public fun schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
-        environmentsDirectory.schemaExistingFile(createIfNotPresent)
 
     public fun addEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
         val newEnvironments = environments?.addValues(newEnvironments)
@@ -44,7 +37,7 @@ public class Project private constructor(
         }
     }
 
-    public fun serializeProperties(newSelectedEnvironmentName: NonEmptyString): Project? {
+    public fun updateProperties(newSelectedEnvironmentName: NonEmptyString): Project? {
         if (environments?.contains(newSelectedEnvironmentName.value) == false) return null
 
         return Project(
@@ -58,6 +51,29 @@ public class Project private constructor(
     }
 
     public companion object {
+        public const val SCHEMA_FILE: String = "template.chamaleon.json"
+        public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
+        public const val ENVIRONMENT_FILE_SUFFIX: String = ".environment.chamaleon.json"
+        public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
+
+        public fun environmentFileName(environmentName: NonEmptyString): NonEmptyString =
+            environmentName.append(ENVIRONMENT_FILE_SUFFIX)
+
+        public fun ExistingDirectory.propertiesExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
+            existingFile(
+                fileName = PROPERTIES_FILE.toUnsafeNonEmptyString(),
+                createIfNotPresent = createIfNotPresent,
+            )
+
+        public fun ExistingDirectory.schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
+            existingFile(
+                fileName = SCHEMA_FILE.toUnsafeNonEmptyString(),
+                createIfNotPresent = createIfNotPresent
+            )
+
+        internal fun String.isEnvironmentFileName(): Boolean =
+            this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
+
         public fun projectOf(
             environmentsDirectory: ExistingDirectory,
             schema: Schema,

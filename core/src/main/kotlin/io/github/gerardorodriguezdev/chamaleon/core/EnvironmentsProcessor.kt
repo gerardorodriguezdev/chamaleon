@@ -5,14 +5,14 @@ import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.right
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.propertiesExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.propertiesExistingFile
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.parsers.*
@@ -20,10 +20,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.*
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.EnvironmentsProcessorResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.DefaultProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import kotlinx.coroutines.async
@@ -35,29 +32,6 @@ public interface EnvironmentsProcessor : ProjectSerializer {
     public suspend fun processRecursively(rootDirectory: ExistingDirectory): List<EnvironmentsProcessorResult>
 
     public companion object {
-        public const val SCHEMA_FILE: String = "template.chamaleon.json"
-        public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
-        public const val ENVIRONMENT_FILE_SUFFIX: String = ".environment.chamaleon.json"
-        public const val ENVIRONMENTS_DIRECTORY_NAME: String = "environments"
-
-        public fun environmentFileName(environmentName: NonEmptyString): NonEmptyString =
-            environmentName.append(ENVIRONMENT_FILE_SUFFIX)
-
-        internal fun String.isEnvironmentFileName(): Boolean =
-            this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
-
-        public fun ExistingDirectory.schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
-            existingFile(
-                fileName = SCHEMA_FILE.toUnsafeNonEmptyString(),
-                createIfNotPresent = createIfNotPresent
-            )
-
-        public fun ExistingDirectory.propertiesExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
-            existingFile(
-                fileName = PROPERTIES_FILE.toUnsafeNonEmptyString(),
-                createIfNotPresent = createIfNotPresent,
-            )
-
         public fun create(): EnvironmentsProcessor = DefaultEnvironmentsProcessor()
     }
 }
