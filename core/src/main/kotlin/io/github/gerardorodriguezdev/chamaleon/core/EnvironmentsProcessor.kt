@@ -10,8 +10,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Compan
 import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.schemaExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentFileNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmentNameExtractor
-import io.github.gerardorodriguezdev.chamaleon.core.generators.DefaultProjectUpdater
-import io.github.gerardorodriguezdev.chamaleon.core.generators.ProjectUpdater
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
@@ -26,6 +24,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.updaters.DefaultProjectUpdater
+import io.github.gerardorodriguezdev.chamaleon.core.updaters.ProjectUpdater
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
