@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.core.updaters
+package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import arrow.core.Either
 import arrow.core.raise.catch
@@ -14,13 +14,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-public interface ProjectUpdater {
+public interface ProjectSerializer {
     public suspend fun updateProject(project: Project): UpdateProjectResult
 }
 
-internal class DefaultProjectUpdater(
+internal class DefaultProjectSerializer(
     private val environmentFileNameExtractor: EnvironmentFileNameExtractor,
-) : ProjectUpdater {
+) : ProjectSerializer {
 
     override suspend fun updateProject(project: Project): UpdateProjectResult =
         either {

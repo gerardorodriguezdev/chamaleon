@@ -24,13 +24,13 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
-import io.github.gerardorodriguezdev.chamaleon.core.updaters.DefaultProjectUpdater
-import io.github.gerardorodriguezdev.chamaleon.core.updaters.ProjectUpdater
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.DefaultProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-public interface EnvironmentsProcessor : ProjectUpdater {
+public interface EnvironmentsProcessor : ProjectSerializer {
     public suspend fun process(environmentsDirectory: ExistingDirectory): EnvironmentsProcessorResult
     public suspend fun processRecursively(rootDirectory: ExistingDirectory): List<EnvironmentsProcessorResult>
 
@@ -43,7 +43,7 @@ public interface EnvironmentsProcessor : ProjectUpdater {
         public fun environmentFileName(environmentName: NonEmptyString): NonEmptyString =
             environmentName.append(ENVIRONMENT_FILE_SUFFIX)
 
-        public fun String.isEnvironmentFileName(): Boolean =
+        internal fun String.isEnvironmentFileName(): Boolean =
             this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
 
         public fun ExistingDirectory.schemaExistingFile(createIfNotPresent: Boolean = false): ExistingFile? =
@@ -68,11 +68,11 @@ internal class DefaultEnvironmentsProcessor(
         environmentNameExtractor = DefaultEnvironmentNameExtractor,
     ),
     private val propertiesParser: PropertiesParser = DefaultPropertiesParser,
-    private val projectUpdater: ProjectUpdater = DefaultProjectUpdater(
+    private val projectSerializer: ProjectSerializer = DefaultProjectSerializer(
         environmentFileNameExtractor = DefaultEnvironmentFileNameExtractor,
     ),
 ) : EnvironmentsProcessor,
-    ProjectUpdater by projectUpdater {
+    ProjectSerializer by projectSerializer {
 
     override suspend fun process(environmentsDirectory: ExistingDirectory): EnvironmentsProcessorResult =
         parseFiles(environmentsDirectory)

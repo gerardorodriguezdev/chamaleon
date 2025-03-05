@@ -14,7 +14,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-//TODO: Chainng
 internal object PropertySerializer : KSerializer<Property> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Property") {
         element<String>("name")

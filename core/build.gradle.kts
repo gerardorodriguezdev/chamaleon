@@ -1,8 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
-//TODO: Tests
-//TODO: Asana
 plugins {
     kotlin("jvm")
     alias(libs.plugins.kmp.serialization)
