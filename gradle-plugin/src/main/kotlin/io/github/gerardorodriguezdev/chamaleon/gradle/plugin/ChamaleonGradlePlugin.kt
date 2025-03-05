@@ -2,8 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
@@ -42,8 +41,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     private fun Project.scanProject(extension: ChamaleonExtension) {
         when (val environmentsProcessorResult = environmentsProcessorResult()) {
-            is Success -> handleSuccess(extension, environmentsProcessorResult)
-            is Failure -> handleFailure(environmentsProcessorResult)
+            is ProjectDeserializationResult.Success -> extension.project.set(environmentsProcessorResult.project)
+            is ProjectDeserializationResult.Failure -> environmentsProcessorResult.handleDeserializationFailure()
         }
     }
 
@@ -59,22 +58,20 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     private fun Project.environmentsExistingDirectory(): ExistingDirectory =
         layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME).asFile.toUnsafeExistingDirectory()
 
-    private fun handleSuccess(extension: ChamaleonExtension, success: Success) {
-        extension.project.set(success.project)
-    }
 
-    private fun handleFailure(failure: Failure) {
+    private fun ProjectDeserializationResult.Failure.handleDeserializationFailure() {
         throw ChamaleonGradlePluginException(
-            message = "${failure.toErrorMessage()} at '${failure.environmentsDirectoryPath}'"
+            message = "${toErrorMessage()} at '$environmentsDirectoryPath'"
         )
     }
 
+    //TODO: Move mapper out
     @Suppress("Indentation")
-    private fun Failure.toErrorMessage(): String =
+    private fun ProjectDeserializationResult.Failure.toErrorMessage(): String =
         when (this) {
-            is Failure.InvalidSchemaFile -> "Invalid schema file"
-            is Failure.Deserialization -> "Deserialization error with message '${error.cause}'"
-            is Failure.ProjectValidation -> error.toErrorMessage()
+            is ProjectDeserializationResult.Failure.InvalidSchemaFile -> "Invalid schema file"
+            is ProjectDeserializationResult.Failure.Deserialization -> "Deserialization error with message '$error'"
+            is ProjectDeserializationResult.Failure.ProjectValidation -> error.toErrorMessage()
         }
 
     private fun ProjectValidationResult.Failure.toErrorMessage(): String =
@@ -110,30 +107,38 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             )
         }
 
+    //TODO: Move if possible
     private fun Project.registerSelectEnvironmentTask(extension: ChamaleonExtension): TaskProvider<Task> =
         tasks.register(SELECT_ENVIRONMENT_TASK_NAME) {
-            val newSelectedEnvironment = providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
+            val newSelectedEnvironmentName = providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
             doLast {
-                val nonEmptyNewSelectedEnvironmentName = newSelectedEnvironment?.toNonEmptyString()
-                if (nonEmptyNewSelectedEnvironmentName == null) {
-                    throw ChamaleonGradlePluginException("")
-                }
+                val newSelectedEnvironmentName =
+                    if (newSelectedEnvironmentName == null) {
+                        null
+                    } else {
+                        newSelectedEnvironmentName.toNonEmptyString()
+                            ?: throw ChamaleonGradlePluginException("Selected environment name was empty")
+                    }
 
-                val newProject = extension.project.get().updateProperties(
-                    newSelectedEnvironmentName = nonEmptyNewSelectedEnvironmentName,
+                val currentProject = extension.project.get()
+
+                val newProject = currentProject.updateProperties(
+                    newSelectedEnvironmentName = newSelectedEnvironmentName,
                 )
+
                 if (newProject == null) {
-                    throw ChamaleonGradlePluginException("Error updating project")
+                    throw ChamaleonGradlePluginException("Selected environment not found on existing environments ${currentProject.environments}")
                 }
 
                 runBlocking {
                     val updateProjectResult = projectSerializer.serialize(newProject)
 
-                    if (updateProjectResult is Failure) {
+                    //TODO: All error messages
+                    if (updateProjectResult is ProjectSerializationResult.Failure) {
                         @Suppress("Indentation")
                         throw ChamaleonGradlePluginException(
-                            "Error updating selected environment '$newSelectedEnvironment' on environments " + "directory ${newProject.environmentsDirectory}"
+                            "Error updating selected environment '$newSelectedEnvironmentName' on environments " + "directory ${newProject.environmentsDirectory}"
                         )
                     }
                 }
@@ -152,6 +157,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
+
         const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
         const val SELECT_ENVIRONMENT_TASK_NAME = "chamaleonSelectEnvironment"
         const val GENERATE_ENVIRONMENT_TASK_NAME = "chamaleonGenerateEnvironment"

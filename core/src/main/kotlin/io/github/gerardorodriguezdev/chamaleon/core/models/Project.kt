@@ -37,8 +37,8 @@ public class Project private constructor(
         }
     }
 
-    public fun updateProperties(newSelectedEnvironmentName: NonEmptyString): Project? {
-        if (environments?.contains(newSelectedEnvironmentName.value) == false) return null
+    public fun updateProperties(newSelectedEnvironmentName: NonEmptyString?): Project? {
+        if (newSelectedEnvironmentName != null && environments?.contains(newSelectedEnvironmentName.value) == false) return null
 
         return Project(
             environmentsDirectory = environmentsDirectory,

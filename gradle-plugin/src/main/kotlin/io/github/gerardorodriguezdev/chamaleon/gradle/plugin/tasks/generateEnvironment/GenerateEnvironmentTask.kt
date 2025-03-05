@@ -4,7 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -16,7 +16,7 @@ import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
-    private val projectDeserializer = ProjectDeserializer.create()
+    private val projectSerializer = ProjectSerializer.create()
     private val commandsProcessor = CommandsProcessor.create()
 
     @get:Input
@@ -55,7 +55,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         val environmentsNonEmptyKeyStore = environments.toNonEmptyKeySetStore()
         if (environmentsNonEmptyKeyStore == null) {
             throw GenerateEnvironmentTaskException(
-                message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
+                message = "Error generating environments file on '${project.environmentsDirectory.path}'"
             )
         }
 
@@ -65,15 +65,15 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
+                message = "Error generating environments file on '${project.environmentsDirectory.path}'"
             )
         }
 
         runBlocking {
-            val updateProjectResult = projectDeserializer.serialize(newProject)
+            val updateProjectResult = projectSerializer.serialize(newProject)
             if (updateProjectResult is ProjectSerializationResult.Failure) {
                 throw GenerateEnvironmentTaskException(
-                    message = "Error generating environments file on '${project.environmentsDirectory.directory.path}'"
+                    message = "Error generating environments file on '${project.environmentsDirectory.path}'"
                 )
             }
         }
