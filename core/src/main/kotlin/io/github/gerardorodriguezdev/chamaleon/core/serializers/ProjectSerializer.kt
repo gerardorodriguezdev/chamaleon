@@ -85,7 +85,10 @@ internal class DefaultProjectSerializer(
                                 createIfNotPresent = true
                             )
                             ensureNotNull(environmentExistingFile) {
-                                Failure.InvalidEnvironmentFile(environmentsDirectory.path.value)
+                                Failure.InvalidEnvironmentFile(
+                                    environmentsDirectoryPath = environmentsDirectory.path.value,
+                                    environmentName = environment.name.value,
+                                )
                             }
 
                             val platformsJson = PrettyJson.encodeToString(environment.platforms)
