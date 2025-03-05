@@ -131,7 +131,7 @@ public class Project private constructor(
                             Failure.SelectedEnvironmentNotFound(
                                 environmentsDirectoryPath = environmentsDirectoryPath,
                                 selectedEnvironmentName = selectedEnvironmentName.value,
-                                environmentNames = "",
+                                existingEnvironmentNames = "",
                             )
                         )
 
@@ -140,7 +140,7 @@ public class Project private constructor(
                             Failure.SelectedEnvironmentNotFound(
                                 environmentsDirectoryPath = environmentsDirectoryPath,
                                 selectedEnvironmentName = selectedEnvironmentName.value,
-                                environmentNames = environments.values.joinToString { environment -> environment.name.value }
+                                existingEnvironmentNames = environments.values.joinToString { environment -> environment.name.value }
                             )
                         )
 
@@ -183,8 +183,7 @@ public class Project private constructor(
                     Failure.EnvironmentMissingPlatforms(
                         environmentsDirectoryPath = environmentsDirectoryPath,
                         environmentName = environment.name.value,
-                        schemaPlatformTypes = schema.globalSupportedPlatformTypes,
-                        environmentPlatformTypes = platformTypes,
+                        missingPlatforms = uniqueItems(schema.globalSupportedPlatformTypes, platformTypes),
                     )
                 }
 
@@ -252,8 +251,10 @@ public class Project private constructor(
                         environmentsDirectoryPath = environmentsDirectoryPath,
                         environmentName = environment.name.value,
                         platformType = platform.platformType,
-                        schemaPropertyDefinitions = schema.propertyDefinitions.values.toSet(),
-                        platformProperties = platform.properties.values.toSet(),
+                        missingPropertyNames = uniqueItems(
+                            schema.propertyDefinitions.keys.toSet(),
+                            platform.properties.keys.toSet()
+                        ),
                     )
                 }
 
@@ -290,11 +291,11 @@ public class Project private constructor(
         ): Either<Failure, InternalSuccess> =
             either {
                 ensure(propertyDefinition.nullable) {
-                    Failure.NullPropertyNotNullable(
+                    Failure.NullPropertyValueIsNotNullable(
+                        environmentsDirectoryPath = environmentsDirectoryPath,
+                        environmentName = environment.name.value,
                         propertyName = propertyName,
                         platformType = platformType,
-                        environmentName = environment.name.value,
-                        environmentsDirectoryPath = environmentsDirectoryPath,
                     )
                 }
 
@@ -312,11 +313,12 @@ public class Project private constructor(
 
                 ensure(propertyDefinition.propertyType == propertyType) {
                     Failure.PropertyTypeNotEqualToPropertyDefinition(
-                        propertyName = propertyName,
-                        platformType = platformType,
-                        environmentName = environment.name.value,
-                        propertyType = propertyType,
                         environmentsDirectoryPath = environmentsDirectoryPath,
+                        environmentName = environment.name.value,
+                        platformType = platformType,
+                        propertyName = propertyName,
+                        propertyType = propertyType,
+                        propertyDefinition = propertyDefinition,
                     )
                 }
 
@@ -328,6 +330,9 @@ public class Project private constructor(
                 is StringProperty -> PropertyType.STRING
                 is BooleanProperty -> PropertyType.BOOLEAN
             }
+
+        private fun <T> uniqueItems(first: Set<T>, second: Set<T>): Set<T> =
+            (first + second) - (first intersect second)
 
         private class Context(
             val schema: Schema,

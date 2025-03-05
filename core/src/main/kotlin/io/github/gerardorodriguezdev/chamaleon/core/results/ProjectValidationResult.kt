@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.core.results
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
@@ -12,44 +11,36 @@ public sealed interface ProjectValidationResult {
         public data class EnvironmentMissingPlatforms(
             val environmentsDirectoryPath: String,
             val environmentName: String,
-            val schemaPlatformTypes: Set<PlatformType>,
-            val environmentPlatformTypes: Set<PlatformType>,
+            val missingPlatforms: Set<PlatformType>,
         ) : Failure
 
         public data class PlatformMissingProperties(
             val environmentsDirectoryPath: String,
             val environmentName: String,
             val platformType: PlatformType,
-            val schemaPropertyDefinitions: Set<PropertyDefinition>,
-            val platformProperties: Set<Property>,
-        ) : Failure
-
-        public data class PropertyNotEqualToPropertyDefinition(
-            val environmentsDirectoryPath: String,
-            val platformType: PlatformType,
-            val environmentName: String,
-            val propertyName: String,
+            val missingPropertyNames: Set<String>,
         ) : Failure
 
         public data class PropertyTypeNotEqualToPropertyDefinition(
             val environmentsDirectoryPath: String,
-            val propertyName: String,
-            val platformType: PlatformType,
             val environmentName: String,
+            val platformType: PlatformType,
+            val propertyName: String,
             val propertyType: PropertyType,
+            val propertyDefinition: PropertyDefinition,
         ) : Failure
 
-        public data class NullPropertyNotNullable(
+        public data class NullPropertyValueIsNotNullable(
             val environmentsDirectoryPath: String,
+            val environmentName: String,
             val propertyName: String,
             val platformType: PlatformType,
-            val environmentName: String,
         ) : Failure
 
         public data class SelectedEnvironmentNotFound(
             val environmentsDirectoryPath: String,
             val selectedEnvironmentName: String,
-            val environmentNames: String
+            val existingEnvironmentNames: String
         ) : Failure
     }
 }

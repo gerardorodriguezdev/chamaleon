@@ -1,15 +1,15 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.results.*
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
-import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.PROPERTIES_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.SCHEMA_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
@@ -22,6 +22,7 @@ import org.gradle.api.tasks.TaskProvider
 
 @Suppress("TooManyFunctions")
 public class ChamaleonGradlePlugin : Plugin<Project> {
+    private val projectSerializer = ProjectSerializer.create()
     private val projectDeserializer = ProjectDeserializer.create()
 
     override fun apply(target: Project) {
@@ -40,9 +41,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private fun Project.scanProject(extension: ChamaleonExtension) {
-        val environmentsProcessorResult = environmentsProcessorResult()
-
-        when (environmentsProcessorResult) {
+        when (val environmentsProcessorResult = environmentsProcessorResult()) {
             is Success -> handleSuccess(extension, environmentsProcessorResult)
             is Failure -> handleFailure(environmentsProcessorResult)
         }
@@ -51,7 +50,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     private fun Project.environmentsProcessorResult(): ProjectDeserializationResult {
         return runBlocking {
             val environmentsExistingDirectory = environmentsExistingDirectory()
-            projectDeserializer.process(environmentsExistingDirectory)
+            projectDeserializer.deserialize(environmentsExistingDirectory)
         }
     }
 
@@ -66,70 +65,35 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     private fun handleFailure(failure: Failure) {
         throw ChamaleonGradlePluginException(
-            message = failure.toErrorMessage()
+            message = "${failure.toErrorMessage()} at '${failure.environmentsDirectoryPath}'"
         )
     }
 
     @Suppress("Indentation")
     private fun Failure.toErrorMessage(): String =
         when (this) {
-            is Failure.SchemaParsing -> error.toErrorMessage()
-
-            is Failure.EnvironmentsParsing -> error.toErrorMessage()
-
-            is Failure.PropertiesParsing -> error.toErrorMessage()
-
+            is Failure.InvalidSchemaFile -> "Invalid schema file"
+            is Failure.Deserialization -> "Deserialization error with message '${error.cause}'"
             is Failure.ProjectValidation -> error.toErrorMessage()
-
-            is Failure.InvalidPropertiesFile -> "Invalid properties file at '$environmentsDirectoryPath'"
-            is Failure.InvalidSchemaFile -> "Invalid schema file at '$environmentsDirectoryPath'"
-        }
-
-    private fun SchemaParserResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '$schemaFilePath' is empty"
-            is SchemaParserResult.Failure.Serialization ->
-                "Schema parsing failed with error '${throwable.message}'"
-        }
-
-    private fun EnvironmentsParserResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is EnvironmentsParserResult.Failure.FileIsEmpty -> "Environments file on '$environmentsDirectoryPath' is empty"
-            is EnvironmentsParserResult.Failure.Serialization ->
-                "Environment parsing failed with error '${throwable.message}'"
-
-            is EnvironmentsParserResult.Failure.InvalidEnvironmentFile ->
-                "Invalid environments file on '$environmentsDirectoryPath' with path '${environmentFilePath}'"
-        }
-
-    private fun PropertiesParserResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is PropertiesParserResult.Failure.Serialization ->
-                "Properties parsing failed with error '${throwable.message}'"
         }
 
     private fun ProjectValidationResult.Failure.toErrorMessage(): String =
         when (this) {
             is ProjectValidationResult.Failure.EnvironmentMissingPlatforms ->
-                "Platforms of environment '$environmentName' are not equal to schema"
-
-            is ProjectValidationResult.Failure.PropertyNotEqualToPropertyDefinition ->
-                "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
-
-            is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
-                "Value of property '$propertyName' for platform '$platformType' " +
-                        "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
-
-            is ProjectValidationResult.Failure.NullPropertyNotNullable ->
-                "Value on property '$propertyName' for platform '$platformType' on environment " +
-                        "'$environmentName' was null and is not marked as nullable on schema"
-
-            is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->
-                "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
-                        "[$environmentNames]"
+                "Environment '$environmentName' is missing platforms '$missingPlatforms'"
 
             is ProjectValidationResult.Failure.PlatformMissingProperties ->
-                "Platforms of environment '$environmentName' are not equal to schema"
+                "Platform '$platformType' on '$environmentName' is missing platforms '$missingPropertyNames'"
+
+            is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
+                "Platform type '$platformType' of property '$propertyName' on platform '$platformType' on " +
+                        "environment '$environmentName' is different than property definition '$propertyDefinition'"
+
+            is ProjectValidationResult.Failure.NullPropertyValueIsNotNullable ->
+                "Property value on property '$propertyName' on platform '$platformType' on '$environmentName' is null but not nullable"
+
+            is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->
+                "Selected environment '$selectedEnvironmentName' is not present in any existing environment [$existingEnvironmentNames]"
         }
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
@@ -164,7 +128,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                 }
 
                 runBlocking {
-                    val updateProjectResult = projectDeserializer.serialize(newProject)
+                    val updateProjectResult = projectSerializer.serialize(newProject)
 
                     if (updateProjectResult is Failure) {
                         @Suppress("Indentation")
