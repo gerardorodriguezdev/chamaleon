@@ -32,14 +32,17 @@ public class Schema private constructor(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
         ): Schema? {
-
-            //TODO: Sep?
-            propertyDefinitions.values.forEach { propertyDefinition ->
-                if (!propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)) return null
-            }
-
+            if (!arePropertyDefinitionsValid(globalSupportedPlatformTypes, propertyDefinitions)) return null
             return Schema(globalSupportedPlatformTypes, propertyDefinitions)
         }
+
+        private fun arePropertyDefinitionsValid(
+            globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
+            propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
+        ): Boolean =
+            propertyDefinitions.values.any { propertyDefinition ->
+                !propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)
+            }
 
         private fun PropertyDefinition.arePlatformsSupported(
             globalSupportedPlatforms: NonEmptySet<PlatformType>

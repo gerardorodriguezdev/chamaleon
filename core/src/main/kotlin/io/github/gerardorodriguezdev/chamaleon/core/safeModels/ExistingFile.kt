@@ -12,7 +12,7 @@ public class ExistingFile private constructor(file: File) {
     public val name: NonEmptyString = file.name.toUnsafeNonEmptyString()
     public val path: NonEmptyString = file.path.toUnsafeNonEmptyString()
     private val readContentDelegate: () -> String = { file.readText() }
-    private val writeContentDelegate: (String) -> Unit = { file.writeText(it) }
+    private val writeContentDelegate: (String) -> Unit = { content -> file.writeText(content) }
 
     public fun readContent(): String = readContentDelegate()
 

@@ -5,6 +5,22 @@ public sealed interface ProjectSerializationResult {
     public sealed interface Failure : ProjectSerializationResult {
         public val environmentsDirectoryPath: String
 
-        public data class Serialization(override val environmentsDirectoryPath: String) : Failure
+        public data class InvalidPropertiesFile(
+            override val environmentsDirectoryPath: String,
+        ) : Failure
+
+        public data class InvalidSchemaFile(
+            override val environmentsDirectoryPath: String,
+        ) : Failure
+
+        public data class InvalidEnvironmentFile(
+            override val environmentsDirectoryPath: String,
+            val environmentFileName: String,
+        ) : Failure
+
+        public data class Serialization(
+            override val environmentsDirectoryPath: String,
+            val error: Throwable,
+        ) : Failure
     }
 }

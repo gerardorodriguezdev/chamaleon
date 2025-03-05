@@ -13,6 +13,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.sch
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -31,6 +32,12 @@ internal class DefaultProjectSerializer(
 ) : ProjectSerializer {
 
     override suspend fun serialize(project: Project): ProjectSerializationResult =
+        serializeEither(project).fold(
+            ifLeft = { it },
+            ifRight = { it }
+        )
+
+    private suspend fun serializeEither(project: Project): Either<Failure, Success> =
         either {
             coroutineScope {
                 val propertiesSerializationResult = async { project.serializeProperties() }
@@ -43,22 +50,23 @@ internal class DefaultProjectSerializer(
 
                 Success
             }
-        }.fold(
-            ifLeft = { it },
-            ifRight = { it }
-        )
+        }
 
     private fun Project.serializeProperties(): Either<Failure, Unit> =
         either {
             catch(
                 block = {
                     val propertiesFile = environmentsDirectory.propertiesExistingFile(createIfNotPresent = true)
-                    ensureNotNull(propertiesFile) { Failure.Serialization(environmentsDirectory.path.value) }
+                    ensureNotNull(propertiesFile) {
+                        Failure.InvalidPropertiesFile(
+                            environmentsDirectoryPath = environmentsDirectory.path.value,
+                        )
+                    }
 
                     val propertiesFileContent = PrettyJson.encodeToString(properties)
                     propertiesFile.writeContent(propertiesFileContent)
                 },
-                catch = { error -> Failure.Serialization(environmentsDirectoryPath = environmentsDirectory.path.value) }
+                catch = { error -> error.toSerializationError(environmentsDirectory) }
             )
         }
 
@@ -67,12 +75,14 @@ internal class DefaultProjectSerializer(
             catch(
                 block = {
                     val schemaFile = environmentsDirectory.schemaExistingFile(createIfNotPresent = true)
-                    ensureNotNull(schemaFile) { Failure.Serialization(environmentsDirectory.path.value) }
+                    ensureNotNull(schemaFile) {
+                        Failure.InvalidSchemaFile(environmentsDirectoryPath = environmentsDirectory.path.value)
+                    }
 
                     val schemaFileContent = PrettyJson.encodeToString(schema)
                     schemaFile.writeContent(schemaFileContent)
                 },
-                catch = { error -> Failure.Serialization(environmentsDirectoryPath = environmentsDirectory.path.value) }
+                catch = { error -> error.toSerializationError(environmentsDirectory) }
             )
         }
 
@@ -86,24 +96,33 @@ internal class DefaultProjectSerializer(
                     .map { environment ->
                         async {
                             val environmentFileName = environmentFileNameExtractor(environment.name)
-                            val environmentExistingFile = environmentsDirectory.existingFile(
+                            val environmentFile = environmentsDirectory.existingFile(
                                 fileName = environmentFileName,
                                 createIfNotPresent = true
                             )
-                            ensureNotNull(environmentExistingFile) {
-                                Failure.Serialization(environmentsDirectoryPath = environmentsDirectory.path.value)
+                            ensureNotNull(environmentFile) {
+                                Failure.InvalidEnvironmentFile(
+                                    environmentsDirectoryPath = environmentsDirectory.path.value,
+                                    environmentFileName = environmentFileName.value,
+                                )
                             }
 
                             catch(
                                 block = {
                                     val platformsJson = PrettyJson.encodeToString(environment.platforms)
-                                    environmentExistingFile.writeContent(platformsJson)
+                                    environmentFile.writeContent(platformsJson)
                                 },
-                                catch = { error -> Failure.Serialization(environmentsDirectoryPath = environmentsDirectory.path.value) }
+                                catch = { error -> error.toSerializationError(environmentsDirectory) }
                             )
                         }
                     }
                     .awaitAll()
             }
         }
+
+    private fun Throwable.toSerializationError(environmentsDirectory: ExistingDirectory): Failure.Serialization =
+        Failure.Serialization(
+            environmentsDirectoryPath = environmentsDirectory.path.value,
+            error = this,
+        )
 }

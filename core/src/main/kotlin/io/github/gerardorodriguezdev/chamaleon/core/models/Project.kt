@@ -1,5 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.BooleanProperty
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
@@ -13,7 +16,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetSto
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 
-//TODO: Refactor
 public class Project private constructor(
     public val environmentsDirectory: ExistingDirectory,
     public val schema: Schema,
@@ -82,122 +84,142 @@ public class Project private constructor(
             schema: Schema,
             properties: Properties,
             environments: NonEmptyKeySetStore<String, Environment>? = null,
-        ): ProjectValidationResult {
-            val isSelectedEnvironmentOnEnvironmentsResult = properties.isSelectedEnvironmentOnEnvironmentsOrFailure(
-                environmentsDirectoryPath = environmentsDirectory.path.value,
-                environments = environments
-            )
-            if (isSelectedEnvironmentOnEnvironmentsResult != null) return isSelectedEnvironmentOnEnvironmentsResult
-
-            val areEnvironmentsValid = schema.areEnvironmentsValidOrFailure(
-                environmentsDirectoryPath = environmentsDirectory.path.value,
+        ): ProjectValidationResult =
+            projectOfEither(
+                environmentsDirectory = environmentsDirectory,
+                schema = schema,
+                properties = properties,
                 environments = environments,
+            ).fold(
+                ifLeft = { it },
+                ifRight = { it },
             )
-            if (areEnvironmentsValid != null) return areEnvironmentsValid
 
-            return Success(
-                Project(
-                    environmentsDirectory = environmentsDirectory,
-                    schema = schema,
-                    properties = properties,
+        private fun projectOfEither(
+            environmentsDirectory: ExistingDirectory,
+            schema: Schema,
+            properties: Properties,
+            environments: NonEmptyKeySetStore<String, Environment>?,
+        ): Either<Failure, Success> =
+            either {
+                properties.isSelectedEnvironmentOnEnvironments(
+                    environmentsDirectoryPath = environmentsDirectory.path.value,
+                    environments = environments
+                ).bind()
+
+                schema.areEnvironmentsValid(
+                    environmentsDirectoryPath = environmentsDirectory.path.value,
                     environments = environments,
-                )
-            )
-        }
+                ).bind()
 
-        private fun Properties.isSelectedEnvironmentOnEnvironmentsOrFailure(
+                Success(
+                    Project(
+                        environmentsDirectory = environmentsDirectory,
+                        schema = schema,
+                        properties = properties,
+                        environments = environments,
+                    )
+                )
+            }
+
+        private fun Properties.isSelectedEnvironmentOnEnvironments(
             environmentsDirectoryPath: String,
             environments: NonEmptyKeySetStore<String, Environment>?,
-        ): Failure? =
-            when {
-                selectedEnvironmentName == null -> null
-                environments == null -> Failure.SelectedEnvironmentNotFound(
-                    environmentsDirectoryPath = environmentsDirectoryPath,
-                    selectedEnvironmentName = selectedEnvironmentName.value,
-                    environmentNames = "",
-                )
+        ): Either<Failure, Unit> =
+            either {
+                when {
+                    selectedEnvironmentName == null -> Unit
+                    environments == null ->
+                        raise(
+                            Failure.SelectedEnvironmentNotFound(
+                                environmentsDirectoryPath = environmentsDirectoryPath,
+                                selectedEnvironmentName = selectedEnvironmentName.value,
+                                environmentNames = "",
+                            )
+                        )
 
-                !environments.contains(selectedEnvironmentName.value) -> {
-                    Failure.SelectedEnvironmentNotFound(
+                    !environments.contains(selectedEnvironmentName.value) ->
+                        raise(
+                            Failure.SelectedEnvironmentNotFound(
+                                environmentsDirectoryPath = environmentsDirectoryPath,
+                                selectedEnvironmentName = selectedEnvironmentName.value,
+                                environmentNames = environments.values.joinToString { environment -> environment.name.value }
+                            )
+                        )
+
+                    else -> Unit
+                }
+            }
+
+        internal fun Schema.areEnvironmentsValid(
+            environmentsDirectoryPath: String,
+            environments: NonEmptyKeySetStore<String, Environment>?,
+        ): Either<Failure, Unit> =
+            either {
+                environments?.values?.forEach { environment ->
+                    val context = Context(
+                        schema = this@areEnvironmentsValid,
+                        environment = environment,
                         environmentsDirectoryPath = environmentsDirectoryPath,
-                        selectedEnvironmentName = selectedEnvironmentName.value,
-                        environmentNames = environments.values.joinToString { environment -> environment.name.value }
+                    )
+                    context.isEnvironmentValid().bind()
+                }
+            }
+
+        private fun Context.isEnvironmentValid(): Either<Failure, Unit> =
+            either {
+                environmentContainsAllPlatforms().bind()
+
+                environment.platforms.values.forEach { platform ->
+                    isPlatformValid(platform).bind()
+                }
+            }
+
+        private fun Context.environmentContainsAllPlatforms(): Either<Failure, Unit> =
+            either {
+                val platformTypes = environment.platforms.keys
+                ensure(schema.globalSupportedPlatformTypes == platformTypes) {
+                    Failure.EnvironmentMissingPlatforms(
+                        environmentsDirectoryPath = environmentsDirectoryPath,
+                        environmentName = environment.name.value,
+                        schemaPlatformTypes = schema.globalSupportedPlatformTypes,
+                        environmentPlatformTypes = platformTypes,
                     )
                 }
-
-                else -> null
             }
 
-        internal fun Schema.areEnvironmentsValidOrFailure(
-            environmentsDirectoryPath: String,
-            environments: NonEmptyKeySetStore<String, Environment>?,
-        ): Failure? =
-            environments?.values?.firstNotNullOfOrNull { environment ->
-                val context = Context(
-                    schema = this,
-                    environment = environment,
-                    environmentsDirectoryPath = environmentsDirectoryPath,
-                )
-                context.isEnvironmentValidOrFailure()
-            }
+        private fun Context.isPlatformValid(platform: Platform): Either<Failure, Unit> =
+            either {
+                val propertyDefinitionsForPlatform = propertyDefinitionsForPlatform(platform)
 
-        private fun Context.isEnvironmentValidOrFailure(): Failure? {
-            val environmentContainsAllPlatformsResult = environmentContainsAllPlatformsOrFailure()
-            if (environmentContainsAllPlatformsResult is Failure) return environmentContainsAllPlatformsResult
-
-            return environment.platforms.values.firstNotNullOfOrNull { platform ->
-                isPlatformValidOrFailure(platform)
-            }
-        }
-
-        private fun Context.environmentContainsAllPlatformsOrFailure(): Failure? {
-            val platformTypes = environment.platformTypes()
-            return if (schema.globalSupportedPlatformTypes != platformTypes) {
-                Failure.EnvironmentMissingPlatforms(
-                    environmentsDirectoryPath = environmentsDirectoryPath,
-                    environmentName = environment.name.value,
-                    schemaPlatformTypes = schema.globalSupportedPlatformTypes,
-                    environmentPlatformTypes = platformTypes,
-                )
-            } else {
-                null
-            }
-        }
-
-        private fun Context.isPlatformValidOrFailure(platform: Platform): Failure? {
-            val propertyDefinitionsForPlatform = propertyDefinitionsForPlatform(platform)
-
-            val platformContainsAllPropertiesResult =
-                platformContainsAllPropertiesOrFailure(
+                platformContainsAllProperties(
                     propertyDefinitionsForPlatform = propertyDefinitionsForPlatform,
                     platform = platform,
-                )
-            if (platformContainsAllPropertiesResult is Failure) return platformContainsAllPropertiesResult
+                ).bind()
 
-            return platform.properties.values.firstNotNullOfOrNull { property ->
-                isPropertyValidOrFailure(
-                    propertyDefinitionsForPlatform = propertyDefinitionsForPlatform,
-                    property = property,
-                    platformType = platform.platformType,
-                )
+                platform.properties.values.forEach { property ->
+                    isPropertyValid(
+                        propertyDefinitionsForPlatform = propertyDefinitionsForPlatform,
+                        property = property,
+                        platformType = platform.platformType,
+                    ).bind()
+                }
             }
-        }
 
-        private fun Context.isPropertyValidOrFailure(
+        private fun Context.isPropertyValid(
             propertyDefinitionsForPlatform: Map<String, PropertyDefinition>,
             property: Property,
             platformType: PlatformType,
-        ): Failure? {
-            val propertyDefinition = propertyDefinitionsForPlatform.propertyDefinition(property)
+        ): Either<Failure, Unit> =
+            either {
+                val propertyDefinition = propertyDefinitionsForPlatform.propertyDefinition(property)
 
-            return isPropertyTypeValidOrFailure(
-                propertyDefinition = propertyDefinition,
-                property = property,
-                platformType = platformType,
-            )
-        }
-
-        private fun Environment.platformTypes(): Set<PlatformType> = platforms.keys
+                isPropertyTypeValid(
+                    propertyDefinition = propertyDefinition,
+                    property = property,
+                    platformType = platformType,
+                ).bind()
+            }
 
         private fun Context.propertyDefinitionsForPlatform(platform: Platform): Map<String, PropertyDefinition> =
             schema.propertyDefinitions.values
@@ -211,43 +233,42 @@ public class Project private constructor(
                 }
                 .associateBy { propertyDefinition -> propertyDefinition.name.value }
 
-        private fun Context.platformContainsAllPropertiesOrFailure(
+        private fun Context.platformContainsAllProperties(
             propertyDefinitionsForPlatform: Map<String, PropertyDefinition>,
             platform: Platform,
-        ): Failure? {
-            val platformPropertiesNames = platform.properties.keys
-            val propertyDefinitionsNames = propertyDefinitionsForPlatform.keys
-            val platformContainsAllProperties = platformPropertiesNames == propertyDefinitionsNames
+        ): Either<Failure, Unit> =
+            either {
+                val platformPropertiesNames = platform.properties.keys
+                val propertyDefinitionsNames = propertyDefinitionsForPlatform.keys
+                val platformContainsAllProperties = platformPropertiesNames == propertyDefinitionsNames
 
-            return if (!platformContainsAllProperties) {
-                Failure.PlatformMissingProperties(
-                    environmentsDirectoryPath = environmentsDirectoryPath,
-                    environmentName = environment.name.value,
-                    platformType = platform.platformType,
-                    schemaPropertyDefinitions = schema.propertyDefinitions.values.toSet(),
-                    platformProperties = platform.properties.values.toSet(),
-                )
-            } else {
-                null
+                ensure(platformContainsAllProperties) {
+                    Failure.PlatformMissingProperties(
+                        environmentsDirectoryPath = environmentsDirectoryPath,
+                        environmentName = environment.name.value,
+                        platformType = platform.platformType,
+                        schemaPropertyDefinitions = schema.propertyDefinitions.values.toSet(),
+                        platformProperties = platform.properties.values.toSet(),
+                    )
+                }
             }
-        }
 
         private fun Map<String, PropertyDefinition>.propertyDefinition(property: Property): PropertyDefinition =
             getValue(property.name.value)
 
-        private fun Context.isPropertyTypeValidOrFailure(
+        private fun Context.isPropertyTypeValid(
             propertyDefinition: PropertyDefinition,
             property: Property,
             platformType: PlatformType,
-        ): Failure? =
+        ): Either<Failure, Unit> =
             when (property.value) {
-                null -> isPropertyValueNullableOrFailure(
+                null -> isPropertyValueNullable(
                     propertyDefinition = propertyDefinition,
                     propertyName = property.name.value,
                     platformType = platformType,
                 )
 
-                else -> isPropertyTypeValidOrFailure(
+                else -> isPropertyTypeValid(
                     propertyName = property.name.value,
                     propertyValue = property.value,
                     propertyDefinition = propertyDefinition,
@@ -255,42 +276,41 @@ public class Project private constructor(
                 )
             }
 
-        private fun Context.isPropertyValueNullableOrFailure(
+        private fun Context.isPropertyValueNullable(
             propertyDefinition: PropertyDefinition,
             propertyName: String,
             platformType: PlatformType,
-        ): Failure? =
-            if (!propertyDefinition.nullable) {
-                Failure.NullPropertyNotNullable(
-                    propertyName = propertyName,
-                    platformType = platformType,
-                    environmentName = environment.name.value,
-                    environmentsDirectoryPath = environmentsDirectoryPath,
-                )
-            } else {
-                null
+        ): Either<Failure, Unit> =
+            either {
+                ensure(propertyDefinition.nullable) {
+                    Failure.NullPropertyNotNullable(
+                        propertyName = propertyName,
+                        platformType = platformType,
+                        environmentName = environment.name.value,
+                        environmentsDirectoryPath = environmentsDirectoryPath,
+                    )
+                }
             }
 
-        private fun Context.isPropertyTypeValidOrFailure(
+        private fun Context.isPropertyTypeValid(
             propertyName: String,
             propertyValue: PropertyValue,
             propertyDefinition: PropertyDefinition,
             platformType: PlatformType,
-        ): Failure? {
-            val propertyType = propertyValue.toPropertyType()
+        ): Either<Failure, Unit> =
+            either {
+                val propertyType = propertyValue.toPropertyType()
 
-            return if (propertyDefinition.propertyType != propertyType) {
-                Failure.PropertyTypeNotEqualToPropertyDefinition(
-                    propertyName = propertyName,
-                    platformType = platformType,
-                    environmentName = environment.name.value,
-                    propertyType = propertyType,
-                    environmentsDirectoryPath = environmentsDirectoryPath,
-                )
-            } else {
-                null
+                ensure(propertyDefinition.propertyType == propertyType) {
+                    Failure.PropertyTypeNotEqualToPropertyDefinition(
+                        propertyName = propertyName,
+                        platformType = platformType,
+                        environmentName = environment.name.value,
+                        propertyType = propertyType,
+                        environmentsDirectoryPath = environmentsDirectoryPath,
+                    )
+                }
             }
-        }
 
         private fun PropertyValue.toPropertyType(): PropertyType =
             when (this) {

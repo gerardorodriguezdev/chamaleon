@@ -1,7 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.catch
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
@@ -76,25 +75,29 @@ internal class DefaultProjectDeserializer(
 
                     Json.decodeFromString<Properties>(propertiesFileContent)
                 },
-                catch = { error -> raise(Failure.Deserialization(path.value)) }
+                catch = { error ->
+                    raise(error.toDeserializationError(this@propertiesDeserialization))
+                }
             )
         }
 
     private fun ExistingDirectory.schemaDeserialization(): Either<Failure, Schema> =
         either {
             val schemaFile = schemaExistingFile()
-            ensureNotNull(schemaFile) { Failure.Deserialization(path.value) }
+            ensureNotNull(schemaFile) {
+                Failure.InvalidSchemaFile(environmentsDirectoryPath = path.value)
+            }
 
             catch(
                 block = {
                     val schemaFileContent = schemaFile.readContent()
                     Json.decodeFromString<Schema>(schemaFileContent)
                 },
-                catch = { raise(Failure.Deserialization(path.value)) }
+                catch = { error -> raise(error.toDeserializationError(this@schemaDeserialization)) }
             )
         }
 
-    private suspend fun ExistingDirectory.environmentsDeserialization(): Either<Failure, NonEmptyKeySetStore<String, Environment>> =
+    private suspend fun ExistingDirectory.environmentsDeserialization(): Either<Failure, NonEmptyKeySetStore<String, Environment>?> =
         either {
             val environmentsFiles = existingFiles { fileName -> fileName.isEnvironmentFileName() }
 
@@ -112,14 +115,15 @@ internal class DefaultProjectDeserializer(
                                     )
                                     Environment(name = environmentName, platforms = platforms)
                                 },
-                                catch = { raise(Failure.Deserialization(path.value)) }
+                                catch = { error ->
+                                    raise(error.toDeserializationError(this@environmentsDeserialization))
+                                }
                             )
                         }
                     }
                     .awaitAll()
                     .toSet()
                     .toNonEmptyKeySetStore()
-                    ?: raise(Failure.Deserialization(path.value))
             }
         }
 
@@ -128,22 +132,32 @@ internal class DefaultProjectDeserializer(
         schema: Schema,
         environments: NonEmptyKeySetStore<String, Environment>?,
         properties: Properties,
-    ): Either<Failure, Project> {
-        val projectValidationResult = projectOf(
-            environmentsDirectory = environmentsDirectory,
-            schema = schema,
-            environments = environments,
-            properties = properties,
-        )
+    ): Either<Failure, Project> =
+        either {
+            val projectValidationResult = projectOf(
+                environmentsDirectory = environmentsDirectory,
+                schema = schema,
+                environments = environments,
+                properties = properties,
+            )
 
-        return when (projectValidationResult) {
-            is ProjectValidationResult.Success -> projectValidationResult.project.right()
-            is ProjectValidationResult.Failure -> Failure.ProjectValidation(
-                environmentsDirectoryPath = environmentsDirectory.path.value,
-                error = projectValidationResult
-            ).left()
+            when (projectValidationResult) {
+                is ProjectValidationResult.Success -> projectValidationResult.project
+                is ProjectValidationResult.Failure ->
+                    raise(
+                        Failure.ProjectValidation(
+                            environmentsDirectoryPath = environmentsDirectory.path.value,
+                            error = projectValidationResult
+                        )
+                    )
+            }
         }
-    }
+
+    private fun Throwable.toDeserializationError(environmentsDirectory: ExistingDirectory): Failure =
+        Failure.Deserialization(
+            environmentsDirectoryPath = environmentsDirectory.path.value,
+            error = this,
+        )
 
     override suspend fun deserializeRecursively(rootDirectory: ExistingDirectory): List<ProjectDeserializationResult> {
         val environmentsDirectories =

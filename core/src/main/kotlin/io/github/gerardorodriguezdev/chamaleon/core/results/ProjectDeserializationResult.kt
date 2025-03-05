@@ -8,8 +8,13 @@ public sealed interface ProjectDeserializationResult {
     public sealed interface Failure : ProjectDeserializationResult {
         public val environmentsDirectoryPath: String
 
+        public data class InvalidSchemaFile(
+            override val environmentsDirectoryPath: String,
+        ) : Failure
+
         public data class Deserialization(
             override val environmentsDirectoryPath: String,
+            val error: Throwable,
         ) : Failure
 
         public data class ProjectValidation(

@@ -57,15 +57,14 @@ internal object PropertySerializer : KSerializer<Property> {
         when {
             this == null -> null
             this is JsonNull -> null
-            jsonPrimitive.isString == true -> {
-                //TODO: Sep?
-                val stringValue = jsonPrimitive.content
-                val nonEmptyStringValue = stringValue.toNonEmptyString()
-                if (nonEmptyStringValue == null) throw SerializationException("StringProperty value was empty")
-                StringProperty(nonEmptyStringValue)
-            }
-
+            jsonPrimitive.isString == true -> jsonPrimitive.content.toStringProperty()
             jsonPrimitive.booleanOrNull != null -> BooleanProperty(jsonPrimitive.boolean)
             else -> throw SerializationException("Unsupported value type: $this")
         }
+
+    private fun String.toStringProperty(): StringProperty {
+        val value = toNonEmptyString()
+        if (value == null) throw SerializationException("StringProperty value was empty")
+        return StringProperty(value)
+    }
 }
