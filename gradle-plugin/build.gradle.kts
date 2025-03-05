@@ -22,6 +22,7 @@ dependencies {
     testImplementation(libs.jvm.test.parameterized)
 }
 
+//TODO: Remove
 sourceSets {
     main {
         val sampleEnvironmentsDirectory = sampleEnvironmentsDirectory()

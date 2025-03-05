@@ -11,6 +11,7 @@ import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvir
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
 
+//TODO: Refactor
 internal interface CommandParser {
     fun parse(command: String): CommandParserResult
 

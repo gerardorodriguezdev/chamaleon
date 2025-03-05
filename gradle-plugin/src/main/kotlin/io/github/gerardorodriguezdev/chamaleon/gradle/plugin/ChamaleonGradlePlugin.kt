@@ -19,6 +19,7 @@ import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
+//TODO: Mention also successes progress of tasks
 @Suppress("TooManyFunctions")
 public class ChamaleonGradlePlugin : Plugin<Project> {
     private val projectSerializer = ProjectSerializer.create()

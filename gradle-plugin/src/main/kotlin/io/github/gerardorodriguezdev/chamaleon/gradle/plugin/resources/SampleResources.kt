@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import java.io.File
 
+//TODO: Replace
 internal object SampleResources {
     private const val SCHEMA_FILE_NAME = Project.SCHEMA_FILE
     private val schemaFileContent = readSampleResource(SCHEMA_FILE_NAME)

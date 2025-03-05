@@ -8,6 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvir
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult.Success
 
+//TODO: Refactor
 internal interface CommandsProcessor {
     fun process(commands: List<String>): CommandsProcessorResult
 

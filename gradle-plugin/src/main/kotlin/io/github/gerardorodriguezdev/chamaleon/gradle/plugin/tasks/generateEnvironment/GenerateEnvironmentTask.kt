@@ -14,6 +14,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
+//TODO: Refactor
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
     private val projectSerializer = ProjectSerializer.create()

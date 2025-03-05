@@ -91,7 +91,7 @@ This file will be used only to validate that all the environments have the same 
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
       - **propertyType:** Can be `String` or `Boolean` -> `required`
-        - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
+          - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
       - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
         template for this property only.
         Only read if is not empty (default=[])-> `optional`

@@ -27,6 +27,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
+//TODO: Refactor?
 class ChamaleonGradlePluginTest {
     @TempDir
     lateinit var directory: File
