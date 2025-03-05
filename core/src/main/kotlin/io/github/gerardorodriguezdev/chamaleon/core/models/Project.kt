@@ -10,10 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefini
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult.Success
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingFile
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.*
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 
 public class Project private constructor(
@@ -125,10 +122,10 @@ public class Project private constructor(
         private fun Properties.isSelectedEnvironmentOnEnvironments(
             environmentsDirectoryPath: String,
             environments: NonEmptyKeySetStore<String, Environment>?,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             either {
                 when {
-                    selectedEnvironmentName == null -> Unit
+                    selectedEnvironmentName == null -> InternalSuccess
                     environments == null ->
                         raise(
                             Failure.SelectedEnvironmentNotFound(
@@ -147,14 +144,14 @@ public class Project private constructor(
                             )
                         )
 
-                    else -> Unit
+                    else -> InternalSuccess
                 }
             }
 
         internal fun Schema.areEnvironmentsValid(
             environmentsDirectoryPath: String,
             environments: NonEmptyKeySetStore<String, Environment>?,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             either {
                 environments?.values?.forEach { environment ->
                     val context = Context(
@@ -164,18 +161,22 @@ public class Project private constructor(
                     )
                     context.isEnvironmentValid().bind()
                 }
+
+                InternalSuccess
             }
 
-        private fun Context.isEnvironmentValid(): Either<Failure, Unit> =
+        private fun Context.isEnvironmentValid(): Either<Failure, InternalSuccess> =
             either {
                 environmentContainsAllPlatforms().bind()
 
                 environment.platforms.values.forEach { platform ->
                     isPlatformValid(platform).bind()
                 }
+
+                InternalSuccess
             }
 
-        private fun Context.environmentContainsAllPlatforms(): Either<Failure, Unit> =
+        private fun Context.environmentContainsAllPlatforms(): Either<Failure, InternalSuccess> =
             either {
                 val platformTypes = environment.platforms.keys
                 ensure(schema.globalSupportedPlatformTypes == platformTypes) {
@@ -186,9 +187,11 @@ public class Project private constructor(
                         environmentPlatformTypes = platformTypes,
                     )
                 }
+
+                InternalSuccess
             }
 
-        private fun Context.isPlatformValid(platform: Platform): Either<Failure, Unit> =
+        private fun Context.isPlatformValid(platform: Platform): Either<Failure, InternalSuccess> =
             either {
                 val propertyDefinitionsForPlatform = propertyDefinitionsForPlatform(platform)
 
@@ -204,13 +207,15 @@ public class Project private constructor(
                         platformType = platform.platformType,
                     ).bind()
                 }
+
+                InternalSuccess
             }
 
         private fun Context.isPropertyValid(
             propertyDefinitionsForPlatform: Map<String, PropertyDefinition>,
             property: Property,
             platformType: PlatformType,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             either {
                 val propertyDefinition = propertyDefinitionsForPlatform.propertyDefinition(property)
 
@@ -236,7 +241,7 @@ public class Project private constructor(
         private fun Context.platformContainsAllProperties(
             propertyDefinitionsForPlatform: Map<String, PropertyDefinition>,
             platform: Platform,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             either {
                 val platformPropertiesNames = platform.properties.keys
                 val propertyDefinitionsNames = propertyDefinitionsForPlatform.keys
@@ -251,6 +256,8 @@ public class Project private constructor(
                         platformProperties = platform.properties.values.toSet(),
                     )
                 }
+
+                InternalSuccess
             }
 
         private fun Map<String, PropertyDefinition>.propertyDefinition(property: Property): PropertyDefinition =
@@ -260,7 +267,7 @@ public class Project private constructor(
             propertyDefinition: PropertyDefinition,
             property: Property,
             platformType: PlatformType,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             when (property.value) {
                 null -> isPropertyValueNullable(
                     propertyDefinition = propertyDefinition,
@@ -280,7 +287,7 @@ public class Project private constructor(
             propertyDefinition: PropertyDefinition,
             propertyName: String,
             platformType: PlatformType,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             either {
                 ensure(propertyDefinition.nullable) {
                     Failure.NullPropertyNotNullable(
@@ -290,6 +297,8 @@ public class Project private constructor(
                         environmentsDirectoryPath = environmentsDirectoryPath,
                     )
                 }
+
+                InternalSuccess
             }
 
         private fun Context.isPropertyTypeValid(
@@ -297,7 +306,7 @@ public class Project private constructor(
             propertyValue: PropertyValue,
             propertyDefinition: PropertyDefinition,
             platformType: PlatformType,
-        ): Either<Failure, Unit> =
+        ): Either<Failure, InternalSuccess> =
             either {
                 val propertyType = propertyValue.toPropertyType()
 
@@ -310,6 +319,8 @@ public class Project private constructor(
                         environmentsDirectoryPath = environmentsDirectoryPath,
                     )
                 }
+
+                InternalSuccess
             }
 
         private fun PropertyValue.toPropertyType(): PropertyType =

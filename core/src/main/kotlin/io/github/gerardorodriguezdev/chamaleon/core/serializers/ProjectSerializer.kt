@@ -14,6 +14,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerialization
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult.Success
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.InternalSuccess
 import io.github.gerardorodriguezdev.chamaleon.core.utils.PrettyJson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -52,7 +53,7 @@ internal class DefaultProjectSerializer(
             }
         }
 
-    private fun Project.serializeProperties(): Either<Failure, Unit> =
+    private fun Project.serializeProperties(): Either<Failure, InternalSuccess> =
         either {
             catch(
                 block = {
@@ -65,12 +66,14 @@ internal class DefaultProjectSerializer(
 
                     val propertiesFileContent = PrettyJson.encodeToString(properties)
                     propertiesFile.writeContent(propertiesFileContent)
+
+                    InternalSuccess
                 },
-                catch = { error -> error.toSerializationError(environmentsDirectory) }
+                catch = { error -> raise(error.toSerializationError(environmentsDirectory)) }
             )
         }
 
-    private fun Project.serializeSchema(): Either<Failure, Unit> =
+    private fun Project.serializeSchema(): Either<Failure, InternalSuccess> =
         either {
             catch(
                 block = {
@@ -81,14 +84,16 @@ internal class DefaultProjectSerializer(
 
                     val schemaFileContent = PrettyJson.encodeToString(schema)
                     schemaFile.writeContent(schemaFileContent)
+
+                    InternalSuccess
                 },
-                catch = { error -> error.toSerializationError(environmentsDirectory) }
+                catch = { error -> raise(error.toSerializationError(environmentsDirectory)) }
             )
         }
 
-    private suspend fun Project.serializeEnvironments(): Either<Failure, Unit> =
+    private suspend fun Project.serializeEnvironments(): Either<Failure, InternalSuccess> =
         either {
-            if (environments == null) return Unit.right()
+            if (environments == null) return InternalSuccess.right()
 
             coroutineScope {
                 environments
@@ -111,12 +116,16 @@ internal class DefaultProjectSerializer(
                                 block = {
                                     val platformsJson = PrettyJson.encodeToString(environment.platforms)
                                     environmentFile.writeContent(platformsJson)
+
+                                    InternalSuccess
                                 },
-                                catch = { error -> error.toSerializationError(environmentsDirectory) }
+                                catch = { error -> raise(error.toSerializationError(environmentsDirectory)) }
                             )
                         }
                     }
                     .awaitAll()
+
+                InternalSuccess
             }
         }
 
@@ -125,4 +134,6 @@ internal class DefaultProjectSerializer(
             environmentsDirectoryPath = environmentsDirectory.path.value,
             error = this,
         )
+
+
 }
