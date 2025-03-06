@@ -5,6 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -66,14 +67,6 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
                         message = updateProjectResult.toErrorMessage(),
                     )
             }
-        }
-
-    private fun ProjectSerializationResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is ProjectSerializationResult.Failure.InvalidPropertiesFile -> "Invalid properties file at '$environmentsDirectoryPath'"
-            is ProjectSerializationResult.Failure.InvalidEnvironmentFile -> "Invalid environment file named '$environmentFileName' at '$environmentsDirectoryPath'"
-            is ProjectSerializationResult.Failure.InvalidSchemaFile -> "Invalid properties file at '$environmentsDirectoryPath'"
-            is ProjectSerializationResult.Failure.Serialization -> "Project serialization failed with error: '$error' at '$environmentsDirectoryPath'"
         }
 
     private class GenerateEnvironmentTaskException(message: String) : Exception(message)

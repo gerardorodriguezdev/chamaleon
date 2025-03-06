@@ -3,13 +3,13 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
 import kotlinx.coroutines.runBlocking
@@ -19,8 +19,6 @@ import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
-//TODO: Mention also successes progress of tasks
-@Suppress("TooManyFunctions")
 public class ChamaleonGradlePlugin : Plugin<Project> {
     private val projectSerializer = ProjectSerializer.create()
     private val projectDeserializer = ProjectDeserializer.create()
@@ -41,10 +39,14 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private fun Project.scanProject(extension: ChamaleonExtension) {
-        //TODO: More info of errors
         when (val projectDeserializationResult = deserializeProject()) {
-            is ProjectDeserializationResult.Success -> extension.project.set(projectDeserializationResult.project)
-            is ProjectDeserializationResult.Failure -> projectDeserializationResult.handleDeserializationFailure()
+            is ProjectDeserializationResult.Success -> {
+                extension.project.set(projectDeserializationResult.project)
+                logger.info("Project deserialization successful at ${projectDeserializationResult.project.environmentsDirectory.path}")
+            }
+
+            is ProjectDeserializationResult.Failure ->
+                throw ChamaleonGradlePluginException(message = projectDeserializationResult.toErrorMessage())
         }
     }
 
@@ -61,39 +63,6 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME).asFile.toUnsafeExistingDirectory()
 
 
-    private fun ProjectDeserializationResult.Failure.handleDeserializationFailure() {
-        throw ChamaleonGradlePluginException(
-            message = "${toErrorMessage()} at '$environmentsDirectoryPath'"
-        )
-    }
-
-    //TODO: Move mapper out
-    private fun ProjectDeserializationResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is ProjectDeserializationResult.Failure.InvalidSchemaFile -> "Invalid schema file"
-            is ProjectDeserializationResult.Failure.Deserialization -> "Deserialization error with message '$error'"
-            is ProjectDeserializationResult.Failure.ProjectValidation -> error.toErrorMessage()
-        }
-
-    private fun ProjectValidationResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is ProjectValidationResult.Failure.EnvironmentMissingPlatforms ->
-                "Environment '$environmentName' is missing platforms '$missingPlatforms'"
-
-            is ProjectValidationResult.Failure.PlatformMissingProperties ->
-                "Platform '$platformType' on '$environmentName' is missing platforms '$missingPropertyNames'"
-
-            is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
-                "Platform type '$platformType' of property '$propertyName' on platform '$platformType' on " +
-                        "environment '$environmentName' is different than property definition '$propertyDefinition'"
-
-            is ProjectValidationResult.Failure.NullPropertyValueIsNotNullable ->
-                "Property value on property '$propertyName' on platform '$platformType' on '$environmentName' is null but not nullable"
-
-            is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->
-                "Selected environment '$selectedEnvironmentName' is not present in any existing environment [$existingEnvironmentNames]"
-        }
-
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
         tasks.register(GENERATE_SAMPLE_TASK_NAME, GenerateSampleTask::class.java) {
             val generateSampleCommandLineArgument =
@@ -108,7 +77,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             )
         }
 
-    //TODO: Move if possible
+    //TODO: Move if possible + logs
     private fun Project.registerSelectEnvironmentTask(extension: ChamaleonExtension): TaskProvider<Task> =
         tasks.register(SELECT_ENVIRONMENT_TASK_NAME) {
             val newSelectedEnvironmentName = providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
@@ -134,12 +103,10 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
                 runBlocking {
                     val updateProjectResult = projectSerializer.serialize(newProject)
-
-                    //TODO: All error messages
-                    if (updateProjectResult is ProjectSerializationResult.Failure) {
-                        throw ChamaleonGradlePluginException(
-                            "Error updating selected environment '$newSelectedEnvironmentName' on environments "
-                                    + "directory ${newProject.environmentsDirectory}"
+                    when (updateProjectResult) {
+                        is ProjectSerializationResult.Success -> logger.info("Environment selected successfully")
+                        is ProjectSerializationResult.Failure -> throw ChamaleonGradlePluginException(
+                            message = updateProjectResult.toErrorMessage()
                         )
                     }
                 }
