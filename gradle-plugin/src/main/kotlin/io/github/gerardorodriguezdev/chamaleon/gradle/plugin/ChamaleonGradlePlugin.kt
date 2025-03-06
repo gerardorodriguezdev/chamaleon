@@ -41,13 +41,14 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private fun Project.scanProject(extension: ChamaleonExtension) {
-        when (val environmentsProcessorResult = environmentsProcessorResult()) {
-            is ProjectDeserializationResult.Success -> extension.project.set(environmentsProcessorResult.project)
-            is ProjectDeserializationResult.Failure -> environmentsProcessorResult.handleDeserializationFailure()
+        //TODO: More info of errors
+        when (val projectDeserializationResult = deserializeProject()) {
+            is ProjectDeserializationResult.Success -> extension.project.set(projectDeserializationResult.project)
+            is ProjectDeserializationResult.Failure -> projectDeserializationResult.handleDeserializationFailure()
         }
     }
 
-    private fun Project.environmentsProcessorResult(): ProjectDeserializationResult {
+    private fun Project.deserializeProject(): ProjectDeserializationResult {
         return runBlocking {
             val environmentsExistingDirectory = environmentsExistingDirectory()
             projectDeserializer.deserialize(environmentsExistingDirectory)

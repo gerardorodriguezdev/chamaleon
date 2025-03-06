@@ -11,6 +11,7 @@ import org.gradle.api.tasks.TaskAction
 //TODO: Update or remove
 @CacheableTask
 public abstract class GenerateSampleTask : DefaultTask() {
+
     @get:OutputDirectory
     public abstract val environmentsDirectory: DirectoryProperty
 

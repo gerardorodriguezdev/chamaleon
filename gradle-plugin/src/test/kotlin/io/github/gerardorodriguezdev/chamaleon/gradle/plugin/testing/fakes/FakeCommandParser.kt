@@ -8,5 +8,5 @@ internal class FakeCommandParser(
 ) : CommandParser {
     var currentResult = 0
 
-    override fun parse(command: String): CommandParserResult = commandParserResults[currentResult++]
+    override fun parse(commands: List<String>): CommandParserResult = commandParserResults[currentResult++]
 }
