@@ -67,7 +67,6 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     //TODO: Move mapper out
-    @Suppress("Indentation")
     private fun ProjectDeserializationResult.Failure.toErrorMessage(): String =
         when (this) {
             is ProjectDeserializationResult.Failure.InvalidSchemaFile -> "Invalid schema file"
@@ -137,9 +136,9 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
                     //TODO: All error messages
                     if (updateProjectResult is ProjectSerializationResult.Failure) {
-                        @Suppress("Indentation")
                         throw ChamaleonGradlePluginException(
-                            "Error updating selected environment '$newSelectedEnvironmentName' on environments " + "directory ${newProject.environmentsDirectory}"
+                            "Error updating selected environment '$newSelectedEnvironmentName' on environments "
+                                    + "directory ${newProject.environmentsDirectory}"
                         )
                     }
                 }

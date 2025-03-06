@@ -18,7 +18,7 @@ import org.gradle.api.tasks.TaskAction
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
     private val projectSerializer = ProjectSerializer.create()
-    private val commandsProcessor = CommandsProcessor.create()
+    private val commandsParser = CommandParser.create()
 
     @get:Input
     public abstract val generateEnvironmentCommands: ListProperty<String>
@@ -34,7 +34,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
     }
 
     private fun environments(commands: List<String>): Set<Environment> {
-        val commandsProcessorResult = commandsProcessor.process(commands)
+        val commandsProcessorResult = commandsParser.process(commands)
         return when (commandsProcessorResult) {
             is CommandsProcessorResult.Success -> commandsProcessorResult.environments
             is CommandsProcessorResult.Failure ->

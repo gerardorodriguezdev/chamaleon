@@ -6,7 +6,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializati
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import java.io.File
 
-@Suppress("LongParameterList")
 class FakeProjectDeserializer(
     var processProjectDeserializationResult: ProjectDeserializationResult = TestData.successProjectDeserializationResult,
     var processRecursivelyResult: List<ProjectDeserializationResult> = listOf(

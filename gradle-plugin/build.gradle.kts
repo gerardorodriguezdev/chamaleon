@@ -17,6 +17,8 @@ kotlin {
 dependencies {
     implementation(projects.core)
     implementation(libs.kmp.coroutines)
+    implementation(libs.kmp.arrow.core)
+
     testImplementation(gradleTestKit())
     testImplementation(libs.kmp.test)
     testImplementation(libs.jvm.test.parameterized)
