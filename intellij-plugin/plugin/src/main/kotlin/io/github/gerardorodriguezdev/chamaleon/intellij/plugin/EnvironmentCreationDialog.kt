@@ -122,17 +122,17 @@ internal class EnvironmentCreationDialog(
         return selectedDirectory?.path
     }
 
-    //TODO: Refactor
-    //TODO: Manage errors
-    //TODO: Review isCanceled
-    //TODO: If error cleanup
+    // TODO: Refactor
+    // TODO: Manage errors
+    // TODO: Review isCanceled
+    // TODO: If error cleanup
     private fun CreateEnvironmentState.generateEnvironments(project: Project) {
         project.backgroundTask(
             taskName = string(StringsKeys.generateEnvironment)
         ) { indicator ->
             indicator.fraction = 1.0
 
-            //TODO: More resilient
+            // TODO: More resilient
             val environmentsDirectory = File(project.basePath, environmentsDirectoryPath)
             if (!environmentsDirectory.exists()) {
                 environmentsDirectory.mkdirs()
@@ -144,7 +144,7 @@ internal class EnvironmentCreationDialog(
                 newSchema = toSchema(),
             )
             if (addSchemaResult is AddSchemaResult.Failure) {
-                //TODO: Remove
+                // TODO: Remove
                 println(addSchemaResult)
 
                 project.showFailureNotification()
@@ -158,7 +158,7 @@ internal class EnvironmentCreationDialog(
                 environments = setOf(toEnvironment())
             )
             if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
-                //TODO: Remove
+                // TODO: Remove
                 println(addEnvironmentsResult)
 
                 project.showFailureNotification()
@@ -183,7 +183,7 @@ internal class EnvironmentCreationDialog(
         )
     }
 
-    //TODO: Lexemes
+    // TODO: Lexemes
     private fun Project.showSuccessNotification(environmentsDirectory: File) {
         showNotification(
             title = "Title",
@@ -192,11 +192,11 @@ internal class EnvironmentCreationDialog(
         )
 
         environmentsDirectory.onEnvironmentsDirectoryChanged()
-        //TODO: Notify plugin to update files as well
+        // TODO: Notify plugin to update files as well
     }
 
-    //TODO: Lexemes
-    //TODO: All errors notified ok
+    // TODO: Lexemes
+    // TODO: All errors notified ok
     private fun Project.showFailureNotification() {
         showNotification(
             title = "Title",
@@ -218,7 +218,7 @@ internal class EnvironmentCreationDialog(
         Notifications.Bus.notify(notification, this)
     }
 
-    //TODO: Global extension
+    // TODO: Global extension
     private fun File.onEnvironmentsDirectoryChanged() {
         VfsUtil.markDirtyAndRefresh(true, true, true, this)
     }

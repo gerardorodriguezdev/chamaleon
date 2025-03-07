@@ -335,7 +335,6 @@ private fun CreateEnvironmentState.initialPlatforms(): Set<Platform> =
         )
     }.toSet()
 
-
 private fun List<PropertyDefinition>.toProperties(): Set<Property> =
     map { propertyDefinition ->
         Property(

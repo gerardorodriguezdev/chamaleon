@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.creat
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 
-//TODO: Refactor
+// TODO: Refactor
 internal fun CreateEnvironmentState.toSchema(): Schema =
     Schema(
         globalSupportedPlatformTypes = globalSupportedPlatforms,

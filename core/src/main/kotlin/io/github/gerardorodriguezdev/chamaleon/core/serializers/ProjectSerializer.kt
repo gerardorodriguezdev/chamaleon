@@ -134,6 +134,4 @@ internal class DefaultProjectSerializer(
             environmentsDirectoryPath = environmentsDirectory.path.value,
             error = this,
         )
-
-
 }

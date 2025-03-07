@@ -107,7 +107,9 @@ sealed interface CreateEnvironmentWindowAction {
         data class OnPropertyTypeChanged(val index: Int, val newPropertyType: PropertyType) : SetupSchemaAction
         data class OnNullableChanged(val index: Int, val newValue: Boolean) : SetupSchemaAction
         data class OnPropertyDefinitionSupportedPlatformChanged(
-            val index: Int, val isChecked: Boolean, val newPlatformType: PlatformType
+            val index: Int,
+            val isChecked: Boolean,
+            val newPlatformType: PlatformType
         ) : SetupSchemaAction
     }
 

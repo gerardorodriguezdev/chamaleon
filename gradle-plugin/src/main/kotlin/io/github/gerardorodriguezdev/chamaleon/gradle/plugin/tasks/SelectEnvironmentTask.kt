@@ -35,7 +35,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw SelectEnvironmentTaskException(
-                message = "Selected environment not found on existing environments '${environments}'",
+                message = "Selected environment not found on existing environments '$environments'",
             )
         }
 

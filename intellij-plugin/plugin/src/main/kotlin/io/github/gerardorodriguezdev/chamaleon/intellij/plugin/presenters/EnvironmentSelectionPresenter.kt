@@ -55,7 +55,7 @@ internal class EnvironmentSelectionPresenter(
             }
     }
 
-    //TODO: More error info
+    // TODO: More error info
     private fun List<ProjectDeserializationResult>.toNotificationErrorMessage(): String? {
         val environmentsDirectoryPathsWithErrors =
             filterIsInstance<ProjectDeserializationResult.Failure>().map { failure -> failure.environmentsDirectoryPath }

@@ -96,7 +96,7 @@ internal class DefaultCommandParser : CommandParser {
                     properties = properties.bind(),
                 )
             ).toNonEmptyKeySetStore()
-            ensureNotNull(platforms) { Failure("Platforms not found on command '${command}'") }
+            ensureNotNull(platforms) { Failure("Platforms not found on command '$command'") }
         }
 
     private fun Context.toPlatformType(): Either<Failure, PlatformType> =
@@ -106,7 +106,7 @@ internal class DefaultCommandParser : CommandParser {
             }
 
             ensureNotNull(platformType) {
-                Failure("Invalid platform type '$platformTypeString' on command '${command}'")
+                Failure("Invalid platform type '$platformTypeString' on command '$command'")
             }
         }
 
@@ -121,7 +121,7 @@ internal class DefaultCommandParser : CommandParser {
                 .toSet()
                 .toNonEmptyKeySetStore()
 
-            ensureNotNull(properties) { Failure("No properties found on command '${command}'") }
+            ensureNotNull(properties) { Failure("No properties found on command '$command'") }
         }
 
     private fun String.propertyStrings(): List<String> = split(",")
@@ -132,12 +132,12 @@ internal class DefaultCommandParser : CommandParser {
 
             val propertyNameString = propertyStringPair.firstOrNull()?.toNonEmptyString()
             ensureNotNull(propertyNameString) {
-                Failure("No property name found on property '$propertyStringPair' on command '${command}'")
+                Failure("No property name found on property '$propertyStringPair' on command '$command'")
             }
 
             val propertyValueString = propertyStringPair.secondOrNull()?.toNonEmptyString()
             ensureNotNull(propertyValueString) {
-                Failure("No property value found on property '$propertyStringPair' on command '${command}'")
+                Failure("No property value found on property '$propertyStringPair' on command '$command'")
             }
 
             Property(

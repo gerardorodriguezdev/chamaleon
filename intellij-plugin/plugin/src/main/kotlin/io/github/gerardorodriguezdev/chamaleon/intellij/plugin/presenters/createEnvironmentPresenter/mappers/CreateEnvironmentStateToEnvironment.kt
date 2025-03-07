@@ -5,7 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 
-//TODO: Refactor
+// TODO: Refactor
 internal fun CreateEnvironmentState.toEnvironment(): Environment =
     Environment(
         name = environmentName,

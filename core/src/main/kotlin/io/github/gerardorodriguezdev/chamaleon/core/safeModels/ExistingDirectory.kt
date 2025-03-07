@@ -57,7 +57,9 @@ public class ExistingDirectory private constructor(private val directory: File) 
 
             return if (directory.exists() && directory.isDirectory) {
                 ExistingDirectory(directory)
-            } else null
+            } else {
+                null
+            }
         }
     }
 }
