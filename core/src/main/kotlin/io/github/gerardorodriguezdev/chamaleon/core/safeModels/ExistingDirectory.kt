@@ -42,11 +42,8 @@ public class ExistingDirectory private constructor(private val directory: File) 
 
         public fun File.toUnsafeExistingDirectory(): ExistingDirectory = ExistingDirectory(this)
 
-        public fun NonEmptyString.existingDirectory(
-            fileName: NonEmptyString,
-            createIfNotPresent: Boolean = false,
-        ): ExistingDirectory? {
-            val directory = File(fileName.value)
+        public fun File.toExistingDirectory(createIfNotPresent: Boolean = false): ExistingDirectory? {
+            val directory = File(path)
 
             if (createIfNotPresent) {
                 try {

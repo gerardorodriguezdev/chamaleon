@@ -91,7 +91,7 @@ class ChamaleonGradlePluginTest {
         )
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
-        assertEquals(expected = environmentsFiles.size, actual = 2)
+        assertEquals(expected = environmentsFiles.size, actual = 3)
 
         val localEnvironmentFile =
             environmentsFiles.firstOrNull { environmentFile ->

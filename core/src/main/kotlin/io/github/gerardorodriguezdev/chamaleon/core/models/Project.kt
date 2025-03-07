@@ -22,7 +22,7 @@ public class Project private constructor(
     public fun selectedEnvironment(): Environment? = environments?.get(properties.selectedEnvironmentName?.value)
 
     public fun addEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
-        val newEnvironments = environments?.addValues(newEnvironments)
+        val newEnvironments = environments?.addValues(newEnvironments) ?: newEnvironments
 
         val projectValidationResult = projectOf(
             environmentsDirectory = environmentsDirectory,

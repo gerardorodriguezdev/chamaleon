@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
@@ -35,29 +35,27 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         return extension
     }
 
-    private fun Project.scanProject(extension: ChamaleonExtension) {
+    private fun Project.scanProject(extension: ChamaleonExtension) =
         when (val projectDeserializationResult = deserializeProject()) {
+            null -> logger.info("No project found on deserialization")
+
             is ProjectDeserializationResult.Success -> {
                 extension.project.set(projectDeserializationResult.project)
-                logger.info("Project deserialization successful at ${projectDeserializationResult.project.environmentsDirectory.path}")
+                logger.info("Project deserialization successful at '${projectDeserializationResult.project.environmentsDirectory.path}'")
             }
 
             is ProjectDeserializationResult.Failure ->
                 throw ChamaleonGradlePluginException(message = projectDeserializationResult.toErrorMessage())
         }
-    }
 
-    private fun Project.deserializeProject(): ProjectDeserializationResult {
+    private fun Project.deserializeProject(): ProjectDeserializationResult? {
         return runBlocking {
             val environmentsExistingDirectory = environmentsExistingDirectory()
-            projectDeserializer.deserialize(environmentsExistingDirectory)
+            environmentsExistingDirectory?.let {
+                projectDeserializer.deserialize(environmentsExistingDirectory)
+            }
         }
     }
-
-    private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
-
-    private fun Project.environmentsExistingDirectory(): ExistingDirectory =
-        layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME).asFile.toUnsafeExistingDirectory()
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
         tasks.register(GENERATE_SAMPLE_TASK_NAME, GenerateSampleTask::class.java) {
@@ -73,7 +71,9 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             )
         }
 
-    private fun Project.registerSelectEnvironmentTask(extension: ChamaleonExtension): TaskProvider<SelectEnvironmentTask> =
+    private fun Project.registerSelectEnvironmentTask(
+        extension: ChamaleonExtension,
+    ): TaskProvider<SelectEnvironmentTask> =
         tasks.register(SELECT_ENVIRONMENT_TASK_NAME, SelectEnvironmentTask::class.java) {
             val newSelectedEnvironmentNameString =
                 providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
@@ -89,15 +89,22 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             projectProperty.set(extension.project.get())
         }
 
-    private fun Project.registerGenerateEnvironmentTask(extension: ChamaleonExtension): TaskProvider<GenerateEnvironmentTask> =
+    private fun Project.registerGenerateEnvironmentTask(
+        extension: ChamaleonExtension,
+    ): TaskProvider<GenerateEnvironmentTask> =
         tasks.register(GENERATE_ENVIRONMENT_TASK_NAME, GenerateEnvironmentTask::class.java) {
             val generateEnvironmentCommands =
                 providers.gradlePropertiesPrefixedBy(GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
             this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
 
-            this.projectProperty.set(extension.project)
+            projectProperty.set(extension.project)
         }
+
+    private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
+
+    private fun Project.environmentsExistingDirectory(): ExistingDirectory? =
+        environmentsDirectory().asFile.toExistingDirectory()
 
     private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)
 
