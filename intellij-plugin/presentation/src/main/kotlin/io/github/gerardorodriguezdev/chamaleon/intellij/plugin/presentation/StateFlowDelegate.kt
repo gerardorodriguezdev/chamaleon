@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.ReadWriteProperty

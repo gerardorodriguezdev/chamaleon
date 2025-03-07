@@ -1,14 +1,14 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.asDelegate
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.asDelegate
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter.handlers.SetupEnvironmentHandler
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.SetupEnvironmentHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,54 +55,55 @@ internal class CreateEnvironmentPresenter(
     private fun process(environmentsDirectory: File) {
         processJob?.cancel()
 
-        processJob = uiScope.launch {
-            setupEnvironmentHandler
-                .handle(SetupEnvironmentHandler.Action.Process(environmentsDirectory))
-                .flowOn(ioContext)
-                .collect { sideEffect ->
-                    when (sideEffect) {
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Success -> {
-                            mutableState = mutableState.copy(
-                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
-                                environmentsNames = sideEffect.environments.environmentNames(),
-                                globalSupportedPlatforms = sideEffect.schema.globalSupportedPlatformTypes,
-                                propertyDefinitions = sideEffect.schema.propertyDefinitions.toPropertyDefinitions(),
-                                allowUpdatingSchema =
-                                    sideEffect.schema.globalSupportedPlatformTypes.isEmpty() &&
-                                            sideEffect.schema.propertyDefinitions.isEmpty()
-                            )
-                        }
+        processJob = uiScope
+            .launch {
+                setupEnvironmentHandler
+                    .handle(SetupEnvironmentHandler.Action.Process(environmentsDirectory))
+                    .flowOn(ioContext)
+                    .collect { sideEffect ->
+                        when (sideEffect) {
+                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Success -> {
+                                mutableState = mutableState.copy(
+                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
+                                    environmentsNames = sideEffect.environments.environmentNames(),
+                                    globalSupportedPlatforms = sideEffect.schema.globalSupportedPlatformTypes,
+                                    propertyDefinitions = sideEffect.schema.propertyDefinitions.toPropertyDefinitions(),
+                                    allowUpdatingSchema =
+                                        sideEffect.schema.globalSupportedPlatformTypes.isEmpty() &&
+                                                sideEffect.schema.propertyDefinitions.isEmpty()
+                                )
+                            }
 
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Loading -> {
-                            mutableState = mutableState.copy(
-                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Loading,
-                            )
-                        }
+                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Loading -> {
+                                mutableState = mutableState.copy(
+                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Loading,
+                                )
+                            }
 
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.FileIsNotDirectory -> {
-                            mutableState = mutableState.copy(
-                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory,
-                                environmentsNames = emptySet(),
-                                globalSupportedPlatforms = emptySet(),
-                                propertyDefinitions = emptySet(),
-                            )
-                        }
+                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.FileIsNotDirectory -> {
+                                mutableState = mutableState.copy(
+                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory,
+                                    environmentsNames = emptySet(),
+                                    globalSupportedPlatforms = emptySet(),
+                                    propertyDefinitions = emptySet(),
+                                )
+                            }
 
-                        is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.InvalidEnvironments -> {
-                            mutableState = mutableState.copy(
-                                environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments,
-                                environmentsNames = emptySet(),
-                                globalSupportedPlatforms = emptySet(),
-                                propertyDefinitions = emptySet(),
-                            )
+                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.InvalidEnvironments -> {
+                                mutableState = mutableState.copy(
+                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
+                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments,
+                                    environmentsNames = emptySet(),
+                                    globalSupportedPlatforms = emptySet(),
+                                    propertyDefinitions = emptySet(),
+                                )
+                            }
                         }
                     }
-                }
-        }
+            }
     }
 
     private fun Set<Environment>.environmentNames(): Set<String> =

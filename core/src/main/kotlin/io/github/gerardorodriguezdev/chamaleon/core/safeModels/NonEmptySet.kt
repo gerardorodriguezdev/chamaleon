@@ -15,6 +15,7 @@ public class NonEmptySet<T> private constructor(public val value: Set<T>) : Set<
     override fun equals(other: Any?): Boolean = this === other || value == other
 
     public companion object {
+        public fun <T> List<T>.toNonEmptySet(): NonEmptySet<T>? = if (isEmpty()) null else NonEmptySet(toSet())
         public fun <T> Set<T>.toNonEmptySet(): NonEmptySet<T>? = if (isEmpty()) null else NonEmptySet(this)
         public fun <T> Set<T>.toUnsafeNonEmptySet(): NonEmptySet<T> = NonEmptySet(this)
     }

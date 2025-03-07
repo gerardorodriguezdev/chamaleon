@@ -19,15 +19,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
-import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer.Companion.SCHEMA_FILE
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers.DefaultSetupEnvironmentHandler
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.mappers.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
@@ -127,47 +127,48 @@ internal class EnvironmentCreationDialog(
     // TODO: Review isCanceled
     // TODO: If error cleanup
     private fun CreateEnvironmentState.generateEnvironments(project: Project) {
-        project.backgroundTask(
-            taskName = string(StringsKeys.generateEnvironment)
-        ) { indicator ->
-            indicator.fraction = 1.0
+        project
+            .backgroundTask(
+                taskName = string(StringsKeys.generateEnvironment)
+            ) { indicator ->
+                indicator.fraction = 1.0
 
-            // TODO: More resilient
-            val environmentsDirectory = File(project.basePath, environmentsDirectoryPath)
-            if (!environmentsDirectory.exists()) {
-                environmentsDirectory.mkdirs()
+                // TODO: More resilient
+                val environmentsDirectory = File(project.basePath, environmentsDirectoryPath)
+                if (!environmentsDirectory.exists()) {
+                    environmentsDirectory.mkdirs()
+                }
+
+                val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
+                val addSchemaResult = projectDeserializer.addSchema(
+                    schemaFile = schemaFile,
+                    newSchema = toSchema(),
+                )
+                if (addSchemaResult is AddSchemaResult.Failure) {
+                    // TODO: Remove
+                    println(addSchemaResult)
+
+                    project.showFailureNotification()
+                    indicator.cancel()
+                    return@backgroundTask
+                }
+                indicator.fraction = 50.0
+
+                val addEnvironmentsResult = projectDeserializer.addEnvironments(
+                    environmentsDirectory = environmentsDirectory,
+                    environments = setOf(toEnvironment())
+                )
+                if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
+                    // TODO: Remove
+                    println(addEnvironmentsResult)
+
+                    project.showFailureNotification()
+                    indicator.cancel()
+                }
+                indicator.fraction = 100.0
+
+                project.showSuccessNotification(environmentsDirectory)
             }
-
-            val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
-            val addSchemaResult = projectDeserializer.addSchema(
-                schemaFile = schemaFile,
-                newSchema = toSchema(),
-            )
-            if (addSchemaResult is AddSchemaResult.Failure) {
-                // TODO: Remove
-                println(addSchemaResult)
-
-                project.showFailureNotification()
-                indicator.cancel()
-                return@backgroundTask
-            }
-            indicator.fraction = 50.0
-
-            val addEnvironmentsResult = projectDeserializer.addEnvironments(
-                environmentsDirectory = environmentsDirectory,
-                environments = setOf(toEnvironment())
-            )
-            if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
-                // TODO: Remove
-                println(addEnvironmentsResult)
-
-                project.showFailureNotification()
-                indicator.cancel()
-            }
-            indicator.fraction = 100.0
-
-            project.showSuccessNotification(environmentsDirectory)
-        }
     }
 
     private fun Project.backgroundTask(

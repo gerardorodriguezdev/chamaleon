@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings
 
 import org.jetbrains.annotations.PropertyKey
 

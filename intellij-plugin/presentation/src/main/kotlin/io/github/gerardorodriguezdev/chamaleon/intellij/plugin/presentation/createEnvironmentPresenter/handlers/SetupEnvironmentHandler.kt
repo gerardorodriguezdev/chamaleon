@@ -1,6 +1,7 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.handlers
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter.handlers
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -74,7 +75,7 @@ internal class DefaultSetupEnvironmentHandler(
         environmentsDirectoryPath: String
     ): UpdateEnvironmentsDirectoryState =
         projectDeserializer
-            .process(environmentsDirectory)
+            .deserialize(environmentsDirectory)
             .toUpdateEnvironmentsDirectoryState(environmentsDirectoryPath)
 
     private fun ProjectDeserializationResult.toUpdateEnvironmentsDirectoryState(
@@ -125,9 +126,8 @@ internal class DefaultSetupEnvironmentHandler(
     private fun File.toEnvironmentsDirectory(): File =
         if (containsEnvironmentsDirectoryName()) this else appendEnvironmentsDirectoryName()
 
-    private fun File.containsEnvironmentsDirectoryName(): Boolean =
-        path.endsWith(ProjectDeserializer.ENVIRONMENTS_DIRECTORY_NAME)
+    private fun File.containsEnvironmentsDirectoryName(): Boolean = path.isEnvironmentsDirectory()
 
     private fun File.appendEnvironmentsDirectoryName(): File =
-        File(this, ProjectDeserializer.ENVIRONMENTS_DIRECTORY_NAME)
+        File(this, ENVIRONMENTS_DIRECTORY_NAME)
 }

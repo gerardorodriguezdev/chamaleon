@@ -1,7 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 
 import androidx.compose.runtime.Composable
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field.Verification
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator

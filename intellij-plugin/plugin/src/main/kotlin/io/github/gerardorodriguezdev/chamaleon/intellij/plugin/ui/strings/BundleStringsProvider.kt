@@ -1,8 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings
 
 import com.intellij.DynamicBundle
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys.StringKey
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys.StringKey
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsProvider
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.PropertyKey
 

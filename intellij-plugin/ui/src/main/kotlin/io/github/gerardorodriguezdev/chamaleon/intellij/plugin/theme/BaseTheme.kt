@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.DefaultStringsProvider
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys.StringKey
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.DefaultStringsProvider
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys.StringKey
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsProvider
 
 interface BaseTheme {
     val stringsProvider: StringsProvider

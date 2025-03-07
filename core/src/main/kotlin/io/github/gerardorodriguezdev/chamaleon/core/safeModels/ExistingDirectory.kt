@@ -6,8 +6,10 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Co
 import java.io.File
 import java.io.IOException
 
-public class ExistingDirectory private constructor(private val directory: File) {
+public class ExistingDirectory private constructor(private val directory: File) : KeyProvider<String> {
     public val path: NonEmptyString = directory.path.toUnsafeNonEmptyString()
+
+    override val key: String = path.value
 
     init {
         if (!directory.isExistingDirectory()) {

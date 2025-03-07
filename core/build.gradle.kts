@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kmp.serialization)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.kmp.binary.compability.validator)
-    alias(libs.plugins.kmp.ksp)
 }
 
 group = "io.github.gerardorodriguezdev.chamaleon"
@@ -25,9 +24,6 @@ kotlin {
         implementation(libs.kmp.serialization)
         implementation(libs.kmp.coroutines)
         implementation(libs.kmp.arrow.core)
-        implementation(libs.kmp.konvert.api)
-
-        ksp(libs.kmp.konvert.plugin)
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)
@@ -78,3 +74,36 @@ tasks {
         useJUnitPlatform()
     }
 }
+
+val generateVersionsClassTaskName = "generateVersionsClass"
+tasks.register(generateVersionsClassTaskName) {
+    val versionsDirectory = project.versionsDirectory()
+    outputs.dir(versionsDirectory)
+
+    doLast {
+        val file = versionsDirectory.get().file("Versions.kt").asFile
+        file.writeText(
+            """
+            package io.github.gerardorodriguezdev.chamaleon.core
+
+            public object Versions {
+                public const val CORE: String = "${libs.versions.release.get()}"
+            }
+            """.trimIndent()
+        )
+    }
+}
+
+tasks.named("compileKotlin") {
+    dependsOn(generateVersionsClassTaskName)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(project.versionsDirectory())
+        }
+    }
+}
+
+fun Project.versionsDirectory(): Provider<Directory> = layout.buildDirectory.dir("generated/versions")

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import kotlinx.collections.immutable.ImmutableList
@@ -18,7 +18,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun EnvironmentSelectionWindow(
-    state: EnvironmentSelectionState,
+    state: EnvironmentSelectionWindowState,
     onRefresh: () -> Unit,
     onCreateEnvironment: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
@@ -121,7 +121,7 @@ private fun LazyListScope.environmentCards(
     }
 }
 
-data class EnvironmentSelectionState(
+data class EnvironmentSelectionWindowState(
     val gradlePluginVersionUsed: String, // TODO: Update
     val isLoading: Boolean = true,
     val notificationErrorMessage: String? = null,

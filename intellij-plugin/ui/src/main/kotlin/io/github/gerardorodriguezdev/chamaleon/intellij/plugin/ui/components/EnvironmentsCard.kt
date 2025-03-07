@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.jewel.ui.icons.AllIconsKeys

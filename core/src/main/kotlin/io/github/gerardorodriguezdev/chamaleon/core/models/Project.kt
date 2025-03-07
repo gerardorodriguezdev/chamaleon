@@ -18,7 +18,7 @@ public class Project private constructor(
     public val schema: Schema,
     public val properties: Properties,
     public val environments: NonEmptyKeySetStore<String, Environment>? = null,
-) {
+) : KeyProvider<String> by environmentsDirectory {
     public fun selectedEnvironment(): Environment? = environments?.get(properties.selectedEnvironmentName?.value)
 
     public fun addEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {

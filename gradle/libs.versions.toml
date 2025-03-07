@@ -19,7 +19,6 @@ kmp-ksp = "2.1.0-1.0.29"
 kmp-arrow = "2.0.1"
 kmp-akkurate = "0.11.0"
 jvm-test-parameterized = "5.11.4"
-kmp-konvert = "4.0.1"
 
 # Releases
 release = "1.0.9"
@@ -42,8 +41,6 @@ kmp-arrow-optics-api = { module = "io.arrow-kt:arrow-optics", version.ref = "kmp
 kmp-arrow-optics-plugin = { module = "io.arrow-kt:arrow-optics-ksp-plugin", version.ref = "kmp-arrow" }
 kmp-akkurate-api = { module = "dev.nesk.akkurate:akkurate-core", version.ref = "kmp-akkurate" }
 kmp-akkurate-plugin = { module = "dev.nesk.akkurate:akkurate-ksp-plugin", version.ref = "kmp-akkurate" }
-kmp-konvert-api = { module = "io.mcarle:konvert-api", version.ref = "kmp-konvert" }
-kmp-konvert-plugin = { module = "io.mcarle:konvert", version.ref = "kmp-konvert" }
 
 [plugins]
 kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

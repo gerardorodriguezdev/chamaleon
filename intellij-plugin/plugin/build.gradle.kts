@@ -50,7 +50,13 @@ kotlin {
         implementation(projects.core) {
             exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         }
+        implementation(projects.intellijPlugin.shared) {
+            exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
+        }
         implementation(projects.intellijPlugin.ui) {
+            exclude(group = "org.jetbrains.kotlinx")
+        }
+        implementation(projects.intellijPlugin.presentation) {
             exclude(group = "org.jetbrains.kotlinx")
         }
 
@@ -116,36 +122,3 @@ intellijPlatformTesting {
         }
     }
 }
-
-val GENERATE_VERSIONS_CLASS_TASK_NAME = "generateVersionsClass"
-tasks.register(GENERATE_VERSIONS_CLASS_TASK_NAME) {
-    val versionsDirectory = project.versionsDirectory()
-    outputs.dir(versionsDirectory)
-
-    doLast {
-        val file = versionsDirectory.get().file("Versions.kt").asFile
-        file.writeText(
-            """
-            package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
-
-            object Versions {
-                const val GRADLE_PLUGIN: String = "${libs.versions.release.get()}"
-            }
-            """.trimIndent()
-        )
-    }
-}
-
-tasks.named("compileKotlin") {
-    dependsOn(GENERATE_VERSIONS_CLASS_TASK_NAME)
-}
-
-sourceSets {
-    main {
-        java {
-            srcDir(project.versionsDirectory())
-        }
-    }
-}
-
-fun Project.versionsDirectory(): Provider<Directory> = layout.buildDirectory.dir("generated/versions")

@@ -30,7 +30,7 @@ kotlin {
         implementation(libs.intellij.jewel.standalone)
         implementation(compose.preview)
         implementation(libs.jvm.coroutines)
-        implementation(projects.core)
+        implementation(projects.intellijPlugin.shared)
 
         @OptIn(ExperimentalComposeLibrary::class)
         testImplementation(compose.uiTest)
