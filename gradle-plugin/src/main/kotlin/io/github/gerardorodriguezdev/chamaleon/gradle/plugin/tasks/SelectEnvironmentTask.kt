@@ -33,7 +33,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw SelectEnvironmentTaskException(
-                message = "Selected environment not found on existing environments ${currentProject.environments}",
+                message = "Selected environment not found on existing environments '${currentProject.environments}'",
             )
         }
 
@@ -47,9 +47,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
                     logger.info("Environment selected successfully at '${environmentsDirectory.path}'")
 
                 is ProjectSerializationResult.Failure ->
-                    throw SelectEnvironmentTaskException(
-                        message = updateProjectResult.toErrorMessage(),
-                    )
+                    throw SelectEnvironmentTaskException(message = updateProjectResult.toErrorMessage())
             }
         }
 

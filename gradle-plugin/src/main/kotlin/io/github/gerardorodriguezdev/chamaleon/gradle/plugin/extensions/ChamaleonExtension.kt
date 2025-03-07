@@ -7,11 +7,11 @@ import org.gradle.api.provider.Property
 public interface ChamaleonExtension {
     public val project: Property<Project>
 
-    public fun environment(name: String): Environment = project.get().environments!!.getValue(name)
+    public fun environment(name: String): Environment = requireNotNull(project.get().environments).getValue(name)
 
     public fun environmentOrNull(name: String): Environment? = project.get().environments?.get(name)
 
-    public fun selectedEnvironment(): Environment = project.get().selectedEnvironment()!!
+    public fun selectedEnvironment(): Environment = requireNotNull(project.get().selectedEnvironment())
 
     public fun selectedEnvironmentOrNull(): Environment? = project.get().selectedEnvironment()
 }
