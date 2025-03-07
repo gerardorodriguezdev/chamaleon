@@ -1,11 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
-import kotlinx.coroutines.runBlocking
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.serialize
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
@@ -27,29 +25,30 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
         val newSelectedEnvironmentName = newSelectedEnvironmentName.get()
         val currentProject = projectProperty.get()
 
-        val newProject = currentProject.updateProperties(
-            newSelectedEnvironmentName = newSelectedEnvironmentName,
-        )
-
-        if (newProject == null) {
-            throw SelectEnvironmentTaskException(
-                message = "Selected environment not found on existing environments '${currentProject.environments}'",
-            )
-        }
+        val newProject = currentProject.selectEnvironment(newSelectedEnvironmentName)
 
         newProject.serialize()
     }
 
-    private fun Project.serialize() =
-        runBlocking {
-            when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
-                is ProjectSerializationResult.Success ->
-                    logger.info("Environment selected successfully at '${environmentsDirectory.path}'")
+    private fun Project.selectEnvironment(newSelectedEnvironmentName: NonEmptyString?): Project {
+        val newProject = updateProperties(newSelectedEnvironmentName = newSelectedEnvironmentName)
 
-                is ProjectSerializationResult.Failure ->
-                    throw SelectEnvironmentTaskException(message = updateProjectResult.toErrorMessage())
-            }
+        if (newProject == null) {
+            throw SelectEnvironmentTaskException(
+                message = "Selected environment not found on existing environments '${environments}'",
+            )
         }
+
+        return newProject
+    }
+
+    private fun Project.serialize() {
+        serialize(
+            projectSerializer = projectSerializer,
+            onSuccess = { logger.info("Environment selected successfully at '${environmentsDirectory.path}'") },
+            onFailure = { errorMessage -> throw SelectEnvironmentTaskException(message = errorMessage) }
+        )
+    }
 
     private class SelectEnvironmentTaskException(message: String) : Exception(message)
 }

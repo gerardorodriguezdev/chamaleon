@@ -2,12 +2,10 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.serialize
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
-import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -29,8 +27,10 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
     @TaskAction
     public fun generateEnvironment() {
         val commands = generateEnvironmentCommands.get()
+        val project = projectProperty.get()
+
         val environments = commands.toEnvironments()
-        val newProject = environments.addToExistingProject()
+        val newProject = project.updateEnvironments(environments)
 
         newProject.serialize()
     }
@@ -42,32 +42,25 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
                 throw GenerateEnvironmentTaskException(message = commandsParserResult.error)
         }
 
-    private fun NonEmptyKeySetStore<String, Environment>.addToExistingProject(): Project {
-        val project = projectProperty.get()
-
-        val newProject = project.addEnvironments(newEnvironments = this)
+    private fun Project.updateEnvironments(environments: NonEmptyKeySetStore<String, Environment>): Project {
+        val newProject = addEnvironments(newEnvironments = environments)
 
         if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                message = "Environments couldn't be added to existing project on '${project.environmentsDirectory.path}'"
+                message = "Environments couldn't be added to existing project on '${environmentsDirectory.path}'"
             )
         }
 
         return newProject
     }
 
-    private fun Project.serialize() =
-        runBlocking {
-            when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
-                is ProjectSerializationResult.Success ->
-                    logger.info("Environments generated successfully at '${environmentsDirectory.path}'")
-
-                is ProjectSerializationResult.Failure ->
-                    throw GenerateEnvironmentTaskException(
-                        message = updateProjectResult.toErrorMessage(),
-                    )
-            }
-        }
+    private fun Project.serialize() {
+        serialize(
+            projectSerializer = projectSerializer,
+            onSuccess = { logger.info("Environments generated successfully at '${environmentsDirectory.path}'") },
+            onFailure = { errorMessage -> throw GenerateEnvironmentTaskException(message = errorMessage) }
+        )
+    }
 
     private class GenerateEnvironmentTaskException(message: String) : Exception(message)
 }

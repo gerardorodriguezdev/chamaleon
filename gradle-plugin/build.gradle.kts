@@ -24,15 +24,6 @@ dependencies {
     testImplementation(libs.jvm.test.parameterized)
 }
 
-//TODO: Remove
-sourceSets {
-    main {
-        val sampleEnvironmentsDirectory = sampleEnvironmentsDirectory()
-        resources.srcDir(sampleEnvironmentsDirectory)
-        resources.include("**.chamaleon.json")
-    }
-}
-
 tasks {
     validatePlugins {
         enableStricterValidation = true
@@ -65,6 +56,3 @@ gradlePlugin {
         }
     }
 }
-
-fun Project.sampleEnvironmentsDirectory(): Directory =
-    rootProject.layout.projectDirectory.dir("samples/gradle-project/environments")
