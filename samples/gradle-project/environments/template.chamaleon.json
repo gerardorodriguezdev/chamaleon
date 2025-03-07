@@ -5,8 +5,7 @@
   "propertyDefinitions": [
     {
       "name": "YourPropertyName",
-      "propertyType": "String",
-      "nullable": false
+      "propertyType": "String"
     }
   ]
 }
