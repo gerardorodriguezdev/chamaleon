@@ -1,14 +1,12 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.asDelegate
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter.handlers.SetupEnvironmentHandler
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.handlers.SetupEnvironmentHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,38 +16,38 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
-internal class CreateEnvironmentPresenter(
+internal class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
     private val ioContext: CoroutineContext,
 
-    private val projectDirectory: File,
+    private val projectDirectory: ExistingDirectory,
 
     private val setupEnvironmentHandler: SetupEnvironmentHandler,
 
-    private val onEnvironmentsDirectorySelected: () -> String?,
-    private val onFinishButtonClicked: (state: CreateEnvironmentState) -> Unit,
+    private val onEnvironmentsDirectorySelected: () -> ExistingDirectory?,
+    private val onFinishButtonClicked: (state: CreateProjectState) -> Unit,
 ) {
-    private val mutableStateFlow = MutableStateFlow<CreateEnvironmentState>(CreateEnvironmentState())
-    val stateFlow: StateFlow<CreateEnvironmentState> = mutableStateFlow
+    private val mutableStateFlow = MutableStateFlow<CreateProjectState>(CreateProjectState())
+    val stateFlow: StateFlow<CreateProjectState> = mutableStateFlow
 
     private var mutableState by mutableStateFlow.asDelegate()
 
     private var processJob: Job? = null
 
-    fun onAction(action: CreateEnvironmentAction) {
+    fun onAction(action: CreateProjectAction) {
         when (action) {
-            is CreateEnvironmentAction.SetupEnvironmentAction -> action.handle()
-            is CreateEnvironmentAction.SetupSchemaAction -> action.handle()
-            is CreateEnvironmentAction.SetupPropertiesAction -> action.handle()
-            is CreateEnvironmentAction.DialogAction -> action.handle()
+            is CreateProjectAction.SetupEnvironmentAction -> action.handle()
+            is CreateProjectAction.SetupSchemaAction -> action.handle()
+            is CreateProjectAction.SetupPropertiesAction -> action.handle()
+            is CreateProjectAction.DialogAction -> action.handle()
         }
     }
 
-    private fun CreateEnvironmentAction.SetupEnvironmentAction.handle() =
+    private fun CreateProjectAction.SetupEnvironmentAction.handle() =
         when (this) {
-            is CreateEnvironmentAction.SetupEnvironmentAction.OnInit -> process(projectDirectory)
-            is CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> handle()
-            is CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
+            is CreateProjectAction.SetupEnvironmentAction.OnInit -> process(projectDirectory)
+            is CreateProjectAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> handle()
+            is CreateProjectAction.SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
         }
 
     private fun process(environmentsDirectory: File) {
@@ -119,11 +117,11 @@ internal class CreateEnvironmentPresenter(
             )
         }.toSet()
 
-    private fun CreateEnvironmentAction.SetupSchemaAction.handle() {
+    private fun CreateProjectAction.SetupSchemaAction.handle() {
         if (!mutableState.allowUpdatingSchema) return
 
         when (this) {
-            is CreateEnvironmentAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
+            is CreateProjectAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
                 mutableState = mutableState
                     .updateGlobalSupportedPlatforms {
                         if (isChecked) this + newPlatformType else this - newPlatformType
@@ -138,14 +136,14 @@ internal class CreateEnvironmentPresenter(
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnAddPropertyDefinition -> {
+            is CreateProjectAction.SetupSchemaAction.OnAddPropertyDefinition -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions { globalSupportedPlatforms ->
                         this + emptyPropertyDefinition(globalSupportedPlatforms)
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnPropertyNameChanged -> {
+            is CreateProjectAction.SetupSchemaAction.OnPropertyNameChanged -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions {
                         updatePropertyDefinition(index) {
@@ -154,14 +152,14 @@ internal class CreateEnvironmentPresenter(
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnDeletePropertyDefinition -> {
+            is CreateProjectAction.SetupSchemaAction.OnDeletePropertyDefinition -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions {
                         removeItemAt(index)
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnPropertyTypeChanged -> {
+            is CreateProjectAction.SetupSchemaAction.OnPropertyTypeChanged -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions {
                         updatePropertyDefinition(index) {
@@ -170,7 +168,7 @@ internal class CreateEnvironmentPresenter(
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnNullableChanged -> {
+            is CreateProjectAction.SetupSchemaAction.OnNullableChanged -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions {
                         updatePropertyDefinition(index) {
@@ -179,7 +177,7 @@ internal class CreateEnvironmentPresenter(
                     }
             }
 
-            is CreateEnvironmentAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> {
+            is CreateProjectAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> {
                 mutableState = mutableState
                     .updatePropertyDefinitions { globalSupportedPlatforms ->
                         updatePropertyDefinition(index) {
@@ -200,14 +198,14 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    private fun CreateEnvironmentState.updateGlobalSupportedPlatforms(
+    private fun CreateProjectState.updateGlobalSupportedPlatforms(
         block: Set<PlatformType>.() -> Set<PlatformType>
-    ): CreateEnvironmentState =
+    ): CreateProjectState =
         copy(globalSupportedPlatforms = globalSupportedPlatforms.block())
 
-    private fun CreateEnvironmentState.updatePropertyDefinitions(
+    private fun CreateProjectState.updatePropertyDefinitions(
         block: Set<PropertyDefinition>.(globalSupportedPlatforms: Set<PlatformType>) -> Set<PropertyDefinition>
-    ): CreateEnvironmentState =
+    ): CreateProjectState =
         copy(propertyDefinitions = propertyDefinitions.block(globalSupportedPlatforms))
 
     private fun Set<PropertyDefinition>.updatePropertyDefinition(
@@ -218,10 +216,10 @@ internal class CreateEnvironmentPresenter(
             if (currentIndex == index) currentPropertyDefinition.block() else currentPropertyDefinition
         }.toSet()
 
-    private fun CreateEnvironmentState.updatePlatform(
+    private fun CreateProjectState.updatePlatform(
         platformType: PlatformType,
         block: Platform.() -> Platform,
-    ): CreateEnvironmentState =
+    ): CreateProjectState =
         copy(
             platforms = platforms.map { platform ->
                 if (platform.platformType == platformType) {
@@ -254,19 +252,19 @@ internal class CreateEnvironmentPresenter(
             supportedPlatforms = globalSupportedPlatforms,
         )
 
-    private fun CreateEnvironmentAction.SetupEnvironmentAction.OnSelectEnvironmentPath.handle() {
+    private fun CreateProjectAction.SetupEnvironmentAction.OnSelectEnvironmentPath.handle() {
         val environmentsDirectoryPath = onEnvironmentsDirectorySelected() ?: return
         val environmentsDirectory = File(environmentsDirectoryPath)
         process(environmentsDirectory)
     }
 
-    private fun CreateEnvironmentAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
+    private fun CreateProjectAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
         mutableState = mutableState.copy(environmentName = newName)
     }
 
-    private fun CreateEnvironmentAction.SetupPropertiesAction.handle() =
+    private fun CreateProjectAction.SetupPropertiesAction.handle() =
         when (this) {
-            is CreateEnvironmentAction.SetupPropertiesAction.OnPropertyValueChanged -> {
+            is CreateProjectAction.SetupPropertiesAction.OnPropertyValueChanged -> {
                 mutableState = mutableState
                     .updatePlatform(platformType) {
                         updatePropertyValue(
@@ -277,15 +275,15 @@ internal class CreateEnvironmentPresenter(
             }
         }
 
-    private fun CreateEnvironmentAction.DialogAction.handle() {
+    private fun CreateProjectAction.DialogAction.handle() {
         when (this) {
-            is CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked -> handle()
-            is CreateEnvironmentAction.DialogAction.OnNextButtonClicked -> handle()
-            is CreateEnvironmentAction.DialogAction.OnFinishButtonClicked -> onFinishButtonClicked(mutableState)
+            is CreateProjectAction.DialogAction.OnPreviousButtonClicked -> handle()
+            is CreateProjectAction.DialogAction.OnNextButtonClicked -> handle()
+            is CreateProjectAction.DialogAction.OnFinishButtonClicked -> onFinishButtonClicked(mutableState)
         }
     }
 
-    private fun CreateEnvironmentAction.DialogAction.OnPreviousButtonClicked.handle() {
+    private fun CreateProjectAction.DialogAction.OnPreviousButtonClicked.handle() {
         when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> Unit
             Step.SETUP_SCHEMA ->
@@ -311,7 +309,7 @@ internal class CreateEnvironmentPresenter(
         }
     }
 
-    private fun CreateEnvironmentAction.DialogAction.OnNextButtonClicked.handle() {
+    private fun CreateProjectAction.DialogAction.OnNextButtonClicked.handle() {
         when (mutableState.step) {
             Step.SETUP_ENVIRONMENT -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
             Step.SETUP_SCHEMA -> {
@@ -326,7 +324,7 @@ internal class CreateEnvironmentPresenter(
     }
 }
 
-private fun CreateEnvironmentState.initialPlatforms(): Set<Platform> =
+private fun CreateProjectState.initialPlatforms(): Set<Platform> =
     globalSupportedPlatforms.map { platformType ->
         val propertiesForPlatform = propertiesForPlatform(platformType)
 
@@ -354,7 +352,7 @@ private fun PropertyType.initialPropertyValue(nullable: Boolean): PropertyValue 
         }
     }
 
-private fun CreateEnvironmentState.propertiesForPlatform(platformType: PlatformType): List<PropertyDefinition> =
+private fun CreateProjectState.propertiesForPlatform(platformType: PlatformType): List<PropertyDefinition> =
     propertyDefinitions.filter { propertyDefinition ->
         propertyDefinition.supportedPlatforms.contains(platformType)
     }

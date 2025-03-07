@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter.handlers
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.handlers
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectory

@@ -1,9 +1,9 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 
-internal data class CreateEnvironmentState(
+internal data class CreateProjectState(
     val environmentsDirectoryPath: String = "",
     val environmentsDirectoryProcessResult: EnvironmentsDirectoryProcessResult =
         EnvironmentsDirectoryProcessResult.Loading,

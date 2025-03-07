@@ -1,23 +1,22 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createEnvironmentPresenter
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.createEnvironmentPresenter.CreateEnvironmentState.Platform.Property.PropertyValue
 
-internal sealed interface CreateEnvironmentAction {
-    sealed interface DialogAction : CreateEnvironmentAction {
+internal sealed interface CreateProjectAction {
+    sealed interface DialogAction : CreateProjectAction {
         data object OnPreviousButtonClicked : DialogAction
         data object OnNextButtonClicked : DialogAction
         data object OnFinishButtonClicked : DialogAction
     }
 
-    sealed interface SetupEnvironmentAction : CreateEnvironmentAction {
+    sealed interface SetupEnvironmentAction : CreateProjectAction {
         data object OnInit : SetupEnvironmentAction
         data object OnSelectEnvironmentPath : SetupEnvironmentAction
         data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
     }
 
-    sealed interface SetupSchemaAction : CreateEnvironmentAction {
+    sealed interface SetupSchemaAction : CreateProjectAction {
         data class OnSupportedPlatformChanged(
             val isChecked: Boolean,
             val newPlatformType: PlatformType
@@ -49,7 +48,7 @@ internal sealed interface CreateEnvironmentAction {
         ) : SetupSchemaAction
     }
 
-    sealed interface SetupPropertiesAction : CreateEnvironmentAction {
+    sealed interface SetupPropertiesAction : CreateProjectAction {
         data class OnPropertyValueChanged(
             val platformType: PlatformType,
             val index: Int,
