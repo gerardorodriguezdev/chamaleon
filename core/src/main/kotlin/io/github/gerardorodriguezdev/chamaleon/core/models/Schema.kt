@@ -40,8 +40,8 @@ public class Schema private constructor(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
         ): Boolean =
-            propertyDefinitions.values.any { propertyDefinition ->
-                !propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)
+            propertyDefinitions.values.all { propertyDefinition ->
+                propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)
             }
 
         private fun PropertyDefinition.arePlatformsSupported(
