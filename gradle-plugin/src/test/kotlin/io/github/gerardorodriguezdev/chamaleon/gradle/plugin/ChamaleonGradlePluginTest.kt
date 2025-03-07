@@ -73,8 +73,9 @@ class ChamaleonGradlePluginTest {
         val environmentsFiles = environmentsDirectory.listFiles()
         assertEquals(expected = environmentsFiles.size, actual = SampleResources.resources.size)
         environmentsFiles.forEach { environmentFile ->
-            val resource = SampleResources.resources.first { resource -> resource.fileName == environmentFile.name }
-            assertEquals(expected = resource.fileContent, actual = environmentFile.readText())
+            val resource =
+                SampleResources.resources.firstOrNull { resource -> resource.fileName == environmentFile.name }
+            assertEquals(expected = resource?.fileContent, actual = environmentFile.readText())
         }
     }
 
@@ -93,10 +94,10 @@ class ChamaleonGradlePluginTest {
         assertEquals(expected = environmentsFiles.size, actual = 2)
 
         val localEnvironmentFile =
-            environmentsFiles.first { environmentFile ->
+            environmentsFiles.firstOrNull { environmentFile ->
                 environmentFile.name == SampleResources.localEnvironmentResource.fileName
             }
-        val localEnvironmentFileContent = localEnvironmentFile.readText()
+        val localEnvironmentFileContent = localEnvironmentFile?.readText()
         assertEquals(
             expected = SampleResources.localEnvironmentResource.fileContent,
             actual = localEnvironmentFileContent,
@@ -116,8 +117,8 @@ class ChamaleonGradlePluginTest {
         val environmentsDirectory = environmentsDirectory()
         val environmentsFiles = environmentsDirectory.listFiles()
         val propertiesFile =
-            environmentsFiles.first { environmentFile -> environmentFile.name == ChamaleonProject.PROPERTIES_FILE }
-        val propertiesFileContent = propertiesFile.readText()
+            environmentsFiles.firstOrNull { environmentFile -> environmentFile.name == ChamaleonProject.PROPERTIES_FILE }
+        val propertiesFileContent = propertiesFile?.readText()
         assertEquals(
             expected = propertiesFileContentWithProductionEnvironmentSelected,
             actual = propertiesFileContent,

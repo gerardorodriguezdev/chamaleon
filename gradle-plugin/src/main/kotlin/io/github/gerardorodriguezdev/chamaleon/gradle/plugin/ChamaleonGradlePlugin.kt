@@ -25,7 +25,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             val extension = createExtension()
             registerGenerateSampleTask()
             registerSelectEnvironmentTask(extension)
-            registerGenerateEnvironmentTask()
+            registerGenerateEnvironmentTask(extension)
         }
     }
 
@@ -81,19 +81,22 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             if (newSelectedEnvironmentNameString == null) {
                 newSelectedEnvironmentName.set(null)
             } else {
-                newSelectedEnvironmentNameString.toNonEmptyString()
+                val nonEmptyStringNewSelectedEnvironmentName = newSelectedEnvironmentNameString.toNonEmptyString()
                     ?: throw ChamaleonGradlePluginException("Selected environment name was empty")
+                newSelectedEnvironmentName.set(nonEmptyStringNewSelectedEnvironmentName)
             }
 
-            project.set(extension.project.get())
+            projectProperty.set(extension.project.get())
         }
 
-    private fun Project.registerGenerateEnvironmentTask(): TaskProvider<GenerateEnvironmentTask> =
+    private fun Project.registerGenerateEnvironmentTask(extension: ChamaleonExtension): TaskProvider<GenerateEnvironmentTask> =
         tasks.register(GENERATE_ENVIRONMENT_TASK_NAME, GenerateEnvironmentTask::class.java) {
             val generateEnvironmentCommands =
                 providers.gradlePropertiesPrefixedBy(GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
             this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
+
+            this.projectProperty.set(extension.project)
         }
 
     private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)

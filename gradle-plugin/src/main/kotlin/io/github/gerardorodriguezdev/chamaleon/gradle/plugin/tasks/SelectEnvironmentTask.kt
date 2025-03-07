@@ -20,12 +20,12 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
     public abstract val newSelectedEnvironmentName: Property<NonEmptyString?>
 
     @get:Input
-    public abstract val project: Property<Project>
+    public abstract val projectProperty: Property<Project>
 
     @TaskAction
     public fun selectEnvironment() {
         val newSelectedEnvironmentName = newSelectedEnvironmentName.get()
-        val currentProject = project.get()
+        val currentProject = projectProperty.get()
 
         val newProject = currentProject.updateProperties(
             newSelectedEnvironmentName = newSelectedEnvironmentName,

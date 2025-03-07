@@ -24,7 +24,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
     public abstract val generateEnvironmentCommands: ListProperty<String>
 
     @get:Input
-    public abstract val project: Property<Project>
+    public abstract val projectProperty: Property<Project>
 
     @TaskAction
     public fun generateEnvironment() {
@@ -43,7 +43,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         }
 
     private fun NonEmptyKeySetStore<String, Environment>.addToExistingProject(): Project {
-        val project = project.get()
+        val project = projectProperty.get()
 
         val newProject = project.addEnvironments(newEnvironments = this)
 
