@@ -5,7 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetSto
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 data class EnvironmentSelectionState(
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val errorMessage: NonEmptyString? = null,
     val projects: NonEmptyKeySetStore<String, Project>? = null,
 )

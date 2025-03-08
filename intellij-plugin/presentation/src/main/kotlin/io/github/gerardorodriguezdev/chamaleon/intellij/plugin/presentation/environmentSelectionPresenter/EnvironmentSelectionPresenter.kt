@@ -16,14 +16,13 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.St
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.coroutines.CoroutineContext
 
 internal class EnvironmentSelectionPresenter(
     private val stringsProvider: StringsProvider,
     private val projectSerializer: ProjectSerializer,
     private val projectDeserializer: ProjectDeserializer,
-    private val uiDispatcher: CoroutineContext,
-    ioDispatcher: CoroutineContext,
+    private val uiDispatcher: CoroutineDispatcher,
+    ioDispatcher: CoroutineDispatcher,
     private val onEnvironmentsDirectoryChanged: (newEnvironmentsDirectoryPath: NonEmptyString) -> Unit,
 ) {
     private val mutableStateFlow = MutableStateFlow<EnvironmentSelectionState>(EnvironmentSelectionState())
@@ -35,7 +34,7 @@ internal class EnvironmentSelectionPresenter(
     private var scanProjectJob: Job? = null
     private var updateSelectedEnvironmentJob: Job? = null
 
-    fun handle(action: EnvironmentSelectionAction) {
+    fun dispatch(action: EnvironmentSelectionAction) {
         when (action) {
             is EnvironmentSelectionAction.ScanProject -> action.handle()
             is EnvironmentSelectionAction.SelectEnvironment -> action.handle()
