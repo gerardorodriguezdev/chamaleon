@@ -84,7 +84,6 @@ internal class EnvironmentSelectionPresenter(
         this
             .filterIsInstance<ProjectDeserializationResult.Success>()
             .map { success -> success.project }
-            .toSet()
             .toNonEmptyKeySetStore()
 
     private fun EnvironmentSelectionAction.SelectEnvironment.handle() {
@@ -102,7 +101,7 @@ internal class EnvironmentSelectionPresenter(
 
                     when (projectSerializationResult) {
                         is ProjectSerializationResult.Success -> {
-                            val newProjects = currentProjects.updateValue(newProject)
+                            val newProjects = currentProjects.updateElementByKey(newProject)
 
                             withContext(uiDispatcher) {
                                 mutableState = mutableState.copy(projects = newProjects)

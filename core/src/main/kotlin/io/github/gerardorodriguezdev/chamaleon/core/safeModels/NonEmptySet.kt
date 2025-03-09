@@ -10,6 +10,16 @@ public class NonEmptySet<T> private constructor(public val value: Set<T>) : Set<
         if (value.isEmpty()) throw IllegalStateException("Non empty set was empty")
     }
 
+    public fun add(element: T): NonEmptySet<T> {
+        val newSet = value + element
+        return NonEmptySet(newSet)
+    }
+
+    public fun remove(element: T): NonEmptySet<T>? {
+        val newSet = value - element
+        return newSet.toNonEmptySet()
+    }
+
     override fun toString(): String = value.toString()
     override fun hashCode(): Int = value.hashCode()
     override fun equals(other: Any?): Boolean = this === other || value == other

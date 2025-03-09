@@ -2,46 +2,45 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.cre
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 internal sealed interface CreateProjectAction {
-    sealed interface DialogAction : CreateProjectAction {
-        data object OnPreviousButtonClicked : DialogAction
-        data object OnNextButtonClicked : DialogAction
-        data object OnFinishButtonClicked : DialogAction
-    }
-
     sealed interface SetupEnvironmentAction : CreateProjectAction {
-        data object OnInit : SetupEnvironmentAction
-        data object OnSelectEnvironmentPath : SetupEnvironmentAction
-        data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
+        data class OnEnvironmentsDirectoryChanged(
+            val newEnvironmentsDirectory: ExistingDirectory
+        ) : SetupEnvironmentAction
+
+        data class OnEnvironmentNameChanged(val newEnvironmentName: NonEmptyString) : SetupEnvironmentAction
     }
 
     sealed interface SetupSchemaAction : CreateProjectAction {
-        data class OnSupportedPlatformChanged(
+        data class OnGlobalSupportedPlatformTypesChanged(
             val isChecked: Boolean,
             val newPlatformType: PlatformType
         ) : SetupSchemaAction
 
         data object OnAddPropertyDefinition : SetupSchemaAction
 
-        data class OnPropertyNameChanged(
+        data class OnPropertyDefinitionNameChanged(
             val index: Int,
-            val newName: String,
+            val newPropertyName: NonEmptyString,
         ) : SetupSchemaAction
 
         data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
 
-        data class OnPropertyTypeChanged(
+        data class OnPropertyDefinitionTypeChanged(
             val index: Int,
             val newPropertyType: PropertyType
         ) : SetupSchemaAction
 
         data class OnNullableChanged(
             val index: Int,
-            val newValue: Boolean,
+            val newNullable: Boolean,
         ) : SetupSchemaAction
 
-        data class OnPropertyDefinitionSupportedPlatformChanged(
+        data class OnSupportedPlatformTypesChanged(
             val index: Int,
             val isChecked: Boolean,
             val newPlatformType: PlatformType
@@ -52,7 +51,13 @@ internal sealed interface CreateProjectAction {
         data class OnPropertyValueChanged(
             val platformType: PlatformType,
             val index: Int,
-            val newValue: PropertyValue,
+            val newPropertyValue: PropertyValue?,
         ) : SetupPropertiesAction
+    }
+
+    sealed interface NavigationAction : CreateProjectAction {
+        data object Previous : NavigationAction
+        data object Next : NavigationAction
+        data object Finish : NavigationAction
     }
 }

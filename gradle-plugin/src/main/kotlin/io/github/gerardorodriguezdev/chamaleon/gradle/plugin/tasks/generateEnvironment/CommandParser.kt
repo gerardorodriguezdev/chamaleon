@@ -118,7 +118,6 @@ internal class DefaultCommandParser : CommandParser {
                     val property = toProperty(propertyString)
                     property.bind()
                 }
-                .toSet()
                 .toNonEmptyKeySetStore()
 
             ensureNotNull(properties) { Failure("No properties found on command '$command'") }
@@ -172,7 +171,6 @@ internal class DefaultCommandParser : CommandParser {
                             platforms = allPlatforms.mergePlatforms()
                         )
                     }
-                    .toSet()
                     .toNonEmptyKeySetStore()
 
             ensureNotNull(environments) {
@@ -182,7 +180,7 @@ internal class DefaultCommandParser : CommandParser {
 
     private fun List<NonEmptyKeySetStore<PlatformType, Platform>>.mergePlatforms(): NonEmptyKeySetStore<PlatformType, Platform> =
         reduce { accumulation, platforms ->
-            accumulation.addValues(platforms)
+            accumulation.addAll(platforms)
         }
 
     private data class Context(

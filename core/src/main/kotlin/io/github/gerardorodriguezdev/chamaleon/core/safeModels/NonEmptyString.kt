@@ -12,7 +12,7 @@ public value class NonEmptyString private constructor(public val value: String) 
     }
 
     public fun append(input: String): NonEmptyString = NonEmptyString(value + input)
-    public fun removeSuffix(suffix: String): NonEmptyString = NonEmptyString(value.removeSuffix(suffix))
+    public fun removeSuffix(suffix: String): NonEmptyString? = value.removeSuffix(suffix).toNonEmptyString()
     override fun toString(): String = value
 
     public companion object {

@@ -1,59 +1,59 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.*
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
-internal data class CreateProjectState(
-    val environmentsDirectoryPath: String = "",
-    val environmentsDirectoryProcessResult: EnvironmentsDirectoryProcessResult =
-        EnvironmentsDirectoryProcessResult.Loading,
-    val environmentName: String = "",
-    val environmentsNames: Set<String> = emptySet(),
+internal sealed interface CreateProjectState {
+    fun asSetupEnvironment(): SetupEnvironment = this as SetupEnvironment
+    fun asSetupSchema(): SetupSchema = this as SetupSchema
+    fun asSetupPlatforms(): SetupPlatforms = this as SetupPlatforms
 
-    val allowUpdatingSchema: Boolean = false,
-    val globalSupportedPlatforms: Set<PlatformType> = emptySet(),
-    val propertyDefinitions: Set<PropertyDefinition> = emptySet(),
+    data class SetupEnvironment(
+        val projectDeserializationState: ProjectDeserializationState? = null,
+        val environmentName: NonEmptyString? = null,
+    ) : CreateProjectState {
+        sealed interface ProjectDeserializationState {
+            val environmentsDirectory: ExistingDirectory
 
-    val platforms: Set<Platform> = emptySet(),
-    val step: Step = Step.SETUP_ENVIRONMENT,
-) {
-    sealed interface EnvironmentsDirectoryProcessResult {
-        data object Success : EnvironmentsDirectoryProcessResult
-        data object Loading : EnvironmentsDirectoryProcessResult
-        sealed interface Failure : EnvironmentsDirectoryProcessResult {
-            data object EnvironmentsDirectoryNotFound : Failure
-            data object SchemaFileNotFound : Failure
-            data object FileIsNotDirectory : Failure
-            data object InvalidEnvironments : Failure
+            data class Loading(
+                override val environmentsDirectory: ExistingDirectory,
+            ) : ProjectDeserializationState
+
+            data class Invalid(
+                override val environmentsDirectory: ExistingDirectory,
+                val errorMessage: String
+            ) : ProjectDeserializationState
+
+            data class Valid(
+                override val environmentsDirectory: ExistingDirectory,
+                val project: Project?
+            ) : ProjectDeserializationState
         }
     }
 
-    data class PropertyDefinition(
-        val name: String,
-        val propertyType: PropertyType,
-        val nullable: Boolean,
-        val supportedPlatforms: Set<PlatformType>,
-    )
-
-    data class Platform(
-        val platformType: PlatformType,
-        val properties: Set<Property>,
-    ) {
-        data class Property(
-            val name: String,
-            val value: PropertyValue,
-        ) {
-            sealed interface PropertyValue {
-                data class StringProperty(val value: String) : PropertyValue
-                data class BooleanProperty(val value: Boolean) : PropertyValue
-                data class NullableBooleanProperty(val value: Boolean?) : PropertyValue
-            }
-        }
+    data class SetupSchema(
+        val environmentsDirectory: ExistingDirectory,
+        val environmentName: NonEmptyString,
+        val currentProject: Project?,
+        val globalSupportedPlatformTypes: NonEmptySet<PlatformType>? = null,
+        val propertyDefinitions: List<PropertyDefinition> = emptyList(),
+    ) : CreateProjectState {
+        data class PropertyDefinition(
+            val name: NonEmptyString? = null,
+            val propertyType: PropertyType = PropertyType.STRING,
+            val nullable: Boolean = false,
+            val supportedPlatformTypes: NonEmptySet<PlatformType>? = null,
+        )
     }
 
-    enum class Step {
-        SETUP_ENVIRONMENT,
-        SETUP_SCHEMA,
-        SETUP_PROPERTIES,
-    }
+    data class SetupPlatforms(
+        val environmentsDirectory: ExistingDirectory,
+        val environmentName: NonEmptyString,
+        val currentProject: Project? = null,
+        val schema: Schema,
+        val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
+    ) : CreateProjectState
 }

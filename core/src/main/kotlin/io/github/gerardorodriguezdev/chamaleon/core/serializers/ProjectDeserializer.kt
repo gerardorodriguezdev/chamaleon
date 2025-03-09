@@ -122,7 +122,6 @@ internal class DefaultProjectDeserializer(
                         }
                     }
                     .awaitAll()
-                    .toSet()
                     .toNonEmptyKeySetStore()
             }
         }

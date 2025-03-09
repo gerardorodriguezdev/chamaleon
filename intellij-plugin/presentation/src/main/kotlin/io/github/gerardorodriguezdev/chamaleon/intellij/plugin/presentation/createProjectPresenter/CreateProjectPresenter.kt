@@ -1,363 +1,226 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toNonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
+import io.github.gerardorodriguezdev.chamaleon.core.utils.removeElementAtIndex
+import io.github.gerardorodriguezdev.chamaleon.core.utils.updateElementByIndex
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.asDelegate
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.handlers.SetupEnvironmentHandler
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment.ProjectDeserializationState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupSchema
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import java.io.File
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
+//TODO: Refactor a bit functions
 internal class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
+    private val uiContext: CoroutineContext,
     private val ioContext: CoroutineContext,
-
-    private val projectDirectory: ExistingDirectory,
-
-    private val setupEnvironmentHandler: SetupEnvironmentHandler,
-
-    private val onEnvironmentsDirectorySelected: () -> ExistingDirectory?,
-    private val onFinishButtonClicked: (state: CreateProjectState) -> Unit,
+    private val projectDeserializer: ProjectDeserializer,
+    private val onFinish: (project: Project) -> Unit,
 ) {
-    private val mutableStateFlow = MutableStateFlow<CreateProjectState>(CreateProjectState())
+    private val mutableStateFlow = MutableStateFlow<CreateProjectState>(SetupEnvironment())
     val stateFlow: StateFlow<CreateProjectState> = mutableStateFlow
 
     private var mutableState by mutableStateFlow.asDelegate()
 
-    private var processJob: Job? = null
+    private var deserializeJob: Job? = null
 
-    fun onAction(action: CreateProjectAction) {
+    fun dispatch(action: CreateProjectAction) {
         when (action) {
-            is CreateProjectAction.SetupEnvironmentAction -> action.handle()
-            is CreateProjectAction.SetupSchemaAction -> action.handle()
-            is CreateProjectAction.SetupPropertiesAction -> action.handle()
-            is CreateProjectAction.DialogAction -> action.handle()
+            is SetupEnvironmentAction -> action.handle()
+            is SetupSchemaAction -> action.handle()
+            is SetupPropertiesAction -> action.handle()
+            is NavigationAction -> action.handle()
         }
     }
 
-    private fun CreateProjectAction.SetupEnvironmentAction.handle() =
+    private fun SetupEnvironmentAction.handle() =
         when (this) {
-            is CreateProjectAction.SetupEnvironmentAction.OnInit -> process(projectDirectory)
-            is CreateProjectAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> handle()
-            is CreateProjectAction.SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
+            is SetupEnvironmentAction.OnEnvironmentsDirectoryChanged -> handle()
+            is SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
         }
 
-    private fun process(environmentsDirectory: File) {
-        processJob?.cancel()
+    private fun SetupEnvironmentAction.OnEnvironmentsDirectoryChanged.handle() {
+        deserializeJob?.cancel()
 
-        processJob = uiScope
+        mutableState = mutableState.asSetupEnvironment().copy(
+            projectDeserializationState = ProjectDeserializationState.Loading(newEnvironmentsDirectory),
+        )
+
+        deserializeJob = uiScope
             .launch {
-                setupEnvironmentHandler
-                    .handle(SetupEnvironmentHandler.Action.Process(environmentsDirectory))
-                    .flowOn(ioContext)
-                    .collect { sideEffect ->
-                        when (sideEffect) {
-                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Success -> {
-                                mutableState = mutableState.copy(
-                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Success,
-                                    environmentsNames = sideEffect.environments.environmentNames(),
-                                    globalSupportedPlatforms = sideEffect.schema.globalSupportedPlatformTypes,
-                                    propertyDefinitions = sideEffect.schema.propertyDefinitions.toPropertyDefinitions(),
-                                    allowUpdatingSchema =
-                                        sideEffect.schema.globalSupportedPlatformTypes.isEmpty() &&
-                                                sideEffect.schema.propertyDefinitions.isEmpty()
+                withContext(ioContext) {
+                    val projectDeserializationResult = projectDeserializer.deserialize(newEnvironmentsDirectory)
+
+                    withContext(uiContext) {
+                        when (projectDeserializationResult) {
+                            is ProjectDeserializationResult.Success -> {
+                                mutableState = mutableState.asSetupEnvironment().copy(
+                                    projectDeserializationState = ProjectDeserializationState.Valid(
+                                        environmentsDirectory = newEnvironmentsDirectory,
+                                        project = projectDeserializationResult.project,
+                                    )
                                 )
                             }
 
-                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Loading -> {
-                                mutableState = mutableState.copy(
-                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Loading,
-                                )
-                            }
-
-                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.FileIsNotDirectory -> {
-                                mutableState = mutableState.copy(
-                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.FileIsNotDirectory,
-                                    environmentsNames = emptySet(),
-                                    globalSupportedPlatforms = emptySet(),
-                                    propertyDefinitions = emptySet(),
-                                )
-                            }
-
-                            is SetupEnvironmentHandler.SideEffect.UpdateEnvironmentsDirectoryState.Failure.InvalidEnvironments -> {
-                                mutableState = mutableState.copy(
-                                    environmentsDirectoryPath = sideEffect.environmentsDirectoryPath,
-                                    environmentsDirectoryProcessResult = EnvironmentsDirectoryProcessResult.Failure.InvalidEnvironments,
-                                    environmentsNames = emptySet(),
-                                    globalSupportedPlatforms = emptySet(),
-                                    propertyDefinitions = emptySet(),
+                            is ProjectDeserializationResult.Failure -> {
+                                mutableState = mutableState.asSetupEnvironment().copy(
+                                    projectDeserializationState = ProjectDeserializationState.Invalid(
+                                        environmentsDirectory = newEnvironmentsDirectory,
+                                        errorMessage = "Invalid directory" //TODO: Lexemes here for all errors
+                                    )
                                 )
                             }
                         }
                     }
+                }
             }
     }
 
-    private fun Set<Environment>.environmentNames(): Set<String> =
-        map { environment -> environment.name }.toSet()
+    private fun SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
+        mutableState = mutableState.asSetupEnvironment().copy(
+            environmentName = newEnvironmentName,
+        )
+    }
 
-    private fun Set<Schema.PropertyDefinition>.toPropertyDefinitions(): Set<PropertyDefinition> =
-        map { propertyDefinition ->
-            PropertyDefinition(
-                name = propertyDefinition.name,
-                propertyType = propertyDefinition.propertyType,
-                nullable = propertyDefinition.nullable,
-                supportedPlatforms = propertyDefinition.supportedPlatformTypes,
-            )
-        }.toSet()
-
-    private fun CreateProjectAction.SetupSchemaAction.handle() {
-        if (!mutableState.allowUpdatingSchema) return
-
+    private fun SetupSchemaAction.handle() {
         when (this) {
-            is CreateProjectAction.SetupSchemaAction.OnSupportedPlatformChanged -> {
-                mutableState = mutableState
-                    .updateGlobalSupportedPlatforms {
-                        if (isChecked) this + newPlatformType else this - newPlatformType
-                    }
-                    .updatePropertyDefinitions { globalSupportedPlatforms ->
-                        map { propertyDefinition ->
-                            propertyDefinition.copy(
-                                supportedPlatforms =
-                                    propertyDefinition.supportedPlatforms intersect globalSupportedPlatforms,
-                            )
-                        }.toSet()
-                    }
-            }
-
-            is CreateProjectAction.SetupSchemaAction.OnAddPropertyDefinition -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions { globalSupportedPlatforms ->
-                        this + emptyPropertyDefinition(globalSupportedPlatforms)
-                    }
-            }
-
-            is CreateProjectAction.SetupSchemaAction.OnPropertyNameChanged -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions {
-                        updatePropertyDefinition(index) {
-                            copy(name = newName)
-                        }
-                    }
-            }
-
-            is CreateProjectAction.SetupSchemaAction.OnDeletePropertyDefinition -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions {
-                        removeItemAt(index)
-                    }
-            }
-
-            is CreateProjectAction.SetupSchemaAction.OnPropertyTypeChanged -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions {
-                        updatePropertyDefinition(index) {
-                            copy(propertyType = newPropertyType)
-                        }
-                    }
-            }
-
-            is CreateProjectAction.SetupSchemaAction.OnNullableChanged -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions {
-                        updatePropertyDefinition(index) {
-                            copy(nullable = newValue)
-                        }
-                    }
-            }
-
-            is CreateProjectAction.SetupSchemaAction.OnPropertyDefinitionSupportedPlatformChanged -> {
-                mutableState = mutableState
-                    .updatePropertyDefinitions { globalSupportedPlatforms ->
-                        updatePropertyDefinition(index) {
-                            copy(
-                                supportedPlatforms = if (isChecked) {
-                                    if (globalSupportedPlatforms.contains(newPlatformType)) {
-                                        supportedPlatforms + newPlatformType
-                                    } else {
-                                        supportedPlatforms
-                                    }
-                                } else {
-                                    supportedPlatforms - newPlatformType
-                                }
-                            )
-                        }
-                    }
-            }
+            is SetupSchemaAction.OnGlobalSupportedPlatformTypesChanged -> handle()
+            is SetupSchemaAction.OnAddPropertyDefinition -> handle()
+            is SetupSchemaAction.OnPropertyDefinitionNameChanged -> handle()
+            is SetupSchemaAction.OnDeletePropertyDefinition -> handle()
+            is SetupSchemaAction.OnPropertyDefinitionTypeChanged -> handle()
+            is SetupSchemaAction.OnNullableChanged -> handle()
+            is SetupSchemaAction.OnSupportedPlatformTypesChanged -> handle()
         }
     }
 
-    private fun CreateProjectState.updateGlobalSupportedPlatforms(
-        block: Set<PlatformType>.() -> Set<PlatformType>
-    ): CreateProjectState =
-        copy(globalSupportedPlatforms = globalSupportedPlatforms.block())
+    private fun SetupSchemaAction.OnGlobalSupportedPlatformTypesChanged.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        val newGlobalSupportedPlatformTypes = if (isChecked) {
+            setupSchema.globalSupportedPlatformTypes?.add(newPlatformType)
+                ?: setOf(newPlatformType).toUnsafeNonEmptySet()
+        } else {
+            setupSchema.globalSupportedPlatformTypes?.remove(newPlatformType)
+        }
 
-    private fun CreateProjectState.updatePropertyDefinitions(
-        block: Set<PropertyDefinition>.(globalSupportedPlatforms: Set<PlatformType>) -> Set<PropertyDefinition>
-    ): CreateProjectState =
-        copy(propertyDefinitions = propertyDefinitions.block(globalSupportedPlatforms))
+        val newPropertyDefinitions = setupSchema.propertyDefinitions.map { propertyDefinition ->
+            propertyDefinition.copy(
+                supportedPlatformTypes = if (propertyDefinition.supportedPlatformTypes != null && newGlobalSupportedPlatformTypes != null) {
+                    (propertyDefinition.supportedPlatformTypes.value intersect newGlobalSupportedPlatformTypes.value).toUnsafeNonEmptySet()
+                } else {
+                    null
+                }
+            )
+        }
+        mutableState = setupSchema.copy(
+            globalSupportedPlatformTypes =
+                setupSchema.globalSupportedPlatformTypes?.add(newPlatformType)
+                    ?: setOf(newPlatformType).toNonEmptySet(),
+            propertyDefinitions = newPropertyDefinitions,
+        )
+    }
 
-    private fun Set<PropertyDefinition>.updatePropertyDefinition(
-        index: Int,
-        block: PropertyDefinition.() -> PropertyDefinition,
-    ): Set<PropertyDefinition> =
-        mapIndexed { currentIndex, currentPropertyDefinition ->
-            if (currentIndex == index) currentPropertyDefinition.block() else currentPropertyDefinition
-        }.toSet()
+    private fun SetupSchemaAction.OnAddPropertyDefinition.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        mutableState = setupSchema.copy(
+            propertyDefinitions = setupSchema.propertyDefinitions + SetupSchema.PropertyDefinition(
+                supportedPlatformTypes = setupSchema.globalSupportedPlatformTypes,
+            ),
+        )
+    }
 
-    private fun CreateProjectState.updatePlatform(
-        platformType: PlatformType,
-        block: Platform.() -> Platform,
-    ): CreateProjectState =
-        copy(
-            platforms = platforms.map { platform ->
+    private fun SetupSchemaAction.OnPropertyDefinitionNameChanged.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        mutableState = setupSchema.copy(
+            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+                propertyDefinition.copy(name = newPropertyName)
+            }
+        )
+    }
+
+    private fun SetupSchemaAction.OnDeletePropertyDefinition.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        mutableState = setupSchema.copy(
+            propertyDefinitions = setupSchema.propertyDefinitions.removeElementAtIndex(index)
+        )
+    }
+
+    private fun SetupSchemaAction.OnPropertyDefinitionTypeChanged.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        mutableState = setupSchema.copy(
+            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+                propertyDefinition.copy(propertyType = newPropertyType)
+            }
+        )
+    }
+
+    private fun SetupSchemaAction.OnNullableChanged.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        mutableState = setupSchema.copy(
+            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+                propertyDefinition.copy(nullable = newNullable)
+            }
+        )
+    }
+
+    private fun SetupSchemaAction.OnSupportedPlatformTypesChanged.handle() {
+        val setupSchema = mutableState.asSetupSchema()
+        mutableState = setupSchema.copy(
+            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+                propertyDefinition.copy(
+                    supportedPlatformTypes = if (isChecked) {
+                        if (setupSchema.globalSupportedPlatformTypes?.contains(newPlatformType) == true) {
+                            propertyDefinition.supportedPlatformTypes?.add(newPlatformType)
+                        } else {
+                            propertyDefinition.supportedPlatformTypes
+                        }
+                    } else {
+                        propertyDefinition.supportedPlatformTypes?.remove(newPlatformType)
+                    }
+                )
+            }
+        )
+    }
+
+    private fun SetupPropertiesAction.handle() =
+        when (this) {
+            is SetupPropertiesAction.OnPropertyValueChanged -> handle()
+        }
+
+    private fun SetupPropertiesAction.OnPropertyValueChanged.handle() {
+        val setupPlatforms = mutableState.asSetupPlatforms()
+        mutableState = setupPlatforms.copy(
+            platforms = setupPlatforms.platforms.updateElementByIndex(index) { platform ->
                 if (platform.platformType == platformType) {
-                    platform.block()
+                    platform.copy(
+                        properties = platform
+                            .properties
+                            .updateElementByIndex(index) { property ->
+                                property.copy(value = newPropertyValue)
+                            }
+                    )
                 } else {
                     platform
                 }
-            }.toSet()
-        )
-
-    private fun Platform.updatePropertyValue(
-        index: Int,
-        propertyValue: PropertyValue
-    ): Platform =
-        copy(
-            properties = properties.mapIndexed { currentIndex, property ->
-                if (index == currentIndex) {
-                    property.copy(value = propertyValue)
-                } else {
-                    property
-                }
-            }.toSet()
-        )
-
-    private fun emptyPropertyDefinition(globalSupportedPlatforms: Set<PlatformType>): PropertyDefinition =
-        PropertyDefinition(
-            name = "",
-            propertyType = PropertyType.STRING,
-            nullable = true,
-            supportedPlatforms = globalSupportedPlatforms,
-        )
-
-    private fun CreateProjectAction.SetupEnvironmentAction.OnSelectEnvironmentPath.handle() {
-        val environmentsDirectoryPath = onEnvironmentsDirectorySelected() ?: return
-        val environmentsDirectory = File(environmentsDirectoryPath)
-        process(environmentsDirectory)
-    }
-
-    private fun CreateProjectAction.SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
-        mutableState = mutableState.copy(environmentName = newName)
-    }
-
-    private fun CreateProjectAction.SetupPropertiesAction.handle() =
-        when (this) {
-            is CreateProjectAction.SetupPropertiesAction.OnPropertyValueChanged -> {
-                mutableState = mutableState
-                    .updatePlatform(platformType) {
-                        updatePropertyValue(
-                            index = index,
-                            propertyValue = newValue,
-                        )
-                    }
             }
-        }
+        )
+    }
 
-    private fun CreateProjectAction.DialogAction.handle() {
+    private fun NavigationAction.handle() =
         when (this) {
-            is CreateProjectAction.DialogAction.OnPreviousButtonClicked -> handle()
-            is CreateProjectAction.DialogAction.OnNextButtonClicked -> handle()
-            is CreateProjectAction.DialogAction.OnFinishButtonClicked -> onFinishButtonClicked(mutableState)
+            is NavigationAction.Previous -> Unit
+            is NavigationAction.Next -> Unit
+            is NavigationAction.Finish -> Unit
         }
-    }
-
-    private fun CreateProjectAction.DialogAction.OnPreviousButtonClicked.handle() {
-        when (mutableState.step) {
-            Step.SETUP_ENVIRONMENT -> Unit
-            Step.SETUP_SCHEMA ->
-                mutableState = mutableState.copy(
-                    step = Step.SETUP_ENVIRONMENT,
-                    globalSupportedPlatforms = if (mutableState.allowUpdatingSchema) {
-                        emptySet()
-                    } else {
-                        mutableState.globalSupportedPlatforms
-                    },
-                    propertyDefinitions = if (mutableState.allowUpdatingSchema) {
-                        emptySet()
-                    } else {
-                        mutableState.propertyDefinitions
-                    },
-                )
-
-            Step.SETUP_PROPERTIES ->
-                mutableState = mutableState.copy(
-                    step = Step.SETUP_SCHEMA,
-                    platforms = emptySet(),
-                )
-        }
-    }
-
-    private fun CreateProjectAction.DialogAction.OnNextButtonClicked.handle() {
-        when (mutableState.step) {
-            Step.SETUP_ENVIRONMENT -> mutableState = mutableState.copy(step = Step.SETUP_SCHEMA)
-            Step.SETUP_SCHEMA -> {
-                mutableState = mutableState.copy(
-                    step = Step.SETUP_PROPERTIES,
-                    platforms = mutableState.initialPlatforms(),
-                )
-            }
-
-            Step.SETUP_PROPERTIES -> Unit
-        }
-    }
 }
-
-private fun CreateProjectState.initialPlatforms(): Set<Platform> =
-    globalSupportedPlatforms.map { platformType ->
-        val propertiesForPlatform = propertiesForPlatform(platformType)
-
-        Platform(
-            platformType = platformType,
-            properties = propertiesForPlatform.toProperties()
-        )
-    }.toSet()
-
-private fun List<PropertyDefinition>.toProperties(): Set<Property> =
-    map { propertyDefinition ->
-        Property(
-            name = propertyDefinition.name,
-            value = propertyDefinition.propertyType.initialPropertyValue(propertyDefinition.nullable),
-        )
-    }.toSet()
-
-private fun PropertyType.initialPropertyValue(nullable: Boolean): PropertyValue =
-    when (this) {
-        PropertyType.STRING -> PropertyValue.StringProperty("")
-        PropertyType.BOOLEAN -> if (nullable) {
-            PropertyValue.NullableBooleanProperty(false)
-        } else {
-            PropertyValue.BooleanProperty(false)
-        }
-    }
-
-private fun CreateProjectState.propertiesForPlatform(platformType: PlatformType): List<PropertyDefinition> =
-    propertyDefinitions.filter { propertyDefinition ->
-        propertyDefinition.supportedPlatforms.contains(platformType)
-    }
-
-private fun Set<PropertyDefinition>.removeItemAt(index: Int): Set<PropertyDefinition> =
-    mapIndexedNotNull { currentIndex, item ->
-        if (index == currentIndex) null else item
-    }.toSet()
