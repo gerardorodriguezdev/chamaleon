@@ -47,12 +47,12 @@ internal sealed interface CreateProjectAction {
         ) : SetupSchemaAction
     }
 
-    sealed interface SetupPropertiesAction : CreateProjectAction {
+    sealed interface SetupPlatformsAction : CreateProjectAction {
         data class OnPropertyValueChanged(
             val platformType: PlatformType,
             val index: Int,
             val newPropertyValue: PropertyValue?,
-        ) : SetupPropertiesAction
+        ) : SetupPlatformsAction
     }
 
     sealed interface NavigationAction : CreateProjectAction {

@@ -23,7 +23,15 @@ public class Project private constructor(
 
     public fun addEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
         val newEnvironments = environments?.addAll(newEnvironments) ?: newEnvironments
+        return updateEnvironments(newEnvironments)
+    }
 
+    public fun updateEnvironment(newEnvironment: Environment): Project? {
+        val newEnvironments = environments?.updateElementByKey(newEnvironment) ?: return null
+        return updateEnvironments(newEnvironments)
+    }
+
+    private fun updateEnvironments(newEnvironments: NonEmptyKeySetStore<String, Environment>): Project? {
         val projectValidationResult = projectOf(
             environmentsDirectory = environmentsDirectory,
             schema = schema,
@@ -38,7 +46,9 @@ public class Project private constructor(
     }
 
     public fun updateProperties(newSelectedEnvironmentName: NonEmptyString?): Project? {
-        if (newSelectedEnvironmentName != null && environments?.contains(newSelectedEnvironmentName.value) == false) return null
+        if (newSelectedEnvironmentName != null && environments?.contains(newSelectedEnvironmentName.value) == false) {
+            return null
+        }
 
         return Project(
             environmentsDirectory = environmentsDirectory,

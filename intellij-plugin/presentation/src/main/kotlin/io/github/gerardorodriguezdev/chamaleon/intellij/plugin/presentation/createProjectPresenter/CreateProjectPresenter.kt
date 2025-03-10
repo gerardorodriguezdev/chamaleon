@@ -1,14 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.*
-import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.utils.removeElementAtIndex
 import io.github.gerardorodriguezdev.chamaleon.core.utils.updateElementByIndex
@@ -40,25 +35,35 @@ internal class CreateProjectPresenter(
 
     fun dispatch(action: CreateProjectAction) {
         when (action) {
-            is SetupEnvironmentAction -> action.handle()
-            is SetupSchemaAction -> action.handle()
-            is SetupPropertiesAction -> action.handle()
+            is SetupEnvironmentAction -> {
+                val currentState = mutableState.asSetupEnvironment()
+                if (currentState != null) action.handle(currentState)
+            }
+
+            is SetupSchemaAction -> {
+                val currentState = mutableState.asSetupSchemaNewSchema()
+                if (currentState != null) action.handle(currentState)
+            }
+
+            is SetupPlatformsAction -> {
+                val currentState = mutableState.asSetupPlatforms()
+                if (currentState != null) action.handle(currentState)
+            }
+
             is NavigationAction -> action.handle()
         }
     }
 
-    private fun SetupEnvironmentAction.handle() =
+    private fun SetupEnvironmentAction.handle(currentState: SetupEnvironment) =
         when (this) {
-            is SetupEnvironmentAction.OnEnvironmentsDirectoryChanged -> handle()
-            is SetupEnvironmentAction.OnEnvironmentNameChanged -> handle()
+            is SetupEnvironmentAction.OnEnvironmentsDirectoryChanged -> handle(currentState)
+            is SetupEnvironmentAction.OnEnvironmentNameChanged -> handle(currentState)
         }
 
-    //TODO: Better way to pass the correct state each time?
-    //TODO: Mutate state functions each?
-    private fun SetupEnvironmentAction.OnEnvironmentsDirectoryChanged.handle() {
+    private fun SetupEnvironmentAction.OnEnvironmentsDirectoryChanged.handle(currentState: SetupEnvironment) {
         deserializeJob?.cancel()
 
-        mutableState = mutableState.asSetupEnvironment().copy(
+        mutableState = currentState.copy(
             projectDeserializationState = ProjectDeserializationState.Loading(newEnvironmentsDirectory),
         )
 
@@ -70,16 +75,19 @@ internal class CreateProjectPresenter(
                     withContext(uiContext) {
                         when (projectDeserializationResult) {
                             is ProjectDeserializationResult.Success -> {
-                                mutableState = mutableState.asSetupEnvironment().copy(
-                                    projectDeserializationState = ProjectDeserializationState.Valid(
-                                        environmentsDirectory = newEnvironmentsDirectory,
-                                        project = projectDeserializationResult.project,
+                                val newCurrentState = mutableState.asSetupEnvironment() ?: return@withContext
+
+                                mutableState = newCurrentState.copy(
+                                    projectDeserializationState = ProjectDeserializationState.Valid.ExistingProject(
+                                        currentProject = projectDeserializationResult.project,
                                     )
                                 )
                             }
 
                             is ProjectDeserializationResult.Failure -> {
-                                mutableState = mutableState.asSetupEnvironment().copy(
+                                val newCurrentState = mutableState.asSetupEnvironment() ?: return@withContext
+
+                                mutableState = newCurrentState.copy(
                                     projectDeserializationState = ProjectDeserializationState.Invalid(
                                         environmentsDirectory = newEnvironmentsDirectory,
                                         errorMessage = "Invalid directory" //TODO: Lexemes here for all errors
@@ -92,36 +100,34 @@ internal class CreateProjectPresenter(
             }
     }
 
-    private fun SetupEnvironmentAction.OnEnvironmentNameChanged.handle() {
-        mutableState = mutableState.asSetupEnvironment().copy(environmentName = newEnvironmentName)
+    private fun SetupEnvironmentAction.OnEnvironmentNameChanged.handle(currentState: SetupEnvironment) {
+        mutableState = currentState.copy(environmentName = newEnvironmentName)
     }
 
-    private fun SetupSchemaAction.handle() {
+    private fun SetupSchemaAction.handle(currentState: SetupSchema.NewSchema) {
         when (this) {
-            is SetupSchemaAction.OnGlobalSupportedPlatformTypesChanged -> handle()
-            is SetupSchemaAction.OnAddPropertyDefinition -> handle()
-            is SetupSchemaAction.OnPropertyDefinitionNameChanged -> handle()
-            is SetupSchemaAction.OnDeletePropertyDefinition -> handle()
-            is SetupSchemaAction.OnPropertyDefinitionTypeChanged -> handle()
-            is SetupSchemaAction.OnNullableChanged -> handle()
-            is SetupSchemaAction.OnSupportedPlatformTypesChanged -> handle()
+            is SetupSchemaAction.OnGlobalSupportedPlatformTypesChanged -> handle(currentState)
+            is SetupSchemaAction.OnAddPropertyDefinition -> handle(currentState)
+            is SetupSchemaAction.OnPropertyDefinitionNameChanged -> handle(currentState)
+            is SetupSchemaAction.OnDeletePropertyDefinition -> handle(currentState)
+            is SetupSchemaAction.OnPropertyDefinitionTypeChanged -> handle(currentState)
+            is SetupSchemaAction.OnNullableChanged -> handle(currentState)
+            is SetupSchemaAction.OnSupportedPlatformTypesChanged -> handle(currentState)
         }
     }
 
-    private fun SetupSchemaAction.OnGlobalSupportedPlatformTypesChanged.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-
+    private fun SetupSchemaAction.OnGlobalSupportedPlatformTypesChanged.handle(currentState: SetupSchema.NewSchema) {
         val newGlobalSupportedPlatformTypes = if (isChecked) {
-            if (setupSchema.globalSupportedPlatformTypes != null) {
-                setupSchema.globalSupportedPlatformTypes.add(newPlatformType)
+            if (currentState.globalSupportedPlatformTypes != null) {
+                currentState.globalSupportedPlatformTypes.add(newPlatformType)
             } else {
                 setOf(newPlatformType).toUnsafeNonEmptySet()
             }
         } else {
-            setupSchema.globalSupportedPlatformTypes?.remove(newPlatformType)
+            currentState.globalSupportedPlatformTypes?.remove(newPlatformType)
         }
 
-        val newPropertyDefinitions = setupSchema.propertyDefinitions.map { propertyDefinition ->
+        val newPropertyDefinitions = currentState.propertyDefinitions.map { propertyDefinition ->
             propertyDefinition.copy(
                 supportedPlatformTypes =
                     if (propertyDefinition.supportedPlatformTypes != null && newGlobalSupportedPlatformTypes != null) {
@@ -132,63 +138,54 @@ internal class CreateProjectPresenter(
             )
         }
 
-        mutableState = setupSchema.copy(
+        mutableState = currentState.copy(
             globalSupportedPlatformTypes = newGlobalSupportedPlatformTypes,
             propertyDefinitions = newPropertyDefinitions,
         )
     }
 
-    private fun SetupSchemaAction.OnAddPropertyDefinition.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-        mutableState = setupSchema.copy(
-            propertyDefinitions = setupSchema.propertyDefinitions + SetupSchema.PropertyDefinition(
-                //TODO: Maybe function
-                supportedPlatformTypes = setupSchema.globalSupportedPlatformTypes,
-            ),
+    private fun SetupSchemaAction.OnAddPropertyDefinition.handle(currentState: SetupSchema.NewSchema) {
+        mutableState = currentState.copy(
+            propertyDefinitions = currentState.propertyDefinitions + currentState.emptyPropertyDefinition(),
         )
     }
 
-    private fun SetupSchemaAction.OnPropertyDefinitionNameChanged.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-        mutableState = setupSchema.copy(
-            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+    private fun SetupSchemaAction.OnPropertyDefinitionNameChanged.handle(currentState: SetupSchema.NewSchema) {
+        mutableState = currentState.copy(
+            propertyDefinitions = currentState.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
                 propertyDefinition.copy(name = newPropertyName)
             }
         )
     }
 
-    private fun SetupSchemaAction.OnDeletePropertyDefinition.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-        mutableState = setupSchema.copy(
-            propertyDefinitions = setupSchema.propertyDefinitions.removeElementAtIndex(index)
+    private fun SetupSchemaAction.OnDeletePropertyDefinition.handle(currentState: SetupSchema.NewSchema) {
+        mutableState = currentState.copy(
+            propertyDefinitions = currentState.propertyDefinitions.removeElementAtIndex(index)
         )
     }
 
-    private fun SetupSchemaAction.OnPropertyDefinitionTypeChanged.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-        mutableState = setupSchema.copy(
-            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+    private fun SetupSchemaAction.OnPropertyDefinitionTypeChanged.handle(currentState: SetupSchema.NewSchema) {
+        mutableState = currentState.copy(
+            propertyDefinitions = currentState.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
                 propertyDefinition.copy(propertyType = newPropertyType)
             }
         )
     }
 
-    private fun SetupSchemaAction.OnNullableChanged.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-        mutableState = setupSchema.copy(
-            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+    private fun SetupSchemaAction.OnNullableChanged.handle(currentState: SetupSchema.NewSchema) {
+        mutableState = currentState.copy(
+            propertyDefinitions = currentState.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
                 propertyDefinition.copy(nullable = newNullable)
             }
         )
     }
 
-    private fun SetupSchemaAction.OnSupportedPlatformTypesChanged.handle() {
-        val setupSchema = mutableState.asSetupSchema()
-        mutableState = setupSchema.copy(
-            propertyDefinitions = setupSchema.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
+    private fun SetupSchemaAction.OnSupportedPlatformTypesChanged.handle(currentState: SetupSchema.NewSchema) {
+        mutableState = currentState.copy(
+            propertyDefinitions = currentState.propertyDefinitions.updateElementByIndex(index) { propertyDefinition ->
                 propertyDefinition.copy(
                     supportedPlatformTypes = if (isChecked) {
-                        if (setupSchema.globalSupportedPlatformTypes?.contains(newPlatformType) == true) {
+                        if (currentState.globalSupportedPlatformTypes?.contains(newPlatformType) == true) {
                             propertyDefinition.supportedPlatformTypes?.add(newPlatformType)
                         } else {
                             propertyDefinition.supportedPlatformTypes
@@ -201,144 +198,98 @@ internal class CreateProjectPresenter(
         )
     }
 
-    private fun SetupPropertiesAction.handle() =
+    private fun SetupPlatformsAction.handle(currentState: SetupPlatforms) =
         when (this) {
-            is SetupPropertiesAction.OnPropertyValueChanged -> handle()
+            is SetupPlatformsAction.OnPropertyValueChanged -> when (currentState) {
+                is SetupPlatforms.NewProject -> handle(currentState)
+                is SetupPlatforms.ExistingProject -> handle(currentState)
+            }
         }
 
-    private fun SetupPropertiesAction.OnPropertyValueChanged.handle() {
-        val setupPlatforms = mutableState.asSetupPlatforms()
-        mutableState = setupPlatforms.copy(
-            platforms = setupPlatforms.platforms.updateElementByIndex(index) { platform ->
-                if (platform.platformType == platformType) {
-                    platform.copy(
-                        properties = platform.properties.updateElementByIndex(index) { property ->
-                            property.copy(value = newPropertyValue)
-                        }
-                    )
-                } else {
-                    platform
-                }
-            }
+    private fun SetupPlatformsAction.OnPropertyValueChanged.handle(currentState: SetupPlatforms.NewProject) {
+        val platform = currentState.platforms.getValue(platformType)
+
+        mutableState = currentState.copy(
+            platforms = currentState.platforms.updateElementByKey(
+                newValue = platform.copy(
+                    properties = platform.properties.updateElementByIndex(index) { property ->
+                        property.copy(value = newPropertyValue)
+                    }
+                )
+            )
         )
     }
 
-    // TODO: Refactor (sep in different action handling + how to get correct next state on each?)
-    private fun NavigationAction.handle() =
+    private fun SetupPlatformsAction.OnPropertyValueChanged.handle(currentState: SetupPlatforms.ExistingProject) {
+        val environment = currentState.currentProject.environments?.getValue(currentState.environmentName.value)
+        val platform = environment?.platforms?.getValue(platformType) ?: return
+
+        val newEnvironment = environment.copy(
+            platforms = environment.platforms.updateElementByKey(
+                newValue = platform.copy(
+                    properties = platform.properties.updateElementByIndex(index) { property ->
+                        property.copy(
+                            value = newPropertyValue,
+                        )
+                    }
+                )
+            )
+        )
+
+        val newProject = currentState.currentProject.updateEnvironment(newEnvironment) ?: return
+
+        mutableState = currentState.copy(currentProject = newProject)
+    }
+
+    private fun NavigationAction.handle() {
         when (this) {
-            is NavigationAction.Previous -> {
-                val currentState = mutableState
-                when (currentState) {
-                    is SetupEnvironment -> Unit
-                    is SetupSchema -> {
-                        mutableState = SetupEnvironment(
-                            projectDeserializationState = ProjectDeserializationState.Valid(
-                                environmentsDirectory = currentState.environmentsDirectory,
-                                project = currentState.currentProject,
-                            ),
-                            environmentName = currentState.environmentName,
-                        )
-                    }
+            is NavigationAction.Previous -> handle()
+            is NavigationAction.Next -> handle()
+            is NavigationAction.Finish -> handle()
+        }
+    }
 
-                    is SetupPlatforms -> {
-                        mutableState = SetupSchema(
-                            environmentsDirectory = currentState.environmentsDirectory,
-                            environmentName = currentState.environmentName,
-                            currentProject = currentState.currentProject,
-                            globalSupportedPlatformTypes = currentState.schema.globalSupportedPlatformTypes,
-                            propertyDefinitions = currentState.schema.propertyDefinitions.values.map { propertyDefinition ->
-                                propertyDefinition.toSetupSchemaPropertyDefinition()
-                            },
-                        )
-                    }
-                }
+    private fun NavigationAction.Previous.handle() {
+        val currentState = mutableState
+        when (currentState) {
+            is SetupEnvironment -> Unit
+            is SetupSchema -> {
+                //TODO: Here
             }
 
-            is NavigationAction.Next -> {
-                val currentState = mutableState
-                when (currentState) {
-                    is SetupEnvironment -> {
-                        val projectDeserializationState =
-                            currentState.projectDeserializationState as ProjectDeserializationState.Valid
-
-                        mutableState = SetupSchema(
-                            environmentsDirectory = projectDeserializationState.environmentsDirectory,
-                            environmentName = requireNotNull(currentState.environmentName),
-                            currentProject = projectDeserializationState.project,
-                        )
-                    }
-
-                    is SetupSchema -> {
-                        val schema = requireNotNull(
-                            schemaOf(
-                                globalSupportedPlatformTypes = requireNotNull(currentState.globalSupportedPlatformTypes),
-                                propertyDefinitions = currentState.propertyDefinitions.map { propertyDefinition ->
-                                    propertyDefinition.toSchemaPropertyDefinition()
-                                }.toUnsafeNonEmptyKeyStore(),
-                            )
-                        )
-                        mutableState = SetupPlatforms(
-                            environmentsDirectory = currentState.environmentsDirectory,
-                            environmentName = currentState.environmentName,
-                            currentProject = currentState.currentProject,
-                            schema = schema,
-                            platforms = requireNotNull(
-                                schema.globalSupportedPlatformTypes.map { globalSupportedPlatformType ->
-                                    Platform(
-                                        platformType = globalSupportedPlatformType,
-                                        properties = requireNotNull(
-                                            schema.propertyDefinitions.values.map { propertyDefinition ->
-                                                Platform.Property(
-                                                    name = propertyDefinition.name,
-                                                    value = when (propertyDefinition.propertyType) {
-                                                        PropertyType.STRING -> PropertyValue.StringProperty("value".toUnsafeNonEmptyString())
-                                                        PropertyType.BOOLEAN -> PropertyValue.BooleanProperty(false)
-                                                    },
-                                                )
-                                            }.toNonEmptyKeySetStore()
-                                        )
-                                    )
-                                }.toNonEmptyKeySetStore()
-                            )
-                        )
-                    }
-
-                    is SetupPlatforms -> Unit
-                }
-            }
-
-            is NavigationAction.Finish -> {
-                val currentState = mutableState
-                when (currentState) {
-                    is SetupEnvironment -> Unit
-                    is SetupSchema -> Unit
-                    is SetupPlatforms -> {
-                        val newEnvironments = setOf(
-                            Environment(
-                                name = currentState.environmentName,
-                                platforms = currentState.platforms,
-                            )
-                        ).toUnsafeNonEmptyKeyStore()
-
-                        val project = if (currentState.currentProject != null) {
-                            requireNotNull(currentState.currentProject.addEnvironments(newEnvironments))
-                        } else {
-                            val projectValidationResult = projectOf(
-                                environmentsDirectory = currentState.environmentsDirectory,
-                                schema = currentState.schema,
-                                properties = Properties(),
-                                environments = newEnvironments,
-                            ) as ProjectValidationResult.Success
-                            projectValidationResult.project
-                        }
-
-                        onFinish(project)
-                    }
-                }
+            is SetupPlatforms -> {
+                //TODO: Here
             }
         }
+    }
 
-    private fun SetupSchema.PropertyDefinition.toSchemaPropertyDefinition(): Schema.PropertyDefinition =
+    private fun NavigationAction.Next.handle() {
+        val currentState = mutableState
+        when (currentState) {
+            is SetupEnvironment -> {
+                //TODO: Here
+            }
+
+            is SetupSchema -> {
+                //TODO: Here
+            }
+
+            is SetupPlatforms -> Unit
+        }
+    }
+
+    private fun NavigationAction.Finish.handle() {
+        val currentState = mutableState
+        when (currentState) {
+            is SetupEnvironment -> Unit
+            is SetupSchema -> Unit
+            is SetupPlatforms -> {
+                //TODO: Here
+            }
+        }
+    }
+
+    private fun SetupSchema.NewSchema.PropertyDefinition.toSchemaPropertyDefinition(): Schema.PropertyDefinition =
         Schema.PropertyDefinition(
             name = requireNotNull(name),
             propertyType = propertyType,
@@ -346,8 +297,8 @@ internal class CreateProjectPresenter(
             supportedPlatformTypes = requireNotNull(supportedPlatformTypes),
         )
 
-    private fun Schema.PropertyDefinition.toSetupSchemaPropertyDefinition(): SetupSchema.PropertyDefinition =
-        SetupSchema.PropertyDefinition(
+    private fun Schema.PropertyDefinition.toSetupSchemaPropertyDefinition(): SetupSchema.NewSchema.PropertyDefinition =
+        SetupSchema.NewSchema.PropertyDefinition(
             name = name,
             propertyType = propertyType,
             nullable = nullable,

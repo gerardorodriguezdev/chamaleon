@@ -25,7 +25,7 @@ public data class Environment(
     val jvmPlatform: Platform get() = platform(PlatformType.JVM)
     val jvmPlatformOrNull: Platform? = platformOrNull(PlatformType.JVM)
 
-    private fun Environment.platform(platformType: PlatformType): Platform = platforms.getValue(platformType)
+    private fun platform(platformType: PlatformType): Platform = platforms.getValue(platformType)
 
-    private fun Environment.platformOrNull(platformType: PlatformType): Platform? = platforms[platformType]
+    private fun platformOrNull(platformType: PlatformType): Platform? = platforms[platformType]
 }
