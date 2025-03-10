@@ -264,35 +264,36 @@ internal class CreateProjectPresenter(
         val currentState = mutableState
         when (currentState) {
             is SetupEnvironment -> Unit
-            is SetupSchema -> {
-                mutableState = SetupEnvironment(
-                    environmentName = currentState.environmentName,
-                    projectDeserializationState = when (currentState) {
-                        is SetupSchema.NewSchema -> ProjectDeserializationState.Valid.NewProject(currentState.environmentsDirectory)
-                        is SetupSchema.ExistingSchema -> ProjectDeserializationState.Valid.ExistingProject(currentState.currentProject)
-                    },
-                )
-            }
-
-            is SetupPlatforms -> {
-                mutableState = when (currentState) {
-                    is SetupPlatforms.NewProject -> SetupSchema.NewSchema(
-                        environmentName = currentState.environmentName,
-                        environmentsDirectory = currentState.environmentsDirectory,
-                        globalSupportedPlatformTypes = currentState.schema.globalSupportedPlatformTypes,
-                        propertyDefinitions = currentState.schema.propertyDefinitions.values.map { propertyDefinition ->
-                            propertyDefinition.toSetupSchemaPropertyDefinition()
-                        },
-                    )
-
-                    is SetupPlatforms.ExistingProject -> SetupSchema.ExistingSchema(
-                        environmentName = currentState.environmentName,
-                        currentProject = currentState.currentProject,
-                    )
-                }
-            }
+            is SetupSchema -> mutableState = currentState.toSetupEnvironment()
+            is SetupPlatforms -> mutableState = currentState.toSetupSchema()
         }
     }
+
+    private fun SetupSchema.toSetupEnvironment(): SetupEnvironment =
+        SetupEnvironment(
+            environmentName = environmentName,
+            projectDeserializationState = when (this) {
+                is SetupSchema.NewSchema -> ProjectDeserializationState.Valid.NewProject(environmentsDirectory)
+                is SetupSchema.ExistingSchema -> ProjectDeserializationState.Valid.ExistingProject(currentProject)
+            },
+        )
+
+    private fun SetupPlatforms.toSetupSchema(): SetupSchema =
+        when (this) {
+            is SetupPlatforms.NewProject -> SetupSchema.NewSchema(
+                environmentName = environmentName,
+                environmentsDirectory = environmentsDirectory,
+                globalSupportedPlatformTypes = schema.globalSupportedPlatformTypes,
+                propertyDefinitions = schema.propertyDefinitions.values.map { propertyDefinition ->
+                    propertyDefinition.toSetupSchemaPropertyDefinition()
+                },
+            )
+
+            is SetupPlatforms.ExistingProject -> SetupSchema.ExistingSchema(
+                environmentName = environmentName,
+                currentProject = currentProject,
+            )
+        }
 
     private fun NavigationAction.Next.handle() {
         val currentState = mutableState
