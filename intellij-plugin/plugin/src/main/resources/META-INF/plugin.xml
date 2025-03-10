@@ -4,6 +4,7 @@
     <vendor>gerardorodriguezdev</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <description>
         <![CDATA[
@@ -18,8 +19,6 @@
     </description>
 
     <resource-bundle>messages.Bundle</resource-bundle>
-
-    <depends>com.intellij.modules.json</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
