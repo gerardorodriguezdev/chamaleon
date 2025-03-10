@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject
 
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
@@ -7,18 +7,18 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowAction.SetupPropertiesAction.OnPropertyValueChanged
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allBooleans
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.SetupPropertiesConstants.allNullableBooleans
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction.SetupPlatformsAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction.SetupPlatformsAction.OnPropertyValueChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.SetupPlatformsConstants.allBooleans
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.SetupPlatformsConstants.allNullableBooleans
 
 @Composable
-fun SetupPropertiesWindow(
-    state: SetupPropertiesState,
-    onAction: (action: SetupPropertiesAction) -> Unit,
+fun SetupPlatformsWindow(
+    state: SetupPlatformsState,
+    onAction: (action: SetupPlatformsAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WindowContainer(
@@ -66,7 +66,7 @@ private fun InputPropertyValue(
     platformType: PlatformType,
     index: Int,
     propertyValue: PropertyValue,
-    onAction: (action: SetupPropertiesAction) -> Unit
+    onAction: (action: SetupPlatformsAction) -> Unit
 ) {
     when (propertyValue) {
         is StringProperty ->
@@ -100,7 +100,7 @@ private fun InputStringProperty(
     platformType: PlatformType,
     index: Int,
     property: StringProperty,
-    onAction: (action: SetupPropertiesAction) -> Unit,
+    onAction: (action: SetupPlatformsAction) -> Unit,
 ) {
     InputTextField(
         label = string(StringsKeys.value),
@@ -122,7 +122,7 @@ private fun InputBooleanProperty(
     platformType: PlatformType,
     index: Int,
     property: BooleanProperty,
-    onAction: (action: SetupPropertiesAction) -> Unit
+    onAction: (action: SetupPlatformsAction) -> Unit
 ) {
     InputTextDropdown(
         label = string(StringsKeys.value),
@@ -152,7 +152,7 @@ private fun InputNullableBooleanProperty(
     platformType: PlatformType,
     index: Int,
     property: NullableBooleanProperty,
-    onAction: (action: SetupPropertiesAction) -> Unit
+    onAction: (action: SetupPlatformsAction) -> Unit
 ) {
     InputTextDropdown(
         label = string(StringsKeys.value),
@@ -177,7 +177,7 @@ private fun InputNullableBooleanProperty(
     )
 }
 
-private object SetupPropertiesConstants {
+private object SetupPlatformsConstants {
     val allBooleans = booleanArrayOf(true, false)
     val allNullableBooleans: Array<Boolean?> = arrayOf(true, false, null)
 }

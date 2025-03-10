@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-internal class CreateProjectPresenter(
+class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
     private val uiContext: CoroutineContext,
     private val ioContext: CoroutineContext,
@@ -38,6 +38,7 @@ internal class CreateProjectPresenter(
 
     private var deserializeJob: Job? = null
 
+    //TODO: Silent errors handling (null ? units noreturn)
     fun dispatch(action: CreateProjectAction) {
         when (action) {
             is SetupEnvironmentAction -> {

@@ -20,7 +20,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionWindowState,
     onRefresh: () -> Unit,
-    onCreateEnvironment: () -> Unit,
+    onCreateProject: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -33,7 +33,7 @@ fun EnvironmentSelectionWindow(
             notificationErrorMessage = state.notificationErrorMessage,
             environmentCardStates = state.environmentCardStates,
             onRefresh = onRefresh,
-            onCreateEnvironment = onCreateEnvironment,
+            onCreateProject = onCreateProject,
             onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
         )
     }
@@ -56,7 +56,7 @@ private fun ContentWindow(
     notificationErrorMessage: String?,
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefresh: () -> Unit,
-    onCreateEnvironment: () -> Unit,
+    onCreateProject: () -> Unit,
     onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -75,7 +75,7 @@ private fun ContentWindow(
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.AddFile,
                         tooltip = string(StringsKeys.createEnvironment),
-                        onClick = onCreateEnvironment,
+                        onClick = onCreateProject,
                     )
 
                     notificationErrorMessage?.let {
@@ -122,7 +122,7 @@ private fun LazyListScope.environmentCards(
 }
 
 data class EnvironmentSelectionWindowState(
-    val gradlePluginVersionUsed: String, // TODO: Update
+    val gradlePluginVersionUsed: String,
     val isLoading: Boolean = true,
     val notificationErrorMessage: String? = null,
     val environmentCardStates: ImmutableList<EnvironmentCardState> = persistentListOf(),

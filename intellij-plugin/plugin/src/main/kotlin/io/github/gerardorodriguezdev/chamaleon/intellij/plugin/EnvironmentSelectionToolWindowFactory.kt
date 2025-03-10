@@ -2,30 +2,35 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presenters.environmentSelectionPresenter.EnvironmentSelectionPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.stringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.onEnvironmentsDirectoryChanged
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.addComposeTab
 import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
-import java.io.File
 
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
+    private val projectSerializer = ProjectSerializer.create()
     private val projectDeserializer = ProjectDeserializer.create()
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
         stringsProvider = stringsProvider,
-        projectDeserializer = projectDeserializer,
         uiDispatcher = Dispatchers.Swing,
         ioDispatcher = Dispatchers.IO,
+        projectSerializer = projectSerializer,
+        projectDeserializer = projectDeserializer,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->
             environmentsDirectory.onEnvironmentsDirectoryChanged()
         },
@@ -42,21 +47,23 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
             SwingBridgeTheme {
                 Theme {
                     EnvironmentSelectionWindow(
-                        state = environmentSelectionPresenter.state.value,
+                        state =, //TODO: Finish
                         onRefresh = {
                             project.scanProject()
                         },
-                        onCreateEnvironment = {
+                        onCreateProject = {
                             val projectDirectoryPath = project.basePath ?: return@EnvironmentSelectionWindow
+                            val projectDirectory =
+                                projectDirectoryPath.toExistingDirectory() ?: return@EnvironmentSelectionWindow
 
-                            EnvironmentCreationDialog(
+                            CreateProjectDialog(
                                 project = project,
-                                projectDirectory = File(projectDirectoryPath),
+                                projectDirectory = projectDirectory,
                                 projectDeserializer = projectDeserializer,
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
-                            project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)
+                            //TODO: Finish
                         },
                     )
                 }
@@ -66,25 +73,20 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
 
     private fun Project.scanProject() {
         val projectDirectoryPath = basePath ?: return
-        val projectDirectory = File(projectDirectoryPath)
-        environmentSelectionPresenter.scanProject(projectDirectory)
+        val projectDirectory = projectDirectoryPath.toExistingDirectory() ?: return
+        environmentSelectionPresenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
     }
 
     private fun Project.onSelectedEnvironmentChanged(
-        environmentsDirectoryPath: String,
-        newSelectedEnvironment: String?
+        environmentsDirectoryPath: NonEmptyString,
+        newSelectedEnvironment: NonEmptyString?
     ) {
-        val projectDirectoryPath = basePath ?: return
-        val projectDirectory = File(projectDirectoryPath)
-        environmentSelectionPresenter.onSelectedEnvironmentChanged(
-            projectDirectory = projectDirectory,
-            environmentsDirectoryPath = environmentsDirectoryPath,
-            newSelectedEnvironment = newSelectedEnvironment,
+        environmentSelectionPresenter.dispatch(
+            EnvironmentSelectionAction.SelectEnvironment(
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                newSelectedEnvironment = newSelectedEnvironment,
+            )
         )
-    }
-
-    private fun File.onEnvironmentsDirectoryChanged() {
-        VfsUtil.markDirtyAndRefresh(true, true, true, this)
     }
 
     override fun dispose() {

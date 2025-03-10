@@ -7,7 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 //TODO: Mutate state functions each with either?
-internal sealed interface CreateProjectState {
+sealed interface CreateProjectState {
     fun asSetupEnvironment(): SetupEnvironment? = this as? SetupEnvironment
     fun asSetupSchemaNewSchema(): SetupSchema.NewSchema? = this as? SetupSchema.NewSchema
     fun asSetupPlatforms(): SetupPlatforms? = this as? SetupPlatforms

@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.env
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toNonEmptySet
@@ -17,13 +18,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-internal class EnvironmentSelectionPresenter(
+class EnvironmentSelectionPresenter(
     private val stringsProvider: StringsProvider,
     private val projectSerializer: ProjectSerializer,
     private val projectDeserializer: ProjectDeserializer,
     private val uiDispatcher: CoroutineDispatcher,
     ioDispatcher: CoroutineDispatcher,
-    private val onEnvironmentsDirectoryChanged: (newEnvironmentsDirectoryPath: NonEmptyString) -> Unit,
+    private val onEnvironmentsDirectoryChanged: (newEnvironmentsDirectory: ExistingDirectory) -> Unit,
 ) {
     private val mutableStateFlow = MutableStateFlow<EnvironmentSelectionState>(EnvironmentSelectionState())
     val stateFlow: StateFlow<EnvironmentSelectionState> = mutableStateFlow
@@ -105,7 +106,7 @@ internal class EnvironmentSelectionPresenter(
 
                             withContext(uiDispatcher) {
                                 mutableState = mutableState.copy(projects = newProjects)
-                                onEnvironmentsDirectoryChanged(newProject.environmentsDirectory.path)
+                                onEnvironmentsDirectoryChanged(newProject.environmentsDirectory)
                             }
                         }
 

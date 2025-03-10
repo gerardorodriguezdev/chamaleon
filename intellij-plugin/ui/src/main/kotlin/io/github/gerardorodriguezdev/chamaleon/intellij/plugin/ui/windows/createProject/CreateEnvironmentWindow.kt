@@ -1,18 +1,18 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createEnvironment.CreateEnvironmentWindowState.SetupPropertiesState.Platform.Property.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun CreateEnvironmentWindow(
-    state: CreateEnvironmentWindowState,
-    onAction: (action: CreateEnvironmentWindowAction) -> Unit,
+fun CreateProjectWindow(
+    state: CreateProjectWindowState,
+    onAction: (action: CreateProjectWindowAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (state) {
@@ -29,25 +29,25 @@ fun CreateEnvironmentWindow(
                 onAction = onAction,
             )
 
-        is SetupPropertiesState ->
-            SetupPropertiesWindow(
+        is SetupPlatformsState ->
+            SetupPlatformsWindow(
                 state = state,
                 onAction = onAction,
             )
     }
 }
 
-sealed interface CreateEnvironmentWindowState {
+sealed interface CreateProjectWindowState {
     data class SetupEnvironmentState(
         val environmentsDirectoryPathField: Field<String> = Field(value = ""),
         val environmentNameField: Field<String> = Field(value = ""),
-    ) : CreateEnvironmentWindowState
+    ) : CreateProjectWindowState
 
     data class SetupSchemaState(
         val title: String,
         val globalSupportedPlatforms: ImmutableList<PlatformType>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
-    ) : CreateEnvironmentWindowState {
+    ) : CreateProjectWindowState {
         data class PropertyDefinition(
             val nameField: Field<String>,
             val propertyType: PropertyType,
@@ -56,9 +56,9 @@ sealed interface CreateEnvironmentWindowState {
         )
     }
 
-    data class SetupPropertiesState(
+    data class SetupPlatformsState(
         val platforms: ImmutableList<Platform>,
-    ) : CreateEnvironmentWindowState {
+    ) : CreateProjectWindowState {
         data class Platform(
             val platformType: PlatformType,
             val properties: ImmutableList<Property>,
@@ -89,13 +89,13 @@ sealed interface CreateEnvironmentWindowState {
     }
 }
 
-sealed interface CreateEnvironmentWindowAction {
-    sealed interface SetupEnvironmentAction : CreateEnvironmentWindowAction {
+sealed interface CreateProjectWindowAction {
+    sealed interface SetupEnvironmentAction : CreateProjectWindowAction {
         data object OnSelectEnvironmentPath : SetupEnvironmentAction
         data class OnEnvironmentNameChanged(val newName: String) : SetupEnvironmentAction
     }
 
-    sealed interface SetupSchemaAction : CreateEnvironmentWindowAction {
+    sealed interface SetupSchemaAction : CreateProjectWindowAction {
         data class OnSupportedPlatformChanged(
             val isChecked: Boolean,
             val newPlatformType: PlatformType,
@@ -113,11 +113,11 @@ sealed interface CreateEnvironmentWindowAction {
         ) : SetupSchemaAction
     }
 
-    sealed interface SetupPropertiesAction : CreateEnvironmentWindowAction {
+    sealed interface SetupPlatformsAction : CreateProjectWindowAction {
         data class OnPropertyValueChanged(
             val platformType: PlatformType,
             val index: Int,
             val newValue: PropertyValue,
-        ) : SetupPropertiesAction
+        ) : SetupPlatformsAction
     }
 }
