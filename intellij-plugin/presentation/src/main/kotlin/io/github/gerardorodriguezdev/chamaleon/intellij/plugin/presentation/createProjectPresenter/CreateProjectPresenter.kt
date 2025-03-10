@@ -1,9 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Project
-import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.models.*
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.utils.removeElementAtIndex
 import io.github.gerardorodriguezdev.chamaleon.core.utils.updateElementByIndex
@@ -37,17 +40,23 @@ internal class CreateProjectPresenter(
         when (action) {
             is SetupEnvironmentAction -> {
                 val currentState = mutableState.asSetupEnvironment()
-                if (currentState != null) action.handle(currentState)
+                currentState?.let {
+                    action.handle(currentState)
+                }
             }
 
             is SetupSchemaAction -> {
                 val currentState = mutableState.asSetupSchemaNewSchema()
-                if (currentState != null) action.handle(currentState)
+                currentState?.let {
+                    action.handle(currentState)
+                }
             }
 
             is SetupPlatformsAction -> {
                 val currentState = mutableState.asSetupPlatforms()
-                if (currentState != null) action.handle(currentState)
+                currentState?.let {
+                    action.handle(currentState)
+                }
             }
 
             is NavigationAction -> action.handle()
@@ -271,12 +280,65 @@ internal class CreateProjectPresenter(
             }
 
             is SetupSchema -> {
-                //TODO: Here
+                val setupPlatforms = currentState.toSetupPlatforms()
+                setupPlatforms?.let {
+                    mutableState = setupPlatforms
+                }
             }
 
             is SetupPlatforms -> Unit
         }
     }
+
+    private fun SetupSchema.toSetupPlatforms(): SetupPlatforms? {
+        return when (this) {
+            is SetupSchema.NewSchema -> toSetupPlatformsNewProject()
+            is SetupSchema.ExistingSchema -> SetupPlatforms.ExistingProject(
+                environmentName = environmentName,
+                currentProject = currentProject,
+            )
+        }
+    }
+
+    private fun SetupSchema.NewSchema.toSetupPlatformsNewProject(): SetupPlatforms.NewProject? {
+        val schema = toSchema() ?: return null
+
+        return SetupPlatforms.NewProject(
+            environmentName = environmentName,
+            environmentsDirectory = environmentsDirectory,
+            schema = schema,
+            platforms = schema.toEmptyPlatforms() ?: return null,
+        )
+    }
+
+    private fun SetupSchema.NewSchema.toSchema(): Schema? {
+        return schemaOf(
+            globalSupportedPlatformTypes = globalSupportedPlatformTypes ?: return null,
+            propertyDefinitions = propertyDefinitions.map { propertyDefinition ->
+                propertyDefinition.toSchemaPropertyDefinition() ?: return null
+            }.toNonEmptyKeySetStore() ?: return null,
+        )
+    }
+
+    private fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform>? {
+        return globalSupportedPlatformTypes.map { globalSupportedPlatformType ->
+            Platform(
+                platformType = globalSupportedPlatformType,
+                properties = propertyDefinitions.values.map { propertyDefinition ->
+                    propertyDefinition.toEmptyProperty()
+                }.toNonEmptyKeySetStore() ?: return null,
+            )
+        }.toNonEmptyKeySetStore()
+    }
+
+    private fun Schema.PropertyDefinition.toEmptyProperty(): Platform.Property =
+        Platform.Property(
+            name = name,
+            value = when (propertyType) {
+                PropertyType.STRING -> PropertyValue.StringProperty("value".toUnsafeNonEmptyString())
+                PropertyType.BOOLEAN -> PropertyValue.BooleanProperty(false)
+            },
+        )
 
     private fun NavigationAction.Finish.handle() {
         val currentState = mutableState
@@ -289,13 +351,14 @@ internal class CreateProjectPresenter(
         }
     }
 
-    private fun SetupSchema.NewSchema.PropertyDefinition.toSchemaPropertyDefinition(): Schema.PropertyDefinition =
-        Schema.PropertyDefinition(
-            name = requireNotNull(name),
+    private fun SetupSchema.NewSchema.PropertyDefinition.toSchemaPropertyDefinition(): Schema.PropertyDefinition? {
+        return Schema.PropertyDefinition(
+            name = name ?: return null,
             propertyType = propertyType,
             nullable = nullable,
-            supportedPlatformTypes = requireNotNull(supportedPlatformTypes),
+            supportedPlatformTypes = supportedPlatformTypes ?: return null,
         )
+    }
 
     private fun Schema.PropertyDefinition.toSetupSchemaPropertyDefinition(): SetupSchema.NewSchema.PropertyDefinition =
         SetupSchema.NewSchema.PropertyDefinition(
