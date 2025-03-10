@@ -20,6 +20,8 @@ public class NonEmptySet<T> private constructor(public val value: Set<T>) : Set<
         return newSet.toNonEmptySet()
     }
 
+    public infix fun intersect(other: NonEmptySet<T>): NonEmptySet<T> = NonEmptySet(value intersect other.value)
+
     override fun toString(): String = value.toString()
     override fun hashCode(): Int = value.hashCode()
     override fun equals(other: Any?): Boolean = this === other || value == other
