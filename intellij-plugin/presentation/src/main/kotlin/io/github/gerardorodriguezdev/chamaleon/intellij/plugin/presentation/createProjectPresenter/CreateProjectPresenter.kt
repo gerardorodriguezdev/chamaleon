@@ -1,6 +1,5 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -21,7 +20,6 @@ class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
     private val ioScope: CoroutineScope,
     private val projectDeserializer: ProjectDeserializer,
-    private val onFinish: (project: Project) -> Unit,
 ) {
     private val mutableStateFlow = MutableStateFlow<CreateProjectState>(SetupEnvironment())
     val stateFlow: StateFlow<CreateProjectState> = mutableStateFlow
@@ -264,7 +262,7 @@ class CreateProjectPresenter(
             is NavigationAction.OnFinish -> {
                 val project = mutableState.toFinish()
                 project?.let {
-                    onFinish(project)
+                    mutableState = project
                 }
             }
         }

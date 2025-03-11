@@ -2,11 +2,11 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -53,7 +53,12 @@ sealed interface CreateProjectWindowState {
             val propertyType: PropertyType,
             val nullable: Boolean,
             val supportedPlatforms: ImmutableList<PlatformType>,
-        )
+        ) {
+            enum class PropertyType {
+                STRING,
+                BOOLEAN,
+            }
+        }
     }
 
     data class SetupPlatformsState(
@@ -63,6 +68,14 @@ sealed interface CreateProjectWindowState {
             val platformType: PlatformType,
             val properties: ImmutableList<Property>,
         ) {
+            enum class PlatformType {
+                ANDROID,
+                WASM,
+                JS,
+                NATIVE,
+                JVM
+            }
+
             data class Property(
                 val name: String,
                 val value: PropertyValue,

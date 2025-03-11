@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog
 
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.mutableStateOf
@@ -12,22 +12,23 @@ import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.mappers.toCreateProjectAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.mappers.toCreateProjectWindowState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.mappers.toDialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction.SetupEnvironmentAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectPresenter
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindow
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupEnvironmentState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.runBackgroundTask
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showFailureNotification
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showSuccessNotification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -40,10 +41,10 @@ import javax.swing.JComponent
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
 internal class CreateProjectDialog(
-    project: Project,
+    private val project: Project,
     projectDirectory: ExistingDirectory,
     private val projectDeserializer: ProjectDeserializer,
-) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
+) : BaseDialog(dialogTitle = BundleStringsProvider.string(StringsKeys.createEnvironment)) {
     private val uiScope = CoroutineScope(Dispatchers.Swing)
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -51,15 +52,29 @@ internal class CreateProjectDialog(
         uiScope = uiScope,
         ioScope = ioScope,
         projectDeserializer = projectDeserializer,
-        onFinish = { chamaleonProject -> project.generateEnvironments(chamaleonProject) }
     )
 
-    private val createProjectWindowState = mutableStateOf<CreateProjectWindowState>(SetupEnvironmentState())
+    private val createProjectWindowState =
+        mutableStateOf<CreateProjectWindowState>(CreateProjectWindowState.SetupEnvironmentState())
 
     init {
         collectState()
 
-        presenter.dispatch(SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(projectDirectory))
+        presenter.dispatch(CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(projectDirectory))
+    }
+
+    private fun collectState() {
+        uiScope.launch {
+            presenter.stateFlow.collect { createProjectState ->
+                val projectDirectoryPath = project.basePath ?: return@collect
+                val newState =
+                    createProjectState.toCreateProjectWindowState(projectDirectoryPath, BundleStringsProvider)
+                        ?: return@collect
+                createProjectWindowState.value = newState
+                setDialogButtonsState(createProjectState.toDialogButtonsState())
+                if (createProjectState is CreateProjectState.Finish) project.generateEnvironments(createProjectState.project)
+            }
+        }
     }
 
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
@@ -71,8 +86,31 @@ internal class CreateProjectDialog(
                 Theme {
                     CreateProjectWindow(
                         state = createProjectWindowState.value,
-                        onAction = { action -> presenter.dispatch(action.toCreateEnvironmentAction()) },
-                        modifier = Modifier.requiredSize(LocalWindowInfo.current.containerSize.toSize().toDpSize())
+                        onAction = { action ->
+                            when (action) {
+                                is CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> {
+                                    val newSelectedEnvironmentDirectory =
+                                        project.selectFileDirectoryPath()?.toExistingDirectory()
+                                    newSelectedEnvironmentDirectory?.let {
+                                        presenter.dispatch(
+                                            CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(
+                                                newSelectedEnvironmentDirectory
+                                            )
+                                        )
+                                    }
+                                }
+
+                                else -> {
+                                    val action = action.toCreateProjectAction()
+                                    action?.let {
+                                        presenter.dispatch(action)
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.Companion.requiredSize(
+                            LocalWindowInfo.current.containerSize.toSize().toDpSize()
+                        )
                     )
                 }
             }
@@ -82,30 +120,15 @@ internal class CreateProjectDialog(
         }
     }
 
-    private fun collectState() {
-        uiScope.launch {
-            presenter.stateFlow.collect { createEnvironmentState ->
-                createProjectWindowState.value = createEnvironmentState.toWindowState(BundleStringsProvider)
-                setDialogButtonsState(createEnvironmentState.toDialogButtonsState())
-            }
-        }
-    }
-
     override fun onDialogAction(action: DialogAction) {
-        presenter.dispatch(action.toCreateEnvironmentAction())
-    }
-
-    override fun dispose() {
-        uiScope.cancel()
-        ioScope.cancel()
-        super.dispose()
+        presenter.dispatch(action.toCreateProjectAction())
     }
 
     private fun Project.generateEnvironments(chamaleonProject: ChamaleonProject) {
         runBackgroundTask(
-            taskName = string(StringsKeys.generateEnvironment),
+            taskName = BundleStringsProvider.string(StringsKeys.generateEnvironment),
             task = { indicator ->
-                val projectSerializer = ProjectSerializer.create()
+                val projectSerializer = ProjectSerializer.Companion.create()
                 val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
                 when (projectSerializationResult) {
                     is ProjectSerializationResult.Success -> {
@@ -121,6 +144,12 @@ internal class CreateProjectDialog(
                 }
             }
         )
+    }
+
+    override fun dispose() {
+        uiScope.cancel()
+        ioScope.cancel()
+        super.dispose()
     }
 
     private companion object {

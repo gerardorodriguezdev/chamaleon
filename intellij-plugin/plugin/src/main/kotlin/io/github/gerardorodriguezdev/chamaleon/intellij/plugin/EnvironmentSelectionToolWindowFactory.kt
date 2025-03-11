@@ -11,6 +11,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.CreateProjectDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys

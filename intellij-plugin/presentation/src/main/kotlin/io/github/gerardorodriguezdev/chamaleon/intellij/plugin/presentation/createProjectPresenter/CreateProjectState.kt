@@ -19,7 +19,7 @@ sealed interface CreateProjectState {
 
     fun toPrevious(): CreateProjectState?
     fun toNext(): CreateProjectState?
-    fun toFinish(): Project?
+    fun toFinish(): CreateProjectState?
 
     data class SetupEnvironment(
         val projectDeserializationState: ProjectDeserializationState? = null,
@@ -46,7 +46,7 @@ sealed interface CreateProjectState {
             }
         }
 
-        override fun toFinish(): Project? = null
+        override fun toFinish(): CreateProjectState? = null
 
         sealed interface ProjectDeserializationState {
             data class Loading(
@@ -78,7 +78,7 @@ sealed interface CreateProjectState {
                 },
             )
 
-        override fun toFinish(): Project? = null
+        override fun toFinish(): CreateProjectState? = null
 
         data class NewSchema(
             override val environmentName: NonEmptyString,
@@ -179,7 +179,7 @@ sealed interface CreateProjectState {
                     },
                 )
 
-            override fun toFinish(): Project? {
+            override fun toFinish(): CreateProjectState? {
                 val projectValidationResult = projectOf(
                     environmentsDirectory = environmentsDirectory,
                     schema = schema,
@@ -193,7 +193,7 @@ sealed interface CreateProjectState {
                 )
 
                 return when (projectValidationResult) {
-                    is ProjectValidationResult.Success -> projectValidationResult.project
+                    is ProjectValidationResult.Success -> Finish(projectValidationResult.project)
                     is ProjectValidationResult.Failure -> null
                 }
             }
@@ -217,7 +217,13 @@ sealed interface CreateProjectState {
                     currentProject = currentProject,
                 )
 
-            override fun toFinish(): Project? = currentProject
+            override fun toFinish(): CreateProjectState? = Finish(currentProject)
         }
+    }
+
+    data class Finish(val project: Project) : CreateProjectState {
+        override fun toPrevious(): CreateProjectState? = null
+        override fun toNext(): CreateProjectState? = null
+        override fun toFinish(): CreateProjectState? = null
     }
 }
