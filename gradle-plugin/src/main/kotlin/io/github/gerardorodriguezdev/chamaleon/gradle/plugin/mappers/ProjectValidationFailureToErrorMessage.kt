@@ -29,5 +29,5 @@ private fun ProjectValidationResult.Failure.toErrorMessage(): String =
             "Property value on property '$propertyName' on platform '$platformType' on '$environmentName' is null but not nullable"
 
         is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->
-            "Selected environment '$selectedEnvironmentName' is not present in any existing environment [$existingEnvironmentNames]"
+            "Selected environment '$selectedEnvironmentName' is not present in any existing environment '$existingEnvironmentNames'"
     }

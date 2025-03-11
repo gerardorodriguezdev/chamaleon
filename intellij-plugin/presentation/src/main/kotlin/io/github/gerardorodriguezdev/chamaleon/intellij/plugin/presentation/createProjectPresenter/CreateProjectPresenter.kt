@@ -238,6 +238,7 @@ class CreateProjectPresenter(
             )
         )
 
+        //TODO: Here full error
         val newProject = currentState.currentProject.updateEnvironment(newEnvironment) ?: return
 
         mutableState = currentState.copy(currentProject = newProject)

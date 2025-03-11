@@ -28,6 +28,7 @@ public class Schema private constructor(
     }
 
     public companion object {
+        //TODO: Here full error
         public fun schemaOf(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,

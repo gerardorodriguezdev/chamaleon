@@ -21,7 +21,9 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTh
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.addComposeTab
 import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
@@ -30,11 +32,13 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val projectSerializer = ProjectSerializer.create()
     private val projectDeserializer = ProjectDeserializer.create()
+    private val uiScope = CoroutineScope(Dispatchers.Swing)
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
         stringsProvider = stringsProvider,
-        uiDispatcher = Dispatchers.Swing,
-        ioDispatcher = Dispatchers.IO,
+        uiScope = uiScope,
+        ioScope = ioScope,
         projectSerializer = projectSerializer,
         projectDeserializer = projectDeserializer,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->
@@ -101,6 +105,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     }
 
     override fun dispose() {
-        environmentSelectionPresenter.dispose()
+        uiScope.cancel()
+        ioScope.cancel()
     }
 }

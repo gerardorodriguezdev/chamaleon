@@ -14,16 +14,19 @@ import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerialize
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.asDelegate
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsProvider
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EnvironmentSelectionPresenter(
     private val stringsProvider: StringsProvider,
     private val projectSerializer: ProjectSerializer,
     private val projectDeserializer: ProjectDeserializer,
-    private val uiDispatcher: CoroutineDispatcher,
-    ioDispatcher: CoroutineDispatcher,
+    private val uiScope: CoroutineScope,
+    private val ioScope: CoroutineScope,
     private val onEnvironmentsDirectoryChanged: (newEnvironmentsDirectory: ExistingDirectory) -> Unit,
 ) {
     private val mutableStateFlow = MutableStateFlow<EnvironmentSelectionState>(EnvironmentSelectionState())
@@ -31,7 +34,6 @@ class EnvironmentSelectionPresenter(
 
     private var mutableState by mutableStateFlow.asDelegate()
 
-    private val ioScope = CoroutineScope(ioDispatcher)
     private var scanProjectJob: Job? = null
     private var updateSelectedEnvironmentJob: Job? = null
 
@@ -53,7 +55,7 @@ class EnvironmentSelectionPresenter(
                 val errorMessage = projectDeserializationResults.toErrorMessage()
                 val projects = projectDeserializationResults.toProjects()
 
-                withContext(uiDispatcher) {
+                withContext(uiScope.coroutineContext) {
                     mutableState = mutableState.copy(
                         errorMessage = errorMessage,
                         projects = projects,
@@ -90,11 +92,10 @@ class EnvironmentSelectionPresenter(
     private fun EnvironmentSelectionAction.SelectEnvironment.handle() {
         updateSelectedEnvironmentJob?.cancel()
 
-        val currentProjects = mutableState.projects
-
         updateSelectedEnvironmentJob =
             ioScope
                 .launch {
+                    val currentProjects = mutableState.projects
                     val project = currentProjects?.get(environmentsDirectoryPath.value) ?: return@launch
                     val newProject = project.updateProperties(newSelectedEnvironment) ?: return@launch
 
@@ -104,7 +105,7 @@ class EnvironmentSelectionPresenter(
                         is ProjectSerializationResult.Success -> {
                             val newProjects = currentProjects.updateElementByKey(newProject)
 
-                            withContext(uiDispatcher) {
+                            withContext(uiScope.coroutineContext) {
                                 mutableState = mutableState.copy(projects = newProjects)
                                 onEnvironmentsDirectoryChanged(newProject.environmentsDirectory)
                             }
@@ -113,9 +114,5 @@ class EnvironmentSelectionPresenter(
                         is ProjectSerializationResult.Failure -> Unit
                     }
                 }
-    }
-
-    fun dispose() {
-        ioScope.cancel()
     }
 }
