@@ -1,11 +1,14 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin
 
+import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import io.github.gerardorodriguezdev.chamaleon.core.Versions
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionAction
@@ -15,7 +18,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.Bundle
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.stringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.onEnvironmentsDirectoryChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindowState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.addComposeTab
@@ -25,6 +29,7 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val projectSerializer = ProjectSerializer.create()
     private val projectDeserializer = ProjectDeserializer.create()
+
     private val environmentSelectionPresenter = EnvironmentSelectionPresenter(
         stringsProvider = stringsProvider,
         uiDispatcher = Dispatchers.Swing,
@@ -32,22 +37,24 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         projectSerializer = projectSerializer,
         projectDeserializer = projectDeserializer,
         onEnvironmentsDirectoryChanged = { environmentsDirectory ->
-            environmentsDirectory.onEnvironmentsDirectoryChanged()
+            environmentsDirectory.notifyDirectoryChanged()
         },
     )
 
+    private val environmentSelectionWindowState =
+        mutableStateOf<EnvironmentSelectionWindowState>(
+            EnvironmentSelectionWindowState(gradlePluginVersionUsed = Versions.CORE)
+        )
+
     @OptIn(ExperimentalJewelApi::class)
-    override fun createToolWindowContent(
-        project: Project,
-        toolWindow: ToolWindow
-    ) {
+    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         project.scanProject()
 
         toolWindow.addComposeTab(tabDisplayName = string(StringsKeys.environmentSelectionWindowName)) {
             SwingBridgeTheme {
                 Theme {
                     EnvironmentSelectionWindow(
-                        state =, //TODO: Finish
+                        state = environmentSelectionWindowState.value,
                         onRefresh = {
                             project.scanProject()
                         },
@@ -63,7 +70,10 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
-                            //TODO: Finish
+                            val environmentsDirectoryPath =
+                                environmentsDirectoryPath.toNonEmptyString() ?: return@EnvironmentSelectionWindow
+                            val newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
+                            project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)
                         },
                     )
                 }
