@@ -22,12 +22,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
 
 class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
-    private val uiContext: CoroutineContext,
-    private val ioContext: CoroutineContext,
+    private val ioScope: CoroutineScope,
     private val projectDeserializer: ProjectDeserializer,
     private val onFinish: (project: Project) -> Unit,
 ) {
@@ -39,6 +37,7 @@ class CreateProjectPresenter(
     private var deserializeJob: Job? = null
 
     //TODO: Silent errors handling (null ? units noreturn)
+    //TODO: Maybe states to know if can be navigated and how to do it
     fun dispatch(action: CreateProjectAction) {
         when (action) {
             is SetupEnvironmentAction -> {
@@ -81,10 +80,10 @@ class CreateProjectPresenter(
 
         deserializeJob = uiScope
             .launch {
-                withContext(ioContext) {
+                withContext(ioScope.coroutineContext) {
                     val projectDeserializationResult = projectDeserializer.deserialize(newEnvironmentsDirectory)
 
-                    withContext(uiContext) {
+                    withContext(uiScope.coroutineContext) {
                         when (projectDeserializationResult) {
                             is ProjectDeserializationResult.Success -> {
                                 val newCurrentState = mutableState.asSetupEnvironment() ?: return@withContext
@@ -255,13 +254,13 @@ class CreateProjectPresenter(
 
     private fun NavigationAction.handle() {
         when (this) {
-            is NavigationAction.Previous -> handle()
-            is NavigationAction.Next -> handle()
-            is NavigationAction.Finish -> handle()
+            is NavigationAction.OnPrevious -> handle()
+            is NavigationAction.OnNext -> handle()
+            is NavigationAction.OnFinish -> handle()
         }
     }
 
-    private fun NavigationAction.Previous.handle() {
+    private fun NavigationAction.OnPrevious.handle() {
         val currentState = mutableState
         when (currentState) {
             is SetupEnvironment -> Unit
@@ -296,7 +295,7 @@ class CreateProjectPresenter(
             )
         }
 
-    private fun NavigationAction.Next.handle() {
+    private fun NavigationAction.OnNext.handle() {
         val currentState = mutableState
         when (currentState) {
             is SetupEnvironment -> {
@@ -402,7 +401,7 @@ class CreateProjectPresenter(
             },
         )
 
-    private fun NavigationAction.Finish.handle() {
+    private fun NavigationAction.OnFinish.handle() {
         val currentState = mutableState
         when (currentState) {
             is SetupEnvironment -> Unit

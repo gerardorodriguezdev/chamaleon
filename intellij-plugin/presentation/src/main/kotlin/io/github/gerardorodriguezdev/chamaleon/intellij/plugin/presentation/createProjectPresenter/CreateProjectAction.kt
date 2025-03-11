@@ -56,8 +56,8 @@ sealed interface CreateProjectAction {
     }
 
     sealed interface NavigationAction : CreateProjectAction {
-        data object Previous : NavigationAction
-        data object Next : NavigationAction
-        data object Finish : NavigationAction
+        data object OnPrevious : NavigationAction
+        data object OnNext : NavigationAction
+        data object OnFinish : NavigationAction
     }
 }

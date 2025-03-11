@@ -7,20 +7,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.toSize
-import com.intellij.codeInspection.ex.GlobalInspectionContextImpl.NOTIFICATION_GROUP
-import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
-import com.intellij.openapi.fileChooser.FileChooser
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
-import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.SCHEMA_FILE
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction.SetupEnvironmentAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectPresenter
@@ -31,6 +24,10 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTh
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupEnvironmentState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.runBackgroundTask
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showFailureNotification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showSuccessNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -48,15 +45,13 @@ internal class CreateProjectDialog(
     private val projectDeserializer: ProjectDeserializer,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
     private val uiScope = CoroutineScope(Dispatchers.Swing)
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     private val presenter = CreateProjectPresenter(
         uiScope = uiScope,
-        uiContext = Dispatchers.Swing,
-        ioContext = Dispatchers.IO,
+        ioScope = ioScope,
         projectDeserializer = projectDeserializer,
-        onFinish = { chamaleonProject ->
-            project.generateEnvironments(chamaleonProject)
-        }
+        onFinish = { chamaleonProject -> project.generateEnvironments(chamaleonProject) }
     )
 
     private val createProjectWindowState = mutableStateOf<CreateProjectWindowState>(SetupEnvironmentState())
@@ -76,9 +71,7 @@ internal class CreateProjectDialog(
                 Theme {
                     CreateProjectWindow(
                         state = createProjectWindowState.value,
-                        onAction = { action ->
-                            presenter.dispatch(action.toCreateEnvironmentAction())
-                        },
+                        onAction = { action -> presenter.dispatch(action.toCreateEnvironmentAction()) },
                         modifier = Modifier.requiredSize(LocalWindowInfo.current.containerSize.toSize().toDpSize())
                     )
                 }
@@ -93,7 +86,6 @@ internal class CreateProjectDialog(
         uiScope.launch {
             presenter.stateFlow.collect { createEnvironmentState ->
                 createProjectWindowState.value = createEnvironmentState.toWindowState(BundleStringsProvider)
-
                 setDialogButtonsState(createEnvironmentState.toDialogButtonsState())
             }
         }
@@ -105,112 +97,30 @@ internal class CreateProjectDialog(
 
     override fun dispose() {
         uiScope.cancel()
+        ioScope.cancel()
         super.dispose()
     }
 
-    private fun selectFileDirectory(project: Project): String? {
-        val fileDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-        val selectedDirectory = FileChooser.chooseFile(
-            fileDescriptor,
-            project,
-            null
-        )
-        return selectedDirectory?.path
-    }
+    private fun Project.generateEnvironments(chamaleonProject: ChamaleonProject) {
+        runBackgroundTask(
+            taskName = string(StringsKeys.generateEnvironment),
+            task = { indicator ->
+                val projectSerializer = ProjectSerializer.create()
+                val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
+                when (projectSerializationResult) {
+                    is ProjectSerializationResult.Success -> {
+                        showSuccessNotification(title = "", message = "") //TODO: Lexemes
+                        chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
+                        // TODO: Notify plugin to update files as well
+                    }
 
-    // TODO: Refactor
-    // TODO: Manage errors
-    // TODO: Review isCanceled
-    // TODO: If error cleanup
-    private fun Project.generateEnvironments(project: ChamaleonProject) {
-        backgroundTask(taskName = string(StringsKeys.generateEnvironment)) { indicator ->
-            indicator.fraction = 1.0
-
-            // TODO: More resilient
-            val environmentsDirectory = File(basePath, project.environmentsDirectory.path.value)
-            if (!environmentsDirectory.exists()) {
-                environmentsDirectory.mkdirs()
-            }
-
-            val schemaFile = File(environmentsDirectory, SCHEMA_FILE)
-            val addSchemaResult = projectDeserializer.addSchema(
-                schemaFile = schemaFile,
-                newSchema = toSchema(),
-            )
-            if (addSchemaResult is AddSchemaResult.Failure) {
-                // TODO: Remove
-                println(addSchemaResult)
-
-                project.showFailureNotification()
-                indicator.cancel()
-                return@backgroundTask
-            }
-            indicator.fraction = 50.0
-
-            val addEnvironmentsResult = projectDeserializer.addEnvironments(
-                environmentsDirectory = environmentsDirectory,
-                environments = setOf(toEnvironment())
-            )
-            if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
-                // TODO: Remove
-                println(addEnvironmentsResult)
-
-                project.showFailureNotification()
-                indicator.cancel()
-            }
-            indicator.fraction = 100.0
-
-            project.showSuccessNotification(environmentsDirectory)
-        }
-    }
-
-    private fun Project.backgroundTask(
-        taskName: String,
-        task: (indicator: ProgressIndicator) -> Unit
-    ) {
-        ProgressManager.getInstance().run(
-            object : Task.Backgroundable(this, taskName, true) {
-                override fun run(indicator: ProgressIndicator) {
-                    task(indicator)
+                    is ProjectSerializationResult.Failure -> showFailureNotification(
+                        title = "",
+                        message = ""
+                    ) //TODO: Lexemes
                 }
             }
         )
-    }
-
-    // TODO: Lexemes
-    private fun Project.showSuccessNotification(environmentsDirectory: File) {
-        showNotification(
-            title = "Title",
-            message = "Successful",
-            type = NotificationType.INFORMATION,
-        )
-
-        environmentsDirectory.onEnvironmentsDirectoryChanged()
-        // TODO: Notify plugin to update files as well
-    }
-
-    // TODO: Lexemes
-    // TODO: All errors notified ok
-    private fun Project.showFailureNotification() {
-        showNotification(
-            title = "Title",
-            message = "Error environment",
-            type = NotificationType.ERROR,
-        )
-    }
-
-    private fun Project.showNotification(
-        title: String,
-        message: String,
-        type: NotificationType,
-    ) {
-        @Suppress("UnstableApiUsage")
-        val notification = NOTIFICATION_GROUP.createNotification(
-            title = title,
-            content = message,
-            type = type
-        )
-        Notifications.Bus.notify(notification, this)
     }
 
     private companion object {

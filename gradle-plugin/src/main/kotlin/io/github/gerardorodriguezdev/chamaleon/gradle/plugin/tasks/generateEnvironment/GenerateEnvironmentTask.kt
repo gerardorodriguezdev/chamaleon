@@ -30,7 +30,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         val project = projectProperty.get()
 
         val environments = commands.toEnvironments()
-        val newProject = project.updateEnvironments(environments)
+        val newProject = updateEnvironments(project, environments)
 
         newProject.serialize()
     }
@@ -42,12 +42,15 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
                 throw GenerateEnvironmentTaskException(message = commandsParserResult.error)
         }
 
-    private fun Project.updateEnvironments(environments: NonEmptyKeySetStore<String, Environment>): Project {
-        val newProject = addEnvironments(newEnvironments = environments)
+    private fun updateEnvironments(
+        currentProject: Project,
+        environments: NonEmptyKeySetStore<String, Environment>
+    ): Project {
+        val newProject = currentProject.addEnvironments(newEnvironments = environments)
 
         if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                message = "Environments couldn't be added to existing project on '${environmentsDirectory.path}'"
+                message = "Environments couldn't be added to existing project on '${currentProject.environmentsDirectory.path}'"
             )
         }
 
