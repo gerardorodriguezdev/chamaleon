@@ -3,13 +3,14 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction.SetupPlatformsAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction.SetupPlatformsAction.OnPropertyValueChanged
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.SetupPlatformsConstants.allBooleans
@@ -77,6 +78,14 @@ private fun InputPropertyValue(
                 onAction = onAction,
             )
 
+        is NullableStringProperty ->
+            InputNullableStringProperty(
+                platformType = platformType,
+                index = index,
+                property = propertyValue,
+                onAction = onAction,
+            )
+
         is BooleanProperty ->
             InputBooleanProperty(
                 platformType = platformType,
@@ -110,7 +119,36 @@ private fun InputStringProperty(
                 OnPropertyValueChanged(
                     platformType = platformType,
                     index = index,
-                    newValue = StringProperty(newText),
+                    newValue = StringProperty(
+                        Field(value = newText),
+                    ),
+                )
+            )
+        },
+        trailingIcon = {
+            property.valueField.verification?.let {
+                VerificationIcon(verification = property.valueField.verification)
+            }
+        }
+    )
+}
+
+@Composable
+private fun InputNullableStringProperty(
+    platformType: PlatformType,
+    index: Int,
+    property: NullableStringProperty,
+    onAction: (action: SetupPlatformsAction) -> Unit,
+) {
+    InputTextField(
+        label = string(StringsKeys.value),
+        value = property.value,
+        onValueChange = { newText ->
+            onAction(
+                OnPropertyValueChanged(
+                    platformType = platformType,
+                    index = index,
+                    newValue = NullableStringProperty(newText),
                 )
             )
         },

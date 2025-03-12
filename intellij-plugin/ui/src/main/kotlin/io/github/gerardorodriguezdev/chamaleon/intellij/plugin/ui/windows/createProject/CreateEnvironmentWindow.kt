@@ -68,12 +68,12 @@ sealed interface CreateProjectWindowState {
             val platformType: PlatformType,
             val properties: ImmutableList<Property>,
         ) {
-            enum class PlatformType {
-                ANDROID,
-                WASM,
-                JS,
-                NATIVE,
-                JVM
+            enum class PlatformType(val serialName: String) {
+                ANDROID("android"),
+                WASM("wasm"),
+                JS("js"),
+                NATIVE("native"),
+                JVM("jvm")
             }
 
             data class Property(
@@ -109,17 +109,19 @@ sealed interface CreateProjectWindowAction {
     }
 
     sealed interface SetupSchemaAction : CreateProjectWindowAction {
-        data class OnSupportedPlatformChanged(
+        data class OnGlobalSupportedPlatformTypesChanged(
             val isChecked: Boolean,
             val newPlatformType: PlatformType,
         ) : SetupSchemaAction
 
         data object OnAddPropertyDefinition : SetupSchemaAction
         data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
-        data class OnPropertyNameChanged(val index: Int, val newName: String) : SetupSchemaAction
-        data class OnPropertyTypeChanged(val index: Int, val newPropertyType: PropertyType) : SetupSchemaAction
+        data class OnPropertyDefinitionNameChanged(val index: Int, val newName: String) : SetupSchemaAction
+        data class OnPropertyDefinitionTypeChanged(val index: Int, val newPropertyType: PropertyType) :
+            SetupSchemaAction
+
         data class OnNullableChanged(val index: Int, val newValue: Boolean) : SetupSchemaAction
-        data class OnPropertyDefinitionSupportedPlatformChanged(
+        data class OnSupportedPlatformTypesChanged(
             val index: Int,
             val isChecked: Boolean,
             val newPlatformType: PlatformType

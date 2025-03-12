@@ -23,12 +23,12 @@ sealed interface CreateProjectAction {
 
         data object OnAddPropertyDefinition : SetupSchemaAction
 
+        data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
+
         data class OnPropertyDefinitionNameChanged(
             val index: Int,
             val newPropertyName: NonEmptyString,
         ) : SetupSchemaAction
-
-        data class OnDeletePropertyDefinition(val index: Int) : SetupSchemaAction
 
         data class OnPropertyDefinitionTypeChanged(
             val index: Int,

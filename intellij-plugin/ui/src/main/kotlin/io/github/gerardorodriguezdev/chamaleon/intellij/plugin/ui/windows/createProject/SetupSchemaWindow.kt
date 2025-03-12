@@ -7,15 +7,16 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction.SetupSchemaAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowAction.SetupSchemaAction.*
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupSchemaState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupSchemaState.PropertyDefinition
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.SetupSchemaConstants.allPlatformTypes
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.SetupSchemaConstants.allPropertyTypes
 import kotlinx.collections.immutable.ImmutableList
@@ -35,7 +36,7 @@ fun SetupSchemaWindow(
             globalSupportedPlatformSection(
                 globalSupportedPlatforms = state.globalSupportedPlatforms,
                 onSupportedPlatformChanged = { isChecked, newSupportedPlatform ->
-                    onAction(OnSupportedPlatformChanged(isChecked, newSupportedPlatform))
+                    onAction(OnGlobalSupportedPlatformTypesChanged(isChecked, newSupportedPlatform))
                 },
             )
 
@@ -45,19 +46,19 @@ fun SetupSchemaWindow(
                     onAction(OnAddPropertyDefinition)
                 },
                 onPropertyNameChanged = { index, newName ->
-                    onAction(OnPropertyNameChanged(index, newName))
+                    onAction(OnPropertyDefinitionNameChanged(index, newName))
                 },
                 onDeletePropertyDefinition = { index ->
                     onAction(OnDeletePropertyDefinition(index))
                 },
                 onPropertyTypeChanged = { index, newPropertyType ->
-                    onAction(OnPropertyTypeChanged(index, newPropertyType))
+                    onAction(OnPropertyDefinitionTypeChanged(index, newPropertyType))
                 },
                 onNullableChanged = { index, newValue ->
                     onAction(OnNullableChanged(index, newValue))
                 },
                 onSupportedPlatformChanged = { index, isChecked, newSupportedPlatform ->
-                    onAction(OnPropertyDefinitionSupportedPlatformChanged(index, isChecked, newSupportedPlatform))
+                    onAction(OnSupportedPlatformTypesChanged(index, isChecked, newSupportedPlatform))
                 },
             )
         }
