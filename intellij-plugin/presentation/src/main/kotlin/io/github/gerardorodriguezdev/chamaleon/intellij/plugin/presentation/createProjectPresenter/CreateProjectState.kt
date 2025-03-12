@@ -19,7 +19,7 @@ sealed interface CreateProjectState {
 
     fun toPrevious(): CreateProjectState?
     fun toNext(): CreateProjectState?
-    fun toFinish(): CreateProjectState?
+    fun toFinish(): Finish?
 
     data class SetupEnvironment(
         val projectDeserializationState: ProjectDeserializationState? = null,
@@ -46,7 +46,7 @@ sealed interface CreateProjectState {
             }
         }
 
-        override fun toFinish(): CreateProjectState? = null
+        override fun toFinish(): Finish? = null
 
         sealed interface ProjectDeserializationState {
             data class Loading(
@@ -78,7 +78,7 @@ sealed interface CreateProjectState {
                 },
             )
 
-        override fun toFinish(): CreateProjectState? = null
+        override fun toFinish(): Finish? = null
 
         data class NewSchema(
             override val environmentName: NonEmptyString,
@@ -179,7 +179,7 @@ sealed interface CreateProjectState {
                     },
                 )
 
-            override fun toFinish(): CreateProjectState? {
+            override fun toFinish(): Finish? {
                 val projectValidationResult = projectOf(
                     environmentsDirectory = environmentsDirectory,
                     schema = schema,
@@ -217,13 +217,13 @@ sealed interface CreateProjectState {
                     currentProject = currentProject,
                 )
 
-            override fun toFinish(): CreateProjectState? = Finish(currentProject)
+            override fun toFinish(): Finish? = Finish(currentProject)
         }
     }
 
     data class Finish(val project: Project) : CreateProjectState {
         override fun toPrevious(): CreateProjectState? = null
         override fun toNext(): CreateProjectState? = null
-        override fun toFinish(): CreateProjectState? = null
+        override fun toFinish(): Finish? = null
     }
 }

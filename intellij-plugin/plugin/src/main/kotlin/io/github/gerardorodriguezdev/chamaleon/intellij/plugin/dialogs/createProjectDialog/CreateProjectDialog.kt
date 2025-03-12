@@ -1,4 +1,4 @@
-package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog
+package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog
 
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.mutableStateOf
@@ -15,10 +15,10 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.mappers.toCreateProjectAction
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.mappers.toCreateProjectWindowState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.createProjectDialog.mappers.toDialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toCreateProjectAction
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toCreateProjectWindowState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toDialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState
@@ -66,13 +66,15 @@ internal class CreateProjectDialog(
     private fun collectState() {
         uiScope.launch {
             presenter.stateFlow.collect { createProjectState ->
+                setDialogButtonsState(createProjectState.toDialogButtonsState())
+                if (createProjectState is CreateProjectState.Finish) project.generateEnvironments(createProjectState.project)
+
                 val projectDirectoryPath = project.basePath ?: return@collect
                 val newState =
                     createProjectState.toCreateProjectWindowState(projectDirectoryPath, BundleStringsProvider)
-                        ?: return@collect
-                createProjectWindowState.value = newState
-                setDialogButtonsState(createProjectState.toDialogButtonsState())
-                if (createProjectState is CreateProjectState.Finish) project.generateEnvironments(createProjectState.project)
+                newState?.let {
+                    createProjectWindowState.value = newState
+                }
             }
         }
     }

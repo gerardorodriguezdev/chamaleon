@@ -22,7 +22,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
+                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.toolWindows.environmentSelectionToolWindow.EnvironmentSelectionToolWindowFactory"
                 id="Chamaleon"
                 anchor="right"
                 icon="/images/expui/toolWindow/pluginIcon.svg"/>

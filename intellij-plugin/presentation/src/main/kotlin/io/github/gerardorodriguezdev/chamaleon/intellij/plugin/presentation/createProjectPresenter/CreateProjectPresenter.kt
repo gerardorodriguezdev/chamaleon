@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+//TODO: Silent errors handling (null ? units noreturn is failure)
 class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
     private val ioScope: CoroutineScope,
@@ -28,7 +29,6 @@ class CreateProjectPresenter(
 
     private var deserializeJob: Job? = null
 
-    //TODO: Silent errors handling (null ? units noreturn)
     fun dispatch(action: CreateProjectAction) {
         when (action) {
             is SetupEnvironmentAction -> {
@@ -261,9 +261,9 @@ class CreateProjectPresenter(
             }
 
             is NavigationAction.OnFinish -> {
-                val project = mutableState.toFinish()
-                project?.let {
-                    mutableState = project
+                val newState = mutableState.toFinish()
+                newState?.let {
+                    mutableState = newState
                 }
             }
         }
