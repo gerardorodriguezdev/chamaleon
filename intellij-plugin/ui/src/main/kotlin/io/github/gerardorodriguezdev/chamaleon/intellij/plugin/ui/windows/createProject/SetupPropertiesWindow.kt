@@ -120,7 +120,7 @@ private fun InputStringProperty(
                     platformType = platformType,
                     index = index,
                     newValue = StringProperty(
-                        Field(value = newText),
+                        Field(value = newText, verification = null),
                     ),
                 )
             )

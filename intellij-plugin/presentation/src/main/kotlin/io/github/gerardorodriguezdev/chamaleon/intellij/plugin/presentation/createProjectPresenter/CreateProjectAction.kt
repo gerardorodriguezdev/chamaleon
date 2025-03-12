@@ -12,7 +12,7 @@ sealed interface CreateProjectAction {
             val newEnvironmentsDirectory: ExistingDirectory
         ) : SetupEnvironmentAction
 
-        data class OnEnvironmentNameChanged(val newEnvironmentName: NonEmptyString) : SetupEnvironmentAction
+        data class OnEnvironmentNameChanged(val newEnvironmentName: NonEmptyString?) : SetupEnvironmentAction
     }
 
     sealed interface SetupSchemaAction : CreateProjectAction {
@@ -27,7 +27,7 @@ sealed interface CreateProjectAction {
 
         data class OnPropertyDefinitionNameChanged(
             val index: Int,
-            val newPropertyName: NonEmptyString,
+            val newPropertyName: NonEmptyString?,
         ) : SetupSchemaAction
 
         data class OnPropertyDefinitionTypeChanged(

@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.creat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field.Companion.emptyStringField
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue
@@ -39,8 +40,8 @@ fun CreateProjectWindow(
 
 sealed interface CreateProjectWindowState {
     data class SetupEnvironmentState(
-        val environmentsDirectoryPathField: Field<String> = Field(value = ""),
-        val environmentNameField: Field<String> = Field(value = ""),
+        val environmentsDirectoryPathField: Field<String> = emptyStringField(),
+        val environmentNameField: Field<String> = emptyStringField(),
     ) : CreateProjectWindowState
 
     data class SetupSchemaState(
