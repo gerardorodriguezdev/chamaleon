@@ -15,7 +15,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.create
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState.SetupEnvironmentState
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
-// TODO: Not notification if field not valid
 @Composable
 fun SetupEnvironmentWindow(
     state: SetupEnvironmentState,
