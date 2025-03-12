@@ -19,7 +19,6 @@ public class Project private constructor(
     public val properties: Properties,
     public val environments: NonEmptyKeySetStore<String, Environment>? = null,
 ) : KeyProvider<String> by environmentsDirectory {
-    //TODO: Here full error
     public fun selectedEnvironment(): Environment? = environments?.get(properties.selectedEnvironmentName?.value)
 
     //TODO: Here full error

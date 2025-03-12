@@ -6,7 +6,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Co
 import java.io.File
 import java.io.IOException
 
-//TODO: Here full error?
 public class ExistingDirectory private constructor(public val directory: File) : KeyProvider<String> {
     public val path: NonEmptyString = directory.path.toUnsafeNonEmptyString()
 
@@ -42,14 +41,8 @@ public class ExistingDirectory private constructor(public val directory: File) :
 
     public companion object {
         private fun File.isExistingDirectory(): Boolean = exists() && isDirectory
-
-        //TODO: Here full error
         public fun File.toUnsafeExistingDirectory(): ExistingDirectory = ExistingDirectory(this)
-
-        //TODO: Here full error
         public fun String.toExistingDirectory(): ExistingDirectory? = File(this).toExistingDirectory()
-
-        //TODO: Here full error
         public fun File.toExistingDirectory(createIfNotPresent: Boolean = false): ExistingDirectory? {
             val directory = File(path)
 

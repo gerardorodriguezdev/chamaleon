@@ -4,7 +4,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Co
 import java.io.File
 import java.io.IOException
 
-//TODO: Here full error?
 public class ExistingFile private constructor(file: File) {
     init {
         if (!file.isExistingFile()) throw IllegalArgumentException("File invalid ${file.path}")

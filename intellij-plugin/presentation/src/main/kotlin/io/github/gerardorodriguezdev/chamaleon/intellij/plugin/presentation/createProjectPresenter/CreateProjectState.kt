@@ -59,7 +59,6 @@ sealed interface CreateProjectState {
             ) : ProjectDeserializationState
 
             sealed interface Valid : ProjectDeserializationState {
-                //TODO: Not used
                 data class NewProject(val environmentsDirectory: ExistingDirectory) : Valid
                 data class ExistingProject(val currentProject: Project) : Valid
             }
