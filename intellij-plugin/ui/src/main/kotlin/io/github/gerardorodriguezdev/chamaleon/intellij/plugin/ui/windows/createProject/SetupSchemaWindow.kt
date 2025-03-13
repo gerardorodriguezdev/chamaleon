@@ -212,7 +212,7 @@ private fun SupportedPlatformTypes(
     ) {
         allPlatformTypes.forEach { platformType ->
             InputCheckBox(
-                label = platformType.serialName,
+                label = platformType.platformName,
                 isChecked = supportedPlatformTypes.contains(platformType),
                 forceLabelWidth = false,
                 onCheckedChanged = { isChecked ->

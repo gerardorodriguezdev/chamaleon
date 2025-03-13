@@ -69,7 +69,7 @@ sealed interface CreateProjectWindowState {
             val platformType: PlatformType,
             val properties: ImmutableList<Property>,
         ) {
-            enum class PlatformType(val serialName: String) {
+            enum class PlatformType(val platformName: String) {
                 ANDROID("android"),
                 WASM("wasm"),
                 JS("js"),

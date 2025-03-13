@@ -9,6 +9,8 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.asDe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment.ProjectDeserializationState
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-//TODO: Silent errors handling (null ? units noreturn is failure)
 class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
     private val ioScope: CoroutineScope,
     private val projectDeserializer: ProjectDeserializer,
+    private val stringsProvider: StringsProvider,
 ) {
     private val mutableStateFlow = MutableStateFlow<CreateProjectState>(SetupEnvironment())
     val stateFlow: StateFlow<CreateProjectState> = mutableStateFlow
@@ -92,7 +94,8 @@ class CreateProjectPresenter(
                                 mutableState = newCurrentState.copy(
                                     projectDeserializationState = ProjectDeserializationState.Invalid(
                                         environmentsDirectory = newEnvironmentsDirectory,
-                                        errorMessage = "Invalid directory" //TODO: Lexemes here for all errors
+                                        //TODO: Lexemes of all errors (project validation + invalid schema file + deserialization)
+                                        errorMessage = stringsProvider.string(StringsKeys.invalidEnvironmentsFound)
                                     )
                                 )
                             }
@@ -223,24 +226,15 @@ class CreateProjectPresenter(
     }
 
     private fun SetupPlatformsAction.OnPropertyValueChanged.handle(currentState: SetupPlatforms.ExistingProject) {
-        val environment = currentState.currentProject.environments?.getValue(currentState.environmentName.value)
-        val platform = environment?.platforms?.getValue(platformType) ?: return
+        val currentPlatform = currentState.platforms.getValue(platformType)
+        val newProperties = currentPlatform.properties.updateElementByIndex(index) { property ->
+            property.copy(value = newPropertyValue)
+        }
+        val newPlatform = currentPlatform.copy(properties = newProperties)
 
-        val newEnvironment = environment.copy(
-            platforms = environment.platforms.updateElementByKey(
-                newValue = platform.copy(
-                    properties = platform.properties.updateElementByIndex(index) { property ->
-                        property.copy(
-                            value = newPropertyValue,
-                        )
-                    }
-                )
-            )
+        mutableState = currentState.copy(
+            platforms = currentState.platforms.updateElementByKey(newPlatform)
         )
-
-        val newProject = currentState.currentProject.updateEnvironment(newEnvironment) ?: return
-
-        mutableState = currentState.copy(currentProject = newProject)
     }
 
     private fun NavigationAction.handle() {

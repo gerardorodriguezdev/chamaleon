@@ -36,7 +36,7 @@ fun SetupPlatformsWindow(
             state.platforms.forEach { platform ->
                 item {
                     Section(
-                        title = platform.platformType.serialName,
+                        title = platform.platformType.platformName,
                         enableDivider = true,
                     )
                 }
