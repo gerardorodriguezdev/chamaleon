@@ -3,7 +3,6 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
@@ -44,31 +43,26 @@ public abstract class GenerateSampleTask : DefaultTask() {
         const val PRODUCTION_ENVIRONMENT_PROPERTY_VALUE = "YourPropertyValueForProductionEnvironment"
 
         fun sampleProject(environmentsDirectory: ExistingDirectory): Project =
-            projectValidationResult(environmentsDirectory).project
-
-        private fun projectValidationResult(environmentsDirectory: ExistingDirectory): ProjectValidationResult.Success {
-            val projectValidationResult = projectOf(
-                environmentsDirectory = environmentsDirectory,
-                schema = sampleSchema,
-                properties = sampleProperties,
-                environments = sampleEnvironments,
-            )
-
-            return projectValidationResult as ProjectValidationResult.Success
-        }
-
-        val sampleSchema =
             requireNotNull(
-                schemaOf(
-                    globalSupportedPlatformTypes = setOf(PlatformType.JVM).toUnsafeNonEmptySet(),
-                    propertyDefinitions = setOf(
-                        Schema.PropertyDefinition(
-                            name = PROPERTY_NAME.toUnsafeNonEmptyString(),
-                            propertyType = PropertyType.STRING,
-                        )
-                    ).toUnsafeNonEmptyKeyStore(),
-                ),
+                projectOf(
+                    environmentsDirectory = environmentsDirectory,
+                    schema = sampleSchema,
+                    properties = sampleProperties,
+                    environments = sampleEnvironments,
+                ).project()
             )
+
+        val sampleSchema = requireNotNull(
+            schemaOf(
+                globalSupportedPlatformTypes = setOf(PlatformType.JVM).toUnsafeNonEmptySet(),
+                propertyDefinitions = setOf(
+                    Schema.PropertyDefinition(
+                        name = PROPERTY_NAME.toUnsafeNonEmptyString(),
+                        propertyType = PropertyType.STRING,
+                    )
+                ).toUnsafeNonEmptyKeyStore(),
+            ).schema()
+        )
 
         val sampleProperties = Properties(
             selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME.toUnsafeNonEmptyString(),

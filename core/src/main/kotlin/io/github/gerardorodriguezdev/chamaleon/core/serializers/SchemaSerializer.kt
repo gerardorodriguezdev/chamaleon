@@ -51,8 +51,10 @@ internal object SchemaSerializer : KSerializer<Schema> {
             val globalSupportedPlatformTypes = this.globalSupportedPlatformTypes()
             val propertyDefinitions = propertyDefinitions()
 
-            val schema = schemaOf(globalSupportedPlatformTypes, propertyDefinitions)
-            if (schema == null) throw SerializationException("Property definition contains unsupported platforms")
+            val schema = schemaOf(globalSupportedPlatformTypes, propertyDefinitions).schema()
+            if (schema == null) {
+                throw SerializationException("Property definition contains unsupported platforms")
+            }
 
             schema
         }

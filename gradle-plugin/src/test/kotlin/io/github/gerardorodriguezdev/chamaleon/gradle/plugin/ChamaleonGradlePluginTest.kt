@@ -5,7 +5,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
@@ -165,13 +164,15 @@ class ChamaleonGradlePluginTest {
     private fun createSchemaFile() {
         runBlocking {
             val environmentsDirectory = environmentsDirectory().toUnsafeExistingDirectory()
-            val projectValidationSuccess = projectOf(
-                environmentsDirectory = environmentsDirectory,
-                schema = GenerateSampleTask.sampleSchema,
-                properties = Properties(),
-                environments = null,
-            ) as ProjectValidationResult.Success
-            projectSerializer.serialize(projectValidationSuccess.project)
+            val project = requireNotNull(
+                projectOf(
+                    environmentsDirectory = environmentsDirectory,
+                    schema = GenerateSampleTask.sampleSchema,
+                    properties = Properties(),
+                    environments = null,
+                ).project()
+            )
+            projectSerializer.serialize(project)
         }
     }
 

@@ -1,9 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.core.models
 
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.KeyProvider
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import arrow.core.Either
+import arrow.core.raise.either
+import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaValidationResult
+import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaValidationResult.Failure
+import io.github.gerardorodriguezdev.chamaleon.core.results.SchemaValidationResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.*
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.SchemaSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -31,21 +33,33 @@ public class Schema private constructor(
         public fun schemaOf(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
-        ): Schema? {
-            if (!arePropertyDefinitionsValid(globalSupportedPlatformTypes, propertyDefinitions)) return null
-            return Schema(globalSupportedPlatformTypes, propertyDefinitions)
-        }
+        ): SchemaValidationResult =
+            either {
+                propertyDefinitions.values.forEach { propertyDefinition ->
+                    propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes).bind()
+                }
 
-        private fun arePropertyDefinitionsValid(
-            globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
-            propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
-        ): Boolean =
-            propertyDefinitions.values.all { propertyDefinition ->
-                propertyDefinition.arePlatformsSupported(globalSupportedPlatformTypes)
-            }
+                Success(Schema(globalSupportedPlatformTypes, propertyDefinitions))
+            }.fold(
+                ifLeft = { it },
+                ifRight = { it },
+            )
 
         private fun PropertyDefinition.arePlatformsSupported(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>
-        ): Boolean = supportedPlatformTypes == null || globalSupportedPlatformTypes.containsAll(supportedPlatformTypes)
+        ): Either<Failure, InternalSuccess> =
+            either {
+                when {
+                    supportedPlatformTypes == null -> InternalSuccess
+                    globalSupportedPlatformTypes.containsAll(supportedPlatformTypes) -> InternalSuccess
+                    else -> raise(
+                        Failure.UnsupportedPlatformTypesOnPropertyDefinition(
+                            globalSupportedPlatformTypes = globalSupportedPlatformTypes,
+                            propertyDefinition = this@arePlatformsSupported,
+                            unsupportedPlatformTypes = supportedPlatformTypes - globalSupportedPlatformTypes,
+                        )
+                    )
+                }
+            }
     }
 }

@@ -6,6 +6,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 
 public sealed interface ProjectValidationResult {
+    public fun project(): Project? = (this as? Success)?.project
+
     public data class Success(val project: Project) : ProjectValidationResult
     public sealed interface Failure : ProjectValidationResult {
         public data class EnvironmentMissingPlatforms(
