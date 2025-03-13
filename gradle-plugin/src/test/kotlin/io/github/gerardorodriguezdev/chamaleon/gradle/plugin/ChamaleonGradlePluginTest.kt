@@ -140,7 +140,7 @@ class ChamaleonGradlePluginTest {
             val environmentsFiles = environmentsDirectory.listFiles()
             assertEquals(expected = environmentsFiles.size, actual = 4)
 
-            val propertiesFile = environmentsFiles.propertiesFileOrNull()
+            val propertiesFile = environmentsFiles.propertiesFile()
             val propertiesFileContent = propertiesFile?.readText()
             assertEquals(
                 expected = newPropertiesFileContent,
@@ -294,7 +294,7 @@ class ChamaleonGradlePluginTest {
             return true
         }
 
-        private fun Array<File>.propertiesFileOrNull(): File? = firstOrNull { environmentFile ->
+        private fun Array<File>.propertiesFile(): File? = firstOrNull { environmentFile ->
             environmentFile.name == ChamaleonProject.PROPERTIES_FILE
         }
 

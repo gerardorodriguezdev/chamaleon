@@ -50,10 +50,10 @@ internal object PropertySerializer : KSerializer<Property> {
         if (nonEmptyName == null) throw SerializationException("Property name was empty")
 
         val valueElement = jsonObject["value"]
-        return Property(name = nonEmptyName, value = valueElement.toPropertyValueOrNull())
+        return Property(name = nonEmptyName, value = valueElement.toPropertyValue())
     }
 
-    private fun JsonElement?.toPropertyValueOrNull(): PropertyValue? =
+    private fun JsonElement?.toPropertyValue(): PropertyValue? =
         when {
             this == null -> null
             this is JsonNull -> null
