@@ -2,10 +2,12 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvi
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.serialize
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -58,11 +60,15 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
     }
 
     private fun Project.serialize() {
-        serialize(
-            projectSerializer = projectSerializer,
-            onSuccess = { logger.info("Environments generated successfully at '${environmentsDirectory.path}'") },
-            onFailure = { errorMessage -> throw GenerateEnvironmentTaskException(message = errorMessage) }
-        )
+        runBlocking {
+            when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
+                is ProjectSerializationResult.Success ->
+                    logger.info("Environments generated successfully at '${environmentsDirectory.path}'")
+
+                is ProjectSerializationResult.Failure ->
+                    throw GenerateEnvironmentTaskException(message = updateProjectResult.toErrorMessage())
+            }
+        }
     }
 
     private class GenerateEnvironmentTaskException(message: String) : Exception(message)
