@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.Versions
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -22,6 +21,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTh
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.toExistingDirectory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -68,10 +68,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             project.scanProject()
                         },
                         onCreateProject = {
-                            //TODO: Maybe extension
-                            val projectDirectoryPath = project.basePath ?: return@EnvironmentSelectionWindow
-                            val projectDirectory =
-                                projectDirectoryPath.toExistingDirectory() ?: return@EnvironmentSelectionWindow
+                            val projectDirectory = project.toExistingDirectory() ?: return@EnvironmentSelectionWindow
 
                             CreateProjectDialog(
                                 project = project,
@@ -100,8 +97,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     }
 
     private fun Project.scanProject() {
-        val projectDirectoryPath = basePath ?: return
-        val projectDirectory = projectDirectoryPath.toExistingDirectory() ?: return
+        val projectDirectory = toExistingDirectory() ?: return
         presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
     }
 

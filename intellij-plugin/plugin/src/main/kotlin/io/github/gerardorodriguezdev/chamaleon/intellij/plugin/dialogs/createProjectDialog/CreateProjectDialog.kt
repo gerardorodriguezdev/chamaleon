@@ -73,9 +73,9 @@ internal class CreateProjectDialog(
                     project.generateEnvironments(createProjectState.project)
                 }
 
-                val projectDirectoryPath = project.basePath ?: return@collect
+                val projectDirectory = project.toExistingDirectory() ?: return@collect
                 val newCreateProjectWindowState =
-                    createProjectState.toCreateProjectWindowState(projectDirectoryPath, BundleStringsProvider)
+                    createProjectState.toCreateProjectWindowState(projectDirectory.path.value, BundleStringsProvider)
                 newCreateProjectWindowState?.let {
                     createProjectWindowState.value = newCreateProjectWindowState
                 }

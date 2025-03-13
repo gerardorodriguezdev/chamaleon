@@ -11,6 +11,7 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -88,3 +89,5 @@ private fun Project.showNotification(
     )
     Notifications.Bus.notify(notification, this)
 }
+
+internal fun Project.toExistingDirectory(): ExistingDirectory? = basePath?.toExistingDirectory()
