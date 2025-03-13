@@ -48,8 +48,9 @@ internal class DefaultCommandParser : CommandParser {
             val environments = commands
                 .map { command -> parseCommand(command).bind() }
                 .mergeDuplicatedEnvironments(commands)
+                .bind()
 
-            Success(environments = environments.bind())
+            Success(environments = environments)
         }.fold(
             ifLeft = { it },
             ifRight = { it },

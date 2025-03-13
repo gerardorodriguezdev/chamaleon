@@ -37,7 +37,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw SelectEnvironmentTaskException(
-                message = "Selected environment not found on existing environments '${currentProject.environments}'",
+                error = "Selected environment not found on existing environments '${currentProject.environments}'",
             )
         }
 
@@ -53,5 +53,5 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
         }
     }
 
-    private class SelectEnvironmentTaskException(message: String) : Exception(message)
+    private class SelectEnvironmentTaskException(error: String) : IllegalStateException(error)
 }

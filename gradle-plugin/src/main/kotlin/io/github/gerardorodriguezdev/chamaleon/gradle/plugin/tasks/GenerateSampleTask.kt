@@ -52,17 +52,18 @@ public abstract class GenerateSampleTask : DefaultTask() {
                 ).project()
             )
 
-        val sampleSchema = requireNotNull(
-            schemaOf(
-                globalSupportedPlatformTypes = setOf(PlatformType.JVM).toUnsafeNonEmptySet(),
-                propertyDefinitions = setOf(
-                    Schema.PropertyDefinition(
-                        name = PROPERTY_NAME.toUnsafeNonEmptyString(),
-                        propertyType = PropertyType.STRING,
-                    )
-                ).toUnsafeNonEmptyKeyStore(),
-            ).schema()
-        )
+        val sampleSchema =
+            requireNotNull(
+                schemaOf(
+                    globalSupportedPlatformTypes = setOf(PlatformType.JVM).toUnsafeNonEmptySet(),
+                    propertyDefinitions = setOf(
+                        Schema.PropertyDefinition(
+                            name = PROPERTY_NAME.toUnsafeNonEmptyString(),
+                            propertyType = PropertyType.STRING,
+                        )
+                    ).toUnsafeNonEmptyKeyStore(),
+                ).schema()
+            )
 
         val sampleProperties = Properties(
             selectedEnvironmentName = LOCAL_ENVIRONMENT_NAME.toUnsafeNonEmptyString(),

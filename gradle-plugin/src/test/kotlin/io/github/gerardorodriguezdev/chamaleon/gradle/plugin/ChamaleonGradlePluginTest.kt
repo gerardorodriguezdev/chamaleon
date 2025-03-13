@@ -82,6 +82,7 @@ class ChamaleonGradlePluginTest {
         @Test
         fun `GIVEN plugin is applied WHEN generateSampleTask is executed THEN generates sample files`() {
             val environmentsDirectory = environmentsDirectory(createIfNotPresent = false)
+
             val buildResult = generateSampleTaskBuildResult()
 
             assertEquals(

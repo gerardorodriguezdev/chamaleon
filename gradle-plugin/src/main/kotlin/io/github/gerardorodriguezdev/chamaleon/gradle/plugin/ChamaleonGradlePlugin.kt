@@ -47,7 +47,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             }
 
             is ProjectDeserializationResult.Failure ->
-                throw ChamaleonGradlePluginException(message = projectDeserializationResult.toErrorMessage())
+                throw ChamaleonGradlePluginException(error = projectDeserializationResult.toErrorMessage())
         }
 
     private fun Project.deserializeProject(): ProjectDeserializationResult? {
@@ -84,7 +84,9 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                 newSelectedEnvironmentName.set(null)
             } else {
                 val nonEmptyStringNewSelectedEnvironmentName = newSelectedEnvironmentNameString.toNonEmptyString()
-                    ?: throw ChamaleonGradlePluginException("Selected environment name was empty")
+                if (nonEmptyStringNewSelectedEnvironmentName == null) {
+                    throw ChamaleonGradlePluginException("Selected environment name was empty")
+                }
                 newSelectedEnvironmentName.set(nonEmptyStringNewSelectedEnvironmentName)
             }
 
@@ -108,7 +110,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     private fun Project.environmentsExistingDirectory(): ExistingDirectory? =
         environmentsDirectory().asFile.toExistingDirectory()
 
-    private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)
+    private class ChamaleonGradlePluginException(error: String) : IllegalStateException(error)
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
