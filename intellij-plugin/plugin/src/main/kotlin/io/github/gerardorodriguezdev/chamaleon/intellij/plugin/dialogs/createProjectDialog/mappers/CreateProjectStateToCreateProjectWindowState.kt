@@ -1,5 +1,11 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers
 
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.Schema
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment.ProjectDeserializationState
@@ -8,7 +14,12 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.St
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field.Verification
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.createProject.CreateProjectWindowState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
+//TODO: Fix
 internal fun CreateProjectState.toCreateProjectWindowState(
     projectDirectoryPath: String,
     stringsProvider: StringsProvider
@@ -17,8 +28,8 @@ internal fun CreateProjectState.toCreateProjectWindowState(
 
     return when (this) {
         is CreateProjectState.SetupEnvironment -> context.toSetupEnvironment(this)
-        is CreateProjectState.SetupSchema -> null
-        is CreateProjectState.SetupPlatforms -> null
+        is CreateProjectState.SetupSchema -> context.toSetupSchema(this)
+        is CreateProjectState.SetupPlatforms -> context.toSetupPlatforms(this)
         is CreateProjectState.Finish -> null
     }
 
@@ -83,6 +94,110 @@ private fun Context.toEnvironmentNameField(
         }
     }
 }
+
+private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): CreateProjectWindowState.SetupSchemaState =
+    when (state) {
+        is CreateProjectState.SetupSchema.NewSchema -> CreateProjectWindowState.SetupSchemaState(
+            title = stringsProvider.string(StringsKeys.createTemplate),
+            globalSupportedPlatformTypes = state.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+            propertyDefinitions = state.propertyDefinitions.toPropertyDefinitions(),
+        )
+
+        is CreateProjectState.SetupSchema.ExistingSchema ->
+            CreateProjectWindowState.SetupSchemaState(
+                title = stringsProvider.string(StringsKeys.selectedTemplate),
+                globalSupportedPlatformTypes = state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+                propertyDefinitions = state.currentProject.schema.propertyDefinitions.toPropertyDefinitions(),
+            )
+    }
+
+private fun List<CreateProjectState.SetupSchema.NewSchema.PropertyDefinition>.toPropertyDefinitions(): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
+    map { propertyDefinition -> propertyDefinition.toPropertyDefinition() }.toPersistentList()
+
+private fun CreateProjectState.SetupSchema.NewSchema.PropertyDefinition.toPropertyDefinition(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
+    CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
+        nameField = Field(
+            value = name?.value ?: "",
+            verification = if (name == null) {
+                Verification.Invalid("empty property definition name") //TODO: Lexemes
+            } else {
+                Verification.Valid
+            }
+        ),
+        propertyType = propertyType.toPropertyType(),
+        nullable = nullable,
+        supportedPlatformTypes = supportedPlatformTypes.toSupportedPlatformTypes(),
+    )
+
+private fun NonEmptyKeySetStore<String, Schema.PropertyDefinition>?.toPropertyDefinitions(): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> {
+    if (this == null) return persistentListOf()
+
+    return values.map { propertyDefinition -> propertyDefinition.toPropertyDefinition() }.toImmutableList()
+}
+
+private fun Schema.PropertyDefinition.toPropertyDefinition(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
+    CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
+        nameField = Field(
+            value = name.value,
+            verification = Verification.Valid,
+        ),
+        propertyType = propertyType.toPropertyType(),
+        nullable = nullable,
+        supportedPlatformTypes = supportedPlatformTypes.toSupportedPlatformTypes(),
+    )
+
+private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType =
+    when (this) {
+        PropertyType.STRING -> CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType.STRING
+        PropertyType.BOOLEAN -> CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType.BOOLEAN
+    }
+
+private fun NonEmptySet<PlatformType>?.toSupportedPlatformTypes(): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType> {
+    if (this == null) return persistentListOf()
+
+    return map { platformType ->
+        platformType.toPlatformType()
+    }.toPersistentList()
+}
+
+private fun PlatformType.toPlatformType(): CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType =
+    when (this) {
+        PlatformType.ANDROID -> CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType.ANDROID
+        PlatformType.WASM -> CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType.WASM
+        PlatformType.NATIVE -> CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType.NATIVE
+        PlatformType.JS -> CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType.JS
+        PlatformType.JVM -> CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType.JVM
+    }
+
+private fun CreateProjectState.SetupPlatforms.toSetupPlatforms(): CreateProjectWindowState.SetupPlatformsState =
+    when (this) {
+        is CreateProjectState.SetupPlatforms.NewProject ->
+            CreateProjectWindowState.SetupPlatformsState(
+                platforms = platforms.values.map { platform ->
+                    CreateProjectWindowState.SetupPlatformsState.Platform(
+                        platformType = platform.platformType.toPlatformType(),
+                        properties = platform.properties.values.toProperties()
+                    )
+                }.toPersistentList(),
+            )
+
+        is CreateProjectState.SetupPlatforms.ExistingProject ->
+            CreateProjectWindowState.SetupPlatformsState(
+                platforms = platforms.values.map { platform ->
+                    CreateProjectWindowState.SetupPlatformsState.Platform(
+                        platformType = platform.platformType.toPlatformType(),
+                        properties = platform.properties.values.toProperties()
+                    )
+                }.toPersistentList()
+            )
+    }
+
+private fun Collection<Platform.Property>.toProperties(): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.Property> =
+    map { property ->
+        CreateProjectWindowState.SetupPlatformsState.Platform.Property(
+            name =
+        )
+    }
 
 private data class Context(
     val projectDirectoryPath: String,

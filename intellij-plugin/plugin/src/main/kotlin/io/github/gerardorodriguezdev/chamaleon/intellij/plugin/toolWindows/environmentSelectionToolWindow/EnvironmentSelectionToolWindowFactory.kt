@@ -68,6 +68,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             project.scanProject()
                         },
                         onCreateProject = {
+                            //TODO: Maybe extension
                             val projectDirectoryPath = project.basePath ?: return@EnvironmentSelectionWindow
                             val projectDirectory =
                                 projectDirectoryPath.toExistingDirectory() ?: return@EnvironmentSelectionWindow

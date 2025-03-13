@@ -40,6 +40,7 @@ import org.jetbrains.jewel.foundation.enableNewSwingCompositing
 import javax.swing.JComponent
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
+//TODO: Fix
 internal class CreateProjectDialog(
     private val project: Project,
     projectDirectory: ExistingDirectory,
@@ -52,6 +53,7 @@ internal class CreateProjectDialog(
         uiScope = uiScope,
         ioScope = ioScope,
         projectDeserializer = projectDeserializer,
+        stringsProvider = BundleStringsProvider,
     )
 
     private val createProjectWindowState =
@@ -67,13 +69,15 @@ internal class CreateProjectDialog(
         uiScope.launch {
             presenter.stateFlow.collect { createProjectState ->
                 setDialogButtonsState(createProjectState.toDialogButtonsState())
-                if (createProjectState is CreateProjectState.Finish) project.generateEnvironments(createProjectState.project)
+                if (createProjectState is CreateProjectState.Finish) {
+                    project.generateEnvironments(createProjectState.project)
+                }
 
                 val projectDirectoryPath = project.basePath ?: return@collect
-                val newState =
+                val newCreateProjectWindowState =
                     createProjectState.toCreateProjectWindowState(projectDirectoryPath, BundleStringsProvider)
-                newState?.let {
-                    createProjectWindowState.value = newState
+                newCreateProjectWindowState?.let {
+                    createProjectWindowState.value = newCreateProjectWindowState
                 }
             }
         }
@@ -89,6 +93,7 @@ internal class CreateProjectDialog(
                     CreateProjectWindow(
                         state = createProjectWindowState.value,
                         onAction = { action ->
+                            //TODO: Refactor a bit
                             when (action) {
                                 is CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> {
                                     val newSelectedEnvironmentDirectory =

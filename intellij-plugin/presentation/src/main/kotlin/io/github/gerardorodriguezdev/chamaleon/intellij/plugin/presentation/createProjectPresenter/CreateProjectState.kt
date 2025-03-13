@@ -3,7 +3,6 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.cre
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
-import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
@@ -12,6 +11,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment.ProjectDeserializationState
 
+//TODO: Fix states and anything related to platforms is ok
 sealed interface CreateProjectState {
     fun asSetupEnvironment(): SetupEnvironment? = this as? SetupEnvironment
     fun asSetupSchemaNewSchema(): SetupSchema.NewSchema? = this as? SetupSchema.NewSchema
@@ -29,8 +29,8 @@ sealed interface CreateProjectState {
         override fun toPrevious(): CreateProjectState? = null
 
         override fun toNext(): CreateProjectState? {
-            val projectDeserializationState = projectDeserializationState ?: return null
             return when (projectDeserializationState) {
+                null -> null
                 is ProjectDeserializationState.Valid.NewProject -> SetupSchema.NewSchema(
                     environmentName = environmentName ?: return null,
                     environmentsDirectory = projectDeserializationState.environmentsDirectory,
@@ -102,7 +102,7 @@ sealed interface CreateProjectState {
                     propertyDefinitions = propertyDefinitions.map { propertyDefinition ->
                         propertyDefinition.toSchemaPropertyDefinition() ?: return null
                     }.toNonEmptyKeySetStore() ?: return null,
-                )
+                ).schema()
             }
 
             private fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform>? {
@@ -153,6 +153,7 @@ sealed interface CreateProjectState {
                 SetupPlatforms.ExistingProject(
                     environmentName = environmentName,
                     currentProject = currentProject,
+                    platforms =,
                 )
         }
     }
@@ -179,7 +180,7 @@ sealed interface CreateProjectState {
                 )
 
             override fun toFinish(): Finish? {
-                val projectValidationResult = projectOf(
+                val project = projectOf(
                     environmentsDirectory = environmentsDirectory,
                     schema = schema,
                     properties = Properties(),
@@ -189,11 +190,10 @@ sealed interface CreateProjectState {
                             platforms = platforms,
                         ),
                     ).toNonEmptyKeySetStore(),
-                )
+                ).project()
 
-                return when (projectValidationResult) {
-                    is ProjectValidationResult.Success -> Finish(projectValidationResult.project)
-                    is ProjectValidationResult.Failure -> null
+                return project?.let {
+                    Finish(project)
                 }
             }
 
@@ -209,6 +209,7 @@ sealed interface CreateProjectState {
         data class ExistingProject(
             override val environmentName: NonEmptyString,
             val currentProject: Project,
+            val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
         ) : SetupPlatforms {
             override fun toPrevious(): CreateProjectState? =
                 SetupSchema.ExistingSchema(
