@@ -3,12 +3,14 @@ package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -29,9 +31,21 @@ public abstract class GenerateSampleTask : DefaultTask() {
 
         runBlocking {
             val sampleProject = sampleProject(environmentsDirectory)
-            projectSerializer.serialize(sampleProject)
+
+            sampleProject.serialize()
         }
     }
+
+    private fun Project.serialize() {
+        runBlocking {
+            when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
+                is ProjectSerializationResult.Success -> logger.info("Sample generated successfully at '${environmentsDirectory.path}'")
+                is ProjectSerializationResult.Failure -> throw GenerateSampleTaskException(updateProjectResult.toErrorMessage())
+            }
+        }
+    }
+
+    private class GenerateSampleTaskException(error: String) : IllegalStateException(error)
 
     internal companion object {
         const val PROPERTY_NAME = "YourPropertyName"
