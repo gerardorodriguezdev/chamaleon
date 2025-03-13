@@ -9,7 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.asDe
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.*
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment.ProjectDeserializationState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -94,8 +94,7 @@ class CreateProjectPresenter(
                                 mutableState = newCurrentState.copy(
                                     projectDeserializationState = ProjectDeserializationState.Invalid(
                                         environmentsDirectory = newEnvironmentsDirectory,
-                                        //TODO: Lexemes of all errors (project validation + invalid schema file + deserialization)
-                                        errorMessage = stringsProvider.string(StringsKeys.invalidEnvironmentsFound)
+                                        errorMessage = projectDeserializationResult.toErrorMessage(stringsProvider)
                                     )
                                 )
                             }
