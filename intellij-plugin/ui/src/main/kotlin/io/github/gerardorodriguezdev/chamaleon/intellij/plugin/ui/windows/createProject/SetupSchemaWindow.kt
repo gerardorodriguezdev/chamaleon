@@ -33,8 +33,8 @@ fun SetupSchemaWindow(
         modifier = modifier,
         toolbar = { Toolbar(title = state.title, forceLabelWidth = false) },
         content = {
-            globalSupportedPlatformSection(
-                globalSupportedPlatforms = state.globalSupportedPlatforms,
+            globalSupportedPlatformTypesSection(
+                globalSupportedPlatformTypes = state.globalSupportedPlatformTypes,
                 onSupportedPlatformChanged = { isChecked, newSupportedPlatform ->
                     onAction(OnGlobalSupportedPlatformTypesChanged(isChecked, newSupportedPlatform))
                 },
@@ -65,8 +65,8 @@ fun SetupSchemaWindow(
     )
 }
 
-private fun LazyListScope.globalSupportedPlatformSection(
-    globalSupportedPlatforms: ImmutableList<PlatformType>,
+private fun LazyListScope.globalSupportedPlatformTypesSection(
+    globalSupportedPlatformTypes: ImmutableList<PlatformType>,
     onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
     item {
@@ -75,8 +75,8 @@ private fun LazyListScope.globalSupportedPlatformSection(
             enableDivider = true,
             forceLabelWidth = false,
         ) {
-            SupportedPlatforms(
-                supportedPlatforms = globalSupportedPlatforms,
+            SupportedPlatformTypes(
+                supportedPlatformTypes = globalSupportedPlatformTypes,
                 onCheckedChanged = onSupportedPlatformChanged,
             )
         }
@@ -191,8 +191,8 @@ private fun PropertyDefinitionSectionCard(
             title = string(StringsKeys.supportedPlatformsForPropertyDefinitions),
             forceLabelWidth = false,
         ) {
-            SupportedPlatforms(
-                supportedPlatforms = propertyDefinition.supportedPlatforms,
+            SupportedPlatformTypes(
+                supportedPlatformTypes = propertyDefinition.supportedPlatformTypes,
                 onCheckedChanged = onSupportedPlatformChanged,
             )
         }
@@ -201,8 +201,8 @@ private fun PropertyDefinitionSectionCard(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SupportedPlatforms(
-    supportedPlatforms: ImmutableList<PlatformType>,
+private fun SupportedPlatformTypes(
+    supportedPlatformTypes: ImmutableList<PlatformType>,
     onCheckedChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit
 ) {
     FlowRow(
@@ -213,7 +213,7 @@ private fun SupportedPlatforms(
         allPlatformTypes.forEach { platformType ->
             InputCheckBox(
                 label = platformType.serialName,
-                isChecked = supportedPlatforms.contains(platformType),
+                isChecked = supportedPlatformTypes.contains(platformType),
                 forceLabelWidth = false,
                 onCheckedChanged = { isChecked ->
                     onCheckedChanged(isChecked, platformType)

@@ -23,7 +23,8 @@ private fun ProjectValidationResult.Failure.toErrorMessage(): String =
 
         is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
             "Platform type '$platformType' of property '$propertyName' on platform '$platformType' on " +
-                    "environment '$environmentName' is different than property definition '$propertyDefinition'"
+                    "environment '$environmentName' is different than expected type '$expectedPropertyType' on " +
+                    "property definition '$propertyDefinition'"
 
         is ProjectValidationResult.Failure.NullPropertyValueIsNotNullable ->
             "Property value on property '$propertyName' on platform '$platformType' on '$environmentName' is null but not nullable"

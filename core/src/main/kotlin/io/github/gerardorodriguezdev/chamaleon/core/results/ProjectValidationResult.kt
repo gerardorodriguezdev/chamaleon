@@ -28,6 +28,7 @@ public sealed interface ProjectValidationResult {
             val propertyName: String,
             val propertyType: PropertyType,
             val propertyDefinition: PropertyDefinition,
+            val expectedPropertyType: PropertyType,
         ) : Failure
 
         public data class NullPropertyValueIsNotNullable(

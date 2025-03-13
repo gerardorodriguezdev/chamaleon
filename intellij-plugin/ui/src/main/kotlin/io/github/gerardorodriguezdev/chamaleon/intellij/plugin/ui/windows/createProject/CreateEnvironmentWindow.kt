@@ -46,14 +46,14 @@ sealed interface CreateProjectWindowState {
 
     data class SetupSchemaState(
         val title: String,
-        val globalSupportedPlatforms: ImmutableList<PlatformType>,
+        val globalSupportedPlatformTypes: ImmutableList<PlatformType>,
         val propertyDefinitions: ImmutableList<PropertyDefinition>,
     ) : CreateProjectWindowState {
         data class PropertyDefinition(
             val nameField: Field<String>,
             val propertyType: PropertyType,
             val nullable: Boolean,
-            val supportedPlatforms: ImmutableList<PlatformType>,
+            val supportedPlatformTypes: ImmutableList<PlatformType>,
         ) {
             enum class PropertyType {
                 STRING,

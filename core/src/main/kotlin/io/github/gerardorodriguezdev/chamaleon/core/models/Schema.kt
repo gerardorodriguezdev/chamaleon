@@ -28,7 +28,6 @@ public class Schema private constructor(
     }
 
     public companion object {
-        //TODO: Here full error
         public fun schemaOf(
             globalSupportedPlatformTypes: NonEmptySet<PlatformType>,
             propertyDefinitions: NonEmptyKeySetStore<String, PropertyDefinition>,
@@ -46,7 +45,7 @@ public class Schema private constructor(
             }
 
         private fun PropertyDefinition.arePlatformsSupported(
-            globalSupportedPlatforms: NonEmptySet<PlatformType>
-        ): Boolean = supportedPlatformTypes == null || globalSupportedPlatforms.containsAll(supportedPlatformTypes)
+            globalSupportedPlatformTypes: NonEmptySet<PlatformType>
+        ): Boolean = supportedPlatformTypes == null || globalSupportedPlatformTypes.containsAll(supportedPlatformTypes)
     }
 }

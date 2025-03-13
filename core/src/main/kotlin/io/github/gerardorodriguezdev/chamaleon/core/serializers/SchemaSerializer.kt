@@ -17,14 +17,14 @@ internal object SchemaSerializer : KSerializer<Schema> {
     private const val SUPPORTED_PLATFORMS_INDEX = 0
     private const val PROPERTY_DEFINITIONS_INDEX = 1
 
-    private val supportedPlatformsSerializer = NonEmptySetSerializer(PlatformType.serializer())
+    private val supportedPlatformTypesSerializer = NonEmptySetSerializer(PlatformType.serializer())
     private val propertyDefinitionsSerializer = NonEmptyKeyStoreSerializer(
         keySerializer = String.serializer(),
         valueSerializer = PropertyDefinition.serializer(),
     )
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Schema") {
-        element("supportedPlatforms", supportedPlatformsSerializer.descriptor)
+        element("supportedPlatforms", supportedPlatformTypesSerializer.descriptor)
         element("propertyDefinitions", propertyDefinitionsSerializer.descriptor)
     }
 
@@ -33,7 +33,7 @@ internal object SchemaSerializer : KSerializer<Schema> {
             encodeSerializableElement(
                 descriptor = descriptor,
                 index = SUPPORTED_PLATFORMS_INDEX,
-                serializer = supportedPlatformsSerializer,
+                serializer = supportedPlatformTypesSerializer,
                 value = schema.globalSupportedPlatformTypes
             )
 
@@ -48,21 +48,21 @@ internal object SchemaSerializer : KSerializer<Schema> {
 
     override fun deserialize(decoder: Decoder): Schema =
         decoder.decodeStructure(descriptor) {
-            val globalSupportedPlatforms = globalSupportedPlatforms()
+            val globalSupportedPlatformTypes = this.globalSupportedPlatformTypes()
             val propertyDefinitions = propertyDefinitions()
 
-            val schema = schemaOf(globalSupportedPlatforms, propertyDefinitions)
+            val schema = schemaOf(globalSupportedPlatformTypes, propertyDefinitions)
             if (schema == null) throw SerializationException("Property definition contains unsupported platforms")
 
             schema
         }
 
-    private fun CompositeDecoder.globalSupportedPlatforms(): NonEmptySet<PlatformType> {
+    private fun CompositeDecoder.globalSupportedPlatformTypes(): NonEmptySet<PlatformType> {
         verifyAndAdvanceIndex(SUPPORTED_PLATFORMS_INDEX)
         return decodeSerializableElement(
             descriptor = descriptor,
             index = SUPPORTED_PLATFORMS_INDEX,
-            deserializer = supportedPlatformsSerializer
+            deserializer = supportedPlatformTypesSerializer
         )
     }
 
