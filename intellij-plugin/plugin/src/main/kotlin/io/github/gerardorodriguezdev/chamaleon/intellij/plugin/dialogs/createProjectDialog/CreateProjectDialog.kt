@@ -42,6 +42,8 @@ import org.jetbrains.jewel.foundation.enableNewSwingCompositing
 import javax.swing.JComponent
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
+//TODO: Trial run
+//TODO: Function calls with named params (grad plug + intell mods)
 internal class CreateProjectDialog(
     private val project: Project,
     private val projectDirectory: ExistingDirectory,

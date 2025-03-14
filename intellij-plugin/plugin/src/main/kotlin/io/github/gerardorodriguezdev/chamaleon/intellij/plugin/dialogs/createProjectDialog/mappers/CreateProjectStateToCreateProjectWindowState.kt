@@ -100,7 +100,7 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
         is CreateProjectState.SetupSchema.NewSchema -> CreateProjectWindowState.SetupSchemaState(
             title = stringsProvider.string(StringsKeys.createTemplate),
             globalSupportedPlatformTypes = state.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
-            propertyDefinitions = state.propertyDefinitions.toPropertyDefinitions(),
+            propertyDefinitions = state.propertyDefinitions.toPropertyDefinitions(stringsProvider),
         )
 
         is CreateProjectState.SetupSchema.ExistingSchema ->
@@ -111,15 +111,19 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
             )
     }
 
-private fun List<CreateProjectState.SetupSchema.NewSchema.PropertyDefinition>.toPropertyDefinitions(): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
-    map { propertyDefinition -> propertyDefinition.toPropertyDefinition() }.toPersistentList()
+private fun List<CreateProjectState.SetupSchema.NewSchema.PropertyDefinition>.toPropertyDefinitions(
+    stringsProvider: StringsProvider
+): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
+    map { propertyDefinition -> propertyDefinition.toPropertyDefinition(stringsProvider) }.toPersistentList()
 
-private fun CreateProjectState.SetupSchema.NewSchema.PropertyDefinition.toPropertyDefinition(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
+private fun CreateProjectState.SetupSchema.NewSchema.PropertyDefinition.toPropertyDefinition(
+    stringsProvider: StringsProvider
+): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
     CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
         nameField = Field(
             value = name?.value ?: "",
             verification = if (name == null) {
-                Verification.Invalid("empty property definition name") //TODO: Lexemes
+                Verification.Invalid(stringsProvider.string(StringsKeys.emptyPropertyDefinitionName))
             } else {
                 Verification.Valid
             }
