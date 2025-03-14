@@ -1,5 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.annotations.PropertyKey
 
 object StringsKeys {
@@ -46,6 +48,25 @@ object StringsKeys {
     val gradlePluginVersionUsed = StringKey("gradle.plugin.version.used")
     val generateEnvironment = StringKey("generate.environment")
 
-    @JvmInline
-    value class StringKey internal constructor(@PropertyKey(resourceBundle = "messages.Bundle") val value: String)
+    fun something(value: String, other: String) = StringKey(value, persistentListOf(other))
+
+    class StringKey internal constructor(
+        @PropertyKey(resourceBundle = "messages.Bundle") val value: String,
+        val params: ImmutableList<Any> = persistentListOf(),
+    ) {
+        override fun equals(other: Any?): Boolean =
+            when {
+                this === other -> true
+                other !is StringKey -> false
+                value != other.value -> false
+                params != other.params -> false
+                else -> true
+            }
+
+        override fun hashCode(): Int {
+            var result = value.hashCode()
+            result = 31 * result + params.hashCode()
+            return result
+        }
+    }
 }
