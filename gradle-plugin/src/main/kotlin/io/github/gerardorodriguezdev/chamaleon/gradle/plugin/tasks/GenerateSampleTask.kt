@@ -45,7 +45,7 @@ public abstract class GenerateSampleTask : DefaultTask() {
         }
     }
 
-    private class GenerateSampleTaskException(error: String) : IllegalStateException(error)
+    private class GenerateSampleTaskException(errorMessage: String) : IllegalStateException(errorMessage)
 
     internal companion object {
         const val PROPERTY_NAME = "YourPropertyName"

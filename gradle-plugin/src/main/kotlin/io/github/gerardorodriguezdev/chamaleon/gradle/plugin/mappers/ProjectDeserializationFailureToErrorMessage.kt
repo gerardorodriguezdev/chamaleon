@@ -6,8 +6,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectValidationRes
 internal fun ProjectDeserializationResult.Failure.toErrorMessage(): String {
     val errorMessage = when (this) {
         is ProjectDeserializationResult.Failure.InvalidSchemaFile -> "Invalid schema file"
-        is ProjectDeserializationResult.Failure.Deserialization -> "Deserialization error with error: '$error'"
-        is ProjectDeserializationResult.Failure.ProjectValidation -> error.toErrorMessage()
+        is ProjectDeserializationResult.Failure.Deserialization -> "Deserialization error with error: '$throwable'"
+        is ProjectDeserializationResult.Failure.ProjectValidation -> failure.toErrorMessage()
     }
 
     return "$errorMessage at directory '$environmentsDirectoryPath'"

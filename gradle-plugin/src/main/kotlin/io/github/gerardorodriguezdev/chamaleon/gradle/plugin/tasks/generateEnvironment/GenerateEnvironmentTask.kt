@@ -41,7 +41,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         when (val commandsParserResult = commandsParser.parse(this)) {
             is CommandParserResult.Success -> commandsParserResult.environments
             is CommandParserResult.Failure ->
-                throw GenerateEnvironmentTaskException(error = commandsParserResult.error)
+                throw GenerateEnvironmentTaskException(errorMessage = commandsParserResult.errorMessage)
         }
 
     private fun updateEnvironments(
@@ -52,7 +52,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                error = "Environments couldn't be added to existing project on '${currentProject.environmentsDirectory.path}'"
+                errorMessage = "Environments couldn't be added to existing project on '${currentProject.environmentsDirectory.path}'"
             )
         }
 
@@ -66,10 +66,10 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
                     logger.info("Environments generated successfully at '${environmentsDirectory.path}'")
 
                 is ProjectSerializationResult.Failure ->
-                    throw GenerateEnvironmentTaskException(error = updateProjectResult.toErrorMessage())
+                    throw GenerateEnvironmentTaskException(errorMessage = updateProjectResult.toErrorMessage())
             }
         }
     }
 
-    private class GenerateEnvironmentTaskException(error: String) : IllegalStateException(error)
+    private class GenerateEnvironmentTaskException(errorMessage: String) : IllegalStateException(errorMessage)
 }

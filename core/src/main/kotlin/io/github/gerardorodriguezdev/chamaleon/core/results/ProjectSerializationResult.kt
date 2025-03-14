@@ -20,7 +20,7 @@ public sealed interface ProjectSerializationResult {
 
         public data class Serialization(
             override val environmentsDirectoryPath: String,
-            val error: Throwable,
+            val throwable: Throwable,
         ) : Failure
     }
 }

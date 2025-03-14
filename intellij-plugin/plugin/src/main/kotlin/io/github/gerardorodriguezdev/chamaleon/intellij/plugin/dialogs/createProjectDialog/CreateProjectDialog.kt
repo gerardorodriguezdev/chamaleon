@@ -144,10 +144,11 @@ internal class CreateProjectDialog(
                         // TODO: Notify plugin to update files as well
                     }
 
-                    is ProjectSerializationResult.Failure -> showFailureNotification(
-                        title = "",
-                        message = ""
-                    ) //TODO: Lexemes
+                    is ProjectSerializationResult.Failure ->
+                        showFailureNotification(
+                            title = "",
+                            message = ""
+                        ) //TODO: Lexemes
                 }
             }
         )

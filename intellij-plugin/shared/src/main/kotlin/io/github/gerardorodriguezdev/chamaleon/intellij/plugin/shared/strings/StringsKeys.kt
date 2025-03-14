@@ -52,12 +52,12 @@ object StringsKeys {
         StringKey("invalid.schema.file", persistentListOf(environmentsDirectoryPath))
 
     fun deserializationError(
-        error: String,
+        errorMessage: String,
         environmentsDirectoryPath: String
     ): StringKey =
         StringKey(
             "deserialization.error",
-            persistentListOf(error, environmentsDirectoryPath)
+            persistentListOf(errorMessage, environmentsDirectoryPath)
         )
 
     fun environmentMissingPlatforms(

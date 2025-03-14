@@ -69,7 +69,7 @@ internal class DefaultProjectSerializer(
 
                     InternalSuccess
                 },
-                catch = { error -> raise(error.toSerializationError(environmentsDirectory)) }
+                catch = { throwable -> raise(throwable.toSerializationFailure(environmentsDirectory)) }
             )
         }
 
@@ -87,7 +87,7 @@ internal class DefaultProjectSerializer(
 
                     InternalSuccess
                 },
-                catch = { error -> raise(error.toSerializationError(environmentsDirectory)) }
+                catch = { throwable -> raise(throwable.toSerializationFailure(environmentsDirectory)) }
             )
         }
 
@@ -119,7 +119,7 @@ internal class DefaultProjectSerializer(
 
                                     InternalSuccess
                                 },
-                                catch = { error -> raise(error.toSerializationError(environmentsDirectory)) }
+                                catch = { throwable -> raise(throwable.toSerializationFailure(environmentsDirectory)) }
                             )
                         }
                     }
@@ -129,9 +129,9 @@ internal class DefaultProjectSerializer(
             }
         }
 
-    private fun Throwable.toSerializationError(environmentsDirectory: ExistingDirectory): Failure.Serialization =
+    private fun Throwable.toSerializationFailure(environmentsDirectory: ExistingDirectory): Failure.Serialization =
         Failure.Serialization(
             environmentsDirectoryPath = environmentsDirectory.path.value,
-            error = this,
+            throwable = this,
         )
 }

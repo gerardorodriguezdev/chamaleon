@@ -21,7 +21,7 @@ internal interface CommandParser {
 
     sealed interface CommandParserResult {
         data class Success(val environments: NonEmptyKeySetStore<String, Environment>) : CommandParserResult
-        data class Failure(val error: String) : CommandParserResult
+        data class Failure(val errorMessage: String) : CommandParserResult
     }
 
     companion object {

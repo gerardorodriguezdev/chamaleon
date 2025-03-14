@@ -47,7 +47,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             }
 
             is ProjectDeserializationResult.Failure ->
-                throw ChamaleonGradlePluginException(error = projectDeserializationResult.toErrorMessage())
+                throw ChamaleonGradlePluginException(errorMessage = projectDeserializationResult.toErrorMessage())
         }
 
     private fun Project.deserializeProject(): ProjectDeserializationResult? {
@@ -110,7 +110,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     private fun Project.environmentsExistingDirectory(): ExistingDirectory? =
         environmentsDirectory().asFile.toExistingDirectory()
 
-    private class ChamaleonGradlePluginException(error: String) : IllegalStateException(error)
+    private class ChamaleonGradlePluginException(errorMessage: String) : IllegalStateException(errorMessage)
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"

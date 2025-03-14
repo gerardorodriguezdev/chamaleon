@@ -14,12 +14,12 @@ public sealed interface ProjectDeserializationResult {
 
         public data class Deserialization(
             override val environmentsDirectoryPath: String,
-            val error: Throwable,
+            val throwable: Throwable,
         ) : Failure
 
         public data class ProjectValidation(
             override val environmentsDirectoryPath: String,
-            val error: ProjectValidationResult.Failure,
+            val failure: ProjectValidationResult.Failure,
         ) : Failure
     }
 }

@@ -29,7 +29,7 @@ class NonEmptySetSerializerTest {
     inner class Deserialize {
 
         @Test
-        fun `GIVEN json with empty set WHEN deserialize THEN throws error`() {
+        fun `GIVEN json with empty set WHEN deserialize THEN throws`() {
             val json =
                 //language=json
                 """

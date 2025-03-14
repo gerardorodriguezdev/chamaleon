@@ -146,7 +146,7 @@ internal class DefaultProjectDeserializer(
                     raise(
                         Failure.ProjectValidation(
                             environmentsDirectoryPath = environmentsDirectory.path.value,
-                            error = projectValidationResult
+                            failure = projectValidationResult
                         )
                     )
             }
@@ -155,7 +155,7 @@ internal class DefaultProjectDeserializer(
     private fun Throwable.toDeserializationError(environmentsDirectory: ExistingDirectory): Failure =
         Failure.Deserialization(
             environmentsDirectoryPath = environmentsDirectory.path.value,
-            error = this,
+            throwable = this,
         )
 
     override suspend fun deserializeRecursively(rootDirectory: ExistingDirectory): List<ProjectDeserializationResult> {

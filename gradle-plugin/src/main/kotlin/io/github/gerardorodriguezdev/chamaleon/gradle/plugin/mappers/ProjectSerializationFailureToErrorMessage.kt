@@ -14,5 +14,5 @@ internal fun ProjectSerializationResult.Failure.toErrorMessage(): String =
             "Invalid properties file at '$environmentsDirectoryPath'"
 
         is ProjectSerializationResult.Failure.Serialization ->
-            "Project serialization failed with error: '$error' at '$environmentsDirectoryPath'"
+            "Project serialization failed with error: '$throwable' at '$environmentsDirectoryPath'"
     }

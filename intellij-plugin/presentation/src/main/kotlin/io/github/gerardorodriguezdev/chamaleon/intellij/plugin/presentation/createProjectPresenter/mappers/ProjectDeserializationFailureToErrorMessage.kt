@@ -10,7 +10,7 @@ internal fun Failure.toErrorMessage(stringsProvider: StringsProvider): String =
         is Failure.Deserialization ->
             stringsProvider.string(
                 StringsKeys.deserializationError(
-                    error = error.toString(),
+                    errorMessage = throwable.toString(),
                     environmentsDirectoryPath = environmentsDirectoryPath,
                 )
             )
@@ -20,7 +20,7 @@ internal fun Failure.toErrorMessage(stringsProvider: StringsProvider): String =
                 StringsKeys.invalidSchemaFile(environmentsDirectoryPath)
             )
 
-        is Failure.ProjectValidation -> error.toErrorMessage(stringsProvider)
+        is Failure.ProjectValidation -> failure.toErrorMessage(stringsProvider)
     }
 
 private fun ProjectValidationResult.Failure.toErrorMessage(stringsProvider: StringsProvider): String =
