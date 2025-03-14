@@ -85,7 +85,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             } else {
                 val nonEmptyStringNewSelectedEnvironmentName = newSelectedEnvironmentNameString.toNonEmptyString()
                 if (nonEmptyStringNewSelectedEnvironmentName == null) {
-                    throw ChamaleonGradlePluginException("Selected environment name was empty")
+                    throw ChamaleonGradlePluginException(errorMessage = "Selected environment name was empty")
                 }
                 newSelectedEnvironmentName.set(nonEmptyStringNewSelectedEnvironmentName)
             }

@@ -47,6 +47,8 @@ object StringsKeys {
     val errorAtEnvironmentsDirectories = StringKey("error.at.environments.directories")
     val gradlePluginVersionUsed = StringKey("gradle.plugin.version.used")
     val generateEnvironment = StringKey("generate.environment")
+    val environmentGeneratedSuccessfully = StringKey("environment.generated.successfully")
+    val chamaleonEnvironmentGeneration = StringKey("chamaleon.environment.generation")
 
     fun invalidSchemaFile(environmentsDirectoryPath: String): StringKey =
         StringKey("invalid.schema.file", persistentListOf(environmentsDirectoryPath))
@@ -129,6 +131,32 @@ object StringsKeys {
         StringKey(
             "selected.environment.not.found",
             persistentListOf(selectedEnvironmentName, existingEnvironmentNames, environmentsDirectoryPath)
+        )
+
+    fun invalidPropertiesFile(
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "invalid.properties.file",
+            persistentListOf(environmentsDirectoryPath)
+        )
+
+    fun invalidEnvironmentFile(
+        environmentName: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "invalid.environment.file",
+            persistentListOf(environmentName, environmentsDirectoryPath)
+        )
+
+    fun serializationError(
+        errorMessage: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "serialization.error",
+            persistentListOf(errorMessage, environmentsDirectoryPath)
         )
 
     class StringKey internal constructor(

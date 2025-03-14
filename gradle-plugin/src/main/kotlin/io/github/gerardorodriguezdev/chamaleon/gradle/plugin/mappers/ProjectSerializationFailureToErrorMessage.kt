@@ -5,14 +5,14 @@ import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerialization
 internal fun ProjectSerializationResult.Failure.toErrorMessage(): String =
     when (this) {
         is ProjectSerializationResult.Failure.InvalidPropertiesFile ->
-            "Invalid properties file at '$environmentsDirectoryPath'"
+            "Invalid properties file at directory '$environmentsDirectoryPath'"
 
         is ProjectSerializationResult.Failure.InvalidEnvironmentFile ->
-            "Invalid environment file named '$environmentFileName' at '$environmentsDirectoryPath'"
+            "Invalid environment file named '$environmentFileName' at directory '$environmentsDirectoryPath'"
 
         is ProjectSerializationResult.Failure.InvalidSchemaFile ->
-            "Invalid properties file at '$environmentsDirectoryPath'"
+            "Invalid properties file at directory '$environmentsDirectoryPath'"
 
         is ProjectSerializationResult.Failure.Serialization ->
-            "Project serialization failed with error: '$throwable' at '$environmentsDirectoryPath'"
+            "Project serialization failed with error: '$throwable' at directory '$environmentsDirectoryPath'"
     }
