@@ -10,7 +10,7 @@ internal fun ProjectDeserializationResult.Failure.toErrorMessage(): String {
         is ProjectDeserializationResult.Failure.ProjectValidation -> error.toErrorMessage()
     }
 
-    return "$errorMessage at '$environmentsDirectoryPath'"
+    return "$errorMessage at directory '$environmentsDirectoryPath'"
 }
 
 private fun ProjectValidationResult.Failure.toErrorMessage(): String =
@@ -19,15 +19,14 @@ private fun ProjectValidationResult.Failure.toErrorMessage(): String =
             "Environment '$environmentName' is missing platforms '$missingPlatforms'"
 
         is ProjectValidationResult.Failure.PlatformMissingProperties ->
-            "Platform '$platformType' on '$environmentName' is missing platforms '$missingPropertyNames'"
+            "Platform '$platformType' on environment '$environmentName' is missing properties '$missingPropertyNames'"
 
         is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
-            "Platform type '$platformType' of property '$propertyName' on platform '$platformType' on " +
-                    "environment '$environmentName' is different than expected type '$expectedPropertyType' on " +
-                    "property definition '$propertyDefinition'"
+            "Platform type '$platformType' of property '$propertyName' on environment '$environmentName' is different " +
+                    "from expected type '$expectedPropertyType' on property definition '$propertyDefinition'"
 
         is ProjectValidationResult.Failure.NullPropertyValueIsNotNullable ->
-            "Property value on property '$propertyName' on platform '$platformType' on '$environmentName' " +
+            "Property value on property '$propertyName' on platform '$platformType' on environment '$environmentName' " +
                     "is null but not nullable"
 
         is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->

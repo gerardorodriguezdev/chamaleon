@@ -48,7 +48,88 @@ object StringsKeys {
     val gradlePluginVersionUsed = StringKey("gradle.plugin.version.used")
     val generateEnvironment = StringKey("generate.environment")
 
-    fun something(value: String, other: String) = StringKey(value, persistentListOf(other))
+    fun invalidSchemaFile(environmentsDirectoryPath: String): StringKey =
+        StringKey("invalid.schema.file", persistentListOf(environmentsDirectoryPath))
+
+    fun deserializationError(
+        error: String,
+        environmentsDirectoryPath: String
+    ): StringKey =
+        StringKey(
+            "deserialization.error",
+            persistentListOf(error, environmentsDirectoryPath)
+        )
+
+    fun environmentMissingPlatforms(
+        environmentName: String,
+        missingPlatforms: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "environment.missing.platforms",
+            persistentListOf(
+                environmentName,
+                missingPlatforms,
+                environmentsDirectoryPath,
+            ),
+        )
+
+    fun platformMissingProperties(
+        platformType: String,
+        environmentName: String,
+        missingPropertyNames: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "platforms.missing.properties",
+            persistentListOf(
+                platformType,
+                environmentName,
+                missingPropertyNames,
+                environmentsDirectoryPath,
+            )
+        )
+
+    fun propertyTypeNotEqualToPropertyDefinition(
+        platformType: String,
+        propertyName: String,
+        environmentName: String,
+        expectedPropertyType: String,
+        propertyDefinition: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "property.type.not.equal.to.property.definition",
+            persistentListOf(
+                platformType,
+                propertyName,
+                environmentName,
+                expectedPropertyType,
+                propertyDefinition,
+                environmentsDirectoryPath
+            )
+        )
+
+    fun nullPropertyValueIsNotNullable(
+        propertyName: String,
+        platformType: String,
+        environmentName: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "null.property.value.is.not.nullable",
+            persistentListOf(propertyName, platformType, environmentName, environmentsDirectoryPath)
+        )
+
+    fun selectedEnvironmentNotFound(
+        selectedEnvironmentName: String,
+        existingEnvironmentNames: String,
+        environmentsDirectoryPath: String,
+    ): StringKey =
+        StringKey(
+            "selected.environment.not.found",
+            persistentListOf(selectedEnvironmentName, existingEnvironmentNames, environmentsDirectoryPath)
+        )
 
     class StringKey internal constructor(
         @PropertyKey(resourceBundle = "messages.Bundle") val value: String,
