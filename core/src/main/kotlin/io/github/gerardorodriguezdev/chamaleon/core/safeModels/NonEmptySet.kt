@@ -1,5 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptySetSerializer
 import kotlinx.serialization.Serializable
 
@@ -23,6 +24,11 @@ public class NonEmptySet<T> private constructor(public val value: Set<T>) : Set<
     public infix fun intersect(other: NonEmptySet<T>): NonEmptySet<T> = NonEmptySet(value intersect other.value)
 
     public operator fun minus(other: NonEmptySet<T>): NonEmptySet<T> = NonEmptySet(value - other.value)
+
+    public fun <A, R : KeyProvider<A>> mapToNonEmptyKeySetStore(block: (T) -> R): NonEmptyKeySetStore<A, R> =
+        map { value ->
+            block(value)
+        }.toUnsafeNonEmptyKeyStore()
 
     override fun toString(): String = value.toString()
     override fun hashCode(): Int = value.hashCode()

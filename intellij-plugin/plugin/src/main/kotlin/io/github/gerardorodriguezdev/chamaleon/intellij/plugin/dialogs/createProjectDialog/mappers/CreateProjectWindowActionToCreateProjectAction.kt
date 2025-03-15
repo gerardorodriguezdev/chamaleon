@@ -95,11 +95,6 @@ private fun CreateProjectWindowState.SetupPlatformsState.Platform.Property.Prope
                 PropertyValue.StringProperty(newValue)
             }
 
-        is CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.NullableStringProperty ->
-            value.toNonEmptyString()?.let { newValue ->
-                PropertyValue.StringProperty(newValue)
-            }
-
         is CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.BooleanProperty ->
             PropertyValue.BooleanProperty(value)
 

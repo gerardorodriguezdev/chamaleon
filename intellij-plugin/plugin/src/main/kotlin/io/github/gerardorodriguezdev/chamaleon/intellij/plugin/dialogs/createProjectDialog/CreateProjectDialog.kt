@@ -114,9 +114,10 @@ internal class CreateProjectDialog(
     private fun Project.generateEnvironments(chamaleonProject: ChamaleonProject) {
         runBackgroundTask(
             taskName = string(StringsKeys.generateEnvironment),
-            task = { indicator ->
+            task = {
                 val projectSerializer = ProjectSerializer.Companion.create()
                 val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
+
                 when (projectSerializationResult) {
                     is ProjectSerializationResult.Success -> {
                         showSuccessNotification(

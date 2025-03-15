@@ -51,6 +51,11 @@ public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
                 .associateByKey()
         )
 
+    public fun <A, R : KeyProvider<A>> mapToNonEmptyKeySetStore(block: (V) -> R): NonEmptyKeySetStore<A, R> =
+        map { (_, value) ->
+            block(value)
+        }.toUnsafeNonEmptyKeyStore()
+
     public fun addAll(input: NonEmptyKeySetStore<K, V>): NonEmptyKeySetStore<K, V> {
         val newValues = value.values.toSet() + input.values.toSet()
         val newMap = newValues.associateBy { it.key }

@@ -11,7 +11,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState.SetupEnvironment.ProjectDeserializationState
 
-//TODO: Fix states and anything related to platforms is ok
 sealed interface CreateProjectState {
     fun asSetupEnvironment(): SetupEnvironment? = this as? SetupEnvironment
     fun asSetupSchemaNewSchema(): SetupSchema.NewSchema? = this as? SetupSchema.NewSchema
@@ -79,6 +78,26 @@ sealed interface CreateProjectState {
 
         override fun toFinish(): Finish? = null
 
+        fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform> {
+            return globalSupportedPlatformTypes.mapToNonEmptyKeySetStore { globalSupportedPlatformType ->
+                Platform(
+                    platformType = globalSupportedPlatformType,
+                    properties = propertyDefinitions.mapToNonEmptyKeySetStore { propertyDefinition ->
+                        propertyDefinition.toEmptyProperty()
+                    },
+                )
+            }
+        }
+
+        private fun Schema.PropertyDefinition.toEmptyProperty(): Platform.Property =
+            Platform.Property(
+                name = name,
+                value = when (propertyType) {
+                    PropertyType.STRING -> PropertyValue.StringProperty("value".toUnsafeNonEmptyString())
+                    PropertyType.BOOLEAN -> PropertyValue.BooleanProperty(false)
+                },
+            )
+
         data class NewSchema(
             override val environmentName: NonEmptyString,
             val environmentsDirectory: ExistingDirectory,
@@ -92,7 +111,7 @@ sealed interface CreateProjectState {
                     environmentName = environmentName,
                     environmentsDirectory = environmentsDirectory,
                     schema = schema,
-                    platforms = schema.toEmptyPlatforms() ?: return null,
+                    platforms = schema.toEmptyPlatforms(),
                 )
             }
 
@@ -104,26 +123,6 @@ sealed interface CreateProjectState {
                     }.toNonEmptyKeySetStore() ?: return null,
                 ).schema()
             }
-
-            private fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform>? {
-                return globalSupportedPlatformTypes.map { globalSupportedPlatformType ->
-                    Platform(
-                        platformType = globalSupportedPlatformType,
-                        properties = propertyDefinitions.values.map { propertyDefinition ->
-                            propertyDefinition.toEmptyProperty()
-                        }.toNonEmptyKeySetStore() ?: return null,
-                    )
-                }.toNonEmptyKeySetStore()
-            }
-
-            private fun Schema.PropertyDefinition.toEmptyProperty(): Platform.Property =
-                Platform.Property(
-                    name = name,
-                    value = when (propertyType) {
-                        PropertyType.STRING -> PropertyValue.StringProperty("value".toUnsafeNonEmptyString())
-                        PropertyType.BOOLEAN -> PropertyValue.BooleanProperty(false)
-                    },
-                )
 
             fun emptyPropertyDefinition(): PropertyDefinition =
                 PropertyDefinition(supportedPlatformTypes = globalSupportedPlatformTypes)
@@ -153,13 +152,14 @@ sealed interface CreateProjectState {
                 SetupPlatforms.ExistingProject(
                     environmentName = environmentName,
                     currentProject = currentProject,
-                    platforms =,
+                    platforms = currentProject.schema.toEmptyPlatforms(),
                 )
         }
     }
 
     sealed interface SetupPlatforms : CreateProjectState {
         val environmentName: NonEmptyString
+        val platforms: NonEmptyKeySetStore<PlatformType, Platform>
 
         override fun toNext(): CreateProjectState? = null
 
@@ -167,7 +167,7 @@ sealed interface CreateProjectState {
             override val environmentName: NonEmptyString,
             val environmentsDirectory: ExistingDirectory,
             val schema: Schema,
-            val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
+            override val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
         ) : SetupPlatforms {
             override fun toPrevious(): CreateProjectState? =
                 SetupSchema.NewSchema(
@@ -209,7 +209,7 @@ sealed interface CreateProjectState {
         data class ExistingProject(
             override val environmentName: NonEmptyString,
             val currentProject: Project,
-            val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
+            override val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
         ) : SetupPlatforms {
             override fun toPrevious(): CreateProjectState? =
                 SetupSchema.ExistingSchema(

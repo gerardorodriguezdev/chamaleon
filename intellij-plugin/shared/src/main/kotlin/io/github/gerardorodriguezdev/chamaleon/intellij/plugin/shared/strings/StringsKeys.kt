@@ -50,6 +50,7 @@ object StringsKeys {
     val environmentGeneratedSuccessfully = StringKey("environment.generated.successfully")
     val chamaleonEnvironmentGeneration = StringKey("chamaleon.environment.generation")
     val emptyPropertyDefinitionName = StringKey("empty.property.definition.name")
+    val valueEmptyButNotNullable = StringKey("value.empty.but.not.nullable")
 
     fun invalidSchemaFile(environmentsDirectoryPath: String): StringKey =
         StringKey("invalid.schema.file", persistentListOf(environmentsDirectoryPath))

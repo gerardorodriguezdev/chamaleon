@@ -78,14 +78,6 @@ private fun InputPropertyValue(
                 onAction = onAction,
             )
 
-        is NullableStringProperty ->
-            InputNullableStringProperty(
-                platformType = platformType,
-                index = index,
-                property = propertyValue,
-                onAction = onAction,
-            )
-
         is BooleanProperty ->
             InputBooleanProperty(
                 platformType = platformType,
@@ -130,28 +122,6 @@ private fun InputStringProperty(
                 VerificationIcon(verification = property.valueField.verification)
             }
         }
-    )
-}
-
-@Composable
-private fun InputNullableStringProperty(
-    platformType: PlatformType,
-    index: Int,
-    property: NullableStringProperty,
-    onAction: (action: SetupPlatformsAction) -> Unit,
-) {
-    InputTextField(
-        label = string(StringsKeys.value),
-        value = property.value,
-        onValueChange = { newText ->
-            onAction(
-                OnPropertyValueChanged(
-                    platformType = platformType,
-                    index = index,
-                    newValue = NullableStringProperty(newText),
-                )
-            )
-        },
     )
 }
 

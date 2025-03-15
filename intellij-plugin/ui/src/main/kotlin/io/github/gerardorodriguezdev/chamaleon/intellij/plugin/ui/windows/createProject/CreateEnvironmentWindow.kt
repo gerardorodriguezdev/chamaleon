@@ -86,10 +86,6 @@ sealed interface CreateProjectWindowState {
                         override fun toString(): String = valueField.value.toString()
                     }
 
-                    data class NullableStringProperty(val value: String) : PropertyValue() {
-                        override fun toString(): String = value.toString()
-                    }
-
                     data class BooleanProperty(val value: Boolean) : PropertyValue() {
                         override fun toString(): String = value.toString()
                     }
