@@ -7,5 +7,5 @@ internal fun CreateProjectState.toDialogButtonsState(): DialogButtonsState =
     DialogButtonsState(
         isPreviousButtonEnabled = toPrevious() != null,
         isNextButtonEnabled = toNext() != null,
-        isFinishButtonEnabled = toFinish() != null,
+        isFinishButtonEnabled = canFinish(),
     )

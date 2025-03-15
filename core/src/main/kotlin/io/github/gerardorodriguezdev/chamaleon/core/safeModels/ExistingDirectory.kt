@@ -42,7 +42,9 @@ public class ExistingDirectory private constructor(public val directory: File) :
     public companion object {
         private fun File.isExistingDirectory(): Boolean = exists() && isDirectory
         public fun File.toUnsafeExistingDirectory(): ExistingDirectory = ExistingDirectory(this)
-        public fun String.toExistingDirectory(): ExistingDirectory? = File(this).toExistingDirectory()
+        public fun String.toExistingDirectory(createIfNotPresent: Boolean = false): ExistingDirectory? =
+            File(this).toExistingDirectory(createIfNotPresent)
+
         public fun File.toExistingDirectory(createIfNotPresent: Boolean = false): ExistingDirectory? {
             val directory = File(path)
 

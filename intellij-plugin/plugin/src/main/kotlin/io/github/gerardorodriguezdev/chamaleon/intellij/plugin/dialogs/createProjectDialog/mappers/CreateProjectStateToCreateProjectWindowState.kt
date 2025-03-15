@@ -1,6 +1,9 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.*
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
@@ -130,7 +133,7 @@ private fun Context.toPropertyDefinition(
         supportedPlatformTypes = propertyDefinition.supportedPlatformTypes.toSupportedPlatformTypes(),
     )
 
-private fun NonEmptyKeySetStore<String, Schema.PropertyDefinition>?.toPropertyDefinitions(): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
+private fun NonEmptyKeySetStore<String, PropertyDefinition>?.toPropertyDefinitions(): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
     this?.values?.map { propertyDefinition ->
         propertyDefinition.toPropertyDefinition()
     }?.toImmutableList() ?: persistentListOf()
