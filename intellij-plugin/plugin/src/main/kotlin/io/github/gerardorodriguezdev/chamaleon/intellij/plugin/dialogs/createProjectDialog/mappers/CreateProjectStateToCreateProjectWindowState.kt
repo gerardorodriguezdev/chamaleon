@@ -110,7 +110,10 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
             CreateProjectWindowState.SetupSchemaState(
                 title = stringsProvider.string(StringsKeys.selectedTemplate),
                 globalSupportedPlatformTypes = state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
-                propertyDefinitions = state.currentProject.schema.propertyDefinitions.toPropertyDefinitions(),
+                propertyDefinitions =
+                    state.currentProject.schema.propertyDefinitions.toPropertyDefinitions(
+                        state.currentProject.schema.globalSupportedPlatformTypes,
+                    ),
             )
     }
 
@@ -138,12 +141,12 @@ private fun Context.toPropertyDefinition(
         supportedPlatformTypes = propertyDefinition.supportedPlatformTypes.toSupportedPlatformTypes(),
     )
 
-private fun NonEmptyKeySetStore<String, PropertyDefinition>?.toPropertyDefinitions(): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
-    this?.values?.map { propertyDefinition ->
-        propertyDefinition.toPropertyDefinition()
-    }?.toImmutableList() ?: persistentListOf()
+private fun NonEmptyKeySetStore<String, PropertyDefinition>.toPropertyDefinitions(globalSupportedPlatformTypes: NonEmptySet<PlatformType>): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
+    values.map { propertyDefinition ->
+        propertyDefinition.toPropertyDefinition(globalSupportedPlatformTypes)
+    }.toImmutableList()
 
-private fun PropertyDefinition.toPropertyDefinition(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
+private fun PropertyDefinition.toPropertyDefinition(globalSupportedPlatformTypes: NonEmptySet<PlatformType>): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
     CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
         nameField = Field(
             value = name.value,
@@ -151,7 +154,9 @@ private fun PropertyDefinition.toPropertyDefinition(): CreateProjectWindowState.
         ),
         propertyType = propertyType.toPropertyType(),
         nullable = nullable,
-        supportedPlatformTypes = supportedPlatformTypes.toSupportedPlatformTypes(),
+        supportedPlatformTypes = supportedPlatformTypes.toSupportedPlatformTypes(
+            defaultIfNull = globalSupportedPlatformTypes,
+        ),
     )
 
 private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType =
@@ -160,8 +165,11 @@ private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaS
         PropertyType.BOOLEAN -> CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType.BOOLEAN
     }
 
-private fun NonEmptySet<PlatformType>?.toSupportedPlatformTypes(): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType> =
-    this?.map { platformType -> platformType.toPlatformType() }?.toPersistentList() ?: persistentListOf()
+private fun NonEmptySet<PlatformType>?.toSupportedPlatformTypes(
+    defaultIfNull: NonEmptySet<PlatformType>? = null,
+): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType> =
+    (this ?: defaultIfNull)?.map { platformType -> platformType.toPlatformType() }?.toPersistentList()
+        ?: persistentListOf()
 
 private fun PlatformType.toPlatformType(): CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType =
     when (this) {
