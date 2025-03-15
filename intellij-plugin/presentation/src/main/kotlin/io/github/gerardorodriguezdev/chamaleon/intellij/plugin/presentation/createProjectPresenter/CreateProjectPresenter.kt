@@ -223,6 +223,7 @@ class CreateProjectPresenter(
                     supportedPlatformTypes = if (isChecked) {
                         if (currentState.globalSupportedPlatformTypes?.contains(newPlatformType) == true) {
                             propertyDefinition.supportedPlatformTypes?.add(newPlatformType)
+                                ?: setOf(newPlatformType).toUnsafeNonEmptySet()
                         } else {
                             propertyDefinition.supportedPlatformTypes
                         }
