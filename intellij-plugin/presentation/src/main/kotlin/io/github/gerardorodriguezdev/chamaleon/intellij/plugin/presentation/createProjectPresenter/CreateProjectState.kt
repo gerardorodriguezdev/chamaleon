@@ -1,9 +1,10 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isValidProject
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.schemaOf
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
@@ -18,6 +19,7 @@ sealed interface CreateProjectState {
 
     fun toPrevious(): CreateProjectState?
     fun toNext(): CreateProjectState?
+    fun canFinish(): Boolean
     fun toFinish(): Finish?
 
     data class SetupEnvironment(
@@ -32,7 +34,7 @@ sealed interface CreateProjectState {
                 null -> null
                 is ProjectDeserializationState.Valid.NewProject -> SetupSchema.NewSchema(
                     environmentName = environmentName ?: return null,
-                    environmentsDirectory = projectDeserializationState.environmentsDirectory,
+                    environmentsDirectoryPath = projectDeserializationState.environmentsDirectoryPath,
                 )
 
                 is ProjectDeserializationState.Valid.ExistingProject -> SetupSchema.ExistingSchema(
@@ -45,20 +47,22 @@ sealed interface CreateProjectState {
             }
         }
 
+        override fun canFinish(): Boolean = false
+
         override fun toFinish(): Finish? = null
 
         sealed interface ProjectDeserializationState {
             data class Loading(
-                val environmentsDirectory: ExistingDirectory,
+                val environmentsDirectoryPath: NonEmptyString,
             ) : ProjectDeserializationState
 
             data class Invalid(
-                val environmentsDirectory: ExistingDirectory,
+                val environmentsDirectoryPath: NonEmptyString,
                 val errorMessage: String
             ) : ProjectDeserializationState
 
             sealed interface Valid : ProjectDeserializationState {
-                data class NewProject(val environmentsDirectory: ExistingDirectory) : Valid
+                data class NewProject(val environmentsDirectoryPath: NonEmptyString) : Valid
                 data class ExistingProject(val currentProject: Project) : Valid
             }
         }
@@ -71,10 +75,12 @@ sealed interface CreateProjectState {
             SetupEnvironment(
                 environmentName = environmentName,
                 projectDeserializationState = when (this) {
-                    is NewSchema -> ProjectDeserializationState.Valid.NewProject(environmentsDirectory)
+                    is NewSchema -> ProjectDeserializationState.Valid.NewProject(environmentsDirectoryPath)
                     is ExistingSchema -> ProjectDeserializationState.Valid.ExistingProject(currentProject)
                 },
             )
+
+        override fun canFinish(): Boolean = false
 
         override fun toFinish(): Finish? = null
 
@@ -100,7 +106,7 @@ sealed interface CreateProjectState {
 
         data class NewSchema(
             override val environmentName: NonEmptyString,
-            val environmentsDirectory: ExistingDirectory,
+            val environmentsDirectoryPath: NonEmptyString,
             val globalSupportedPlatformTypes: NonEmptySet<PlatformType>? = null,
             val propertyDefinitions: List<PropertyDefinition> = emptyList(),
         ) : SetupSchema {
@@ -109,7 +115,7 @@ sealed interface CreateProjectState {
 
                 return SetupPlatforms.NewProject(
                     environmentName = environmentName,
-                    environmentsDirectory = environmentsDirectory,
+                    environmentsDirectoryPath = environmentsDirectoryPath,
                     schema = schema,
                     platforms = schema.toEmptyPlatforms(),
                 )
@@ -165,21 +171,37 @@ sealed interface CreateProjectState {
 
         data class NewProject(
             override val environmentName: NonEmptyString,
-            val environmentsDirectory: ExistingDirectory,
+            val environmentsDirectoryPath: NonEmptyString,
             val schema: Schema,
             override val platforms: NonEmptyKeySetStore<PlatformType, Platform>,
         ) : SetupPlatforms {
             override fun toPrevious(): CreateProjectState? =
                 SetupSchema.NewSchema(
                     environmentName = environmentName,
-                    environmentsDirectory = environmentsDirectory,
+                    environmentsDirectoryPath = environmentsDirectoryPath,
                     globalSupportedPlatformTypes = schema.globalSupportedPlatformTypes,
                     propertyDefinitions = schema.propertyDefinitions.values.map { propertyDefinition ->
                         propertyDefinition.toSetupSchemaPropertyDefinition()
                     },
                 )
 
+            override fun canFinish(): Boolean =
+                isValidProject(
+                    environmentsDirectoryPath = environmentsDirectoryPath,
+                    schema = schema,
+                    properties = Properties(),
+                    environments = setOf(
+                        Environment(
+                            name = environmentName,
+                            platforms = platforms,
+                        ),
+                    ).toNonEmptyKeySetStore(),
+                )
+
             override fun toFinish(): Finish? {
+                val environmentsDirectory =
+                    environmentsDirectoryPath.value.toExistingDirectory(createIfNotPresent = true) ?: return null
+
                 val project = projectOf(
                     environmentsDirectory = environmentsDirectory,
                     schema = schema,
@@ -217,6 +239,8 @@ sealed interface CreateProjectState {
                     currentProject = currentProject,
                 )
 
+            override fun canFinish(): Boolean = toFinish() != null
+
             override fun toFinish(): Finish? = Finish(currentProject)
         }
     }
@@ -224,6 +248,7 @@ sealed interface CreateProjectState {
     data class Finish(val project: Project) : CreateProjectState {
         override fun toPrevious(): CreateProjectState? = null
         override fun toNext(): CreateProjectState? = null
+        override fun canFinish(): Boolean = false
         override fun toFinish(): Finish? = null
     }
 }

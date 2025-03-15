@@ -84,7 +84,10 @@ public class Project private constructor(
         public fun String.isEnvironmentFileName(): Boolean =
             this != ENVIRONMENT_FILE_SUFFIX && endsWith(ENVIRONMENT_FILE_SUFFIX)
 
-        public fun String.isEnvironmentsDirectory(): Boolean = this == ENVIRONMENTS_DIRECTORY_NAME
+        public fun String.isEnvironmentsDirectoryName(): Boolean = this == ENVIRONMENTS_DIRECTORY_NAME
+
+        public fun String.isEnvironmentsDirectory(): Boolean =
+            this != ENVIRONMENTS_DIRECTORY_NAME && endsWith(ENVIRONMENTS_DIRECTORY_NAME)
 
         public fun projectOf(
             environmentsDirectory: ExistingDirectory,
@@ -92,30 +95,11 @@ public class Project private constructor(
             properties: Properties,
             environments: NonEmptyKeySetStore<String, Environment>? = null,
         ): ProjectValidationResult =
-            projectOfEither(
-                environmentsDirectory = environmentsDirectory,
-                schema = schema,
-                properties = properties,
-                environments = environments,
-            ).fold(
-                ifLeft = { it },
-                ifRight = { it },
-            )
-
-        private fun projectOfEither(
-            environmentsDirectory: ExistingDirectory,
-            schema: Schema,
-            properties: Properties,
-            environments: NonEmptyKeySetStore<String, Environment>?,
-        ): Either<Failure, Success> =
             either {
-                properties.isSelectedEnvironmentOnEnvironments(
-                    environmentsDirectoryPath = environmentsDirectory.path.value,
-                    environments = environments
-                ).bind()
-
-                schema.areEnvironmentsValid(
-                    environmentsDirectoryPath = environmentsDirectory.path.value,
+                validateProject(
+                    environmentsDirectoryPath = environmentsDirectory.path,
+                    schema = schema,
+                    properties = properties,
                     environments = environments,
                 ).bind()
 
@@ -127,6 +111,45 @@ public class Project private constructor(
                         environments = environments,
                     )
                 )
+            }.fold(
+                ifLeft = { it },
+                ifRight = { it },
+            )
+
+        public fun isValidProject(
+            environmentsDirectoryPath: NonEmptyString,
+            schema: Schema,
+            properties: Properties,
+            environments: NonEmptyKeySetStore<String, Environment>? = null,
+        ): Boolean =
+            validateProject(
+                environmentsDirectoryPath = environmentsDirectoryPath,
+                schema = schema,
+                properties = properties,
+                environments = environments,
+            ).fold(
+                ifLeft = { false },
+                ifRight = { true },
+            )
+
+        private fun validateProject(
+            environmentsDirectoryPath: NonEmptyString,
+            schema: Schema,
+            properties: Properties,
+            environments: NonEmptyKeySetStore<String, Environment>? = null,
+        ): Either<Failure, InternalSuccess> =
+            either {
+                properties.isSelectedEnvironmentOnEnvironments(
+                    environmentsDirectoryPath = environmentsDirectoryPath.value,
+                    environments = environments
+                ).bind()
+
+                schema.areEnvironmentsValid(
+                    environmentsDirectoryPath = environmentsDirectoryPath.value,
+                    environments = environments,
+                ).bind()
+
+                InternalSuccess
             }
 
         private fun Properties.isSelectedEnvironmentOnEnvironments(

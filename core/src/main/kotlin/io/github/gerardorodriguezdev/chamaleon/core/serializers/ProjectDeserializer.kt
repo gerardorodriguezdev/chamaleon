@@ -9,7 +9,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.extractors.DefaultEnvironmen
 import io.github.gerardorodriguezdev.chamaleon.core.extractors.EnvironmentNameExtractor
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentFileName
-import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectoryName
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.propertiesExistingFile
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.schemaExistingFile
@@ -160,7 +160,7 @@ internal class DefaultProjectDeserializer(
 
     override suspend fun deserializeRecursively(rootDirectory: ExistingDirectory): List<ProjectDeserializationResult> {
         val environmentsDirectories =
-            rootDirectory.existingDirectories { directoryName -> directoryName.isEnvironmentsDirectory() }
+            rootDirectory.existingDirectories { directoryName -> directoryName.isEnvironmentsDirectoryName() }
 
         return coroutineScope {
             environmentsDirectories

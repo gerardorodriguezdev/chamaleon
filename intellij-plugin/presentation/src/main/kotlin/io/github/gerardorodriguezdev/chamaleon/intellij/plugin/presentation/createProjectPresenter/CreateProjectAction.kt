@@ -3,13 +3,12 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.cre
 import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
 import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 sealed interface CreateProjectAction {
     sealed interface SetupEnvironmentAction : CreateProjectAction {
         data class OnEnvironmentsDirectoryChanged(
-            val newEnvironmentsDirectory: ExistingDirectory
+            val newEnvironmentsDirectoryPath: NonEmptyString,
         ) : SetupEnvironmentAction
 
         data class OnEnvironmentNameChanged(val newEnvironmentName: NonEmptyString?) : SetupEnvironmentAction

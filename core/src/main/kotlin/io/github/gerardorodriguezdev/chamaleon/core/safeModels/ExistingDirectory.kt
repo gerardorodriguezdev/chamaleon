@@ -9,6 +9,8 @@ import java.io.IOException
 public class ExistingDirectory private constructor(public val directory: File) : KeyProvider<String> {
     public val path: NonEmptyString = directory.path.toUnsafeNonEmptyString()
 
+    public val name: NonEmptyString = directory.name.toUnsafeNonEmptyString()
+
     override val key: String = path.value
 
     init {

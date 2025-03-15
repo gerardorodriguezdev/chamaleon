@@ -12,7 +12,7 @@ import com.intellij.ui.util.minimumHeight
 import com.intellij.ui.util.minimumWidth
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog
@@ -63,7 +63,7 @@ internal class CreateProjectDialog(
     init {
         collectState()
 
-        presenter.dispatch(CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(projectDirectory))
+        presenter.dispatch(CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(projectDirectory.path))
     }
 
     private fun collectState() {
@@ -137,7 +137,7 @@ internal class CreateProjectDialog(
 
     private fun CreateProjectWindowAction.handle() {
         if (this is CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath) {
-            val newSelectedEnvironmentDirectory = project.selectFileDirectoryPath()?.toExistingDirectory()
+            val newSelectedEnvironmentDirectory = project.selectFileDirectoryPath()?.toNonEmptyString()
             newSelectedEnvironmentDirectory?.let {
                 presenter.dispatch(
                     CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(

@@ -1,7 +1,12 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.utils.removeElementAtIndex
 import io.github.gerardorodriguezdev.chamaleon.core.utils.updateElementByIndex
@@ -17,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
@@ -67,8 +73,36 @@ class CreateProjectPresenter(
     private fun SetupEnvironmentAction.OnEnvironmentsDirectoryChanged.handle(currentState: SetupEnvironment) {
         deserializeJob?.cancel()
 
+        val newEnvironmentsDirectoryPath = newEnvironmentsDirectoryPath.toEnvironmentsDirectoryPath()
+        val newEnvironmentsDirectory = newEnvironmentsDirectoryPath.value.toExistingDirectory()
+        if (newEnvironmentsDirectory == null) {
+            mutableState = currentState.copy(
+                projectDeserializationState = ProjectDeserializationState.Valid.NewProject(
+                    environmentsDirectoryPath = newEnvironmentsDirectoryPath,
+                )
+            )
+            return
+        }
+
+        scanExistingEnvironmentsDirectory(
+            currentState = currentState,
+            newEnvironmentsDirectory = newEnvironmentsDirectory,
+        )
+    }
+
+    private fun NonEmptyString.toEnvironmentsDirectoryPath(): NonEmptyString =
+        if (value.isEnvironmentsDirectory()) {
+            this
+        } else {
+            append(File.separator + ENVIRONMENTS_DIRECTORY_NAME)
+        }
+
+    private fun scanExistingEnvironmentsDirectory(
+        currentState: SetupEnvironment,
+        newEnvironmentsDirectory: ExistingDirectory
+    ) {
         mutableState = currentState.copy(
-            projectDeserializationState = ProjectDeserializationState.Loading(newEnvironmentsDirectory),
+            projectDeserializationState = ProjectDeserializationState.Loading(newEnvironmentsDirectory.path),
         )
 
         deserializeJob = uiScope
@@ -77,10 +111,10 @@ class CreateProjectPresenter(
                     val projectDeserializationResult = projectDeserializer.deserialize(newEnvironmentsDirectory)
 
                     withContext(uiScope.coroutineContext) {
+                        val newCurrentState = mutableState.asSetupEnvironment() ?: return@withContext
+
                         when (projectDeserializationResult) {
                             is ProjectDeserializationResult.Success -> {
-                                val newCurrentState = mutableState.asSetupEnvironment() ?: return@withContext
-
                                 mutableState = newCurrentState.copy(
                                     projectDeserializationState = ProjectDeserializationState.Valid.ExistingProject(
                                         currentProject = projectDeserializationResult.project,
@@ -89,11 +123,9 @@ class CreateProjectPresenter(
                             }
 
                             is ProjectDeserializationResult.Failure -> {
-                                val newCurrentState = mutableState.asSetupEnvironment() ?: return@withContext
-
                                 mutableState = newCurrentState.copy(
                                     projectDeserializationState = ProjectDeserializationState.Invalid(
-                                        environmentsDirectory = newEnvironmentsDirectory,
+                                        environmentsDirectoryPath = newEnvironmentsDirectory.path,
                                         errorMessage = projectDeserializationResult.toErrorMessage(stringsProvider)
                                     )
                                 )

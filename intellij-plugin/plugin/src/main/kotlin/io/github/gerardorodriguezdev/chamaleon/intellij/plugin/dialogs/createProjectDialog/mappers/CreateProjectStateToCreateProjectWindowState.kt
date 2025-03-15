@@ -52,13 +52,13 @@ private fun Context.toEnvironmentsDirectoryPathField(projectDeserializationState
 
         is ProjectDeserializationState.Loading ->
             Field(
-                value = projectDeserializationState.environmentsDirectory.path.value,
+                value = projectDeserializationState.environmentsDirectoryPath.value,
                 verification = Verification.Loading
             )
 
         is ProjectDeserializationState.Invalid ->
             Field(
-                value = projectDeserializationState.environmentsDirectory.path.value,
+                value = projectDeserializationState.environmentsDirectoryPath.value,
                 verification = Verification.Invalid(projectDeserializationState.errorMessage),
             )
     }
