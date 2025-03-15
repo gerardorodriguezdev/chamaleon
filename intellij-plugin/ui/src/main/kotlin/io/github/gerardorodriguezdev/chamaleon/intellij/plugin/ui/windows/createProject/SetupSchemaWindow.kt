@@ -94,7 +94,7 @@ private fun LazyListScope.propertyDefinitionsSection(
     onNullableChanged: (index: Int, newValue: Boolean) -> Unit,
     onSupportedPlatformChanged: (index: Int, isChecked: Boolean, platformType: PlatformType) -> Unit,
 ) {
-    stickyHeader {
+    item {
         PropertyDefinitionSectionTitle(onAddPropertyDefinition = onAddPropertyDefinition)
     }
 
