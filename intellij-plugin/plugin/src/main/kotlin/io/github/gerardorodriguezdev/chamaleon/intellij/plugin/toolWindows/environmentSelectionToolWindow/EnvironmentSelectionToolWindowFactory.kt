@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.Versions
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -51,12 +52,10 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
             EnvironmentSelectionWindowState(gradlePluginVersionUsed = Versions.CORE)
         )
 
-    init {
-        collectState()
-    }
-
     @OptIn(ExperimentalJewelApi::class)
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        collectState(project)
+
         project.scanProject()
 
         toolWindow.addComposeTab(tabDisplayName = BundleStringsProvider.string(StringsKeys.environmentSelectionWindowName)) {
@@ -77,10 +76,12 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
-                            val environmentsDirectoryPath =
-                                environmentsDirectoryPath.toNonEmptyString() ?: return@EnvironmentSelectionWindow
-                            val newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
-                            project.onSelectedEnvironmentChanged(environmentsDirectoryPath, newSelectedEnvironment)
+                            project.onSelectedEnvironmentChanged(
+                                projectDirectory = project.toExistingDirectory() ?: return@EnvironmentSelectionWindow,
+                                environmentsDirectoryPath = environmentsDirectoryPath.toNonEmptyString()
+                                    ?: return@EnvironmentSelectionWindow,
+                                newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
+                            )
                         },
                     )
                 }
@@ -88,10 +89,12 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         }
     }
 
-    private fun collectState() {
+    private fun collectState(project: Project) {
         uiScope.launch {
             presenter.stateFlow.collect { environmentSelectionState ->
-                environmentSelectionWindowState.value = environmentSelectionState.toEnvironmentsSelectionWindowState()
+                val projectDirectory = project.toExistingDirectory() ?: return@collect
+                environmentSelectionWindowState.value =
+                    environmentSelectionState.toEnvironmentsSelectionWindowState(projectDirectory.path.value)
             }
         }
     }
@@ -102,11 +105,13 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     }
 
     private fun Project.onSelectedEnvironmentChanged(
+        projectDirectory: ExistingDirectory,
         environmentsDirectoryPath: NonEmptyString,
         newSelectedEnvironment: NonEmptyString?
     ) {
         presenter.dispatch(
             EnvironmentSelectionAction.SelectEnvironment(
+                projectDirectory = projectDirectory,
                 environmentsDirectoryPath = environmentsDirectoryPath,
                 newSelectedEnvironment = newSelectedEnvironment,
             )
