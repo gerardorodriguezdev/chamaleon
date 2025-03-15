@@ -47,22 +47,27 @@ private fun Context.toEnvironmentsDirectoryPathField(projectDeserializationState
     return when (projectDeserializationState) {
         null -> Field(value = "", verification = null)
 
-        is ProjectDeserializationState.Valid ->
-            Field(value = "", verification = Verification.Valid)
+        is ProjectDeserializationState.Valid -> Field(
+            value = environmentsDirectoryPathValue(projectDeserializationState),
+            verification = Verification.Valid
+        )
 
         is ProjectDeserializationState.Loading ->
             Field(
-                value = projectDeserializationState.environmentsDirectoryPath.value,
+                value = environmentsDirectoryPathValue(projectDeserializationState),
                 verification = Verification.Loading
             )
 
         is ProjectDeserializationState.Invalid ->
             Field(
-                value = projectDeserializationState.environmentsDirectoryPath.value,
+                value = environmentsDirectoryPathValue(projectDeserializationState),
                 verification = Verification.Invalid(projectDeserializationState.errorMessage),
             )
     }
 }
+
+private fun Context.environmentsDirectoryPathValue(projectDeserializationState: ProjectDeserializationState): String =
+    projectDeserializationState.environmentsDirectoryPath.value.removePrefix(projectDirectoryPath)
 
 private fun Context.toEnvironmentNameField(
     environmentName: NonEmptyString?,

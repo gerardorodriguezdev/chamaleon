@@ -52,18 +52,22 @@ sealed interface CreateProjectState {
         override fun toFinish(): Finish? = null
 
         sealed interface ProjectDeserializationState {
+            val environmentsDirectoryPath: NonEmptyString
+
             data class Loading(
-                val environmentsDirectoryPath: NonEmptyString,
+                override val environmentsDirectoryPath: NonEmptyString,
             ) : ProjectDeserializationState
 
             data class Invalid(
-                val environmentsDirectoryPath: NonEmptyString,
+                override val environmentsDirectoryPath: NonEmptyString,
                 val errorMessage: String
             ) : ProjectDeserializationState
 
             sealed interface Valid : ProjectDeserializationState {
-                data class NewProject(val environmentsDirectoryPath: NonEmptyString) : Valid
-                data class ExistingProject(val currentProject: Project) : Valid
+                data class NewProject(override val environmentsDirectoryPath: NonEmptyString) : Valid
+                data class ExistingProject(val currentProject: Project) : Valid {
+                    override val environmentsDirectoryPath: NonEmptyString = currentProject.environmentsDirectory.path
+                }
             }
         }
     }
