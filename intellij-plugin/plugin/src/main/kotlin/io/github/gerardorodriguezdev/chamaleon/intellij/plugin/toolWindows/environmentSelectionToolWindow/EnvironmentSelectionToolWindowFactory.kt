@@ -2,35 +2,39 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.toolWindows.envi
 
 import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.Versions
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.CreateProjectDialog
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.notifications.ProjectCreationNotifier
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toErrorMessage
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.notifications.CreateProjectNotifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.toolWindows.environmentSelectionToolWindow.mappers.toEnvironmentsSelectionWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.Theme
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.stringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showFailureNotification
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showSuccessNotification
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.toExistingDirectory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.addComposeTab
 import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
     private val projectSerializer = ProjectSerializer.Companion.create()
@@ -58,7 +62,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
 
         project.scanProject()
 
-        toolWindow.addComposeTab(tabDisplayName = BundleStringsProvider.string(StringsKeys.environmentSelectionWindowName)) {
+        toolWindow.addComposeTab(tabDisplayName = string(StringsKeys.environmentSelectionWindowName)) {
             SwingBridgeTheme {
                 Theme {
                     EnvironmentSelectionWindow(
@@ -97,11 +101,8 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         }
 
         project.messageBus.connect().subscribe(
-            topic = ProjectCreationNotifier.TOPIC,
-            handler = ProjectCreationNotifier {
-                val projectDirectory = project.toExistingDirectory() ?: return@ProjectCreationNotifier
-                presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
-            }
+            topic = CreateProjectNotifier.TOPIC,
+            handler = project.createProjectNotifier(),
         )
     }
 
@@ -120,6 +121,45 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                 newSelectedEnvironment = newSelectedEnvironment,
             )
         )
+    }
+
+    private fun Project.createProjectNotifier(): CreateProjectNotifier =
+        object : CreateProjectNotifier {
+            override fun createProject(chamaleonProject: ChamaleonProject) {
+                ioScope.launch {
+                    val projectSerializer = ProjectSerializer.Companion.create()
+                    val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
+
+                    withContext(Dispatchers.EDT) {
+                        reportProjectSerializationResult(projectSerializationResult, chamaleonProject)
+                    }
+                }
+            }
+        }
+
+    private fun Project.reportProjectSerializationResult(
+        projectSerializationResult: ProjectSerializationResult,
+        chamaleonProject: ChamaleonProject,
+    ) {
+        when (projectSerializationResult) {
+            is ProjectSerializationResult.Success -> {
+                showSuccessNotification(
+                    title = string(StringsKeys.chamaleonEnvironmentGeneration),
+                    message = string(StringsKeys.environmentGeneratedSuccessfully)
+                )
+
+                chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
+
+                val projectDirectory = toExistingDirectory() ?: return
+                presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
+            }
+
+            is ProjectSerializationResult.Failure ->
+                showFailureNotification(
+                    title = string(StringsKeys.chamaleonEnvironmentGeneration),
+                    message = projectSerializationResult.toErrorMessage(BundleStringsProvider)
+                )
+        }
     }
 
     override fun dispose() {
