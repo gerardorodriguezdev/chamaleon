@@ -139,7 +139,7 @@ private fun Context.toPropertyDefinition(
             verification = if (propertyDefinition.name == null) {
                 Verification.Invalid(stringsProvider.string(StringsKeys.emptyPropertyDefinitionName))
             } else {
-                Verification.Valid
+                null
             }
         ),
         propertyType = propertyDefinition.propertyType.toPropertyType(),
@@ -154,7 +154,7 @@ private fun PropertyDefinition.toPropertyDefinition(
     CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
         nameField = Field(
             value = name.value,
-            verification = Verification.Valid,
+            verification = null,
         ),
         propertyType = propertyType.toPropertyType(),
         nullable = nullable,

@@ -150,8 +150,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
 
                 chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
 
-                val projectDirectory = toExistingDirectory() ?: return
-                presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
+                scanProject()
             }
 
             is ProjectSerializationResult.Failure ->
