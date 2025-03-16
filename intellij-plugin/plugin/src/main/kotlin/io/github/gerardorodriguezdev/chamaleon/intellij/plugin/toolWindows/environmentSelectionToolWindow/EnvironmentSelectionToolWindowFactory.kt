@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.Versions
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -75,11 +74,9 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                                 projectDeserializer = projectDeserializer,
                             ).show()
                         },
-                        onSelectedEnvironmentChanged = { environmentsDirectoryPath, newSelectedEnvironment ->
+                        onSelectedEnvironmentChanged = { index, newSelectedEnvironment ->
                             project.onSelectedEnvironmentChanged(
-                                projectDirectory = project.toExistingDirectory() ?: return@EnvironmentSelectionWindow,
-                                environmentsDirectoryPath = environmentsDirectoryPath.toNonEmptyString()
-                                    ?: return@EnvironmentSelectionWindow,
+                                index = index,
                                 newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
                             )
                         },
@@ -105,14 +102,12 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     }
 
     private fun Project.onSelectedEnvironmentChanged(
-        projectDirectory: ExistingDirectory,
-        environmentsDirectoryPath: NonEmptyString,
+        index: Int,
         newSelectedEnvironment: NonEmptyString?
     ) {
         presenter.dispatch(
             EnvironmentSelectionAction.SelectEnvironment(
-                projectDirectory = projectDirectory,
-                environmentsDirectoryPath = environmentsDirectoryPath,
+                index = index,
                 newSelectedEnvironment = newSelectedEnvironment,
             )
         )

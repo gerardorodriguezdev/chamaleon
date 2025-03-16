@@ -20,7 +20,7 @@ sealed interface CreateProjectState {
     fun toPrevious(): CreateProjectState?
     fun toNext(): CreateProjectState?
     fun canFinish(): Boolean
-    fun toFinish(): Finish?
+    fun toFinish(): Project?
 
     data class SetupEnvironment(
         val projectDeserializationState: ProjectDeserializationState? = null,
@@ -49,7 +49,7 @@ sealed interface CreateProjectState {
 
         override fun canFinish(): Boolean = false
 
-        override fun toFinish(): Finish? = null
+        override fun toFinish(): Project? = null
 
         sealed interface ProjectDeserializationState {
             val environmentsDirectoryPath: NonEmptyString
@@ -86,7 +86,7 @@ sealed interface CreateProjectState {
 
         override fun canFinish(): Boolean = false
 
-        override fun toFinish(): Finish? = null
+        override fun toFinish(): Project? = null
 
         fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform> {
             return globalSupportedPlatformTypes.mapToNonEmptyKeySetStore { globalSupportedPlatformType ->
@@ -202,7 +202,7 @@ sealed interface CreateProjectState {
                     ).toNonEmptyKeySetStore(),
                 )
 
-            override fun toFinish(): Finish? {
+            override fun toFinish(): Project? {
                 val environmentsDirectory =
                     environmentsDirectoryPath.value.toExistingDirectory(createIfNotPresent = true) ?: return null
 
@@ -218,9 +218,7 @@ sealed interface CreateProjectState {
                     ).toNonEmptyKeySetStore(),
                 ).project()
 
-                return project?.let {
-                    Finish(project)
-                }
+                return project
             }
 
             private fun Schema.PropertyDefinition.toSetupSchemaPropertyDefinition(): SetupSchema.NewSchema.PropertyDefinition =
@@ -245,14 +243,7 @@ sealed interface CreateProjectState {
 
             override fun canFinish(): Boolean = toFinish() != null
 
-            override fun toFinish(): Finish? = Finish(currentProject)
+            override fun toFinish(): Project? = currentProject
         }
-    }
-
-    data class Finish(val project: Project) : CreateProjectState {
-        override fun toPrevious(): CreateProjectState? = null
-        override fun toNext(): CreateProjectState? = null
-        override fun canFinish(): Boolean = false
-        override fun toFinish(): Finish? = null
     }
 }

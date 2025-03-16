@@ -7,7 +7,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 
 sealed interface CreateProjectAction {
     sealed interface SetupEnvironmentAction : CreateProjectAction {
-        data class OnEnvironmentsDirectoryChanged(
+        data class OnEnvironmentsDirectoryPathChanged(
             val newEnvironmentsDirectoryPath: NonEmptyString,
         ) : SetupEnvironmentAction
 

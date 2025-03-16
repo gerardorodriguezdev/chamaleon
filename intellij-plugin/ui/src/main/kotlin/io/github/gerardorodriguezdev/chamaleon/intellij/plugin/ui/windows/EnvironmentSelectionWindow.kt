@@ -3,7 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +21,7 @@ fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionWindowState,
     onRefresh: () -> Unit,
     onCreateProject: () -> Unit,
-    onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when {
@@ -57,7 +57,7 @@ private fun ContentWindow(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onRefresh: () -> Unit,
     onCreateProject: () -> Unit,
-    onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WindowContainer(
@@ -103,17 +103,17 @@ private fun ContentWindow(
 
 private fun LazyListScope.environmentCards(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
-    onSelectedEnvironmentChanged: (environmentsDirectoryPath: String, newSelectedEnvironment: String?) -> Unit,
+    onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
 ) {
-    items(
+    itemsIndexed(
         items = environmentCardStates,
-        key = { environmentCardState -> environmentCardState.environmentsDirectoryPath },
-    ) { environmentCardState ->
+        key = { index, environmentCardState -> environmentCardState.environmentsDirectoryPath },
+    ) { index, environmentCardState ->
         EnvironmentCard(
             state = environmentCardState,
             onSelectedEnvironmentChanged = { newSelectedEnvironment ->
                 onSelectedEnvironmentChanged(
-                    environmentCardState.environmentsDirectoryPath,
+                    index,
                     newSelectedEnvironment,
                 )
             }

@@ -1,7 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter
 
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.isEnvironmentsDirectoryPath
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
@@ -29,6 +30,7 @@ class CreateProjectPresenter(
     private val ioScope: CoroutineScope,
     private val projectDeserializer: ProjectDeserializer,
     private val stringsProvider: StringsProvider,
+    private val onFinish: (Project) -> Unit,
 ) {
     private val mutableStateFlow = MutableStateFlow<CreateProjectState>(SetupEnvironment())
     val stateFlow: StateFlow<CreateProjectState> = mutableStateFlow
@@ -66,11 +68,11 @@ class CreateProjectPresenter(
 
     private fun SetupEnvironmentAction.handle(currentState: SetupEnvironment) =
         when (this) {
-            is SetupEnvironmentAction.OnEnvironmentsDirectoryChanged -> handle(currentState)
+            is SetupEnvironmentAction.OnEnvironmentsDirectoryPathChanged -> handle(currentState)
             is SetupEnvironmentAction.OnEnvironmentNameChanged -> handle(currentState)
         }
 
-    private fun SetupEnvironmentAction.OnEnvironmentsDirectoryChanged.handle(currentState: SetupEnvironment) {
+    private fun SetupEnvironmentAction.OnEnvironmentsDirectoryPathChanged.handle(currentState: SetupEnvironment) {
         deserializeJob?.cancel()
 
         val newEnvironmentsDirectoryPath = newEnvironmentsDirectoryPath.toEnvironmentsDirectoryPath()
@@ -91,11 +93,7 @@ class CreateProjectPresenter(
     }
 
     private fun NonEmptyString.toEnvironmentsDirectoryPath(): NonEmptyString =
-        if (value.isEnvironmentsDirectory()) {
-            this
-        } else {
-            append(File.separator + ENVIRONMENTS_DIRECTORY_NAME)
-        }
+        if (value.isEnvironmentsDirectoryPath()) this else append(File.separator + ENVIRONMENTS_DIRECTORY_NAME)
 
     private fun scanExistingEnvironmentsDirectory(
         currentState: SetupEnvironment,
@@ -286,9 +284,9 @@ class CreateProjectPresenter(
             }
 
             is NavigationAction.OnFinish -> {
-                val newState = mutableState.toFinish()
-                newState?.let {
-                    mutableState = newState
+                val project = mutableState.toFinish()
+                project?.let {
+                    onFinish(project)
                 }
             }
         }

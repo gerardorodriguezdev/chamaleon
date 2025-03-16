@@ -95,10 +95,8 @@ class EnvironmentSelectionPresenter(
         updateSelectedEnvironmentJob =
             ioScope
                 .launch {
-                    val environmentsDirectoryPathTranslation =
-                        projectDirectory.path.append(environmentsDirectoryPath.value)
                     val currentProjects = mutableState.projects
-                    val project = currentProjects?.get(environmentsDirectoryPathTranslation.value) ?: return@launch
+                    val project = currentProjects?.values?.toList()?.getOrNull(index) ?: return@launch
                     val newProject = project.updateProperties(newSelectedEnvironment) ?: return@launch
 
                     val projectSerializationResult = projectSerializer.serialize(newProject)

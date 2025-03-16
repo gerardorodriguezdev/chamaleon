@@ -30,7 +30,6 @@ internal fun CreateProjectState.toCreateProjectWindowState(
         is CreateProjectState.SetupEnvironment -> context.toSetupEnvironment(this)
         is CreateProjectState.SetupSchema -> context.toSetupSchema(this)
         is CreateProjectState.SetupPlatforms -> context.toSetupPlatforms(this)
-        is CreateProjectState.Finish -> null
     }
 
 }

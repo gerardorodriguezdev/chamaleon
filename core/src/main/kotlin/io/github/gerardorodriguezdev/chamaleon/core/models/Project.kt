@@ -86,7 +86,7 @@ public class Project private constructor(
 
         public fun String.isEnvironmentsDirectoryName(): Boolean = this == ENVIRONMENTS_DIRECTORY_NAME
 
-        public fun String.isEnvironmentsDirectory(): Boolean =
+        public fun String.isEnvironmentsDirectoryPath(): Boolean =
             this != ENVIRONMENTS_DIRECTORY_NAME && endsWith(ENVIRONMENTS_DIRECTORY_NAME)
 
         public fun projectOf(

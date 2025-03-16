@@ -22,7 +22,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createPro
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectPresenter
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
@@ -42,6 +41,8 @@ import org.jetbrains.jewel.foundation.enableNewSwingCompositing
 import javax.swing.JComponent
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
+//TODO: Function calls with named params (grad plug + intell mods)
+//TODO: Notify plugin to update files as well
 internal class CreateProjectDialog(
     private val project: Project,
     private val projectDirectory: ExistingDirectory,
@@ -55,6 +56,9 @@ internal class CreateProjectDialog(
         ioScope = ioScope,
         projectDeserializer = projectDeserializer,
         stringsProvider = BundleStringsProvider,
+        onFinish = { chamaleonProject ->
+            project.generateEnvironments(chamaleonProject)
+        }
     )
 
     private val createProjectWindowState =
@@ -63,19 +67,21 @@ internal class CreateProjectDialog(
     init {
         collectState()
 
-        presenter.dispatch(CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(projectDirectory.path))
+        presenter.dispatch(
+            CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryPathChanged(projectDirectory.path)
+        )
     }
 
     private fun collectState() {
         uiScope.launch {
             presenter.stateFlow.collect { createProjectState ->
                 setDialogButtonsState(createProjectState.toDialogButtonsState())
-                if (createProjectState is CreateProjectState.Finish) {
-                    project.generateEnvironments(createProjectState.project)
-                }
 
                 val newCreateProjectWindowState =
-                    createProjectState.toCreateProjectWindowState(projectDirectory.path.value, BundleStringsProvider)
+                    createProjectState.toCreateProjectWindowState(
+                        projectDirectoryPath = projectDirectory.path.value,
+                        stringsProvider = BundleStringsProvider,
+                    )
                 newCreateProjectWindowState?.let {
                     createProjectWindowState.value = newCreateProjectWindowState
                 }
@@ -115,43 +121,54 @@ internal class CreateProjectDialog(
             task = {
                 val projectSerializer = ProjectSerializer.Companion.create()
                 val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
-
-                when (projectSerializationResult) {
-                    is ProjectSerializationResult.Success -> {
-                        showSuccessNotification(
-                            title = string(StringsKeys.chamaleonEnvironmentGeneration),
-                            message = string(StringsKeys.environmentGeneratedSuccessfully)
-                        )
-                        chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
-                    }
-
-                    is ProjectSerializationResult.Failure ->
-                        showFailureNotification(
-                            title = string(StringsKeys.chamaleonEnvironmentGeneration),
-                            message = projectSerializationResult.toErrorMessage(BundleStringsProvider)
-                        )
-                }
+                reportProjectSerializationResult(projectSerializationResult, chamaleonProject)
             }
         )
     }
 
-    private fun CreateProjectWindowAction.handle() {
-        if (this is CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath) {
-            val newSelectedEnvironmentDirectory = project.selectFileDirectoryPath()?.toNonEmptyString()
-            newSelectedEnvironmentDirectory?.let {
-                presenter.dispatch(
-                    CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryChanged(
-                        newSelectedEnvironmentDirectory
-                    )
+    private suspend fun Project.reportProjectSerializationResult(
+        projectSerializationResult: ProjectSerializationResult,
+        chamaleonProject: ChamaleonProject,
+    ) {
+        //TODO: Do in correct coroutine
+        when (projectSerializationResult) {
+            is ProjectSerializationResult.Success -> {
+                showSuccessNotification(
+                    title = string(StringsKeys.chamaleonEnvironmentGeneration),
+                    message = string(StringsKeys.environmentGeneratedSuccessfully)
                 )
+                chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
             }
-        } else {
-            val action = toCreateProjectAction()
-            action?.let {
-                presenter.dispatch(action)
+
+            is ProjectSerializationResult.Failure ->
+                showFailureNotification(
+                    title = string(StringsKeys.chamaleonEnvironmentGeneration),
+                    message = projectSerializationResult.toErrorMessage(BundleStringsProvider)
+                )
+        }
+    }
+
+    private fun CreateProjectWindowAction.handle() {
+        when (this) {
+            is CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> handle()
+            else -> {
+                val action = toCreateProjectAction()
+                action?.let {
+                    presenter.dispatch(action)
+                }
             }
         }
+    }
 
+    private fun CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath.handle() {
+        val newSelectedEnvironmentDirectory = project.selectFileDirectoryPath()?.toNonEmptyString()
+        newSelectedEnvironmentDirectory?.let {
+            presenter.dispatch(
+                CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryPathChanged(
+                    newSelectedEnvironmentDirectory
+                )
+            )
+        }
     }
 
     override fun dispose() {
