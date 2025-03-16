@@ -11,6 +11,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Co
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.CreateProjectDialog
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.notifications.ProjectCreationNotifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
@@ -94,6 +95,14 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                     environmentSelectionState.toEnvironmentsSelectionWindowState(projectDirectory.path.value)
             }
         }
+
+        project.messageBus.connect().subscribe(
+            topic = ProjectCreationNotifier.TOPIC,
+            handler = ProjectCreationNotifier {
+                val projectDirectory = project.toExistingDirectory() ?: return@ProjectCreationNotifier
+                presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
+            }
+        )
     }
 
     private fun Project.scanProject() {

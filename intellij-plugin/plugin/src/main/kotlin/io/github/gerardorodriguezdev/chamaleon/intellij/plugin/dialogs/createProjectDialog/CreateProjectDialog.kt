@@ -20,6 +20,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createPro
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toCreateProjectWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toDialogButtonsState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toErrorMessage
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.notifications.ProjectCreationNotifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
@@ -42,7 +43,6 @@ import javax.swing.JComponent
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
 //TODO: Function calls with named params (grad plug + intell mods)
-//TODO: Notify plugin to update files as well
 internal class CreateProjectDialog(
     private val project: Project,
     private val projectDirectory: ExistingDirectory,
@@ -122,6 +122,7 @@ internal class CreateProjectDialog(
                 val projectSerializer = ProjectSerializer.Companion.create()
                 val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
                 reportProjectSerializationResult(projectSerializationResult, chamaleonProject)
+                messageBus.syncPublisher(ProjectCreationNotifier.TOPIC).invoke()
             }
         )
     }
