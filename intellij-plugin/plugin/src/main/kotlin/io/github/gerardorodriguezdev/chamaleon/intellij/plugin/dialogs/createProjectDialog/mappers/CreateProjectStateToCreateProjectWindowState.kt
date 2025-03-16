@@ -1,9 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers
 
-import io.github.gerardorodriguezdev.chamaleon.core.models.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyType
-import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue
+import io.github.gerardorodriguezdev.chamaleon.core.models.*
 import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.PropertyDefinition
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
@@ -79,29 +76,37 @@ private fun Context.toEnvironmentNameField(
         )
     } else {
         when (projectDeserializationState) {
-            is ProjectDeserializationState.Valid.NewProject ->
-                Field(value = environmentName.value, verification = Verification.Valid)
-
-            is ProjectDeserializationState.Valid.ExistingProject ->
-                Field(
-                    value = environmentName.value,
-                    verification = if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
-                        Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
-                    } else {
-                        Verification.Valid
-                    }
-                )
-
+            is ProjectDeserializationState.Valid -> toEnvironmentNameField(environmentName, projectDeserializationState)
             else -> Field(value = environmentName.value, verification = null)
         }
     }
 }
 
+private fun Context.toEnvironmentNameField(
+    environmentName: NonEmptyString,
+    projectDeserializationState: ProjectDeserializationState.Valid,
+): Field<String> =
+    when (projectDeserializationState) {
+        is ProjectDeserializationState.Valid.NewProject ->
+            Field(value = environmentName.value, verification = Verification.Valid)
+
+        is ProjectDeserializationState.Valid.ExistingProject ->
+            Field(
+                value = environmentName.value,
+                verification = if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
+                    Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
+                } else {
+                    Verification.Valid
+                }
+            )
+    }
+
 private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): CreateProjectWindowState.SetupSchemaState =
     when (state) {
         is CreateProjectState.SetupSchema.NewSchema -> CreateProjectWindowState.SetupSchemaState(
             title = stringsProvider.string(StringsKeys.createTemplate),
-            globalSupportedPlatformTypes = state.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+            globalSupportedPlatformTypes = state.globalSupportedPlatformTypes?.toSupportedPlatformTypes()
+                ?: persistentListOf(),
             propertyDefinitions = toPropertyDefinitions(state.propertyDefinitions),
         )
 
@@ -109,10 +114,7 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
             CreateProjectWindowState.SetupSchemaState(
                 title = stringsProvider.string(StringsKeys.selectedTemplate),
                 globalSupportedPlatformTypes = state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
-                propertyDefinitions =
-                    state.currentProject.schema.propertyDefinitions.toPropertyDefinitions(
-                        state.currentProject.schema.globalSupportedPlatformTypes,
-                    ),
+                propertyDefinitions = toPropertyDefinitions(state.currentProject.schema),
             )
     }
 
@@ -122,6 +124,11 @@ private fun Context.toPropertyDefinitions(
     propertyDefinitions.map { propertyDefinition ->
         toPropertyDefinition(propertyDefinition)
     }.toPersistentList()
+
+private fun Context.toPropertyDefinitions(schema: Schema): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
+    schema.propertyDefinitions.values.map { propertyDefinition ->
+        propertyDefinition.toPropertyDefinition(schema.globalSupportedPlatformTypes)
+    }.toImmutableList()
 
 private fun Context.toPropertyDefinition(
     propertyDefinition: CreateProjectState.SetupSchema.NewSchema.PropertyDefinition,
@@ -137,15 +144,13 @@ private fun Context.toPropertyDefinition(
         ),
         propertyType = propertyDefinition.propertyType.toPropertyType(),
         nullable = propertyDefinition.nullable,
-        supportedPlatformTypes = propertyDefinition.supportedPlatformTypes.toSupportedPlatformTypes(),
+        supportedPlatformTypes = propertyDefinition.supportedPlatformTypes?.toSupportedPlatformTypes()
+            ?: persistentListOf(),
     )
 
-private fun NonEmptyKeySetStore<String, PropertyDefinition>.toPropertyDefinitions(globalSupportedPlatformTypes: NonEmptySet<PlatformType>): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
-    values.map { propertyDefinition ->
-        propertyDefinition.toPropertyDefinition(globalSupportedPlatformTypes)
-    }.toImmutableList()
-
-private fun PropertyDefinition.toPropertyDefinition(globalSupportedPlatformTypes: NonEmptySet<PlatformType>): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
+private fun PropertyDefinition.toPropertyDefinition(
+    globalSupportedPlatformTypes: NonEmptySet<PlatformType>
+): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
     CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
         nameField = Field(
             value = name.value,
@@ -153,9 +158,9 @@ private fun PropertyDefinition.toPropertyDefinition(globalSupportedPlatformTypes
         ),
         propertyType = propertyType.toPropertyType(),
         nullable = nullable,
-        supportedPlatformTypes = supportedPlatformTypes.toSupportedPlatformTypes(
-            defaultIfNull = globalSupportedPlatformTypes,
-        ),
+        supportedPlatformTypes =
+            supportedPlatformTypes?.toSupportedPlatformTypes()
+                ?: globalSupportedPlatformTypes.toSupportedPlatformTypes(),
     )
 
 private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType =
@@ -164,11 +169,8 @@ private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaS
         PropertyType.BOOLEAN -> CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType.BOOLEAN
     }
 
-private fun NonEmptySet<PlatformType>?.toSupportedPlatformTypes(
-    defaultIfNull: NonEmptySet<PlatformType>? = null,
-): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType> =
-    (this ?: defaultIfNull)?.map { platformType -> platformType.toPlatformType() }?.toPersistentList()
-        ?: persistentListOf()
+private fun NonEmptySet<PlatformType>.toSupportedPlatformTypes(): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType> =
+    map { platformType -> platformType.toPlatformType() }.toPersistentList()
 
 private fun PlatformType.toPlatformType(): CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType =
     when (this) {
@@ -183,24 +185,25 @@ private fun Context.toSetupPlatforms(state: CreateProjectState.SetupPlatforms): 
     when (state) {
         is CreateProjectState.SetupPlatforms.NewProject ->
             CreateProjectWindowState.SetupPlatformsState(
-                platforms = state.platforms.values.map { platform ->
-                    CreateProjectWindowState.SetupPlatformsState.Platform(
-                        platformType = platform.platformType.toPlatformType(),
-                        properties = toProperties(platform.properties, state.schema.propertyDefinitions)
-                    )
-                }.toPersistentList(),
+                platforms = toPlatforms(state.platforms, state.schema)
             )
 
         is CreateProjectState.SetupPlatforms.ExistingProject ->
             CreateProjectWindowState.SetupPlatformsState(
-                platforms = state.platforms.values.map { platform ->
-                    CreateProjectWindowState.SetupPlatformsState.Platform(
-                        platformType = platform.platformType.toPlatformType(),
-                        properties = toProperties(platform.properties, state.currentProject.schema.propertyDefinitions)
-                    )
-                }.toPersistentList()
+                platforms = toPlatforms(state.platforms, state.currentProject.schema)
             )
     }
+
+private fun Context.toPlatforms(
+    platforms: NonEmptyKeySetStore<PlatformType, Platform>,
+    schema: Schema,
+): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform> =
+    platforms.values.map { platform ->
+        CreateProjectWindowState.SetupPlatformsState.Platform(
+            platformType = platform.platformType.toPlatformType(),
+            properties = toProperties(platform.properties, schema.propertyDefinitions)
+        )
+    }.toPersistentList()
 
 private fun Context.toProperties(
     properties: NonEmptyKeySetStore<String, Platform.Property>,
@@ -231,7 +234,7 @@ private fun Context.toPropertyValue(
 
         is PropertyValue.BooleanProperty ->
             CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.BooleanProperty(
-                propertyValue.value
+                value = propertyValue.value
             )
     }
 
