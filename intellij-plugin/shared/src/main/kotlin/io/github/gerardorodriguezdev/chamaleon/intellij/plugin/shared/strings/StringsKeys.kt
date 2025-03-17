@@ -51,6 +51,7 @@ object StringsKeys {
     val chamaleonEnvironmentGeneration = StringKey("chamaleon.environment.generation")
     val emptyPropertyDefinitionName = StringKey("empty.property.definition.name")
     val valueEmptyButNotNullable = StringKey("value.empty.but.not.nullable")
+    val propertyDefinitionIsDuplicated = StringKey("property.definition.is.duplicated")
 
     fun invalidSchemaFile(environmentsDirectoryPath: String): StringKey =
         StringKey("invalid.schema.file", persistentListOf(environmentsDirectoryPath))

@@ -122,8 +122,16 @@ private fun Context.toPropertyDefinitions(
     propertyDefinitions: List<CreateProjectState.SetupSchema.NewSchema.PropertyDefinition>,
 ): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
     propertyDefinitions.map { propertyDefinition ->
-        toPropertyDefinition(propertyDefinition)
+        val isDuplicated = propertyDefinition.isDuplicated(propertyDefinitions)
+        toPropertyDefinition(isDuplicated = isDuplicated, propertyDefinition = propertyDefinition)
     }.toPersistentList()
+
+private fun CreateProjectState.SetupSchema.NewSchema.PropertyDefinition.isDuplicated(
+    propertyDefinitions: List<CreateProjectState.SetupSchema.NewSchema.PropertyDefinition>
+): Boolean =
+    propertyDefinitions.count { currentPropertyDefinition ->
+        currentPropertyDefinition.name == name
+    } > 1
 
 private fun Context.toPropertyDefinitions(schema: Schema): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
     schema.propertyDefinitions.values.map { propertyDefinition ->
@@ -131,15 +139,20 @@ private fun Context.toPropertyDefinitions(schema: Schema): ImmutableList<CreateP
     }.toImmutableList()
 
 private fun Context.toPropertyDefinition(
+    isDuplicated: Boolean,
     propertyDefinition: CreateProjectState.SetupSchema.NewSchema.PropertyDefinition,
 ): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
     CreateProjectWindowState.SetupSchemaState.PropertyDefinition(
         nameField = Field(
             value = propertyDefinition.name?.value ?: "",
-            verification = if (propertyDefinition.name == null) {
-                Verification.Invalid(stringsProvider.string(StringsKeys.emptyPropertyDefinitionName))
-            } else {
-                null
+            verification = when {
+                propertyDefinition.name == null ->
+                    Verification.Invalid(stringsProvider.string(StringsKeys.emptyPropertyDefinitionName))
+
+                isDuplicated ->
+                    Verification.Invalid(stringsProvider.string(StringsKeys.propertyDefinitionIsDuplicated))
+
+                else -> null
             }
         ),
         propertyType = propertyDefinition.propertyType.toPropertyType(),
