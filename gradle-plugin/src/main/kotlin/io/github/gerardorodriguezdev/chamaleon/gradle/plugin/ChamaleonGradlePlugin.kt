@@ -13,6 +13,7 @@ import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampl
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.SelectEnvironmentTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
 import kotlinx.coroutines.runBlocking
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
@@ -27,6 +28,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             registerGenerateSampleTask()
             registerSelectEnvironmentTask(extension)
             registerGenerateEnvironmentTask(extension)
+            registerVersionTask()
         }
     }
 
@@ -109,6 +111,11 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             projectProperty.set(extension.project)
         }
 
+    private fun Project.registerVersionTask(): TaskProvider<DefaultTask> =
+        tasks.register(VERSION_TASK_NAME, DefaultTask::class.java) {
+            logger.info("Chamaleon version: ${Versions.CORE}")
+        }
+
     private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
 
     private fun Project.environmentsExistingDirectory(): ExistingDirectory? =
@@ -122,6 +129,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
         const val SELECT_ENVIRONMENT_TASK_NAME = "chamaleonSelectEnvironment"
         const val GENERATE_ENVIRONMENT_TASK_NAME = "chamaleonGenerateEnvironment"
+        const val VERSION_TASK_NAME = "chamaleonVersion"
 
         const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sampleOutputDirectory"
         const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.newSelectedEnvironment"
