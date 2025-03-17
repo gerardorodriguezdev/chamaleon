@@ -11,6 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class NonEmptyStringSerializerTest {
+
     @Nested
     inner class Serialize {
 

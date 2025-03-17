@@ -8,6 +8,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.chamaleonLog
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.SelectEnvironmentTask
@@ -39,14 +40,14 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     }
 
     private fun Project.scanProject(extension: ChamaleonExtension) {
-        logger.info("Chamaleon version '${Versions.CORE}'")
+        logger.chamaleonLog("Chamaleon version '${Versions.CORE}'")
 
         when (val projectDeserializationResult = deserializeProject()) {
-            null -> logger.info("No project found on deserialization")
+            null -> logger.chamaleonLog("No project found on deserialization")
 
             is ProjectDeserializationResult.Success -> {
                 extension.project.set(projectDeserializationResult.project)
-                logger.info(
+                logger.chamaleonLog(
                     "Project deserialization successful at '${projectDeserializationResult.project.environmentsDirectory.path}'"
                 )
             }
@@ -113,7 +114,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     private fun Project.registerVersionTask(): TaskProvider<DefaultTask> =
         tasks.register(VERSION_TASK_NAME, DefaultTask::class.java) {
-            logger.info("Chamaleon version: ${Versions.CORE}")
+            logger.chamaleonLog("Chamaleon version: ${Versions.CORE}")
         }
 
     private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)

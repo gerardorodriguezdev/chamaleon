@@ -10,6 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetSto
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet.Companion.toUnsafeNonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.chamaleonLog
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -39,7 +40,7 @@ public abstract class GenerateSampleTask : DefaultTask() {
     private fun Project.serialize() {
         runBlocking {
             when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
-                is ProjectSerializationResult.Success -> logger.info("Sample generated successfully at '${environmentsDirectory.path}'")
+                is ProjectSerializationResult.Success -> logger.chamaleonLog("Sample generated successfully at '${environmentsDirectory.path}'")
                 is ProjectSerializationResult.Failure -> throw GenerateSampleTaskException(updateProjectResult.toErrorMessage())
             }
         }

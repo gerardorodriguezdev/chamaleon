@@ -5,6 +5,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.chamaleonLog
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
 import kotlinx.coroutines.runBlocking
@@ -63,7 +64,7 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
         runBlocking {
             when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
                 is ProjectSerializationResult.Success ->
-                    logger.info("Environments generated successfully at '${environmentsDirectory.path}'")
+                    logger.chamaleonLog("Environments generated successfully at '${environmentsDirectory.path}'")
 
                 is ProjectSerializationResult.Failure ->
                     throw GenerateEnvironmentTaskException(errorMessage = updateProjectResult.toErrorMessage())

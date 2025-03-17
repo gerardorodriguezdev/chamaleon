@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.chamaleonLog
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
@@ -47,7 +48,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
     private fun Project.serialize() {
         runBlocking {
             when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
-                is ProjectSerializationResult.Success -> logger.info("Environment selected successfully at '${environmentsDirectory.path}'")
+                is ProjectSerializationResult.Success -> logger.chamaleonLog("Environment selected successfully at '${environmentsDirectory.path}'")
                 is ProjectSerializationResult.Failure -> throw SelectEnvironmentTaskException(updateProjectResult.toErrorMessage())
             }
         }
