@@ -7,7 +7,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.sche
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
-import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
@@ -90,20 +89,22 @@ sealed interface CreateProjectState {
 
         override fun toFinish(): Project? = null
 
-        fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform> {
-            return globalSupportedPlatformTypes.mapToNonEmptyKeySetStore { globalSupportedPlatformType ->
-                val propertyDefinitionsForPlatform = propertyDefinitionsForPlatform(globalSupportedPlatformType)
+        fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform>? {
+            return globalSupportedPlatformTypes
+                .map { globalSupportedPlatformType ->
+                    val propertyDefinitionsForPlatform =
+                        propertyDefinitionsForPlatform(globalSupportedPlatformType) ?: return null
 
-                Platform(
-                    platformType = globalSupportedPlatformType,
-                    properties = propertyDefinitionsForPlatform.mapToNonEmptyKeySetStore { propertyDefinition ->
-                        propertyDefinition.toEmptyProperty()
-                    },
-                )
-            }
+                    Platform(
+                        platformType = globalSupportedPlatformType,
+                        properties = propertyDefinitionsForPlatform.mapToNonEmptyKeySetStore { propertyDefinition ->
+                            propertyDefinition.toEmptyProperty()
+                        },
+                    )
+                }.toNonEmptyKeySetStore()
         }
 
-        private fun Schema.propertyDefinitionsForPlatform(platformType: PlatformType): NonEmptyKeySetStore<String, Schema.PropertyDefinition> =
+        private fun Schema.propertyDefinitionsForPlatform(platformType: PlatformType): NonEmptyKeySetStore<String, Schema.PropertyDefinition>? =
             propertyDefinitions.filter { (_, propertyDefinition) ->
                 val supportedPlatformTypes = propertyDefinition.supportedPlatformTypes
                 if (supportedPlatformTypes != null) {
@@ -111,7 +112,7 @@ sealed interface CreateProjectState {
                 } else {
                     true
                 }
-            }.toUnsafeNonEmptyKeySetStore()
+            }.toNonEmptyKeySetStore()
 
         private fun Schema.PropertyDefinition.toEmptyProperty(): Platform.Property =
             Platform.Property(
@@ -135,7 +136,7 @@ sealed interface CreateProjectState {
                     environmentName = environmentName,
                     environmentsDirectoryPath = environmentsDirectoryPath,
                     schema = schema,
-                    platforms = schema.toEmptyPlatforms(),
+                    platforms = schema.toEmptyPlatforms() ?: return null,
                 )
             }
 
@@ -172,12 +173,13 @@ sealed interface CreateProjectState {
             override val environmentName: NonEmptyString,
             val currentProject: Project,
         ) : SetupSchema {
-            override fun toNext(): CreateProjectState? =
-                SetupPlatforms.ExistingProject(
+            override fun toNext(): CreateProjectState? {
+                return SetupPlatforms.ExistingProject(
                     environmentName = environmentName,
                     currentProject = currentProject,
-                    platforms = currentProject.schema.toEmptyPlatforms(),
+                    platforms = currentProject.schema.toEmptyPlatforms() ?: return null,
                 )
+            }
         }
     }
 
