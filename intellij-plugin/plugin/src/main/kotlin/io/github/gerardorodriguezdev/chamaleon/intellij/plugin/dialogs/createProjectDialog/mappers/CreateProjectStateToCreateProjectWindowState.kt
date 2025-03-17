@@ -45,13 +45,13 @@ private fun Context.toEnvironmentsDirectoryPathField(projectDeserializationState
 
         is ProjectDeserializationState.Valid -> Field(
             value = environmentsDirectoryPathValue(projectDeserializationState),
-            verification = Verification.Valid
+            verification = null,
         )
 
         is ProjectDeserializationState.Loading ->
             Field(
                 value = environmentsDirectoryPathValue(projectDeserializationState),
-                verification = Verification.Loading
+                verification = Verification.Loading,
             )
 
         is ProjectDeserializationState.Invalid ->
@@ -88,7 +88,7 @@ private fun Context.toEnvironmentNameField(
 ): Field<String> =
     when (projectDeserializationState) {
         is ProjectDeserializationState.Valid.NewProject ->
-            Field(value = environmentName.value, verification = Verification.Valid)
+            Field(value = environmentName.value, verification = null)
 
         is ProjectDeserializationState.Valid.ExistingProject ->
             Field(
@@ -96,7 +96,7 @@ private fun Context.toEnvironmentNameField(
                 verification = if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
                     Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
                 } else {
-                    Verification.Valid
+                    null
                 }
             )
     }
