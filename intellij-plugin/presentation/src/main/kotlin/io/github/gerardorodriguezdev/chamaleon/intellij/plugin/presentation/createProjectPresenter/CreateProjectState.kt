@@ -7,6 +7,8 @@ import io.github.gerardorodriguezdev.chamaleon.core.models.Schema.Companion.sche
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore.Companion.toUnsafeNonEmptyKeyStore
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptySet
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
@@ -90,14 +92,26 @@ sealed interface CreateProjectState {
 
         fun Schema.toEmptyPlatforms(): NonEmptyKeySetStore<PlatformType, Platform> {
             return globalSupportedPlatformTypes.mapToNonEmptyKeySetStore { globalSupportedPlatformType ->
+                val propertyDefinitionsForPlatform = propertyDefinitionsForPlatform(globalSupportedPlatformType)
+
                 Platform(
                     platformType = globalSupportedPlatformType,
-                    properties = propertyDefinitions.mapToNonEmptyKeySetStore { propertyDefinition ->
+                    properties = propertyDefinitionsForPlatform.mapToNonEmptyKeySetStore { propertyDefinition ->
                         propertyDefinition.toEmptyProperty()
                     },
                 )
             }
         }
+
+        private fun Schema.propertyDefinitionsForPlatform(platformType: PlatformType): NonEmptyKeySetStore<String, Schema.PropertyDefinition> =
+            propertyDefinitions.filter { (_, propertyDefinition) ->
+                val supportedPlatformTypes = propertyDefinition.supportedPlatformTypes
+                if (supportedPlatformTypes != null) {
+                    supportedPlatformTypes.contains(platformType)
+                } else {
+                    true
+                }
+            }.toUnsafeNonEmptyKeySetStore()
 
         private fun Schema.PropertyDefinition.toEmptyProperty(): Platform.Property =
             Platform.Property(
@@ -243,7 +257,15 @@ sealed interface CreateProjectState {
 
             override fun canFinish(): Boolean = toFinish() != null
 
-            override fun toFinish(): Project? = currentProject
+            override fun toFinish(): Project? =
+                currentProject.addEnvironments(
+                    setOf(
+                        Environment(
+                            name = environmentName,
+                            platforms = platforms,
+                        )
+                    ).toUnsafeNonEmptyKeyStore()
+                )
         }
     }
 }

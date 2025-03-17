@@ -78,6 +78,9 @@ public class NonEmptyKeySetStore<K, V : KeyProvider<K>> private constructor(
             return if (isEmpty()) null else NonEmptyKeySetStore<K, V>(this)
         }
 
+        public fun <K, V : KeyProvider<K>> Map<K, V>.toUnsafeNonEmptyKeySetStore(): NonEmptyKeySetStore<K, V> =
+            NonEmptyKeySetStore<K, V>(this)
+
         private fun <K, V : KeyProvider<K>> Collection<V>.associateByKey(): Map<K, V> =
             associateBy { element -> element.key }
     }
