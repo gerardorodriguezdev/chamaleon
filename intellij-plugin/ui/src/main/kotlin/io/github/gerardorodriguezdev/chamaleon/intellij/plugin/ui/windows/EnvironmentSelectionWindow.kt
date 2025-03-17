@@ -87,7 +87,7 @@ private fun ContentWindow(
 
                     TooltipIcon(
                         iconKey = AllIconsKeys.General.Information,
-                        tooltip = "${string(StringsKeys.gradlePluginVersionUsed)} $gradlePluginVersionUsed",
+                        tooltip = string(StringsKeys.gradlePluginVersionUsed(gradlePluginVersionUsed)),
                     )
                 }
             )

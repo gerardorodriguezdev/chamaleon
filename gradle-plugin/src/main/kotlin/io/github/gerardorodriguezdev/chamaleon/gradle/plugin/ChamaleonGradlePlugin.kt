@@ -1,5 +1,6 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
+import io.github.gerardorodriguezdev.chamaleon.core.Versions
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
@@ -35,7 +36,9 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         return extension
     }
 
-    private fun Project.scanProject(extension: ChamaleonExtension) =
+    private fun Project.scanProject(extension: ChamaleonExtension) {
+        logger.info("Chamaleon version '${Versions.CORE}'")
+
         when (val projectDeserializationResult = deserializeProject()) {
             null -> logger.info("No project found on deserialization")
 
@@ -49,6 +52,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             is ProjectDeserializationResult.Failure ->
                 throw ChamaleonGradlePluginException(errorMessage = projectDeserializationResult.toErrorMessage())
         }
+    }
 
     private fun Project.deserializeProject(): ProjectDeserializationResult? {
         return runBlocking {

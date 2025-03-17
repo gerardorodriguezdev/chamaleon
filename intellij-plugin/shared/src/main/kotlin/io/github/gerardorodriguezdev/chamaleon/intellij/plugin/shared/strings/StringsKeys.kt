@@ -45,13 +45,14 @@ object StringsKeys {
     val deletePropertyDefinition = StringKey("delete.property.definition")
     val noEnvironmentsFound = StringKey("no.environments.found")
     val errorAtEnvironmentsDirectories = StringKey("error.at.environments.directories")
-    val gradlePluginVersionUsed = StringKey("gradle.plugin.version.used")
     val generateEnvironment = StringKey("generate.environment")
     val environmentGeneratedSuccessfully = StringKey("environment.generated.successfully")
     val chamaleonEnvironmentGeneration = StringKey("chamaleon.environment.generation")
     val emptyPropertyDefinitionName = StringKey("empty.property.definition.name")
     val valueEmptyButNotNullable = StringKey("value.empty.but.not.nullable")
     val propertyDefinitionIsDuplicated = StringKey("property.definition.is.duplicated")
+
+    fun gradlePluginVersionUsed(version: String) = StringKey("gradle.plugin.version.used", persistentListOf(version))
 
     fun invalidSchemaFile(environmentsDirectoryPath: String): StringKey =
         StringKey("invalid.schema.file", persistentListOf(environmentsDirectoryPath))
