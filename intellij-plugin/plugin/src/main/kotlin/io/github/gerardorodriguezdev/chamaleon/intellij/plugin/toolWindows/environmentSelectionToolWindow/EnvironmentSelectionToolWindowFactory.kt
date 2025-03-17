@@ -14,7 +14,6 @@ import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeseriali
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.CreateProjectDialog
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toErrorMessage
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.notifications.CreateProjectNotifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.environmentSelectionPresenter.EnvironmentSelectionPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
@@ -77,6 +76,9 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                                 project = project,
                                 projectDirectory = projectDirectory,
                                 projectDeserializer = projectDeserializer,
+                                onFinish = { chamaleonProject ->
+                                    project.createProject(chamaleonProject)
+                                },
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { index, newSelectedEnvironment ->
@@ -99,11 +101,6 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                     environmentSelectionState.toEnvironmentsSelectionWindowState(projectDirectory.path.value)
             }
         }
-
-        project.messageBus.connect().subscribe(
-            topic = CreateProjectNotifier.TOPIC,
-            handler = project.createProjectNotifier(),
-        )
     }
 
     private fun Project.scanProject() {
@@ -123,19 +120,16 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         )
     }
 
-    private fun Project.createProjectNotifier(): CreateProjectNotifier =
-        object : CreateProjectNotifier {
-            override fun createProject(chamaleonProject: ChamaleonProject) {
-                ioScope.launch {
-                    val projectSerializer = ProjectSerializer.Companion.create()
-                    val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
+    private fun Project.createProject(chamaleonProject: ChamaleonProject) {
+        ioScope.launch {
+            val projectSerializer = ProjectSerializer.create()
+            val projectSerializationResult = projectSerializer.serialize(chamaleonProject)
 
-                    withContext(Dispatchers.EDT) {
-                        reportProjectSerializationResult(projectSerializationResult, chamaleonProject)
-                    }
-                }
+            withContext(Dispatchers.EDT) {
+                reportProjectSerializationResult(projectSerializationResult, chamaleonProject)
             }
         }
+    }
 
     private fun Project.reportProjectSerializationResult(
         projectSerializationResult: ProjectSerializationResult,
@@ -143,14 +137,14 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     ) {
         when (projectSerializationResult) {
             is ProjectSerializationResult.Success -> {
+                chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
+
+                scanProject()
+
                 showSuccessNotification(
                     title = string(StringsKeys.chamaleonEnvironmentGeneration),
                     message = string(StringsKeys.environmentGeneratedSuccessfully)
                 )
-
-                chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
-
-                scanProject()
             }
 
             is ProjectSerializationResult.Failure ->

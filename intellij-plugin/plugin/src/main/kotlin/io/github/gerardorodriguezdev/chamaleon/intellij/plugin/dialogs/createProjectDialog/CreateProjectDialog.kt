@@ -17,7 +17,6 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialo
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toCreateProjectAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toCreateProjectWindowState
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers.toDialogButtonsState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.notifications.CreateProjectNotifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectAction
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.presentation.createProjectPresenter.CreateProjectPresenter
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
@@ -37,11 +36,13 @@ import org.jetbrains.jewel.bridge.JewelComposePanel
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.enableNewSwingCompositing
 import javax.swing.JComponent
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
 internal class CreateProjectDialog(
     private val project: Project,
     private val projectDirectory: ExistingDirectory,
     private val projectDeserializer: ProjectDeserializer,
+    private val onFinish: (project: ChamaleonProject) -> Unit,
 ) : BaseDialog(dialogTitle = string(StringsKeys.createEnvironment)) {
     private val uiScope = CoroutineScope(Dispatchers.Swing)
     private val ioScope = CoroutineScope(Dispatchers.IO)
@@ -51,9 +52,7 @@ internal class CreateProjectDialog(
         ioScope = ioScope,
         projectDeserializer = projectDeserializer,
         stringsProvider = BundleStringsProvider,
-        onFinish = { chamaleonProject ->
-            project.messageBus.syncPublisher(CreateProjectNotifier.TOPIC).createProject(chamaleonProject)
-        }
+        onFinish = onFinish,
     )
 
     private val createProjectWindowState =
