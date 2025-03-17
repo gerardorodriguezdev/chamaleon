@@ -245,10 +245,15 @@ private fun Context.toPropertyValue(
                 )
             )
 
-        is PropertyValue.BooleanProperty ->
+        is PropertyValue.BooleanProperty -> if (propertyDefinition.nullable) {
+            CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.NullableBooleanProperty(
+                value = propertyValue.value
+            )
+        } else {
             CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.BooleanProperty(
                 value = propertyValue.value
             )
+        }
     }
 
 private fun Context.toPropertyValue(
