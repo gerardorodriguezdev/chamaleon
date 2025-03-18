@@ -37,4 +37,13 @@
                            toolWindowId="Chamaleon"
                            isLogByDefault="true"/>
     </extensions>
+
+    <change-notes>
+        <![CDATA[
+        <h2>New Features</h2>
+        <ul>
+          <li>Adds dialog to create a new project from scratch</li>
+        </ul>
+        ]]>
+    </change-notes>
 </idea-plugin>
