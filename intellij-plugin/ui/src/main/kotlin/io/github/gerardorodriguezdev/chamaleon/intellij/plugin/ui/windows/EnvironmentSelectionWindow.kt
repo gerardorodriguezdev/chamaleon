@@ -26,7 +26,7 @@ fun EnvironmentSelectionWindow(
 ) {
     when {
         state.isLoading -> LoadingWindow(modifier = modifier)
-        state.environmentCardStates.isEmpty() -> EmptyWindow()
+        state.environmentCardStates.isEmpty() -> EmptyWindow(modifier = modifier)
         else -> ContentWindow(
             modifier = modifier,
             gradlePluginVersionUsed = state.gradlePluginVersionUsed,
@@ -40,8 +40,8 @@ fun EnvironmentSelectionWindow(
 }
 
 @Composable
-private fun EmptyWindow() {
-    Box(modifier = Modifier.fillMaxSize()) {
+private fun EmptyWindow(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize()) {
         Text(
             text = string(StringsKeys.noEnvironmentsFound),
             modifier = Modifier.align(Alignment.Center),
