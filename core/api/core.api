@@ -1,3 +1,8 @@
+public final class io/github/gerardorodriguezdev/chamaleon/core/Versions {
+	public static final field CORE Ljava/lang/String;
+	public static final field INSTANCE Lio/github/gerardorodriguezdev/chamaleon/core/Versions;
+}
+
 public final class io/github/gerardorodriguezdev/chamaleon/core/models/Environment : io/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider {
 	public synthetic fun <init> (Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1-Udqe4zM ()Ljava/lang/String;
@@ -94,7 +99,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/models/PlatformT
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class io/github/gerardorodriguezdev/chamaleon/core/models/Project {
+public final class io/github/gerardorodriguezdev/chamaleon/core/models/Project : io/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider {
 	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/models/Project$Companion;
 	public static final field ENVIRONMENTS_DIRECTORY_NAME Ljava/lang/String;
 	public static final field ENVIRONMENT_FILE_SUFFIX Ljava/lang/String;
@@ -104,16 +109,22 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/models/Project {
 	public final fun addEnvironments (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public final fun getEnvironments ()Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
 	public final fun getEnvironmentsDirectory ()Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;
+	public synthetic fun getKey ()Ljava/lang/Object;
+	public fun getKey ()Ljava/lang/String;
 	public final fun getProperties ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;
 	public final fun getSchema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
 	public final fun selectedEnvironment ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Environment;
+	public final fun updateEnvironment (Lio/github/gerardorodriguezdev/chamaleon/core/models/Environment;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public final fun updateProperties-O9et1so (Ljava/lang/String;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/models/Project$Companion {
 	public final fun environmentFileName-t6h_zks (Ljava/lang/String;)Ljava/lang/String;
 	public final fun isEnvironmentFileName (Ljava/lang/String;)Z
-	public final fun isEnvironmentsDirectory (Ljava/lang/String;)Z
+	public final fun isEnvironmentsDirectoryName (Ljava/lang/String;)Z
+	public final fun isEnvironmentsDirectoryPath (Ljava/lang/String;)Z
+	public final fun isValidProject-ZvDoHD0 (Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Z
+	public static synthetic fun isValidProject-ZvDoHD0$default (Lio/github/gerardorodriguezdev/chamaleon/core/models/Project$Companion;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;ILjava/lang/Object;)Z
 	public final fun projectOf (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult;
 	public static synthetic fun projectOf$default (Lio/github/gerardorodriguezdev/chamaleon/core/models/Project$Companion;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult;
 	public final fun propertiesExistingFile (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;Z)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingFile;
@@ -195,7 +206,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/models/Schema {
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/models/Schema$Companion {
-	public final fun schemaOf (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+	public final fun schemaOf (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -249,7 +260,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectD
 	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectDeserializationResult$Failure$Deserialization;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectDeserializationResult$Failure$Deserialization;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getEnvironmentsDirectoryPath ()Ljava/lang/String;
-	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getThrowable ()Ljava/lang/Throwable;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -273,7 +284,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectD
 	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectDeserializationResult$Failure$ProjectValidation;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectDeserializationResult$Failure$ProjectValidation;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getEnvironmentsDirectoryPath ()Ljava/lang/String;
-	public final fun getError ()Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure;
+	public final fun getFailure ()Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -339,7 +350,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectS
 	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectSerializationResult$Failure$Serialization;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectSerializationResult$Failure$Serialization;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getEnvironmentsDirectoryPath ()Ljava/lang/String;
-	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getThrowable ()Ljava/lang/Throwable;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -352,9 +363,18 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectS
 }
 
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult {
+	public abstract fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$DefaultImpls {
+	public static fun project (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 }
 
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure : io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult {
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$DefaultImpls {
+	public static fun project (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$EnvironmentMissingPlatforms : io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure {
@@ -369,6 +389,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectV
 	public final fun getEnvironmentsDirectoryPath ()Ljava/lang/String;
 	public final fun getMissingPlatforms ()Ljava/util/Set;
 	public fun hashCode ()I
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -386,6 +407,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectV
 	public final fun getPlatformType ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;
 	public final fun getPropertyName ()Ljava/lang/String;
 	public fun hashCode ()I
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -403,27 +425,31 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectV
 	public final fun getMissingPropertyNames ()Ljava/util/Set;
 	public final fun getPlatformType ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;
 	public fun hashCode ()I
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition : io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;
 	public final fun component6 ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition;
-	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition;Ljava/lang/String;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition;
+	public final fun component7 ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition;
+	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition;Ljava/lang/String;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;Ljava/lang/String;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$Failure$PropertyTypeNotEqualToPropertyDefinition;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getEnvironmentName ()Ljava/lang/String;
 	public final fun getEnvironmentsDirectoryPath ()Ljava/lang/String;
+	public final fun getExpectedPropertyType ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;
 	public final fun getPlatformType ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PlatformType;
 	public final fun getPropertyDefinition ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;
 	public final fun getPropertyName ()Ljava/lang/String;
 	public final fun getPropertyType ()Lio/github/gerardorodriguezdev/chamaleon/core/models/PropertyType;
 	public fun hashCode ()I
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -439,6 +465,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectV
 	public final fun getExistingEnvironmentNames ()Ljava/lang/String;
 	public final fun getSelectedEnvironmentName ()Ljava/lang/String;
 	public fun hashCode ()I
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -450,22 +477,72 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectV
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getProject ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun hashCode ()I
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory {
+public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult {
+	public abstract fun schema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$DefaultImpls {
+	public static fun schema (Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+}
+
+public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure : io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult {
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure$DefaultImpls {
+	public static fun schema (Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure$UnsupportedPlatformTypesOnPropertyDefinition : io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure {
+	public fun <init> (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;)V
+	public final fun component1 ()Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
+	public final fun component2 ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;
+	public final fun component3 ()Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
+	public final fun copy (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;)Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure$UnsupportedPlatformTypesOnPropertyDefinition;
+	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure$UnsupportedPlatformTypesOnPropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Failure$UnsupportedPlatformTypesOnPropertyDefinition;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGlobalSupportedPlatformTypes ()Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
+	public final fun getPropertyDefinition ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;
+	public final fun getUnsupportedPlatformTypes ()Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
+	public fun hashCode ()I
+	public fun schema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Success : io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult {
+	public fun <init> (Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;)V
+	public final fun component1 ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+	public final fun copy (Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;)Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Success;
+	public static synthetic fun copy$default (Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Success;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;ILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$Success;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSchema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+	public fun hashCode ()I
+	public fun schema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory : io/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider {
 	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory$Companion;
 	public synthetic fun <init> (Ljava/io/File;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun existingDirectories (Lkotlin/jvm/functions/Function1;)Ljava/util/List;
 	public final fun existingFile-sX21LBk (Ljava/lang/String;Z)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingFile;
 	public static synthetic fun existingFile-sX21LBk$default (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;Ljava/lang/String;ZILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingFile;
 	public final fun existingFiles (Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public final fun getDirectory ()Ljava/io/File;
+	public synthetic fun getKey ()Ljava/lang/Object;
+	public fun getKey ()Ljava/lang/String;
+	public final fun getName-Udqe4zM ()Ljava/lang/String;
 	public final fun getPath-Udqe4zM ()Ljava/lang/String;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory$Companion {
 	public final fun toExistingDirectory (Ljava/io/File;Z)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;
+	public final fun toExistingDirectory (Ljava/lang/String;Z)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;
 	public static synthetic fun toExistingDirectory$default (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory$Companion;Ljava/io/File;ZILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;
+	public static synthetic fun toExistingDirectory$default (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory$Companion;Ljava/lang/String;ZILjava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;
 	public final fun toUnsafeExistingDirectory (Ljava/io/File;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/ExistingDirectory;
 }
 
@@ -484,7 +561,7 @@ public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/saf
 public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore : java/util/Map, kotlin/jvm/internal/markers/KMappedMarker {
 	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore$Companion;
 	public synthetic fun <init> (Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun addValues (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun addAll (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
 	public fun clear ()V
 	public fun compute (Ljava/lang/Object;Ljava/util/function/BiFunction;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;
 	public synthetic fun compute (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
@@ -507,6 +584,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEm
 	public fun hashCode ()I
 	public fun isEmpty ()Z
 	public final fun keySet ()Ljava/util/Set;
+	public final fun mapToNonEmptyKeySetStore (Lkotlin/jvm/functions/Function1;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
 	public fun merge (Ljava/lang/Object;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;Ljava/util/function/BiFunction;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;
 	public synthetic fun merge (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
 	public fun put (Ljava/lang/Object;Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;
@@ -524,18 +602,24 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEm
 	public fun replaceAll (Ljava/util/function/BiFunction;)V
 	public final fun size ()I
 	public fun toString ()Ljava/lang/String;
+	public final fun updateElementByIndex (ILio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun updateElementByIndex (ILkotlin/jvm/functions/Function1;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun updateElementByKey (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/KeyProvider;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
 	public final fun values ()Ljava/util/Collection;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore$Companion {
 	public final fun serializer (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
-	public final fun toNonEmptyKeySetStore (Ljava/util/Set;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
-	public final fun toUnsafeNonEmptyKeyStore (Ljava/util/Set;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun toNonEmptyKeySetStore (Ljava/util/Collection;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun toNonEmptyKeySetStore (Ljava/util/Map;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun toUnsafeNonEmptyKeySetStore (Ljava/util/Map;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun toUnsafeNonEmptyKeyStore (Ljava/util/Collection;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet : java/util/Set, kotlin/jvm/internal/markers/KMappedMarker {
 	public static final field Companion Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet$Companion;
 	public synthetic fun <init> (Ljava/util/Set;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (Ljava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
 	public fun add (Ljava/lang/Object;)Z
 	public fun addAll (Ljava/util/Collection;)Z
 	public fun clear ()V
@@ -545,8 +629,12 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEm
 	public fun getSize ()I
 	public final fun getValue ()Ljava/util/Set;
 	public fun hashCode ()I
+	public final fun intersect (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
 	public fun isEmpty ()Z
 	public fun iterator ()Ljava/util/Iterator;
+	public final fun mapToNonEmptyKeySetStore (Lkotlin/jvm/functions/Function1;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptyKeySetStore;
+	public final fun minus (Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
+	public final fun remove (Ljava/lang/Object;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
 	public fun remove (Ljava/lang/Object;)Z
 	public fun removeAll (Ljava/util/Collection;)Z
 	public fun retainAll (Ljava/util/Collection;)Z
@@ -558,6 +646,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEm
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet$Companion {
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public final fun toNonEmptySet (Ljava/util/List;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
 	public final fun toNonEmptySet (Ljava/util/Set;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
 	public final fun toUnsafeNonEmptySet (Ljava/util/Set;)Lio/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEmptySet;
 }
@@ -572,7 +661,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/safeModels/NonEm
 	public final fun getValue ()Ljava/lang/String;
 	public fun hashCode ()I
 	public static fun hashCode-impl (Ljava/lang/String;)I
-	public static final fun removeSuffix-mXfjnXw (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun removeSuffix-0r6JukY (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()Ljava/lang/String;
@@ -620,5 +709,10 @@ public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/ser
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/serializers/ProjectSerializer$Companion {
 	public final fun create ()Lio/github/gerardorodriguezdev/chamaleon/core/serializers/ProjectSerializer;
+}
+
+public final class io/github/gerardorodriguezdev/chamaleon/core/utils/ExtensionsKt {
+	public static final fun removeElementAtIndex (Ljava/util/List;I)Ljava/util/List;
+	public static final fun updateElementByIndex (Ljava/util/List;ILkotlin/jvm/functions/Function1;)Ljava/util/List;
 }
 
