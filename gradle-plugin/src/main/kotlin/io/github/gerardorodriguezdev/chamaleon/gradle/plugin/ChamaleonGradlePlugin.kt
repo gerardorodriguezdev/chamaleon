@@ -1,32 +1,35 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.ENVIRONMENTS_DIRECTORY_NAME
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.PROPERTIES_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor.Companion.SCHEMA_FILE
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.*
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Failure
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.EnvironmentsProcessorResult.Success
+import io.github.gerardorodriguezdev.chamaleon.core.Versions
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectDeserializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.chamaleonLog
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.SelectEnvironmentTask
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.GenerateEnvironmentTask
 import kotlinx.coroutines.runBlocking
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.TaskProvider
 
-@Suppress("TooManyFunctions")
 public class ChamaleonGradlePlugin : Plugin<Project> {
-    private val environmentsProcessor = EnvironmentsProcessor.create()
+    private val projectDeserializer = ProjectDeserializer.create()
 
     override fun apply(target: Project) {
         with(target) {
-            createExtension()
+            val extension = createExtension()
             registerGenerateSampleTask()
-            registerSelectEnvironmentTask()
-            registerGenerateEnvironmentTask()
+            registerSelectEnvironmentTask(extension)
+            registerGenerateEnvironmentTask(extension)
+            registerVersionTask()
         }
     }
 
@@ -36,102 +39,34 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         return extension
     }
 
-    private fun Project.scanProject(extension: ChamaleonExtension) {
-        val environmentsProcessorResult = environmentsProcessorResult()
-
-        when (environmentsProcessorResult) {
-            is Success -> handleSuccess(extension, environmentsProcessorResult)
-            is Failure -> handleFailure(environmentsProcessorResult)
-        }
-    }
-
-    private fun Project.environmentsProcessorResult(): EnvironmentsProcessorResult {
-        return runBlocking {
-            val environmentsDirectory = environmentsDirectory()
-            environmentsProcessor.process(environmentsDirectory.asFile)
-        }
-    }
-
-    private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
-
-    private fun handleSuccess(extension: ChamaleonExtension, success: Success) {
-        extension.environments.set(success.environments)
-        extension.selectedEnvironmentName.set(success.selectedEnvironmentName)
-    }
-
-    private fun handleFailure(failure: Failure) {
-        when (failure) {
-            is Failure.EnvironmentsDirectoryNotFound -> Unit
-            else -> throw ChamaleonGradlePluginException(
-                message = failure.toErrorMessage()
-            )
-        }
-    }
-
     @Suppress("Indentation")
-    private fun Failure.toErrorMessage(): String =
-        when (this) {
-            is Failure.EnvironmentsDirectoryNotFound ->
-                "'$ENVIRONMENTS_DIRECTORY_NAME' not found on '$environmentsDirectoryPath'"
+    private fun Project.scanProject(extension: ChamaleonExtension) {
+        logger.chamaleonLog("Chamaleon version '${Versions.CORE}'")
 
-            is Failure.SchemaParsingError -> schemaParsingError.toErrorMessage()
+        when (val projectDeserializationResult = deserializeProject()) {
+            null -> logger.chamaleonLog("No project found on deserialization")
 
-            is Failure.EnvironmentsParsingError -> environmentsParsingError.toErrorMessage()
+            is ProjectDeserializationResult.Success -> {
+                extension.project.set(projectDeserializationResult.project)
+                logger.chamaleonLog(
+                    "Project deserialization " +
+                        "successful at '${projectDeserializationResult.project.environmentsDirectory.path}'"
+                )
+            }
 
-            is Failure.PropertiesParsingError -> propertiesParsingError.toErrorMessage()
-
-            is Failure.PlatformsNotEqualToSchema ->
-                "Platforms of environment '$environmentName' are not equal to schema"
-
-            is Failure.PropertiesNotEqualToSchema ->
-                "Properties on platform '$platformType' for environment '$environmentName' are not equal to schema"
-
-            is Failure.PropertyTypeNotMatchSchema ->
-                "Value of property '$propertyName' for platform '$platformType' " +
-                        "on environment '$environmentName' doesn't match propertyType '$propertyType' on schema"
-
-            is Failure.NullPropertyNotNullableOnSchema ->
-                "Value on property '$propertyName' for platform '$platformType' on environment " +
-                        "'$environmentName' was null and is not marked as nullable on schema"
-
-            is Failure.SelectedEnvironmentInvalid ->
-                "Selected environment '$selectedEnvironmentName' on '$PROPERTIES_FILE' not present in any environment" +
-                        "[$environmentNames]"
+            is ProjectDeserializationResult.Failure ->
+                throw ChamaleonGradlePluginException(errorMessage = projectDeserializationResult.toErrorMessage())
         }
+    }
 
-    private fun SchemaParserResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is SchemaParserResult.Failure.FileNotFound -> "'$SCHEMA_FILE' not found on '$path'"
-            is SchemaParserResult.Failure.FileIsEmpty -> "'$SCHEMA_FILE' on '$path' is empty"
-            is SchemaParserResult.Failure.Serialization ->
-                "Schema parsing failed with error '${throwable.message}'"
-
-            is SchemaParserResult.Failure.EmptySupportedPlatforms ->
-                "'$SCHEMA_FILE' on '$path' has empty supported platforms"
-
-            is SchemaParserResult.Failure.EmptyPropertyDefinitions ->
-                "'$SCHEMA_FILE' on '$path' has empty property definitions"
-
-            is SchemaParserResult.Failure.InvalidPropertyDefinition ->
-                "'$SCHEMA_FILE' on '$path' contains invalid property definitions"
-
-            is SchemaParserResult.Failure.DuplicatedPropertyDefinition ->
-                "'$SCHEMA_FILE' on '$path' contains duplicated property definitions"
+    private fun Project.deserializeProject(): ProjectDeserializationResult? {
+        return runBlocking {
+            val environmentsExistingDirectory = environmentsExistingDirectory()
+            environmentsExistingDirectory?.let {
+                projectDeserializer.deserialize(environmentsExistingDirectory)
+            }
         }
-
-    private fun EnvironmentsParserResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is EnvironmentsParserResult.Failure.FileIsEmpty -> "Environments file on '$path' is empty"
-            is EnvironmentsParserResult.Failure.EnvironmentNameEmpty -> "Environment name is empty on '$path'"
-            is EnvironmentsParserResult.Failure.Serialization ->
-                "Environment parsing failed with error '${throwable.message}'"
-        }
-
-    private fun PropertiesParserResult.Failure.toErrorMessage(): String =
-        when (this) {
-            is PropertiesParserResult.Failure.Serialization ->
-                "Properties parsing failed with error '${throwable.message}'"
-        }
+    }
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
         tasks.register(GENERATE_SAMPLE_TASK_NAME, GenerateSampleTask::class.java) {
@@ -147,44 +82,57 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             )
         }
 
-    private fun Project.registerSelectEnvironmentTask(): TaskProvider<Task> =
-        tasks.register(SELECT_ENVIRONMENT_TASK_NAME) {
-            val newSelectedEnvironment = providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
-            val environmentsDirectory = environmentsDirectory()
+    private fun Project.registerSelectEnvironmentTask(
+        extension: ChamaleonExtension,
+    ): TaskProvider<SelectEnvironmentTask> =
+        tasks.register(SELECT_ENVIRONMENT_TASK_NAME, SelectEnvironmentTask::class.java) {
+            val newSelectedEnvironmentNameString =
+                providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
-            doLast {
-                val addOrUpdateSelectedEnvironmentResult = environmentsProcessor.addOrUpdateSelectedEnvironment(
-                    environmentsDirectory = environmentsDirectory.asFile,
-                    newSelectedEnvironment = newSelectedEnvironment
-                )
-
-                if (addOrUpdateSelectedEnvironmentResult is AddEnvironmentsResult.Failure) {
-                    @Suppress("Indentation")
-                    throw ChamaleonGradlePluginException(
-                        message = "Error updating selected environment '$newSelectedEnvironment' on environments " +
-                                "directory $environmentsDirectory"
-                    )
+            if (newSelectedEnvironmentNameString == null) {
+                newSelectedEnvironmentName.set(null)
+            } else {
+                val nonEmptyStringNewSelectedEnvironmentName = newSelectedEnvironmentNameString.toNonEmptyString()
+                if (nonEmptyStringNewSelectedEnvironmentName == null) {
+                    throw ChamaleonGradlePluginException(errorMessage = "Selected environment name was empty")
                 }
+                newSelectedEnvironmentName.set(nonEmptyStringNewSelectedEnvironmentName)
             }
+
+            projectProperty.set(extension.project.get())
         }
 
-    private fun Project.registerGenerateEnvironmentTask(): TaskProvider<GenerateEnvironmentTask> =
+    private fun Project.registerGenerateEnvironmentTask(
+        extension: ChamaleonExtension,
+    ): TaskProvider<GenerateEnvironmentTask> =
         tasks.register(GENERATE_ENVIRONMENT_TASK_NAME, GenerateEnvironmentTask::class.java) {
-            val environmentsDirectory = environmentsDirectory()
             val generateEnvironmentCommands =
                 providers.gradlePropertiesPrefixedBy(GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
-            this.environmentsDirectory.set(environmentsDirectory)
             this.generateEnvironmentCommands.set(generateEnvironmentCommands?.values)
+
+            projectProperty.set(extension.project)
         }
 
-    private class ChamaleonGradlePluginException(message: String) : IllegalStateException(message)
+    private fun Project.registerVersionTask(): TaskProvider<DefaultTask> =
+        tasks.register(VERSION_TASK_NAME, DefaultTask::class.java) {
+            logger.chamaleonLog("Chamaleon version: ${Versions.CORE}")
+        }
+
+    private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
+
+    private fun Project.environmentsExistingDirectory(): ExistingDirectory? =
+        environmentsDirectory().asFile.toExistingDirectory()
+
+    private class ChamaleonGradlePluginException(errorMessage: String) : IllegalStateException(errorMessage)
 
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
+
         const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
         const val SELECT_ENVIRONMENT_TASK_NAME = "chamaleonSelectEnvironment"
         const val GENERATE_ENVIRONMENT_TASK_NAME = "chamaleonGenerateEnvironment"
+        const val VERSION_TASK_NAME = "chamaleonVersion"
 
         const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sampleOutputDirectory"
         const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.newSelectedEnvironment"

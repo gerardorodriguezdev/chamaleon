@@ -1,9 +1,8 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings
 
 import com.intellij.DynamicBundle
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys.StringKey
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsProvider
-import org.jetbrains.annotations.Nls
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys.StringKey
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsProvider
 import org.jetbrains.annotations.PropertyKey
 
 internal object BundleStringsProvider : StringsProvider {
@@ -11,12 +10,13 @@ internal object BundleStringsProvider : StringsProvider {
 
     private val INSTANCE = DynamicBundle(BundleStringsProvider::class.java, BUNDLE)
 
-    override fun string(key: StringKey): String = message(key.value)
+    override fun string(key: StringKey, params: Array<Any>): String = message(key.value, params)
 
+    @Suppress("SpreadOperator")
     private fun message(
         key:
         @PropertyKey(resourceBundle = BUNDLE)
         String,
-        vararg params: Any
-    ): @Nls String = INSTANCE.getMessage(key, *params)
+        params: Array<Any>
+    ): String = INSTANCE.getMessage(key, *params)
 }

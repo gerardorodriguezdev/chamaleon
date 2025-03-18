@@ -1,66 +1,77 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.results.AddEnvironmentsResult
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandsProcessor.CommandsProcessorResult
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project
+import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetStore
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.chamaleonLog
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.mappers.toErrorMessage
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 @CacheableTask
 public abstract class GenerateEnvironmentTask : DefaultTask() {
-    private val environmentsProcessor = EnvironmentsProcessor.create()
-    private val commandsProcessor = CommandsProcessor.create()
+    private val projectSerializer = ProjectSerializer.create()
+    private val commandsParser = CommandParser.create()
 
     @get:Input
     public abstract val generateEnvironmentCommands: ListProperty<String>
 
-    @get:OutputDirectory
-    public abstract val environmentsDirectory: DirectoryProperty
+    @get:Input
+    public abstract val projectProperty: Property<Project>
 
     @TaskAction
     public fun generateEnvironment() {
         val commands = generateEnvironmentCommands.get()
-        val environments = environments(commands)
-        generateEnvironments(environmentsDirectory.get().asFile, environments)
+        val project = projectProperty.get()
+
+        val environments = commands.toEnvironments()
+        val newProject = updateEnvironments(project, environments)
+
+        newProject.serialize()
     }
 
-    private fun environments(commands: List<String>): Set<Environment> {
-        val commandsProcessorResult = commandsProcessor.process(commands)
-        return when (commandsProcessorResult) {
-            is CommandsProcessorResult.Success -> commandsProcessorResult.environments
-            is CommandsProcessorResult.Failure ->
-                throw GenerateEnvironmentTaskException(
-                    message = commandsProcessorResult.toMessage(),
-                )
-        }
-    }
-
-    private fun CommandsProcessorResult.Failure.toMessage(): String =
-        when (this) {
-            is CommandsProcessorResult.Failure.InvalidCommand -> "Command '$command' is not valid"
-            is CommandsProcessorResult.Failure.InvalidPlatformType ->
-                "Platform type '$platformTypeString' on $command is not valid"
+    private fun List<String>.toEnvironments(): NonEmptyKeySetStore<String, Environment> =
+        when (val commandsParserResult = commandsParser.parse(this)) {
+            is CommandParserResult.Success -> commandsParserResult.environments
+            is CommandParserResult.Failure ->
+                throw GenerateEnvironmentTaskException(errorMessage = commandsParserResult.errorMessage)
         }
 
-    private fun generateEnvironments(environmentsDirectory: File, environments: Set<Environment>) {
-        val addEnvironmentsResult = environmentsProcessor.addEnvironments(
-            environmentsDirectory = environmentsDirectory,
-            environments = environments,
-        )
+    private fun updateEnvironments(
+        currentProject: Project,
+        environments: NonEmptyKeySetStore<String, Environment>
+    ): Project {
+        val newProject = currentProject.addEnvironments(newEnvironments = environments)
 
-        if (addEnvironmentsResult is AddEnvironmentsResult.Failure) {
+        if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                message = "Error generating environments file on '${environmentsDirectory.path}'"
+                errorMessage =
+                "Environments couldn't be added to existing project on '${currentProject.environmentsDirectory.path}'"
             )
         }
+
+        return newProject
     }
 
-    private class GenerateEnvironmentTaskException(message: String) : Exception(message)
+    private fun Project.serialize() {
+        runBlocking {
+            when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
+                is ProjectSerializationResult.Success ->
+                    logger.chamaleonLog("Environments generated successfully at '${environmentsDirectory.path}'")
+
+                is ProjectSerializationResult.Failure ->
+                    throw GenerateEnvironmentTaskException(errorMessage = updateProjectResult.toErrorMessage())
+            }
+        }
+    }
+
+    private class GenerateEnvironmentTaskException(errorMessage: String) : IllegalStateException(errorMessage)
 }

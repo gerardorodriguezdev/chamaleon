@@ -10,7 +10,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConsta
 import org.jetbrains.jewel.ui.component.Text
 
 @Composable
-fun InputText(
+internal fun InputText(
     label: String,
     text: String,
     modifier: Modifier = Modifier,

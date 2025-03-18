@@ -39,7 +39,7 @@ You can see a sample on [Sample Gradle Project](../samples/gradle-project)
 ### 3. Use your environments properties on your module's `build.gradle.kts` file
 
 ```kotlin
-val myPropertyValue = chamaleon.selectedEnvironment().jvmPlatform().propertyStringValue("YourPropertyName")
+val myPropertyValue = chamaleon.selectedEnvironment().jvmPlatform.propertyStringValue("YourPropertyName")
 
 // When building the project, this should print `YourPropertyValueForLocalEnvironment`
 println(myPropertyValue)
@@ -91,7 +91,7 @@ This file will be used only to validate that all the environments have the same 
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
       - **propertyType:** Can be `String` or `Boolean` -> `required`
-        - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
+          - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
       - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
         template for this property only.
         Only read if is not empty (default=[])-> `optional`
@@ -146,13 +146,13 @@ targetConfigs {
 
     create("wasm") {
         // Get the property for the wasm platform
-        val host = selectedEnvironment.wasmPlatform().propertyStringValue("HOST")
+        val host = selectedEnvironment.wasmPlatform.propertyStringValue("HOST")
         buildConfigField(FieldSpec.Type.STRING, name = "HOST", value = host)
     }
 
     create("android") {
         // Get the property for the android platform
-        val host = selectedEnvironment.androidPlatform().propertyStringValue("HOST")
+        val host = selectedEnvironment.androidPlatform.propertyStringValue("HOST")
         buildConfigField(FieldSpec.Type.STRING, name = "HOST", value = host)
     }
 }
@@ -168,7 +168,7 @@ tasks.named<JavaExec>("run") {
     val selectedEnvironment = chamaleon.selectedEnvironment()
 
     // Iterate through all jvm platform properties
-    selectedEnvironment.jvmPlatform().properties.forEach { property ->
+    selectedEnvironment.jvmPlatform.properties.forEach { property ->
 
         // Add each property to the jvm environment when running the server with the `run` task
         environment(property.name, property.value.toString())

@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import org.jetbrains.jewel.ui.component.Checkbox
 
 @Composable
-fun InputCheckBox(
+internal fun InputCheckBox(
     label: String,
     isChecked: Boolean,
     onCheckedChanged: (newValue: Boolean) -> Unit,

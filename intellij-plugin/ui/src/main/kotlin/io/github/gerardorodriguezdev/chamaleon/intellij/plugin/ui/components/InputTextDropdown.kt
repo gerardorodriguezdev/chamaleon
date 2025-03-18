@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.itemsSpacing
 
 @Composable
-fun InputTextDropdown(
+internal fun InputTextDropdown(
     label: String,
     selectedValue: String,
     modifier: Modifier = Modifier,

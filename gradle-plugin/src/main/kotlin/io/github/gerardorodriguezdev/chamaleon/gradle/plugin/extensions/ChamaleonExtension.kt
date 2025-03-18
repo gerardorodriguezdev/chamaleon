@@ -1,22 +1,17 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions
 
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Environment
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 
 public interface ChamaleonExtension {
-    public val selectedEnvironmentName: Property<String?>
-    public val environments: SetProperty<Environment>
+    public val project: Property<Project>
 
-    public fun environment(name: String): Environment =
-        environments.get().first { environment -> environment.name == name }
+    public fun environment(name: String): Environment = requireNotNull(project.get().environments).getValue(name)
 
-    public fun environmentOrNull(name: String): Environment? =
-        environments.get().firstOrNull { environment -> environment.name == name }
+    public fun environmentOrNull(name: String): Environment? = project.get().environments?.get(name)
 
-    public fun selectedEnvironment(): Environment =
-        environments.get().first { environment -> environment.name == selectedEnvironmentName.get() }
+    public fun selectedEnvironment(): Environment = requireNotNull(project.get().selectedEnvironment())
 
-    public fun selectedEnvironmentOrNull(): Environment? =
-        environments.get().firstOrNull { environment -> environment.name == selectedEnvironmentName.get() }
+    public fun selectedEnvironmentOrNull(): Environment? = project.get().selectedEnvironment()
 }

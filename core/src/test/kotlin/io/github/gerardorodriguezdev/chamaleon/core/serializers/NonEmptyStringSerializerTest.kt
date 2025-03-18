@@ -1,31 +1,25 @@
 package io.github.gerardorodriguezdev.chamaleon.core.serializers
 
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class NonEmptyStringSerializerTest {
+
     @Nested
     inner class Serialize {
-        @Test
-        fun `GIVEN empty string WHEN serialize THEN throws error`() {
-            val str = Str(value = "")
-
-            assertThrows<SerializationException> {
-                Json.encodeToJsonElement(str)
-            }
-        }
 
         @Test
         fun `GIVEN non empty string WHEN serialize THEN returns json`() {
             //language=json
             val expectedJson = """{"value":"value"}""".trimIndent()
-            val str = Str(value = "value")
+            val str = Str(value = "value".toUnsafeNonEmptyString())
 
             val actualJson = Json.encodeToString(str)
 
@@ -37,7 +31,7 @@ class NonEmptyStringSerializerTest {
     inner class Deserialize {
 
         @Test
-        fun `GIVEN json with empty string WHEN deserialize THEN throws error`() {
+        fun `GIVEN json with empty string WHEN deserialize THEN throws`() {
             val json =
                 //language=json
                 """
@@ -53,7 +47,7 @@ class NonEmptyStringSerializerTest {
 
         @Test
         fun `GIVEN valid string WHEN deserialize THEN returns nullable string`() {
-            val expectedStr = Str(value = "value")
+            val expectedStr = Str(value = "value".toUnsafeNonEmptyString())
             val json =
                 //language=json
                 """
@@ -70,7 +64,6 @@ class NonEmptyStringSerializerTest {
 
     @Serializable
     private data class Str(
-        @Serializable(with = NonEmptyStringSerializer::class)
-        val value: String
+        val value: NonEmptyString
     )
 }

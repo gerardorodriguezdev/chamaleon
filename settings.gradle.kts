@@ -22,5 +22,6 @@ include(
     ":gradle-plugin",
     ":intellij-plugin:plugin",
     ":intellij-plugin:ui",
-    ":intellij-plugin:standalone",
+    ":intellij-plugin:presentation",
+    ":intellij-plugin:shared",
 )

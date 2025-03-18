@@ -1,29 +1,18 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="build-action" type="GradleRunConfiguration" factoryName="Gradle"
-                 folderName="General">
-    <ExternalSystemSettings>
-      <option name="executionName"/>
-      <option name="externalProjectPath" value="$PROJECT_DIR$"/>
-      <option name="externalSystemIdString" value="GRADLE"/>
-      <option name="scriptParameters" value=""/>
-      <option name="taskDescriptions">
-        <list/>
-      </option>
-      <option name="taskNames">
-        <list>
-          <option value="detekt"/>
-          <option value=":core:apiCheck"/>
-          <option value="test"/>
-          <option value="build"/>
-          <option value=":intellij-plugin:plugin:buildPlugin"/>
-        </list>
-      </option>
-      <option name="vmOptions"/>
-    </ExternalSystemSettings>
-    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-    <DebugAllEnabled>false</DebugAllEnabled>
-    <RunAsTest>false</RunAsTest>
-    <method v="2"/>
+    <configuration default="false" name="build-action" type="ShConfigurationType">
+        <option name="SCRIPT_TEXT"
+                value="./gradlew detekt :core:apiCheck test build :intellij-plugin:plugin:buildPlugin &amp;&amp; ./samples/gradle-project/gradlew build"/>
+        <option name="INDEPENDENT_SCRIPT_PATH" value="true"/>
+        <option name="SCRIPT_PATH" value=""/>
+        <option name="SCRIPT_OPTIONS" value=""/>
+        <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true"/>
+        <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$"/>
+        <option name="INDEPENDENT_INTERPRETER_PATH" value="true"/>
+        <option name="INTERPRETER_PATH" value="/bin/zsh"/>
+        <option name="INTERPRETER_OPTIONS" value=""/>
+        <option name="EXECUTE_IN_TERMINAL" value="true"/>
+        <option name="EXECUTE_SCRIPT_FILE" value="false"/>
+        <envs/>
+        <method v="2"/>
   </configuration>
 </component>

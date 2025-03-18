@@ -1,6 +1,8 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
+
 plugins {
     kotlin("jvm")
-    alias(libs.plugins.kmp.compose)
+    alias(libs.plugins.kmp.compose.api)
     alias(libs.plugins.kmp.compose.compiler)
 }
 
@@ -25,7 +27,13 @@ kotlin {
         }
         implementation(libs.kmp.immutable)
         implementation(libs.intellij.jewel.ui)
+        implementation(libs.intellij.jewel.standalone)
+        implementation(compose.preview)
         implementation(libs.jvm.coroutines)
-        implementation(projects.core)
+        implementation(projects.intellijPlugin.shared)
+
+        @OptIn(ExperimentalComposeLibrary::class)
+        testImplementation(compose.uiTest)
+        testImplementation(libs.kmp.test)
     }
 }

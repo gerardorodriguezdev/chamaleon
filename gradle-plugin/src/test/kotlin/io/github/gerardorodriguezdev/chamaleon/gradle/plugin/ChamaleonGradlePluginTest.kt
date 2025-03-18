@@ -1,143 +1,190 @@
 package io.github.gerardorodriguezdev.chamaleon.gradle.plugin
 
-import io.github.gerardorodriguezdev.chamaleon.core.EnvironmentsProcessor
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Environment
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform
-import io.github.gerardorodriguezdev.chamaleon.core.entities.Platform.Property
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PlatformType
-import io.github.gerardorodriguezdev.chamaleon.core.entities.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.models.Platform.Property
+import io.github.gerardorodriguezdev.chamaleon.core.models.PlatformType
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.projectOf
+import io.github.gerardorodriguezdev.chamaleon.core.models.Properties
+import io.github.gerardorodriguezdev.chamaleon.core.models.PropertyValue.StringProperty
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toUnsafeExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toUnsafeNonEmptyString
+import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectSerializer
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.GENERATE_SAMPLE_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.ChamaleonGradlePlugin.Companion.SELECT_ENVIRONMENT_TASK_NAME
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.extensions.ChamaleonExtension
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources
-import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.resources.SampleResources.writeAll
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask.Companion.LOCAL_ENVIRONMENT_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask.Companion.LOCAL_ENVIRONMENT_PROPERTY_VALUE
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask.Companion.PRODUCTION_ENVIRONMENT_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask.Companion.PROPERTY_NAME
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.GenerateSampleTask.Companion.sampleProject
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser
+import kotlinx.coroutines.runBlocking
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
 class ChamaleonGradlePluginTest {
+    val projectSerializer = ProjectSerializer.create()
+
     @TempDir
     lateinit var directory: File
 
     @BeforeEach
     fun setUp() {
-        createBuildFiles()
+        createBuildFile()
     }
 
-    @Test
-    fun `GIVEN plugin is applied WHEN task is executed THEN build is successful`() {
-        createEnvironmentsFiles()
+    @Nested
+    inner class ScanProject {
 
-        val buildResult = helpTaskBuildResult()
+        @Test
+        fun `GIVEN plugin is applied WHEN task is executed THEN build is successful`() {
+            createEnvironmentsFiles()
 
-        assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.outcomeOfTask(HELP_TASK_NAME))
-    }
+            val buildResult = helpTaskBuildResult()
 
-    @Test
-    fun `GIVEN plugin is applied WHEN project is configured THEN valid extension is returned`() {
-        createEnvironmentsFiles()
+            assertEquals(expected = TaskOutcome.SUCCESS, actual = buildResult.outcomeOfTask(HELP_TASK_NAME))
+        }
 
-        val project = buildProject()
+        @Test
+        fun `GIVEN plugin is applied WHEN project is configured THEN valid extension is returned`() {
+            createEnvironmentsFiles()
 
-        val extension = project.extension()
-        assertEquals(expected = expectedEnvironments, actual = extension.environments.get())
-        assertEquals(
-            expected = LOCAL_ENVIRONMENT_NAME,
-            actual = extension.selectedEnvironmentName.get()
-        )
-    }
+            val project = buildProject()
 
-    @Test
-    fun `GIVEN plugin is applied WHEN generateSampleTask is executed THEN generates sample files`() {
-        val buildResult = generateSampleTaskBuildResult()
-
-        assertEquals(
-            expected = TaskOutcome.SUCCESS,
-            actual = buildResult.outcomeOfTask(GENERATE_SAMPLE_TASK_NAME)
-        )
-        val environmentsDirectory = environmentsDirectory()
-        val environmentsFiles = environmentsDirectory.listFiles()
-        assertEquals(expected = environmentsFiles.size, actual = SampleResources.resources.size)
-        environmentsFiles.forEach { environmentFile ->
-            val resource = SampleResources.resources.first { resource -> resource.fileName == environmentFile.name }
-            assertEquals(expected = resource.fileContent, actual = environmentFile.readText())
+            val extension = project.extension()
+            assertEquals(
+                expected = GenerateSampleTask.sampleLocalEnvironment,
+                actual = extension.environment(LOCAL_ENVIRONMENT_NAME)
+            )
+            assertEquals(
+                expected = GenerateSampleTask.sampleLocalEnvironment,
+                actual = extension.selectedEnvironment(),
+            )
         }
     }
 
-    @Test
-    fun `GIVEN plugin is applied WHEN generateEnvironmentTask is executed THEN generates environment files`() {
-        createSchemaFile()
+    @Nested
+    inner class TasksExecution {
 
-        val buildResult = generateEnvironmentTaskBuildResult()
+        @Test
+        fun `GIVEN plugin is applied WHEN generateSampleTask is executed THEN generates sample files`() {
+            val environmentsDirectory = environmentsDirectory(createIfNotPresent = false)
 
-        assertEquals(
-            expected = TaskOutcome.SUCCESS,
-            actual = buildResult.outcomeOfTask(GENERATE_ENVIRONMENT_TASK_NAME)
-        )
-        val environmentsDirectory = environmentsDirectory()
-        val environmentsFiles = environmentsDirectory.listFiles()
-        assertEquals(expected = environmentsFiles.size, actual = 2)
+            val buildResult = generateSampleTaskBuildResult()
 
-        val localEnvironmentFile =
-            environmentsFiles.first { environmentFile ->
-                environmentFile.name == SampleResources.localEnvironmentResource.fileName
+            assertEquals(
+                expected = TaskOutcome.SUCCESS,
+                actual = buildResult.outcomeOfTask(GENERATE_SAMPLE_TASK_NAME)
+            )
+
+            val environmentsFiles = environmentsDirectory.listFiles()
+            assertEquals(expected = environmentsFiles.size, actual = 4)
+            assertTrue {
+                environmentsFiles.containsValidFiles(
+                    LOCAL_ENVIRONMENT_FILE_NAME,
+                    PRODUCTION_ENVIRONMENT_FILE_NAME,
+                    ChamaleonProject.SCHEMA_FILE,
+                    ChamaleonProject.PROPERTIES_FILE,
+                )
             }
-        val localEnvironmentFileContent = localEnvironmentFile.readText()
-        assertEquals(
-            expected = SampleResources.localEnvironmentResource.fileContent,
-            actual = localEnvironmentFileContent,
-        )
+        }
+
+        @Test
+        fun `GIVEN plugin is applied WHEN generateEnvironmentTask is executed THEN generates environment files`() {
+            createSchemaFile()
+
+            val buildResult = generateEnvironmentTaskBuildResult()
+
+            assertEquals(
+                expected = TaskOutcome.SUCCESS,
+                actual = buildResult.outcomeOfTask(GENERATE_ENVIRONMENT_TASK_NAME)
+            )
+
+            val environmentsDirectory = environmentsDirectory()
+            val environmentsFiles = environmentsDirectory.listFiles()
+            assertEquals(expected = environmentsFiles.size, actual = 3)
+            assertTrue {
+                environmentsFiles.containsValidFiles(
+                    LOCAL_ENVIRONMENT_FILE_NAME,
+                    ChamaleonProject.SCHEMA_FILE,
+                    ChamaleonProject.PROPERTIES_FILE,
+                )
+            }
+        }
+
+        @Test
+        fun `GIVEN plugin is applied WHEN selectEnvironment is executed THEN selects new environment`() {
+            createEnvironmentsFiles()
+
+            val buildResult = selectEnvironmentTaskBuildResult()
+
+            assertEquals(
+                expected = TaskOutcome.SUCCESS,
+                actual = buildResult.outcomeOfTask(SELECT_ENVIRONMENT_TASK_NAME),
+            )
+
+            val environmentsDirectory = environmentsDirectory()
+            val environmentsFiles = environmentsDirectory.listFiles()
+            assertEquals(expected = environmentsFiles.size, actual = 4)
+
+            val propertiesFile = environmentsFiles.propertiesFile()
+            val propertiesFileContent = propertiesFile?.readText()
+            assertEquals(
+                expected = newPropertiesFileContent,
+                actual = propertiesFileContent,
+            )
+        }
     }
 
-    @Test
-    fun `GIVEN plugin is applied WHEN selectEnvironment is executed THEN selects new environment`() {
-        createEnvironmentsFiles()
-
-        val buildResult = selectEnvironmentTaskBuildResult()
-
-        assertEquals(
-            expected = TaskOutcome.SUCCESS,
-            actual = buildResult.outcomeOfTask(SELECT_ENVIRONMENT_TASK_NAME),
-        )
-        val environmentsDirectory = environmentsDirectory()
-        val environmentsFiles = environmentsDirectory.listFiles()
-        val propertiesFile =
-            environmentsFiles.first { environmentFile -> environmentFile.name == EnvironmentsProcessor.PROPERTIES_FILE }
-        val propertiesFileContent = propertiesFile.readText()
-        assertEquals(
-            expected = propertiesFileContentWithProductionEnvironmentSelected,
-            actual = propertiesFileContent,
-        )
-    }
-
-    private fun createBuildFiles() {
+    private fun createBuildFile() {
         val buildFile = File(directory, BUILD_FILE_NAME)
         buildFile.writeText(buildFileContent)
     }
 
-    private fun createSchemaFile() {
-        val environmentsDirectory = environmentsDirectory()
-        environmentsDirectory.mkdir()
-        SampleResources.schemaResource.writeContent(environmentsDirectory)
-    }
-
     private fun createEnvironmentsFiles() {
-        val environmentsDirectory = environmentsDirectory()
-        environmentsDirectory.mkdir()
-        SampleResources.resources.writeAll(environmentsDirectory)
+        runBlocking {
+            val existingEnvironmentsDirectory = environmentsDirectory().toUnsafeExistingDirectory()
+            val sampleProject = sampleProject(existingEnvironmentsDirectory)
+            projectSerializer.serialize(sampleProject)
+        }
     }
 
-    private fun environmentsDirectory(): File = File(directory, EnvironmentsProcessor.ENVIRONMENTS_DIRECTORY_NAME)
+    private fun createSchemaFile() {
+        runBlocking {
+            val environmentsDirectory = environmentsDirectory().toUnsafeExistingDirectory()
+            val project = requireNotNull(
+                projectOf(
+                    environmentsDirectory = environmentsDirectory,
+                    schema = GenerateSampleTask.sampleSchema,
+                    properties = Properties(),
+                    environments = null,
+                ).project()
+            )
+            projectSerializer.serialize(project)
+        }
+    }
+
+    private fun environmentsDirectory(createIfNotPresent: Boolean = true): File =
+        File(directory, ChamaleonProject.ENVIRONMENTS_DIRECTORY_NAME).apply {
+            if (createIfNotPresent) {
+                if (!exists()) {
+                    mkdirs()
+                }
+            }
+        }
 
     private fun helpTaskBuildResult(): BuildResult =
         GradleRunner
@@ -170,8 +217,8 @@ class ChamaleonGradlePluginTest {
                             platformType = PlatformType.JVM,
                             properties = listOf(
                                 Property(
-                                    name = PROPERTY_NAME,
-                                    value = StringProperty(LOCAL_ENVIRONMENT_PROPERTY_VALUE)
+                                    name = PROPERTY_NAME.toUnsafeNonEmptyString(),
+                                    value = StringProperty(LOCAL_ENVIRONMENT_PROPERTY_VALUE.toUnsafeNonEmptyString())
                                 )
                             )
                         )
@@ -203,17 +250,18 @@ class ChamaleonGradlePluginTest {
             .build()
 
     private companion object {
-        const val LOCAL_ENVIRONMENT_NAME = "local"
-        const val LOCAL_ENVIRONMENT_PROPERTY_VALUE = "YourPropertyValueForLocalEnvironment"
-
-        const val PRODUCTION_ENVIRONMENT_NAME = "production"
-        const val PRODUCTION_ENVIRONMENT_PROPERTY_VALUE = "YourPropertyValueForProductionEnvironment"
-
-        const val PROPERTY_NAME = "YourPropertyName"
-
         const val HELP_TASK_NAME = "help"
 
         const val BUILD_FILE_NAME = "build.gradle.kts"
+
+        val LOCAL_ENVIRONMENT_FILE_NAME = ChamaleonProject.environmentFileName(
+            LOCAL_ENVIRONMENT_NAME.toUnsafeNonEmptyString()
+        ).value
+
+        val PRODUCTION_ENVIRONMENT_FILE_NAME = ChamaleonProject.environmentFileName(
+            PRODUCTION_ENVIRONMENT_NAME.toUnsafeNonEmptyString()
+        ).value
+
         val buildFileContent =
             //language=kotlin
             """
@@ -222,37 +270,17 @@ class ChamaleonGradlePluginTest {
                 }
             """.trimIndent()
 
-        val propertiesFileContentWithProductionEnvironmentSelected =
-            //language=JSON
+        val newPropertiesFileContent =
+            //language=json
             """
                 {
                   "selectedEnvironmentName": "production"
                 }
             """.trimIndent()
 
-        val expectedEnvironments =
-            setOf(
-                Environment(
-                    name = PRODUCTION_ENVIRONMENT_NAME,
-                    platforms = setOf(expectedPlatform(PRODUCTION_ENVIRONMENT_PROPERTY_VALUE)),
-                ),
-                Environment(
-                    name = LOCAL_ENVIRONMENT_NAME,
-                    platforms = setOf(expectedPlatform(LOCAL_ENVIRONMENT_PROPERTY_VALUE)),
-                ),
-            )
-
-        private fun expectedPlatform(value: String): Platform =
-            Platform(
-                platformType = PlatformType.JVM,
-                properties = setOf(
-                    Property(name = PROPERTY_NAME, value = StringProperty(value)),
-                )
-            )
-
         private fun Project.extension(): ChamaleonExtension {
             pluginManager.apply(ChamaleonGradlePlugin::class.java)
-            return extensions.findByType(ChamaleonExtension::class.java)!!
+            return requireNotNull(extensions.findByType(ChamaleonExtension::class.java))
         }
 
         private fun BuildResult.outcomeOfTask(taskName: String): TaskOutcome? = task(taskPath(taskName))?.outcome
@@ -260,5 +288,18 @@ class ChamaleonGradlePluginTest {
         private fun commandLineArgument(key: String, value: String): String = "-P$key=$value"
 
         private fun taskPath(taskName: String): String = ":$taskName"
+
+        private fun Array<File>.containsValidFiles(vararg fileNames: String): Boolean {
+            fileNames.forEach { fileName ->
+                any { file -> file.isValid(fileName) }
+            }
+            return true
+        }
+
+        private fun Array<File>.propertiesFile(): File? = firstOrNull { environmentFile ->
+            environmentFile.name == ChamaleonProject.PROPERTIES_FILE
+        }
+
+        private fun File.isValid(fileName: String): Boolean = name == fileName && readText().isNotEmpty()
     }
 }

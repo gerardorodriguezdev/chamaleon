@@ -7,7 +7,7 @@ import org.jetbrains.jewel.ui.component.MenuScope
 import org.jetbrains.jewel.ui.component.Text
 
 @Composable
-fun TextDropdown(
+internal fun TextDropdown(
     selectedValue: String,
     modifier: Modifier = Modifier,
     content: TextDropdownScope.() -> Unit,
@@ -32,6 +32,6 @@ private class TextDropdownScopeInstance(
     }
 }
 
-interface TextDropdownScope {
+internal interface TextDropdownScope {
     fun item(text: String, selected: Boolean, onClick: () -> Unit)
 }

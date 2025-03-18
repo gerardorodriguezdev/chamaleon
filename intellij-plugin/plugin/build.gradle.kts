@@ -3,7 +3,7 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 plugins {
     kotlin("jvm")
     alias(libs.plugins.intellij)
-    alias(libs.plugins.kmp.compose)
+    alias(libs.plugins.kmp.compose.api)
     alias(libs.plugins.kmp.compose.compiler)
 }
 
@@ -50,7 +50,13 @@ kotlin {
         implementation(projects.core) {
             exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         }
+        implementation(projects.intellijPlugin.shared) {
+            exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
+        }
         implementation(projects.intellijPlugin.ui) {
+            exclude(group = "org.jetbrains.kotlinx")
+        }
+        implementation(projects.intellijPlugin.presentation) {
             exclude(group = "org.jetbrains.kotlinx")
         }
 
@@ -75,7 +81,7 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = "233"
-            untilBuild = "251.*"
+            untilBuild = "243.*"
         }
     }
 

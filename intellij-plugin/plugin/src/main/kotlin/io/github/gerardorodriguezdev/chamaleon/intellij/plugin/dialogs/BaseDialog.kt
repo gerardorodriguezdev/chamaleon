@@ -2,7 +2,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs
 
 import com.intellij.openapi.ui.DialogWrapper
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.BaseDialog.DialogAction.*
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.strings.StringsKeys
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.shared.strings.StringsKeys
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.strings.BundleStringsProvider.string
 import java.awt.event.ActionEvent
 import javax.swing.Action
@@ -22,14 +22,10 @@ internal abstract class BaseDialog(dialogTitle: String) : DialogWrapper(false) {
 
     abstract fun onDialogAction(action: DialogAction)
 
-    protected fun setDialogButtonsState(
-        isPreviousButtonEnabled: Boolean,
-        isNextButtonEnabled: Boolean,
-        isFinishButtonEnabled: Boolean,
-    ) {
-        previousButton()?.isEnabled = isPreviousButtonEnabled
-        nextButton()?.isEnabled = isNextButtonEnabled
-        finishButton()?.isEnabled = isFinishButtonEnabled
+    protected fun setDialogButtonsState(dialogsButtonsState: DialogButtonsState) {
+        previousButton()?.isEnabled = dialogsButtonsState.isPreviousButtonEnabled
+        nextButton()?.isEnabled = dialogsButtonsState.isNextButtonEnabled
+        finishButton()?.isEnabled = dialogsButtonsState.isFinishButtonEnabled
     }
 
     override fun createActions(): Array<Action> {
@@ -89,6 +85,12 @@ internal abstract class BaseDialog(dialogTitle: String) : DialogWrapper(false) {
             close(OK_EXIT_CODE)
         }
     }
+
+    data class DialogButtonsState(
+        val isPreviousButtonEnabled: Boolean,
+        val isNextButtonEnabled: Boolean,
+        val isFinishButtonEnabled: Boolean,
+    )
 
     sealed interface DialogAction {
         data object OnPreviousButtonClicked : DialogAction

@@ -17,17 +17,11 @@ kotlin {
 dependencies {
     implementation(projects.core)
     implementation(libs.kmp.coroutines)
+    implementation(libs.kmp.arrow.core)
+
     testImplementation(gradleTestKit())
     testImplementation(libs.kmp.test)
     testImplementation(libs.jvm.test.parameterized)
-}
-
-sourceSets {
-    main {
-        val sampleEnvironmentsDirectory = sampleEnvironmentsDirectory()
-        resources.srcDir(sampleEnvironmentsDirectory)
-        resources.include("**.chamaleon.json")
-    }
 }
 
 tasks {
@@ -62,6 +56,3 @@ gradlePlugin {
         }
     }
 }
-
-fun Project.sampleEnvironmentsDirectory(): Directory =
-    rootProject.layout.projectDirectory.dir("samples/gradle-project/environments")

@@ -4,6 +4,7 @@
     <vendor>gerardorodriguezdev</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <description>
         <![CDATA[
@@ -19,11 +20,9 @@
 
     <resource-bundle>messages.Bundle</resource-bundle>
 
-    <depends>com.intellij.modules.json</depends>
-
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.EnvironmentSelectionToolWindowFactory"
+                factoryClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.toolWindows.environmentSelectionToolWindow.EnvironmentSelectionToolWindowFactory"
                 id="Chamaleon"
                 anchor="right"
                 icon="/images/expui/toolWindow/pluginIcon.svg"/>
@@ -32,5 +31,19 @@
                 implementationClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.fileTypes.ChamaleonFileType"
                 fileNames="template.chamaleon.json;properties.chamaleon.json"
                 patterns="*.environment.chamaleon.json"/>
+
+        <notificationGroup id="Chamaleon"
+                           displayType="BALLOON"
+                           toolWindowId="Chamaleon"
+                           isLogByDefault="true"/>
     </extensions>
+
+    <change-notes>
+        <![CDATA[
+        <h2>New Features</h2>
+        <ul>
+          <li>Adds dialog to create a new project from scratch</li>
+        </ul>
+        ]]>
+    </change-notes>
 </idea-plugin>

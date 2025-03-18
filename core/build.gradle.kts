@@ -23,6 +23,7 @@ kotlin {
     dependencies {
         implementation(libs.kmp.serialization)
         implementation(libs.kmp.coroutines)
+        implementation(libs.kmp.arrow.core)
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)
@@ -71,5 +72,41 @@ mavenPublishing {
 tasks {
     test {
         useJUnitPlatform()
+    }
+}
+
+val versionsDirectory = layout.buildDirectory.dir("generated/versions")
+val releaseVersion = libs.versions.release
+val generateVersionsClassTaskName = "generateVersionsClass"
+tasks.register(generateVersionsClassTaskName) {
+    dependsOn(tasks.named("sourcesJar"))
+
+    val versionsDirectory = versionsDirectory
+    val releaseVersion = releaseVersion
+    outputs.dir(versionsDirectory)
+
+    doLast {
+        val file = versionsDirectory.get().file("Versions.kt").asFile
+        file.writeText(
+            """
+            package io.github.gerardorodriguezdev.chamaleon.core
+
+            public object Versions {
+                public const val CORE: String = "${releaseVersion.get()}"
+            }
+            """.trimIndent()
+        )
+    }
+}
+
+tasks.named("compileKotlin") {
+    dependsOn(generateVersionsClassTaskName)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(versionsDirectory)
+        }
     }
 }
