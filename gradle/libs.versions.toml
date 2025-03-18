@@ -9,15 +9,13 @@ gradle-publish = "1.3.0"
 detekt = "1.23.7"
 detekt-compose = "0.4.22"
 maven-publish = "0.30.0"
-intellij = "2.2.1"
+intellij = "2.3.0"
 kmp-compose = "1.7.3"
 kmp-coroutines = "1.10.1"
 intellij-jewel = "0.25.0"
 kmp-immutable = "0.3.8"
 kmp-binary-compability-validator = "0.17.0"
-kmp-ksp = "2.1.0-1.0.29"
 kmp-arrow = "2.0.1"
-kmp-akkurate = "0.11.0"
 jvm-test-parameterized = "5.11.4"
 
 # Releases
@@ -37,10 +35,6 @@ intellij-jewel-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standal
 jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
 jvm-test-parameterized = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jvm-test-parameterized" }
 kmp-arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "kmp-arrow" }
-kmp-arrow-optics-api = { module = "io.arrow-kt:arrow-optics", version.ref = "kmp-arrow" }
-kmp-arrow-optics-plugin = { module = "io.arrow-kt:arrow-optics-ksp-plugin", version.ref = "kmp-arrow" }
-kmp-akkurate-api = { module = "dev.nesk.akkurate:akkurate-core", version.ref = "kmp-akkurate" }
-kmp-akkurate-plugin = { module = "dev.nesk.akkurate:akkurate-ksp-plugin", version.ref = "kmp-akkurate" }
 
 [plugins]
 kmp-kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -52,4 +46,3 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 intellij = { id = "org.jetbrains.intellij.platform", version.ref = "intellij" }
 kmp-binary-compability-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kmp-binary-compability-validator" }
-kmp-ksp = { id = "com.google.devtools.ksp", version.ref = "kmp-ksp" }

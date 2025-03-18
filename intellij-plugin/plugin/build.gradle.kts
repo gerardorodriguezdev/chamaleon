@@ -80,7 +80,7 @@ intellijPlatform {
         version = libs.versions.release.get()
 
         ideaVersion {
-            sinceBuild = "233"
+            sinceBuild = "251"
             untilBuild = "251.*"
         }
     }
