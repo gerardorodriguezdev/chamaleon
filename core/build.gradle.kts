@@ -75,9 +75,12 @@ tasks {
     }
 }
 
+val versionsDirectory = layout.buildDirectory.dir("generated/versions")
+val releaseVersion = libs.versions.release
 val generateVersionsClassTaskName = "generateVersionsClass"
 tasks.register(generateVersionsClassTaskName) {
-    val versionsDirectory = project.versionsDirectory()
+    val versionsDirectory = versionsDirectory
+    val releaseVersion = releaseVersion
     outputs.dir(versionsDirectory)
 
     doLast {
@@ -87,7 +90,7 @@ tasks.register(generateVersionsClassTaskName) {
             package io.github.gerardorodriguezdev.chamaleon.core
 
             public object Versions {
-                public const val CORE: String = "${libs.versions.release.get()}"
+                public const val CORE: String = "${releaseVersion.get()}"
             }
             """.trimIndent()
         )
@@ -101,9 +104,7 @@ tasks.named("compileKotlin") {
 sourceSets {
     main {
         java {
-            srcDir(project.versionsDirectory())
+            srcDir(versionsDirectory)
         }
     }
 }
-
-fun Project.versionsDirectory(): Provider<Directory> = layout.buildDirectory.dir("generated/versions")
