@@ -39,6 +39,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         return extension
     }
 
+    @Suppress("Indentation")
     private fun Project.scanProject(extension: ChamaleonExtension) {
         logger.chamaleonLog("Chamaleon version '${Versions.CORE}'")
 

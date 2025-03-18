@@ -79,6 +79,8 @@ val versionsDirectory = layout.buildDirectory.dir("generated/versions")
 val releaseVersion = libs.versions.release
 val generateVersionsClassTaskName = "generateVersionsClass"
 tasks.register(generateVersionsClassTaskName) {
+    dependsOn(tasks.named("sourcesJar"))
+
     val versionsDirectory = versionsDirectory
     val releaseVersion = releaseVersion
     outputs.dir(versionsDirectory)

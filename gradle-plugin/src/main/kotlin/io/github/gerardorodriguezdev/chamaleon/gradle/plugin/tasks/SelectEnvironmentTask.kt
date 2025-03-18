@@ -33,6 +33,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
         newProject.serialize()
     }
 
+    @Suppress("Indentation")
     private fun updateProperties(currentProject: Project, newSelectedEnvironmentName: NonEmptyString?): Project {
         val newProject = currentProject.updateProperties(newSelectedEnvironmentName = newSelectedEnvironmentName)
 
