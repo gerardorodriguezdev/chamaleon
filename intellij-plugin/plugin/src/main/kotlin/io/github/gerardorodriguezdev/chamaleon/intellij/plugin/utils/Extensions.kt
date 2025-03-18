@@ -1,8 +1,7 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils
 
-import com.intellij.codeInspection.ex.GlobalInspectionContextImpl.NOTIFICATION_GROUP
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
-import com.intellij.notification.Notifications
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
@@ -51,13 +50,11 @@ private fun Project.showNotification(
     message: String,
     type: NotificationType,
 ) {
-    @Suppress("UnstableApiUsage")
-    val notification = NOTIFICATION_GROUP.createNotification(
-        title = title,
-        content = message,
-        type = type
-    )
-    Notifications.Bus.notify(notification, this)
+    NotificationGroupManager
+        .getInstance()
+        .getNotificationGroup("Chamaleon")
+        .createNotification(title = title, content = message, type = type)
+        .notify(this)
 }
 
 internal fun Project.toExistingDirectory(): ExistingDirectory? = basePath?.toExistingDirectory()

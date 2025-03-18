@@ -8,8 +8,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.toSize
 import com.intellij.openapi.project.Project
-import com.intellij.ui.util.minimumHeight
-import com.intellij.ui.util.minimumWidth
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -35,6 +33,7 @@ import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.enableNewSwingCompositing
+import java.awt.Dimension
 import javax.swing.JComponent
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
@@ -100,8 +99,7 @@ internal class CreateProjectDialog(
                 }
             }
         }.apply {
-            minimumWidth = DIALOG_MIN_SIZE
-            minimumHeight = DIALOG_MIN_SIZE
+            minimumSize = Dimension(DIALOG_MIN_SIZE, DIALOG_MIN_SIZE)
         }
     }
 
