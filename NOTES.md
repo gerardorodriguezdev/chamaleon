@@ -4,6 +4,7 @@
 
 - Create branch from master
 - Do all the development in the branch
+- Update change notes in [plugin.xml](/intellij-plugin/plugin/src/main/resources/META-INF/plugin.xml)
 - Push the branch
 - Create a pr from branch to master
 - When all checks are ok merge to master
