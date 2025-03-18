@@ -41,6 +41,7 @@ internal interface CommandParser {
     }
 }
 
+@Suppress("TooManyFunctions")
 internal class DefaultCommandParser : CommandParser {
 
     override fun parse(commands: List<String>): CommandParserResult =
@@ -179,6 +180,7 @@ internal class DefaultCommandParser : CommandParser {
             }
         }
 
+    @Suppress("MaxLineLength")
     private fun List<NonEmptyKeySetStore<PlatformType, Platform>>.mergePlatforms(): NonEmptyKeySetStore<PlatformType, Platform> =
         reduce { accumulation, platforms ->
             accumulation.addAll(platforms)

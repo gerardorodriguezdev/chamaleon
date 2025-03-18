@@ -12,8 +12,11 @@ internal object BundleStringsProvider : StringsProvider {
 
     override fun string(key: StringKey, params: Array<Any>): String = message(key.value, params)
 
+    @Suppress("SpreadOperator")
     private fun message(
-        key: @PropertyKey(resourceBundle = BUNDLE) String,
+        key:
+        @PropertyKey(resourceBundle = BUNDLE)
+        String,
         params: Array<Any>
     ): String = INSTANCE.getMessage(key, *params)
 }

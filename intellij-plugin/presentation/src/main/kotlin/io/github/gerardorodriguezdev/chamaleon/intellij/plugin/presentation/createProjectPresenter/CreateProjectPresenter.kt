@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+@Suppress("TooManyFunctions")
 class CreateProjectPresenter(
     private val uiScope: CoroutineScope,
     private val ioScope: CoroutineScope,

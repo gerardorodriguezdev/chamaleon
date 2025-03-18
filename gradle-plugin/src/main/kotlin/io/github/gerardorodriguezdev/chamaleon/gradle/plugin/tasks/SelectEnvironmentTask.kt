@@ -38,7 +38,8 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw SelectEnvironmentTaskException(
-                errorMessage = "Selected environment not found on existing environments '${currentProject.environments}'",
+                errorMessage = "Selected environment not found on existing " +
+                        "environments '${currentProject.environments}'",
             )
         }
 
@@ -48,8 +49,11 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
     private fun Project.serialize() {
         runBlocking {
             when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
-                is ProjectSerializationResult.Success -> logger.chamaleonLog("Environment selected successfully at '${environmentsDirectory.path}'")
-                is ProjectSerializationResult.Failure -> throw SelectEnvironmentTaskException(updateProjectResult.toErrorMessage())
+                is ProjectSerializationResult.Success ->
+                    logger.chamaleonLog("Environment selected successfully at '${environmentsDirectory.path}'")
+
+                is ProjectSerializationResult.Failure ->
+                    throw SelectEnvironmentTaskException(updateProjectResult.toErrorMessage())
             }
         }
     }

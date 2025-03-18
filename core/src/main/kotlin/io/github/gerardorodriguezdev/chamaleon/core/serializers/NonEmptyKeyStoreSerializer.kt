@@ -11,6 +11,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 public class NonEmptyKeyStoreSerializer<K, V : KeyProvider<K>>(
+    @Suppress("UnusedPrivateProperty")
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>,
 ) : KSerializer<NonEmptyKeySetStore<K, V>> {

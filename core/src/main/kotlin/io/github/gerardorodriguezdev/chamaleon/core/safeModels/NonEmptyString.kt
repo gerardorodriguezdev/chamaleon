@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.core.safeModels
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptyStringSerializer
 import kotlinx.serialization.Serializable
 
+@Suppress("UseRequire")
 @Serializable(with = NonEmptyStringSerializer::class)
 @JvmInline
 public value class NonEmptyString private constructor(public val value: String) {

@@ -53,7 +53,8 @@ public abstract class GenerateEnvironmentTask : DefaultTask() {
 
         if (newProject == null) {
             throw GenerateEnvironmentTaskException(
-                errorMessage = "Environments couldn't be added to existing project on '${currentProject.environmentsDirectory.path}'"
+                errorMessage =
+                    "Environments couldn't be added to existing project on '${currentProject.environmentsDirectory.path}'"
             )
         }
 

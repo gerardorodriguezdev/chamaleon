@@ -40,8 +40,11 @@ public abstract class GenerateSampleTask : DefaultTask() {
     private fun Project.serialize() {
         runBlocking {
             when (val updateProjectResult = projectSerializer.serialize(this@serialize)) {
-                is ProjectSerializationResult.Success -> logger.chamaleonLog("Sample generated successfully at '${environmentsDirectory.path}'")
-                is ProjectSerializationResult.Failure -> throw GenerateSampleTaskException(updateProjectResult.toErrorMessage())
+                is ProjectSerializationResult.Success ->
+                    logger.chamaleonLog("Sample generated successfully at '${environmentsDirectory.path}'")
+
+                is ProjectSerializationResult.Failure ->
+                    throw GenerateSampleTaskException(updateProjectResult.toErrorMessage())
             }
         }
     }

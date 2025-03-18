@@ -15,6 +15,7 @@ internal fun CreateProjectWindowAction.toCreateProjectAction(): CreateProjectAct
         is CreateProjectWindowAction.SetupPlatformsAction -> toSetupPlatformsAction()
     }
 
+@Suppress("MaxLineLength")
 private fun CreateProjectWindowAction.SetupEnvironmentAction.toSetupEnvironmentAction(): CreateProjectAction.SetupEnvironmentAction? =
     when (this) {
         is CreateProjectWindowAction.SetupEnvironmentAction.OnSelectEnvironmentPath -> null
@@ -63,6 +64,7 @@ private fun CreateProjectWindowAction.SetupSchemaAction.toSetupSchemaAction(): C
             )
     }
 
+@Suppress("MaxLineLength")
 private fun CreateProjectWindowAction.SetupPlatformsAction.toSetupPlatformsAction(): CreateProjectAction.SetupPlatformsAction? =
     when (this) {
         is CreateProjectWindowAction.SetupPlatformsAction.OnPropertyValueChanged ->
@@ -88,6 +90,7 @@ private fun CreateProjectWindowState.SetupSchemaState.PropertyDefinition.Propert
         CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType.BOOLEAN -> PropertyType.BOOLEAN
     }
 
+@Suppress("MaxLineLength")
 private fun CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.toPropertyValue(): PropertyValue? =
     when (this) {
         is CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.StringProperty ->

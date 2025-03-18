@@ -60,6 +60,7 @@ public class Project private constructor(
         )
     }
 
+    @Suppress("TooManyFunctions")
     public companion object {
         public const val SCHEMA_FILE: String = "template.chamaleon.json"
         public const val PROPERTIES_FILE: String = "properties.chamaleon.json"
@@ -173,7 +174,9 @@ public class Project private constructor(
                             Failure.SelectedEnvironmentNotFound(
                                 environmentsDirectoryPath = environmentsDirectoryPath,
                                 selectedEnvironmentName = selectedEnvironmentName.value,
-                                existingEnvironmentNames = environments.values.joinToString { environment -> environment.name.value }
+                                existingEnvironmentNames = environments.values.joinToString { environment ->
+                                    environment.name.value
+                                }
                             )
                         )
 

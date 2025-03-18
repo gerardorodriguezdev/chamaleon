@@ -97,6 +97,7 @@ internal class DefaultProjectDeserializer(
             )
         }
 
+    @Suppress("MaxLineLength")
     private suspend fun ExistingDirectory.environmentsDeserialization(): Either<Failure, NonEmptyKeySetStore<String, Environment>?> =
         either {
             val environmentsFiles = existingFiles { fileName -> fileName.isEnvironmentFileName() }

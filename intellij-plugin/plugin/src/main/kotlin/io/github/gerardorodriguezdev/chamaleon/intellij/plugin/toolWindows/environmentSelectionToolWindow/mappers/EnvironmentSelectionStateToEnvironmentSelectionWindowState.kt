@@ -11,7 +11,9 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 
-internal fun EnvironmentSelectionState.toEnvironmentsSelectionWindowState(projectDirectoryPath: String): EnvironmentSelectionWindowState =
+internal fun EnvironmentSelectionState.toEnvironmentsSelectionWindowState(
+    projectDirectoryPath: String
+): EnvironmentSelectionWindowState =
     EnvironmentSelectionWindowState(
         gradlePluginVersionUsed = Versions.CORE,
         isLoading = isLoading,
@@ -19,7 +21,9 @@ internal fun EnvironmentSelectionState.toEnvironmentsSelectionWindowState(projec
         environmentCardStates = projects.toEnvironmentCardStates(projectDirectoryPath),
     )
 
-private fun NonEmptyKeySetStore<String, Project>?.toEnvironmentCardStates(projectDirectoryPath: String): ImmutableList<EnvironmentCardState> {
+private fun NonEmptyKeySetStore<String, Project>?.toEnvironmentCardStates(
+    projectDirectoryPath: String
+): ImmutableList<EnvironmentCardState> {
     if (this == null) return persistentListOf()
 
     return values.map { project ->

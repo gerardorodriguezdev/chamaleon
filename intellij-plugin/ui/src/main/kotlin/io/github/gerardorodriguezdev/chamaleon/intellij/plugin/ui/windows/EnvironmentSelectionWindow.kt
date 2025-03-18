@@ -50,6 +50,7 @@ private fun EmptyWindow() {
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun ContentWindow(
     gradlePluginVersionUsed: String,

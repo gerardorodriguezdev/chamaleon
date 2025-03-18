@@ -4,6 +4,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.annotations.PropertyKey
 
+@Suppress("TooManyFunctions")
 object StringsKeys {
     val environmentSelectionWindowName = StringKey("environment.selection.window.name")
     val environmentsDirectoryPath = StringKey("environments.directory.path")
@@ -96,6 +97,7 @@ object StringsKeys {
             )
         )
 
+    @Suppress("LongParameterList")
     fun propertyTypeNotEqualToPropertyDefinition(
         platformType: String,
         propertyName: String,

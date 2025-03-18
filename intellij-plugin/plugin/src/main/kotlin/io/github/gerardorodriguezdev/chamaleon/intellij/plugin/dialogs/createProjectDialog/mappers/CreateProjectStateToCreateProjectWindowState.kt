@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.dialogs.createProjectDialog.mappers
 
 import io.github.gerardorodriguezdev.chamaleon.core.models.*
@@ -28,10 +30,11 @@ internal fun CreateProjectState.toCreateProjectWindowState(
         is CreateProjectState.SetupSchema -> context.toSetupSchema(this)
         is CreateProjectState.SetupPlatforms -> context.toSetupPlatforms(this)
     }
-
 }
 
-private fun Context.toSetupEnvironment(state: CreateProjectState.SetupEnvironment): CreateProjectWindowState.SetupEnvironmentState {
+private fun Context.toSetupEnvironment(
+    state: CreateProjectState.SetupEnvironment
+): CreateProjectWindowState.SetupEnvironmentState {
     val projectDeserializationState = state.projectDeserializationState
     return CreateProjectWindowState.SetupEnvironmentState(
         environmentsDirectoryPathField = toEnvironmentsDirectoryPathField(projectDeserializationState),
@@ -39,7 +42,9 @@ private fun Context.toSetupEnvironment(state: CreateProjectState.SetupEnvironmen
     )
 }
 
-private fun Context.toEnvironmentsDirectoryPathField(projectDeserializationState: ProjectDeserializationState?): Field<String> {
+private fun Context.toEnvironmentsDirectoryPathField(
+    projectDeserializationState: ProjectDeserializationState?
+): Field<String> {
     return when (projectDeserializationState) {
         null -> Field(value = "", verification = null)
 
@@ -82,6 +87,7 @@ private fun Context.toEnvironmentNameField(
     }
 }
 
+@Suppress("MaxLineLength")
 private fun Context.toEnvironmentNameField(
     environmentName: NonEmptyString,
     projectDeserializationState: ProjectDeserializationState.Valid,
@@ -93,7 +99,8 @@ private fun Context.toEnvironmentNameField(
         is ProjectDeserializationState.Valid.ExistingProject ->
             Field(
                 value = environmentName.value,
-                verification = if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
+                verification =
+                    if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
                     Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
                 } else {
                     null
@@ -113,7 +120,8 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
         is CreateProjectState.SetupSchema.ExistingSchema ->
             CreateProjectWindowState.SetupSchemaState(
                 title = stringsProvider.string(StringsKeys.selectedTemplate),
-                globalSupportedPlatformTypes = state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+                globalSupportedPlatformTypes =
+                    state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
                 propertyDefinitions = toPropertyDefinitions(state.currentProject.schema),
             )
     }
@@ -133,7 +141,9 @@ private fun CreateProjectState.SetupSchema.NewSchema.PropertyDefinition.isDuplic
         currentPropertyDefinition.name == name
     } > 1
 
-private fun Context.toPropertyDefinitions(schema: Schema): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
+private fun Context.toPropertyDefinitions(
+    schema: Schema
+): ImmutableList<CreateProjectWindowState.SetupSchemaState.PropertyDefinition> =
     schema.propertyDefinitions.values.map { propertyDefinition ->
         propertyDefinition.toPropertyDefinition(schema.globalSupportedPlatformTypes)
     }.toImmutableList()
@@ -182,6 +192,7 @@ private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaS
         PropertyType.BOOLEAN -> CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType.BOOLEAN
     }
 
+@Suppress("MaxLineLength")
 private fun NonEmptySet<PlatformType>.toSupportedPlatformTypes(): ImmutableList<CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType> =
     map { platformType -> platformType.toPlatformType() }.toPersistentList()
 
@@ -194,7 +205,9 @@ private fun PlatformType.toPlatformType(): CreateProjectWindowState.SetupPlatfor
         PlatformType.JVM -> CreateProjectWindowState.SetupPlatformsState.Platform.PlatformType.JVM
     }
 
-private fun Context.toSetupPlatforms(state: CreateProjectState.SetupPlatforms): CreateProjectWindowState.SetupPlatformsState =
+private fun Context.toSetupPlatforms(
+    state: CreateProjectState.SetupPlatforms
+): CreateProjectWindowState.SetupPlatformsState =
     when (state) {
         is CreateProjectState.SetupPlatforms.NewProject ->
             CreateProjectWindowState.SetupPlatformsState(

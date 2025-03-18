@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.jewel.ui.component.TextField
 
+@Suppress("LongParameterList")
 @Composable
 internal fun InputTextField(
     label: String,

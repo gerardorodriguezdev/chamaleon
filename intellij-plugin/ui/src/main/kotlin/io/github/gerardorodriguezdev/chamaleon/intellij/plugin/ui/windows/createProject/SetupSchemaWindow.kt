@@ -132,6 +132,7 @@ private fun PropertyDefinitionSectionTitle(onAddPropertyDefinition: () -> Unit) 
     )
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun PropertyDefinitionSectionCard(
     propertyDefinition: PropertyDefinition,

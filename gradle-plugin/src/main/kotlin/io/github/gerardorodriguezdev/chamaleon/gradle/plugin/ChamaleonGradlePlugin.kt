@@ -48,7 +48,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
             is ProjectDeserializationResult.Success -> {
                 extension.project.set(projectDeserializationResult.project)
                 logger.chamaleonLog(
-                    "Project deserialization successful at '${projectDeserializationResult.project.environmentsDirectory.path}'"
+                    "Project deserialization " +
+                            "successful at '${projectDeserializationResult.project.environmentsDirectory.path}'"
                 )
             }
 

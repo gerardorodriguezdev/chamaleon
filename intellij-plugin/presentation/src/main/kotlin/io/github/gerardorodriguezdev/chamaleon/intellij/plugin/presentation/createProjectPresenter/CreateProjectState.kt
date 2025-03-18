@@ -30,6 +30,7 @@ sealed interface CreateProjectState {
 
         override fun toPrevious(): CreateProjectState? = null
 
+        @Suppress("ReturnCount")
         override fun toNext(): CreateProjectState? {
             return when (projectDeserializationState) {
                 null -> null
@@ -104,7 +105,9 @@ sealed interface CreateProjectState {
                 }.toNonEmptyKeySetStore()
         }
 
-        private fun Schema.propertyDefinitionsForPlatform(platformType: PlatformType): NonEmptyKeySetStore<String, Schema.PropertyDefinition>? =
+        private fun Schema.propertyDefinitionsForPlatform(
+            platformType: PlatformType
+        ): NonEmptyKeySetStore<String, Schema.PropertyDefinition>? =
             propertyDefinitions.filter { (_, propertyDefinition) ->
                 val supportedPlatformTypes = propertyDefinition.supportedPlatformTypes
                 if (supportedPlatformTypes != null) {
@@ -129,6 +132,7 @@ sealed interface CreateProjectState {
             val globalSupportedPlatformTypes: NonEmptySet<PlatformType>? = null,
             val propertyDefinitions: List<PropertyDefinition> = emptyList(),
         ) : SetupSchema {
+            @Suppress("MaxLineLength", "ReturnCount")
             override fun toNext(): CreateProjectState? {
                 val schema = toSchema() ?: return null
 
@@ -140,6 +144,7 @@ sealed interface CreateProjectState {
                 )
             }
 
+            @Suppress("ReturnCount")
             private fun toSchema(): Schema? {
                 return schemaOf(
                     globalSupportedPlatformTypes = globalSupportedPlatformTypes ?: return null,
@@ -158,6 +163,7 @@ sealed interface CreateProjectState {
                 val nullable: Boolean = false,
                 val supportedPlatformTypes: NonEmptySet<PlatformType>? = null,
             ) {
+                @Suppress("ReturnCount")
                 fun toSchemaPropertyDefinition(): Schema.PropertyDefinition? {
                     return Schema.PropertyDefinition(
                         name = name ?: return null,
@@ -237,6 +243,7 @@ sealed interface CreateProjectState {
                 return project
             }
 
+            @Suppress("MaxLineLength")
             private fun Schema.PropertyDefinition.toSetupSchemaPropertyDefinition(): SetupSchema.NewSchema.PropertyDefinition =
                 SetupSchema.NewSchema.PropertyDefinition(
                     name = name,

@@ -4,6 +4,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyKeySetSto
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.NonEmptySetSerializer
 import kotlinx.serialization.Serializable
 
+@Suppress("UseCheckOrError")
 @Serializable(with = NonEmptySetSerializer::class)
 public class NonEmptySet<T> private constructor(public val value: Set<T>) : Set<T> by value {
 
