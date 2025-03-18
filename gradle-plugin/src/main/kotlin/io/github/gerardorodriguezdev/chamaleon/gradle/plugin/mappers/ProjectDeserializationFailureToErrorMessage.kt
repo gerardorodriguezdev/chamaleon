@@ -24,14 +24,14 @@ private fun ProjectValidationResult.Failure.toErrorMessage(): String =
 
         is ProjectValidationResult.Failure.PropertyTypeNotEqualToPropertyDefinition ->
             "Platform type '$platformType' of property '$propertyName' on environment '$environmentName' " +
-                    "is different from expected type '$expectedPropertyType' on " +
-                    "property definition '$propertyDefinition'"
+                "is different from expected type '$expectedPropertyType' on " +
+                "property definition '$propertyDefinition'"
 
         is ProjectValidationResult.Failure.NullPropertyValueIsNotNullable ->
             "Property value on property '$propertyName' on platform '$platformType' on " +
-                    "environment '$environmentName' is null but not nullable"
+                "environment '$environmentName' is null but not nullable"
 
         is ProjectValidationResult.Failure.SelectedEnvironmentNotFound ->
             "Selected environment '$selectedEnvironmentName' is not present in any existing " +
-                    "environment '$existingEnvironmentNames'"
+                "environment '$existingEnvironmentNames'"
     }

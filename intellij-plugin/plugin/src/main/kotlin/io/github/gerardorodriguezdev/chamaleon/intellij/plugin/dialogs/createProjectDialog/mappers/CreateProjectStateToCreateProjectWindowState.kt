@@ -100,7 +100,7 @@ private fun Context.toEnvironmentNameField(
             Field(
                 value = environmentName.value,
                 verification =
-                    if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
+                if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
                     Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
                 } else {
                     null
@@ -121,7 +121,7 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
             CreateProjectWindowState.SetupSchemaState(
                 title = stringsProvider.string(StringsKeys.selectedTemplate),
                 globalSupportedPlatformTypes =
-                    state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+                state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
                 propertyDefinitions = toPropertyDefinitions(state.currentProject.schema),
             )
     }
@@ -182,8 +182,8 @@ private fun PropertyDefinition.toPropertyDefinition(
         propertyType = propertyType.toPropertyType(),
         nullable = nullable,
         supportedPlatformTypes =
-            supportedPlatformTypes?.toSupportedPlatformTypes()
-                ?: globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+        supportedPlatformTypes?.toSupportedPlatformTypes()
+            ?: globalSupportedPlatformTypes.toSupportedPlatformTypes(),
     )
 
 private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType =

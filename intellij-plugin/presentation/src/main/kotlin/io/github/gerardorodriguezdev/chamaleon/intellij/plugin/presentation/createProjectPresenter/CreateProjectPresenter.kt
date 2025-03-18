@@ -165,11 +165,11 @@ class CreateProjectPresenter(
         val newPropertyDefinitions = currentState.propertyDefinitions.map { propertyDefinition ->
             propertyDefinition.copy(
                 supportedPlatformTypes =
-                    if (propertyDefinition.supportedPlatformTypes != null && newGlobalSupportedPlatformTypes != null) {
-                        propertyDefinition.supportedPlatformTypes intersect newGlobalSupportedPlatformTypes
-                    } else {
-                        null
-                    }
+                if (propertyDefinition.supportedPlatformTypes != null && newGlobalSupportedPlatformTypes != null) {
+                    propertyDefinition.supportedPlatformTypes intersect newGlobalSupportedPlatformTypes
+                } else {
+                    null
+                }
             )
         }
 
