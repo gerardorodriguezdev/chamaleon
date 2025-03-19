@@ -24,18 +24,20 @@ fun SetupEnvironmentWindow(
         },
         content = {
             item {
-                InputTextField(
-                    label = string(StringsKeys.environmentsDirectory),
-                    field = state.environmentsDirectoryPathField,
-                    readOnly = true,
-                    trailingIcon = {
-                        TooltipIconButton(
-                            iconKey = AllIconsKeys.Actions.NewFolder,
-                            tooltip = string(StringsKeys.selectEnvironmentsDirectoryLocation),
-                            onClick = { onAction(OnSelectEnvironmentPath) }
-                        )
-                    }
-                )
+                Section(enableDivider = true) {
+                    InputTextField(
+                        label = string(StringsKeys.environmentsDirectory),
+                        field = state.environmentsDirectoryPathField,
+                        readOnly = true,
+                        trailingIcon = {
+                            TooltipIconButton(
+                                iconKey = AllIconsKeys.Actions.NewFolder,
+                                tooltip = string(StringsKeys.selectEnvironmentsDirectoryLocation),
+                                onClick = { onAction(OnSelectEnvironmentPath) }
+                            )
+                        }
+                    )
+                }
             }
 
             item {
