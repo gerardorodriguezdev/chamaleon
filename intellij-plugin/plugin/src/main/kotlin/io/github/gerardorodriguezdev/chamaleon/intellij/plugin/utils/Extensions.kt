@@ -1,16 +1,23 @@
 package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils
 
+import com.intellij.ide.projectView.ProjectView
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtil
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 
 internal fun ExistingDirectory.notifyDirectoryChanged() {
     VfsUtil.markDirtyAndRefresh(true, true, true, directory)
+}
+
+internal fun Project.openDirectory(directory: ExistingDirectory) {
+    val directoryPath = LocalFileSystem.getInstance().findFileByPath(directory.path.value) ?: return
+    ProjectView.getInstance(this).select(null, directoryPath, true)
 }
 
 internal fun Project.selectFileDirectoryPath(): String? {

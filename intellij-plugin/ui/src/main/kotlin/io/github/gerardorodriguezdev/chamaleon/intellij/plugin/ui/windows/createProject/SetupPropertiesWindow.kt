@@ -24,28 +24,22 @@ fun SetupPlatformsWindow(
 ) {
     WindowContainer(
         modifier = modifier,
-        toolbar = { Toolbar(title = string(StringsKeys.addProperties), forceLabelWidth = false) },
+        toolbar = { Toolbar(title = string(StringsKeys.addProperties)) },
         content = {
             item {
-                Section(
-                    title = string(StringsKeys.properties),
-                    enableDivider = true,
-                )
+                Section(title = string(StringsKeys.properties))
             }
 
             state.platforms.forEach { platform ->
                 item {
-                    Section(
-                        title = platform.platformType.platformName,
-                        enableDivider = true,
-                    )
+                    Section(title = platform.platformType.platformName)
                 }
 
                 itemsIndexed(platform.properties) { index, property ->
-                    Section(enableDivider = true) {
+                    Section {
                         InputTextField(
                             label = string(StringsKeys.name),
-                            value = property.name,
+                            field = Field(value = property.name, verification = null),
                             readOnly = true,
                         )
 
@@ -105,7 +99,7 @@ private fun InputStringProperty(
 ) {
     InputTextField(
         label = string(StringsKeys.value),
-        value = property.valueField.value,
+        field = property.valueField,
         onValueChange = { newText ->
             onAction(
                 OnPropertyValueChanged(
@@ -117,11 +111,6 @@ private fun InputStringProperty(
                 )
             )
         },
-        trailingIcon = {
-            property.valueField.verification?.let {
-                VerificationIcon(verification = property.valueField.verification)
-            }
-        }
     )
 }
 

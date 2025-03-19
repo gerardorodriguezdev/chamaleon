@@ -16,12 +16,14 @@ import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
+@Suppress("LongParameterList")
 @Composable
 fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionWindowState,
     onRefresh: () -> Unit,
     onCreateProject: () -> Unit,
     onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
+    onSelectEnvironment: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when {
@@ -35,6 +37,7 @@ fun EnvironmentSelectionWindow(
             onRefresh = onRefresh,
             onCreateProject = onCreateProject,
             onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+            onSelectEnvironment = onSelectEnvironment,
         )
     }
 }
@@ -59,13 +62,13 @@ private fun ContentWindow(
     onRefresh: () -> Unit,
     onCreateProject: () -> Unit,
     onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
+    onSelectEnvironment: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WindowContainer(
         modifier = modifier,
         toolbar = {
             Toolbar(
-                forceLabelWidth = false,
                 trailingIcons = {
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.Refresh,
@@ -97,6 +100,7 @@ private fun ContentWindow(
             environmentCards(
                 environmentCardStates = environmentCardStates,
                 onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+                onSelectEnvironment = onSelectEnvironment,
             )
         }
     )
@@ -105,6 +109,7 @@ private fun ContentWindow(
 private fun LazyListScope.environmentCards(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
+    onSelectEnvironment: (index: Int) -> Unit,
 ) {
     itemsIndexed(
         items = environmentCardStates,
@@ -117,7 +122,8 @@ private fun LazyListScope.environmentCards(
                     index,
                     newSelectedEnvironment,
                 )
-            }
+            },
+            onSelectEnvironment = { onSelectEnvironment(index) },
         )
     }
 }

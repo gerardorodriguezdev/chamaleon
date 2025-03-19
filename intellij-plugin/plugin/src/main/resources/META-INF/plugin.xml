@@ -42,7 +42,7 @@
         <![CDATA[
         <h2>New Features</h2>
         <ul>
-          <li>Adds dialog to create a new project from scratch</li>
+          <li>Opens environment directories with a click</li>
         </ul>
         ]]>
     </change-notes>

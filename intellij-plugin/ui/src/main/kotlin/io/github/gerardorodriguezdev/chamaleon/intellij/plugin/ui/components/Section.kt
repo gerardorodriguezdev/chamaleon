@@ -15,20 +15,16 @@ internal fun Section(
     modifier: Modifier = Modifier,
     title: String? = null,
     titleTrailingIcon: @Composable (() -> Unit)? = null,
-    forceLabelWidth: Boolean = true,
-    enableDivider: Boolean = false,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(itemsSpacing),
         modifier = modifier,
         content = {
-            if (enableDivider) {
-                Divider(orientation = Orientation.Horizontal)
-            }
+            Divider(orientation = Orientation.Horizontal)
 
             if (title != null || titleTrailingIcon != null) {
-                Toolbar(title = title, trailingIcons = titleTrailingIcon, forceLabelWidth = forceLabelWidth)
+                Toolbar(title = title, trailingIcons = titleTrailingIcon)
             }
 
             content()

@@ -28,12 +28,14 @@ fun CreateProjectWindow(
             SetupSchemaWindow(
                 state = state,
                 onAction = onAction,
+                modifier = modifier,
             )
 
         is SetupPlatformsState ->
             SetupPlatformsWindow(
                 state = state,
                 onAction = onAction,
+                modifier = modifier,
             )
     }
 }
