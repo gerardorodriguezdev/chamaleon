@@ -24,25 +24,19 @@ fun SetupPlatformsWindow(
 ) {
     WindowContainer(
         modifier = modifier,
-        toolbar = { Toolbar(title = string(StringsKeys.addProperties), forceLabelWidth = false) },
+        toolbar = { Toolbar(title = string(StringsKeys.addProperties)) },
         content = {
             item {
-                Section(
-                    title = string(StringsKeys.properties),
-                    enableDivider = true,
-                )
+                Section(title = string(StringsKeys.properties))
             }
 
             state.platforms.forEach { platform ->
                 item {
-                    Section(
-                        title = platform.platformType.platformName,
-                        enableDivider = true,
-                    )
+                    Section(title = platform.platformType.platformName)
                 }
 
                 itemsIndexed(platform.properties) { index, property ->
-                    Section(enableDivider = true) {
+                    Section {
                         InputTextField(
                             label = string(StringsKeys.name),
                             field = Field(value = property.name, verification = null),

@@ -20,11 +20,11 @@ fun SetupEnvironmentWindow(
     WindowContainer(
         modifier = modifier,
         toolbar = {
-            Toolbar(title = string(StringsKeys.setupEnvironment), forceLabelWidth = false)
+            Toolbar(title = string(StringsKeys.setupEnvironment))
         },
         content = {
             item {
-                Section(enableDivider = true) {
+                Section {
                     InputTextField(
                         label = string(StringsKeys.environmentsDirectory),
                         field = state.environmentsDirectoryPathField,
@@ -41,7 +41,7 @@ fun SetupEnvironmentWindow(
             }
 
             item {
-                Section(enableDivider = true) {
+                Section {
                     InputTextField(
                         label = string(StringsKeys.environmentName),
                         field = state.environmentNameField,

@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
+@Suppress("LongParameterList")
 @Composable
 fun EnvironmentSelectionWindow(
     state: EnvironmentSelectionWindowState,
@@ -68,7 +69,6 @@ private fun ContentWindow(
         modifier = modifier,
         toolbar = {
             Toolbar(
-                forceLabelWidth = false,
                 trailingIcons = {
                     TooltipIconButton(
                         iconKey = AllIconsKeys.Actions.Refresh,

@@ -31,7 +31,7 @@ fun SetupSchemaWindow(
 ) {
     WindowContainer(
         modifier = modifier,
-        toolbar = { Toolbar(title = state.title, forceLabelWidth = false) },
+        toolbar = { Toolbar(title = state.title) },
         content = {
             globalSupportedPlatformTypesSection(
                 globalSupportedPlatformTypes = state.globalSupportedPlatformTypes,
@@ -70,11 +70,7 @@ private fun LazyListScope.globalSupportedPlatformTypesSection(
     onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
     item {
-        Section(
-            title = string(StringsKeys.supportedPlatforms),
-            enableDivider = true,
-            forceLabelWidth = false,
-        ) {
+        Section(title = string(StringsKeys.supportedPlatforms)) {
             SupportedPlatformTypes(
                 supportedPlatformTypes = globalSupportedPlatformTypes,
                 onCheckedChanged = onSupportedPlatformChanged,
@@ -127,8 +123,6 @@ private fun PropertyDefinitionSectionTitle(onAddPropertyDefinition: () -> Unit) 
                 onClick = onAddPropertyDefinition,
             )
         },
-        forceLabelWidth = true,
-        enableDivider = true
     )
 }
 
@@ -142,14 +136,13 @@ private fun PropertyDefinitionSectionCard(
     onNullableChanged: (newValue: Boolean) -> Unit,
     onSupportedPlatformChanged: (isChecked: Boolean, newPlatformType: PlatformType) -> Unit,
 ) {
-    Section(enableDivider = true) {
+    Section {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(itemsSpacing),
-            modifier = Modifier.fillMaxWidth(),
         ) {
             InputTextField(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f, fill = false),
                 label = string(StringsKeys.propertyName),
                 field = propertyDefinition.nameField,
                 onValueChange = onPropertyNameChanged,
@@ -178,15 +171,11 @@ private fun PropertyDefinitionSectionCard(
 
         InputCheckBox(
             label = string(StringsKeys.nullable),
-            forceLabelWidth = true,
             isChecked = propertyDefinition.nullable,
             onCheckedChanged = onNullableChanged,
         )
 
-        Section(
-            title = string(StringsKeys.supportedPlatformsForPropertyDefinitions),
-            forceLabelWidth = false,
-        ) {
+        Section(title = string(StringsKeys.supportedPlatformsForPropertyDefinitions)) {
             SupportedPlatformTypes(
                 supportedPlatformTypes = propertyDefinition.supportedPlatformTypes,
                 onCheckedChanged = onSupportedPlatformChanged,
@@ -210,7 +199,6 @@ private fun SupportedPlatformTypes(
             InputCheckBox(
                 label = platformType.platformName,
                 isChecked = supportedPlatformTypes.contains(platformType),
-                forceLabelWidth = false,
                 onCheckedChanged = { isChecked ->
                     onCheckedChanged(isChecked, platformType)
                 },
