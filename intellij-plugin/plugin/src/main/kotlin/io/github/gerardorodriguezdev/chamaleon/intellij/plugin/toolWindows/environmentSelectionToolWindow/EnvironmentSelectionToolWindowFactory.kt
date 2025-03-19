@@ -3,6 +3,7 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.toolWindows.envi
 import androidx.compose.runtime.mutableStateOf
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -32,7 +33,7 @@ import org.jetbrains.jewel.bridge.theme.SwingBridgeTheme
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
-internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable {
+internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable, DumbAware {
     private val projectSerializer = ProjectSerializer.Companion.create()
     private val projectDeserializer = ProjectDeserializer.Companion.create()
     private val uiScope = CoroutineScope(Dispatchers.Swing)
