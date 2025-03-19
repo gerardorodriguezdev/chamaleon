@@ -5,6 +5,8 @@ data class Field<T>(
     val verification: Verification?,
 ) {
     sealed interface Verification {
+        fun asInvalid(): Invalid? = (this as? Invalid)
+
         data object Valid : Verification
         data class Invalid(val reason: String) : Verification
         data object Loading : Verification

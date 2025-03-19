@@ -151,13 +151,8 @@ private fun PropertyDefinitionSectionCard(
             InputTextField(
                 modifier = Modifier.weight(1f),
                 label = string(StringsKeys.propertyName),
-                value = propertyDefinition.nameField.value,
+                field = propertyDefinition.nameField,
                 onValueChange = onPropertyNameChanged,
-                trailingIcon = {
-                    propertyDefinition.nameField.verification?.let {
-                        VerificationIcon(verification = propertyDefinition.nameField.verification)
-                    }
-                }
             )
 
             TooltipIconButton(
