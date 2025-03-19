@@ -65,8 +65,7 @@ internal class DefaultProjectDeserializer(
 
     private fun ExistingDirectory.propertiesDeserialization(): Either<Failure, Properties> =
         either {
-            val propertiesFile = propertiesExistingFile()
-            if (propertiesFile == null) return Properties().right()
+            val propertiesFile = propertiesExistingFile() ?: return Properties().right()
 
             catch(
                 block = {

@@ -96,7 +96,7 @@ class EnvironmentSelectionPresenter(
             ioScope
                 .launch {
                     val currentProjects = mutableState.projects
-                    val project = currentProjects?.values?.toList()?.getOrNull(index) ?: return@launch
+                    val project = currentProjects?.values?.elementAtOrNull(index) ?: return@launch
                     val newProject = project.updateProperties(newSelectedEnvironment) ?: return@launch
 
                     val projectSerializationResult = projectSerializer.serialize(newProject)

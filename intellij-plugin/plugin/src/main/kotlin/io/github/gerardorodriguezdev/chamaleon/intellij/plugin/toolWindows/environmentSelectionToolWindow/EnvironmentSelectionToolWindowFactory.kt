@@ -24,10 +24,7 @@ import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTh
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.theme.PluginTheme.stringsProvider
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindow
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.windows.EnvironmentSelectionWindowState
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.notifyDirectoryChanged
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showFailureNotification
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.showSuccessNotification
-import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.toExistingDirectory
+import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.swing.Swing
 import org.jetbrains.jewel.bridge.addComposeTab
@@ -87,6 +84,12 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                                 newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
                             )
                         },
+                        onSelectEnvironment = { index ->
+                            val chamaleonProject = presenter.stateFlow.value.projects?.values?.elementAtOrNull(index)
+                            val environmentsDirectory =
+                                chamaleonProject?.environmentsDirectory ?: return@EnvironmentSelectionWindow
+                            project.openDirectory(environmentsDirectory)
+                        }
                     )
                 }
             }
@@ -140,6 +143,8 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                 chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
 
                 scanProject()
+
+                openDirectory(chamaleonProject.environmentsDirectory)
 
                 showSuccessNotification(
                     title = string(StringsKeys.chamaleonEnvironmentGeneration),

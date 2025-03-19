@@ -22,6 +22,7 @@ fun EnvironmentSelectionWindow(
     onRefresh: () -> Unit,
     onCreateProject: () -> Unit,
     onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
+    onSelectEnvironment: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when {
@@ -35,6 +36,7 @@ fun EnvironmentSelectionWindow(
             onRefresh = onRefresh,
             onCreateProject = onCreateProject,
             onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+            onSelectEnvironment = onSelectEnvironment,
         )
     }
 }
@@ -59,6 +61,7 @@ private fun ContentWindow(
     onRefresh: () -> Unit,
     onCreateProject: () -> Unit,
     onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
+    onSelectEnvironment: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WindowContainer(
@@ -97,6 +100,7 @@ private fun ContentWindow(
             environmentCards(
                 environmentCardStates = environmentCardStates,
                 onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+                onSelectEnvironment = onSelectEnvironment,
             )
         }
     )
@@ -105,6 +109,7 @@ private fun ContentWindow(
 private fun LazyListScope.environmentCards(
     environmentCardStates: ImmutableList<EnvironmentCardState>,
     onSelectedEnvironmentChanged: (index: Int, newSelectedEnvironment: String?) -> Unit,
+    onSelectEnvironment: (index: Int) -> Unit,
 ) {
     itemsIndexed(
         items = environmentCardStates,
@@ -117,7 +122,8 @@ private fun LazyListScope.environmentCards(
                     index,
                     newSelectedEnvironment,
                 )
-            }
+            },
+            onSelectEnvironment = { onSelectEnvironment(index) },
         )
     }
 }
