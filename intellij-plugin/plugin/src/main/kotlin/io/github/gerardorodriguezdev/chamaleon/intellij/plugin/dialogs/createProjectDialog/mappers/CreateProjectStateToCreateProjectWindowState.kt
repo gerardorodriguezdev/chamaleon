@@ -99,8 +99,7 @@ private fun Context.toEnvironmentNameField(
         is ProjectDeserializationState.Valid.ExistingProject ->
             Field(
                 value = environmentName.value,
-                verification =
-                if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
+                verification = if (projectDeserializationState.currentProject.environments?.contains(key = environmentName.value) == true) {
                     Verification.Invalid(stringsProvider.string(StringsKeys.environmentNameIsDuplicated))
                 } else {
                     null
@@ -171,6 +170,7 @@ private fun Context.toPropertyDefinition(
             ?: persistentListOf(),
     )
 
+@Suppress("Indentation")
 private fun PropertyDefinition.toPropertyDefinition(
     globalSupportedPlatformTypes: NonEmptySet<PlatformType>
 ): CreateProjectWindowState.SetupSchemaState.PropertyDefinition =
@@ -248,7 +248,11 @@ private fun Context.toPropertyValue(
     propertyDefinition: PropertyDefinition,
 ): CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue =
     when (propertyValue) {
-        null -> toPropertyValue(propertyDefinition.propertyType)
+        null ->
+            toPropertyValue(
+                propertyType = propertyDefinition.propertyType,
+                nullable = propertyDefinition.nullable,
+            )
 
         is PropertyValue.StringProperty ->
             CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.StringProperty(
@@ -271,13 +275,18 @@ private fun Context.toPropertyValue(
 
 private fun Context.toPropertyValue(
     propertyType: PropertyType,
+    nullable: Boolean,
 ): CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue =
     when (propertyType) {
         PropertyType.STRING ->
             CreateProjectWindowState.SetupPlatformsState.Platform.Property.PropertyValue.StringProperty(
                 Field(
                     value = "",
-                    verification = Verification.Invalid(stringsProvider.string(StringsKeys.valueEmptyButNotNullable))
+                    verification = if (nullable) {
+                        null
+                    } else {
+                        Verification.Invalid(stringsProvider.string(StringsKeys.valueEmptyButNotNullable))
+                    }
                 )
             )
 

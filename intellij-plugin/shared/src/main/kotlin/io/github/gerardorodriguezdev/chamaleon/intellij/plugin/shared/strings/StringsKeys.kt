@@ -11,7 +11,6 @@ object StringsKeys {
     val selectedEnvironment = StringKey("selected.environment")
     val removeSelectedEnvironment = StringKey("remove.selected.environment")
     val refreshEnvironments = StringKey("refresh.environments")
-    val fileTypeForChamaleonConfigFiles = StringKey("file.type.for.chamaleon.config.files")
     val createEnvironment = StringKey("create.environment")
     val cancel = StringKey("cancel")
     val previous = StringKey("previous")
