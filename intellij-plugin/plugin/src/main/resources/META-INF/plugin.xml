@@ -5,6 +5,7 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.json</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
     <description>
         <![CDATA[
@@ -30,7 +31,13 @@
         <notificationGroup id="Chamaleon"
                            displayType="BALLOON"
                            toolWindowId="Chamaleon"
-                           isLogByDefault="true"/>
+                           isLogByDefault="true" bundle="messages.Bundle"
+                           key="notification.group.chamaleon"/>
+
+        <psi.referenceContributor
+                implementation="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.psi.PropertyStringReferenceContributor"
+                language="kotlin"/>
+
     </extensions>
 
     <change-notes>

@@ -66,6 +66,8 @@ kotlin {
         intellijPlatform {
             intellijIdeaCommunity("2023.3")
 
+            bundledPlugin("org.jetbrains.kotlin")
+
             pluginVerifier()
             zipSigner()
             testFramework(TestFrameworkType.Platform)
