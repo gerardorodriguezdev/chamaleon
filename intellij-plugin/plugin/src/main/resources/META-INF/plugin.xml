@@ -35,7 +35,7 @@
                            key="notification.group.chamaleon"/>
 
         <psi.referenceContributor
-                implementation="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.psi.PropertyStringReferenceContributor"
+                implementation="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.psi.PropertyReferenceContributor"
                 language="kotlin"/>
 
     </extensions>
