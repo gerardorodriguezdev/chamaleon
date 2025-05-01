@@ -36,7 +36,9 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
                 JsonObject::class.java
             ).bind()
 
-            val propertyDefinitionsJsonValue = schemaJsonObject.findProperty("propertyDefinitions")?.value.bind()
+            val propertyDefinitionsJsonValue = schemaJsonObject.findProperty(
+                PROPERTY_DEFINITIONS_PROPERTY_NAME
+            )?.value.bind()
 
             propertyDefinitionPsiElement(
                 propertyDefinitionValueToFind = element.cleanedText(),
@@ -73,7 +75,9 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
                 .valueList
                 .firstOrNull { propertyDefinition ->
                     val propertyDefinitionJsonObject = propertyDefinition as? JsonObject
-                    val propertyDefinitionJsonProperty = propertyDefinitionJsonObject?.findProperty("name")
+                    val propertyDefinitionJsonProperty = propertyDefinitionJsonObject?.findProperty(
+                        PROPERTY_DEFINITION_PROPERTY_NAME
+                    )
                     propertyDefinitionJsonProperty?.value?.cleanedText() == propertyDefinitionValueToFind
                 }
                 .bind()
@@ -87,4 +91,9 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
     private fun JsonValue.cleanedText(): String = text.clean()
 
     override fun getVariants(): Array<Any> = emptyArray()
+
+    private companion object {
+        const val PROPERTY_DEFINITIONS_PROPERTY_NAME = "propertyDefinitions"
+        const val PROPERTY_DEFINITION_PROPERTY_NAME = "name"
+    }
 }
