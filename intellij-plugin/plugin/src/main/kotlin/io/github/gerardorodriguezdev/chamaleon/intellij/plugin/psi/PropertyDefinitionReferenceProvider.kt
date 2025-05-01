@@ -37,9 +37,9 @@ internal class PropertyDefinitionReferenceProvider : PsiReferenceProvider() {
 
     private fun String.isFunctionCallSupported(): Boolean =
         this == PROPERTY_STRING_VALUE ||
-                this == PROPERTY_STRING_VALUE_OR_NULL ||
-                this == PROPERTY_BOOLEAN_VALUE ||
-                this == PROPERTY_BOOLEAN_VALUE_OR_NULL
+            this == PROPERTY_STRING_VALUE_OR_NULL ||
+            this == PROPERTY_BOOLEAN_VALUE ||
+            this == PROPERTY_BOOLEAN_VALUE_OR_NULL
 
     companion object {
         const val PROPERTY_STRING_VALUE = "propertyStringValue"
