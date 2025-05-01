@@ -57,12 +57,31 @@ internal class CreateProjectDialog(
     private val createProjectWindowState =
         mutableStateOf<CreateProjectWindowState>(CreateProjectWindowState.SetupEnvironmentState())
 
-    init {
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
+    override fun createCenterPanel(): JComponent {
+        enableNewSwingCompositing()
+
         collectState()
 
         presenter.dispatch(
             CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryPathChanged(projectDirectory.path)
         )
+
+        return JewelComposePanel {
+            with(LocalDensity.current) {
+                Theme {
+                    CreateProjectWindow(
+                        state = createProjectWindowState.value,
+                        onAction = { action -> action.handle() },
+                        modifier = Modifier.Companion.requiredSize(
+                            LocalWindowInfo.current.containerSize.toSize().toDpSize()
+                        )
+                    )
+                }
+            }
+        }.apply {
+            minimumSize = Dimension(DIALOG_MIN_SIZE, DIALOG_MIN_SIZE)
+        }
     }
 
     private fun collectState() {
@@ -79,27 +98,6 @@ internal class CreateProjectDialog(
                     createProjectWindowState.value = newCreateProjectWindowState
                 }
             }
-        }
-    }
-
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
-    override fun createCenterPanel(): JComponent {
-        enableNewSwingCompositing()
-
-        return JewelComposePanel {
-            with(LocalDensity.current) {
-                Theme {
-                    CreateProjectWindow(
-                        state = createProjectWindowState.value,
-                        onAction = { action -> action.handle() },
-                        modifier = Modifier.Companion.requiredSize(
-                            LocalWindowInfo.current.containerSize.toSize().toDpSize()
-                        )
-                    )
-                }
-            }
-        }.apply {
-            minimumSize = Dimension(DIALOG_MIN_SIZE, DIALOG_MIN_SIZE)
         }
     }
 

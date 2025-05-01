@@ -32,7 +32,8 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
             val schemaJsonFile = (schemaPsiFile as? JsonFile).bind()
 
             val schemaJsonObject = PsiTreeUtil.findChildOfType(
-                schemaJsonFile, JsonObject::class.java
+                schemaJsonFile,
+                JsonObject::class.java
             ).bind()
 
             val propertyDefinitionsJsonValue = schemaJsonObject.findProperty("propertyDefinitions")?.value.bind()
