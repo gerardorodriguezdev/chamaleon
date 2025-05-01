@@ -13,6 +13,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.util.PsiTreeUtil
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
+import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.SCHEMA_FILE
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 
 // TODO: Refactor
@@ -38,11 +39,11 @@ class PropertyPsiReference(
 
     private fun psiFile(project: Project): PsiFile? {
         val module = ModuleUtilCore.findModuleForPsiElement(element) ?: return null
+        val uri = "$ENVIRONMENTS_DIRECTORY_NAME/$SCHEMA_FILE"
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val roots = moduleRootManager.contentRoots
 
         roots.forEach { root ->
-            val uri = "$ENVIRONMENTS_DIRECTORY_NAME/SCHEMA_FILE"
             val virtualFile = VfsUtil.findRelativeFile(uri, root)
             if (virtualFile != null) {
                 val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
