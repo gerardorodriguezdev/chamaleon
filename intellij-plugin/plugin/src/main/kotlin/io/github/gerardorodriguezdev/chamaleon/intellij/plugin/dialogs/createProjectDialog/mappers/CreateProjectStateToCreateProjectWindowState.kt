@@ -44,8 +44,8 @@ private fun Context.toSetupEnvironment(
 
 private fun Context.toEnvironmentsDirectoryPathField(
     projectDeserializationState: ProjectDeserializationState?
-): Field<String> {
-    return when (projectDeserializationState) {
+): Field<String> =
+    when (projectDeserializationState) {
         null -> Field(value = "", verification = null)
 
         is ProjectDeserializationState.Valid -> Field(
@@ -65,7 +65,6 @@ private fun Context.toEnvironmentsDirectoryPathField(
                 verification = Verification.Invalid(projectDeserializationState.errorMessage),
             )
     }
-}
 
 private fun Context.environmentsDirectoryPathValue(projectDeserializationState: ProjectDeserializationState): String =
     projectDeserializationState.environmentsDirectoryPath.value.removePrefix(projectDirectoryPath)
@@ -120,7 +119,7 @@ private fun Context.toSetupSchema(state: CreateProjectState.SetupSchema): Create
             CreateProjectWindowState.SetupSchemaState(
                 title = stringsProvider.string(StringsKeys.selectedTemplate),
                 globalSupportedPlatformTypes =
-                state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+                    state.currentProject.schema.globalSupportedPlatformTypes.toSupportedPlatformTypes(),
                 propertyDefinitions = toPropertyDefinitions(state.currentProject.schema),
             )
     }
@@ -182,8 +181,8 @@ private fun PropertyDefinition.toPropertyDefinition(
         propertyType = propertyType.toPropertyType(),
         nullable = nullable,
         supportedPlatformTypes =
-        supportedPlatformTypes?.toSupportedPlatformTypes()
-            ?: globalSupportedPlatformTypes.toSupportedPlatformTypes(),
+            supportedPlatformTypes?.toSupportedPlatformTypes()
+                ?: globalSupportedPlatformTypes.toSupportedPlatformTypes(),
     )
 
 private fun PropertyType.toPropertyType(): CreateProjectWindowState.SetupSchemaState.PropertyDefinition.PropertyType =

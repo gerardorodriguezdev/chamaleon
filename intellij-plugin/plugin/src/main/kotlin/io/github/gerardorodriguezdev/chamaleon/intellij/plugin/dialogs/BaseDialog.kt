@@ -28,14 +28,13 @@ internal abstract class BaseDialog(dialogTitle: String) : DialogWrapper(false) {
         finishButton()?.isEnabled = dialogsButtonsState.isFinishButtonEnabled
     }
 
-    override fun createActions(): Array<Action> {
-        return arrayOf(
+    override fun createActions(): Array<Action> =
+        arrayOf(
             cancel,
             previous,
             next,
             finish,
         )
-    }
 
     private fun previousButton(): JButton? = getButton(previous)
 

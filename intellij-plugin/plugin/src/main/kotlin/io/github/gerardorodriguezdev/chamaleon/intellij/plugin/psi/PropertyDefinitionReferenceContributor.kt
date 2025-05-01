@@ -5,11 +5,11 @@ import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 
-internal class PropertyReferenceContributor : PsiReferenceContributor() {
+internal class PropertyDefinitionReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerReferenceProvider(
             PlatformPatterns.psiElement(KtStringTemplateExpression::class.java),
-            PropertyReferenceProvider(),
+            PropertyDefinitionReferenceProvider(),
         )
     }
 }

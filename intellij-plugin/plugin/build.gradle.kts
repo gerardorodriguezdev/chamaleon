@@ -59,6 +59,9 @@ kotlin {
         implementation(projects.intellijPlugin.presentation) {
             exclude(group = "org.jetbrains.kotlinx")
         }
+        implementation(libs.kmp.arrow.core) {
+            exclude(group = "org.jetbrains.kotlinx")
+        }
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)
