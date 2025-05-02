@@ -22,7 +22,7 @@
     <resource-bundle>messages.Bundle</resource-bundle>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
-        <supportsKotlinPluginMode supportsK2="true" />
+        <supportsKotlinPluginMode supportsK2="true"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -31,6 +31,12 @@
                 id="Chamaleon"
                 anchor="right"
                 icon="/images/expui/toolWindow/pluginIcon.svg"/>
+
+        <fileType
+                name="Chamaleon"
+                implementationClass="io.github.gerardorodriguezdev.chamaleon.intellij.plugin.fileTypes.ChamaleonFileType"
+                fileNames="template.chamaleon.json;properties.chamaleon.json"
+                patterns="*.environment.chamaleon.json"/>
 
         <notificationGroup id="Chamaleon"
                            displayType="BALLOON"
@@ -48,7 +54,8 @@
         <![CDATA[
         <h2>New Features</h2>
         <ul>
-          <li>Opens environment directories with a click</li>
+          <li>Add chamaleon file type</li>
+          <li>Adds quick navigation to templates when using properties</li>
         </ul>
         ]]>
     </change-notes>

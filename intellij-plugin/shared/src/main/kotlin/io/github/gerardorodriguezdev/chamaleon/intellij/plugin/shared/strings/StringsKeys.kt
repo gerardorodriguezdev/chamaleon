@@ -43,6 +43,7 @@ object StringsKeys {
     val emptyPropertyDefinitionName = StringKey("empty.property.definition.name")
     val valueEmptyButNotNullable = StringKey("value.empty.but.not.nullable")
     val propertyDefinitionIsDuplicated = StringKey("property.definition.is.duplicated")
+    val fileTypeForChamaleonConfigFiles = StringKey("file.type.for.chamaleon.config.files")
 
     fun gradlePluginVersionUsed(version: String) =
         StringKey("gradle.plugin.version.used", persistentListOf(version))
