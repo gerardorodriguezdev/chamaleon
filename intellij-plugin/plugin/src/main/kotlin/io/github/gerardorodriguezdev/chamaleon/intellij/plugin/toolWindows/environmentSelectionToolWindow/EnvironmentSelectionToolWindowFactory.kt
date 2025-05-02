@@ -48,10 +48,9 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         onEnvironmentsDirectoryChanged = { environmentsDirectory -> environmentsDirectory.notifyDirectoryChanged() },
     )
 
-    private val environmentSelectionWindowState =
-        mutableStateOf<EnvironmentSelectionWindowState>(
-            EnvironmentSelectionWindowState(gradlePluginVersionUsed = Versions.CORE)
-        )
+    private val environmentSelectionWindowState = mutableStateOf(
+        EnvironmentSelectionWindowState(gradlePluginVersionUsed = Versions.CORE)
+    )
 
     @OptIn(ExperimentalJewelApi::class)
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -80,7 +79,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { index, newSelectedEnvironment ->
-                            project.onSelectedEnvironmentChanged(
+                            onSelectedEnvironmentChanged(
                                 index = index,
                                 newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
                             )
@@ -112,7 +111,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
     }
 
-    private fun Project.onSelectedEnvironmentChanged(
+    private fun onSelectedEnvironmentChanged(
         index: Int,
         newSelectedEnvironment: NonEmptyString?
     ) {

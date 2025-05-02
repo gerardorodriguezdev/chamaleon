@@ -57,15 +57,17 @@ internal class CreateProjectDialog(
     private val createProjectWindowState =
         mutableStateOf<CreateProjectWindowState>(CreateProjectWindowState.SetupEnvironmentState())
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
-    override fun createCenterPanel(): JComponent {
-        enableNewSwingCompositing()
-
+    init {
         collectState()
 
         presenter.dispatch(
             CreateProjectAction.SetupEnvironmentAction.OnEnvironmentsDirectoryPathChanged(projectDirectory.path)
         )
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
+    override fun createCenterPanel(): JComponent {
+        enableNewSwingCompositing()
 
         return JewelComposePanel {
             with(LocalDensity.current) {
