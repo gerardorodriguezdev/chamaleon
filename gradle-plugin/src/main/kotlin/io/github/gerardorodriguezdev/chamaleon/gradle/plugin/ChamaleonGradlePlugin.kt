@@ -70,6 +70,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     private fun Project.registerGenerateSampleTask(): TaskProvider<GenerateSampleTask> =
         tasks.register(GENERATE_SAMPLE_TASK_NAME, GenerateSampleTask::class.java) {
+            group = EXTENSION_NAME
+
             val generateSampleCommandLineArgument =
                 providers.gradleProperty(GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT).orNull
 
@@ -86,6 +88,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         extension: ChamaleonExtension,
     ): TaskProvider<SelectEnvironmentTask> =
         tasks.register(SELECT_ENVIRONMENT_TASK_NAME, SelectEnvironmentTask::class.java) {
+            group = EXTENSION_NAME
+
             val newSelectedEnvironmentNameString =
                 providers.gradleProperty(SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
@@ -106,6 +110,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         extension: ChamaleonExtension,
     ): TaskProvider<GenerateEnvironmentTask> =
         tasks.register(GENERATE_ENVIRONMENT_TASK_NAME, GenerateEnvironmentTask::class.java) {
+            group = EXTENSION_NAME
+
             val generateEnvironmentCommands =
                 providers.gradlePropertiesPrefixedBy(GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT).orNull
 
@@ -116,7 +122,9 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     private fun Project.registerVersionTask(): TaskProvider<DefaultTask> =
         tasks.register(VERSION_TASK_NAME, DefaultTask::class.java) {
-            logger.chamaleonLog("Chamaleon version: ${Versions.CORE}")
+            group = EXTENSION_NAME
+
+            logger.chamaleonLog("Version: ${Versions.CORE}")
         }
 
     private fun Project.environmentsDirectory(): Directory = layout.projectDirectory.dir(ENVIRONMENTS_DIRECTORY_NAME)
@@ -129,12 +137,12 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
     internal companion object {
         const val EXTENSION_NAME = "chamaleon"
 
-        const val GENERATE_SAMPLE_TASK_NAME = "chamaleonGenerateSample"
-        const val SELECT_ENVIRONMENT_TASK_NAME = "chamaleonSelectEnvironment"
-        const val GENERATE_ENVIRONMENT_TASK_NAME = "chamaleonGenerateEnvironment"
-        const val VERSION_TASK_NAME = "chamaleonVersion"
+        const val GENERATE_SAMPLE_TASK_NAME = "generateSample"
+        const val SELECT_ENVIRONMENT_TASK_NAME = "selectEnvironment"
+        const val GENERATE_ENVIRONMENT_TASK_NAME = "generateEnvironment"
+        const val VERSION_TASK_NAME = "version"
 
-        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.sampleOutputDirectory"
+        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.outputDirectory"
         const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.newSelectedEnvironment"
         const val GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.environment"
     }
