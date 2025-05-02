@@ -16,7 +16,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiReferenceBase
-import com.intellij.psi.util.PsiTreeUtil
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.ENVIRONMENTS_DIRECTORY_NAME
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project.Companion.SCHEMA_FILE
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
@@ -31,10 +30,7 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
             val schemaPsiFile = project.schemaPsiFile().bind()
             val schemaJsonFile = (schemaPsiFile as? JsonFile).bind()
 
-            val schemaJsonObject = PsiTreeUtil.findChildOfType(
-                schemaJsonFile,
-                JsonObject::class.java
-            ).bind()
+            val schemaJsonObject = (schemaJsonFile.topLevelValue as? JsonObject).bind()
 
             val propertyDefinitionsJsonValue = schemaJsonObject.findProperty(
                 PROPERTY_DEFINITIONS_PROPERTY_NAME
@@ -59,9 +55,8 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
         virtualFiles: Array<VirtualFile>,
     ): Option<PsiFile> =
         option {
-            val schemaFileRelativePath = "$ENVIRONMENTS_DIRECTORY_NAME/$SCHEMA_FILE"
             val schemaVirtualFile = virtualFiles.firstNotNullOfOrNull { root ->
-                VfsUtil.findRelativeFile(schemaFileRelativePath, root)
+                VfsUtil.findRelativeFile(SCHEMA_RELATIVE_PATH, root)
             }.bind()
             PsiManager.getInstance(project).findFile(schemaVirtualFile).bind()
         }
@@ -95,5 +90,6 @@ class PropertyDefinitionPsiReference(element: KtStringTemplateExpression) :
     private companion object {
         const val PROPERTY_DEFINITIONS_PROPERTY_NAME = "propertyDefinitions"
         const val PROPERTY_DEFINITION_PROPERTY_NAME = "name"
+        const val SCHEMA_RELATIVE_PATH = "$ENVIRONMENTS_DIRECTORY_NAME/$SCHEMA_FILE"
     }
 }

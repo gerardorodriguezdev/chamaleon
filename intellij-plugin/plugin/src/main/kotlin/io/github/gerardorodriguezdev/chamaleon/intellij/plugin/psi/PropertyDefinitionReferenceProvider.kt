@@ -35,17 +35,15 @@ internal class PropertyDefinitionReferenceProvider : PsiReferenceProvider() {
             arrayOf(PropertyDefinitionPsiReference(element))
         }.getOrNull() ?: PsiReference.EMPTY_ARRAY
 
-    private fun String.isFunctionCallSupported(): Boolean =
-        this == PROPERTY_STRING_VALUE ||
-            this == PROPERTY_STRING_VALUE_OR_NULL ||
-            this == PROPERTY_BOOLEAN_VALUE ||
-            this == PROPERTY_BOOLEAN_VALUE_OR_NULL
+    private fun String.isFunctionCallSupported(): Boolean = supportedFunctions.contains(this)
 
-    companion object {
-        const val PROPERTY_STRING_VALUE = "propertyStringValue"
-        const val PROPERTY_STRING_VALUE_OR_NULL = "propertyStringValueOrNull"
-        const val PROPERTY_BOOLEAN_VALUE = "propertyBooleanValue"
-        const val PROPERTY_BOOLEAN_VALUE_OR_NULL = "propertyBooleanValueOrNull"
+    private companion object {
         const val PLATFORM_MODEL_FULL_NAME = "io.github.gerardorodriguezdev.chamaleon.core.models.Platform"
+        val supportedFunctions = setOf(
+            "propertyStringValue",
+            "propertyStringValueOrNull",
+            "propertyBooleanValue",
+            "propertyBooleanValueOrNull",
+        )
     }
 }
