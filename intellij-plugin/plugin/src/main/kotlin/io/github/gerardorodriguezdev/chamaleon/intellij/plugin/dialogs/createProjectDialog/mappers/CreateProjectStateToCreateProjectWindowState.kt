@@ -44,8 +44,8 @@ private fun Context.toSetupEnvironment(
 
 private fun Context.toEnvironmentsDirectoryPathField(
     projectDeserializationState: ProjectDeserializationState?
-): Field<String> {
-    return when (projectDeserializationState) {
+): Field<String> =
+    when (projectDeserializationState) {
         null -> Field(value = "", verification = null)
 
         is ProjectDeserializationState.Valid -> Field(
@@ -65,7 +65,6 @@ private fun Context.toEnvironmentsDirectoryPathField(
                 verification = Verification.Invalid(projectDeserializationState.errorMessage),
             )
     }
-}
 
 private fun Context.environmentsDirectoryPathValue(projectDeserializationState: ProjectDeserializationState): String =
     projectDeserializationState.environmentsDirectoryPath.value.removePrefix(projectDirectoryPath)

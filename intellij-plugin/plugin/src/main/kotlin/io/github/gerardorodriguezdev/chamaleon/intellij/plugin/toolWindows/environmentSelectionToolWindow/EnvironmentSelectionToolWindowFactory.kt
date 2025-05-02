@@ -9,6 +9,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.Versions
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -45,13 +46,14 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         ioScope = ioScope,
         projectSerializer = projectSerializer,
         projectDeserializer = projectDeserializer,
-        onEnvironmentsDirectoryChanged = { environmentsDirectory -> environmentsDirectory.notifyDirectoryChanged() },
+        onEnvironmentsDirectoryChanged = { environmentsDirectory ->
+            environmentsDirectory.notifyDirectoryChangedAsync()
+        },
     )
 
-    private val environmentSelectionWindowState =
-        mutableStateOf<EnvironmentSelectionWindowState>(
-            EnvironmentSelectionWindowState(gradlePluginVersionUsed = Versions.CORE)
-        )
+    private val environmentSelectionWindowState = mutableStateOf(
+        EnvironmentSelectionWindowState(gradlePluginVersionUsed = Versions.CORE)
+    )
 
     @OptIn(ExperimentalJewelApi::class)
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -80,7 +82,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                             ).show()
                         },
                         onSelectedEnvironmentChanged = { index, newSelectedEnvironment ->
-                            project.onSelectedEnvironmentChanged(
+                            onSelectedEnvironmentChanged(
                                 index = index,
                                 newSelectedEnvironment = newSelectedEnvironment?.toNonEmptyString()
                             )
@@ -112,7 +114,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         presenter.dispatch(EnvironmentSelectionAction.ScanProject(projectDirectory))
     }
 
-    private fun Project.onSelectedEnvironmentChanged(
+    private fun onSelectedEnvironmentChanged(
         index: Int,
         newSelectedEnvironment: NonEmptyString?
     ) {
@@ -141,7 +143,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     ) {
         when (projectSerializationResult) {
             is ProjectSerializationResult.Success -> {
-                chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
+                chamaleonProject.environmentsDirectory.notifyDirectoryChangedAsync()
 
                 scanProject()
 
@@ -159,6 +161,10 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                     message = projectSerializationResult.toErrorMessage(BundleStringsProvider)
                 )
         }
+    }
+
+    private fun ExistingDirectory.notifyDirectoryChangedAsync() {
+        ioScope.launch { notifyDirectoryChanged() }
     }
 
     override fun dispose() {

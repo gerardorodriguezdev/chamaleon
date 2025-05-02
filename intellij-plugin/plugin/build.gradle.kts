@@ -1,4 +1,5 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask
 
 plugins {
     kotlin("jvm")
@@ -59,12 +60,17 @@ kotlin {
         implementation(projects.intellijPlugin.presentation) {
             exclude(group = "org.jetbrains.kotlinx")
         }
+        implementation(libs.kmp.arrow.core) {
+            exclude(group = "org.jetbrains.kotlinx")
+        }
 
         testImplementation(libs.kmp.test)
         testImplementation(libs.kmp.test.coroutines)
 
         intellijPlatform {
-            intellijIdeaCommunity("2023.3")
+            intellijIdeaCommunity("2024.2.1")
+
+            bundledPlugin("org.jetbrains.kotlin")
 
             pluginVerifier()
             zipSigner()
@@ -80,8 +86,8 @@ intellijPlatform {
         version = libs.versions.release.get()
 
         ideaVersion {
-            sinceBuild = "233"
-            untilBuild = "243.*"
+            sinceBuild = "242"
+            untilBuild = "252.*"
         }
     }
 
@@ -120,5 +126,11 @@ intellijPlatformTesting {
                 robotServerPlugin()
             }
         }
+    }
+}
+
+tasks.named<RunIdeTask>("runIde") {
+    jvmArgumentProviders += CommandLineArgumentProvider {
+        listOf("-Didea.kotlin.plugin.use.k2=true")
     }
 }

@@ -65,23 +65,6 @@ internal class CreateProjectDialog(
         )
     }
 
-    private fun collectState() {
-        uiScope.launch {
-            presenter.stateFlow.collect { createProjectState ->
-                setDialogButtonsState(createProjectState.toDialogButtonsState())
-
-                val newCreateProjectWindowState =
-                    createProjectState.toCreateProjectWindowState(
-                        projectDirectoryPath = projectDirectory.path.value,
-                        stringsProvider = BundleStringsProvider,
-                    )
-                newCreateProjectWindowState?.let {
-                    createProjectWindowState.value = newCreateProjectWindowState
-                }
-            }
-        }
-    }
-
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalJewelApi::class)
     override fun createCenterPanel(): JComponent {
         enableNewSwingCompositing()
@@ -100,6 +83,23 @@ internal class CreateProjectDialog(
             }
         }.apply {
             minimumSize = Dimension(DIALOG_MIN_SIZE, DIALOG_MIN_SIZE)
+        }
+    }
+
+    private fun collectState() {
+        uiScope.launch {
+            presenter.stateFlow.collect { createProjectState ->
+                setDialogButtonsState(createProjectState.toDialogButtonsState())
+
+                val newCreateProjectWindowState =
+                    createProjectState.toCreateProjectWindowState(
+                        projectDirectoryPath = projectDirectory.path.value,
+                        stringsProvider = BundleStringsProvider,
+                    )
+                newCreateProjectWindowState?.let {
+                    createProjectWindowState.value = newCreateProjectWindowState
+                }
+            }
         }
     }
 

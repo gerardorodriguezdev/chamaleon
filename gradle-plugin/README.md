@@ -19,7 +19,7 @@ plugins {
 > This plugin is hosted on
 > the [Gradle Plugins Portal](https://plugins.gradle.org/plugin/io.github.gerardorodriguezdev.chamaleon)
 
-### 2. Run `./gradlew :chamaleonGenerateSample`
+### 2. Run `./gradlew :generateSample`
 
 This task will generate the following files:
 
@@ -195,7 +195,7 @@ You would need to generate your production environment file programmatically, as
 secrets.
 Here is an example of how to do it:
 
-`./gradlew :chamaleonGenerateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"`
+`./gradlew :generateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"`
 
 The input command, in this case `myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]`, has the following
 structure:
@@ -209,7 +209,7 @@ After running this task, your production environment file will be generated on y
 > If you want to create an environment with more than one platform, you can run the same command with each of the
 > additional platforms, and they will be merged in the environment
 >
-> ./gradlew :chamaleonGenerateEnvironment
+> ./gradlew :generateEnvironment
 >
 > -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"
 >
@@ -221,7 +221,7 @@ After running this task, your production environment file will be generated on y
 
 Finally, the only remaining thing to do is to select the generated environment like this:
 
-`./gradlew :chamaleonSelectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment`
+`./gradlew :selectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment`
 
 It will create or update the `properties.chamaleon.json` file to point to your `myProductionEnvironment`
 
@@ -230,8 +230,8 @@ It will create or update the `properties.chamaleon.json` file to point to your `
 ```yaml
     - name: Generate and select production environment # Your step name
       run: |
-        ./gradlew :chamaleonGenerateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=${{ secrets.MY_GITHUB_SECRET }}]"
-        ./gradlew :chamaleonSelectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment
+        ./gradlew :generateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=${{ secrets.MY_GITHUB_SECRET }}]"
+        ./gradlew :selectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment
 ```
 
 ### Restricting some properties only for certain platforms

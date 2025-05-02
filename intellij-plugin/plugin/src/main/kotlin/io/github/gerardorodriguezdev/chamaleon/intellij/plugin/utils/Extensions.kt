@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory.Companion.toExistingDirectory
 
-internal fun ExistingDirectory.notifyDirectoryChanged() {
+internal suspend fun ExistingDirectory.notifyDirectoryChanged() {
     VfsUtil.markDirtyAndRefresh(true, true, true, directory)
 }
 

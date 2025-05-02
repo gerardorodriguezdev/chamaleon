@@ -26,10 +26,10 @@ fun EnvironmentSelectionWindow(
     onSelectEnvironment: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when {
-        state.isLoading -> LoadingWindow(modifier = modifier)
-        state.environmentCardStates.isEmpty() -> EmptyWindow(modifier = modifier)
-        else -> ContentWindow(
+    if (state.isLoading) {
+        LoadingWindow(modifier = modifier)
+    } else {
+        ContentWindow(
             modifier = modifier,
             gradlePluginVersionUsed = state.gradlePluginVersionUsed,
             notificationErrorMessage = state.notificationErrorMessage,
@@ -38,17 +38,6 @@ fun EnvironmentSelectionWindow(
             onCreateProject = onCreateProject,
             onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
             onSelectEnvironment = onSelectEnvironment,
-        )
-    }
-}
-
-@Composable
-private fun EmptyWindow(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = string(StringsKeys.noEnvironmentsFound),
-            modifier = Modifier.align(Alignment.Center),
-            textAlign = TextAlign.Center
         )
     }
 }
@@ -97,13 +86,29 @@ private fun ContentWindow(
             )
         },
         content = {
-            environmentCards(
-                environmentCardStates = environmentCardStates,
-                onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
-                onSelectEnvironment = onSelectEnvironment,
-            )
+            if (environmentCardStates.isNotEmpty()) {
+                environmentCards(
+                    environmentCardStates = environmentCardStates,
+                    onSelectedEnvironmentChanged = onSelectedEnvironmentChanged,
+                    onSelectEnvironment = onSelectEnvironment,
+                )
+            } else {
+                emptyText()
+            }
         }
     )
+}
+
+private fun LazyListScope.emptyText() {
+    item {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = string(StringsKeys.noEnvironmentsFound),
+                modifier = Modifier.align(Alignment.Center),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
 }
 
 private fun LazyListScope.environmentCards(
