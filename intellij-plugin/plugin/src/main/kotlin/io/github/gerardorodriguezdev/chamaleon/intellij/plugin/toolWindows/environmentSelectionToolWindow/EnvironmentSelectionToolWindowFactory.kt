@@ -9,6 +9,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import io.github.gerardorodriguezdev.chamaleon.core.Versions
 import io.github.gerardorodriguezdev.chamaleon.core.results.ProjectSerializationResult
+import io.github.gerardorodriguezdev.chamaleon.core.safeModels.ExistingDirectory
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Companion.toNonEmptyString
 import io.github.gerardorodriguezdev.chamaleon.core.serializers.ProjectDeserializer
@@ -45,7 +46,9 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
         ioScope = ioScope,
         projectSerializer = projectSerializer,
         projectDeserializer = projectDeserializer,
-        onEnvironmentsDirectoryChanged = { environmentsDirectory -> environmentsDirectory.notifyDirectoryChanged() },
+        onEnvironmentsDirectoryChanged = { environmentsDirectory ->
+            environmentsDirectory.notifyDirectoryChangedAsync()
+        },
     )
 
     private val environmentSelectionWindowState = mutableStateOf(
@@ -140,7 +143,7 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
     ) {
         when (projectSerializationResult) {
             is ProjectSerializationResult.Success -> {
-                chamaleonProject.environmentsDirectory.notifyDirectoryChanged()
+                chamaleonProject.environmentsDirectory.notifyDirectoryChangedAsync()
 
                 scanProject()
 
@@ -158,6 +161,10 @@ internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Dispos
                     message = projectSerializationResult.toErrorMessage(BundleStringsProvider)
                 )
         }
+    }
+
+    private fun ExistingDirectory.notifyDirectoryChangedAsync() {
+        ioScope.launch { notifyDirectoryChanged() }
     }
 
     override fun dispose() {
