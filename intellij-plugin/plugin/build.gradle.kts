@@ -68,9 +68,10 @@ kotlin {
         testImplementation(libs.kmp.test.coroutines)
 
         intellijPlatform {
-            intellijIdeaCommunity("2024.2.1")
+            intellijIdeaCommunity("2024.3")
 
             bundledPlugin("org.jetbrains.kotlin")
+            bundledPlugin("com.intellij.modules.json")
 
             pluginVerifier()
             zipSigner()
@@ -86,7 +87,7 @@ intellijPlatform {
         version = libs.versions.release.get()
 
         ideaVersion {
-            sinceBuild = "242"
+            sinceBuild = "243"
             untilBuild = "252.*"
         }
     }
