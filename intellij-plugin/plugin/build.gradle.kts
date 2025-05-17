@@ -70,8 +70,7 @@ kotlin {
         intellijPlatform {
             intellijIdeaCommunity("2024.3")
 
-            bundledPlugin("org.jetbrains.kotlin")
-            bundledPlugin("com.intellij.modules.json")
+            bundledPlugins("org.jetbrains.kotlin", "com.intellij.modules.json")
 
             pluginVerifier()
             zipSigner()
@@ -87,7 +86,7 @@ intellijPlatform {
         version = libs.versions.release.get()
 
         ideaVersion {
-            sinceBuild = "243"
+            sinceBuild = "251"
             untilBuild = "252.*"
         }
     }

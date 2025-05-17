@@ -41,8 +41,6 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
 
     @Suppress("Indentation")
     private fun Project.scanProject(extension: ChamaleonExtension) {
-        logger.chamaleonLog("Chamaleon version '${Versions.CORE}'")
-
         when (val projectDeserializationResult = deserializeProject()) {
             null -> logger.chamaleonLog("No project found on deserialization")
 
