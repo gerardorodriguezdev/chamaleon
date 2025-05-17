@@ -6,6 +6,7 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.types.symbol
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
@@ -26,9 +27,9 @@ internal class PropertyDefinitionReferenceProvider : PsiReferenceProvider() {
             val receiverExpression = qualifiedExpression.receiverExpression
 
             analyze(receiverExpression) {
-                val receiverType = receiverExpression.getKtType().bind()
+                val receiverType = receiverExpression.expressionType.bind()
                 val classFqName =
-                    receiverType.expandedClassSymbol?.classIdIfNonLocal?.asSingleFqName()?.asString().bind()
+                    receiverType.symbol?.classId?.asSingleFqName()?.asString().bind()
                 ensure(classFqName == PLATFORM_MODEL_FULL_NAME)
             }
 
