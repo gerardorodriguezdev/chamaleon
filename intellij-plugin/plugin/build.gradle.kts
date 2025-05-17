@@ -68,7 +68,7 @@ kotlin {
         testImplementation(libs.kmp.test.coroutines)
 
         intellijPlatform {
-            intellijIdeaCommunity("2024.3")
+            intellijIdeaCommunity("2025.1.1.1")
 
             bundledPlugins("org.jetbrains.kotlin", "com.intellij.modules.json")
 
