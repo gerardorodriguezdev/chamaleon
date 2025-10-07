@@ -18,14 +18,14 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
     private val projectSerializer = ProjectSerializer.create()
 
     @get:Input
-    public abstract val newSelectedEnvironmentName: Property<NonEmptyString?>
+    public abstract val newSelectedEnvironmentName: Property<NonEmptyString>
 
     @get:Input
     public abstract val projectProperty: Property<Project>
 
     @TaskAction
     public fun selectEnvironment() {
-        val newSelectedEnvironmentName = newSelectedEnvironmentName.get()
+        val newSelectedEnvironmentName = newSelectedEnvironmentName.orNull
         val currentProject = projectProperty.get()
 
         val newProject = updateProperties(currentProject, newSelectedEnvironmentName)
@@ -40,7 +40,7 @@ public abstract class SelectEnvironmentTask : DefaultTask() {
         if (newProject == null) {
             throw SelectEnvironmentTaskException(
                 errorMessage = "Selected environment not found on existing " +
-                    "environments '${currentProject.environments}'",
+                        "environments '${currentProject.environments}'",
             )
         }
 

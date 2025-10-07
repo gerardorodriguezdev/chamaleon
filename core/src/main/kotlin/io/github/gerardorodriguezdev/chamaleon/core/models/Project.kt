@@ -278,9 +278,15 @@ public class Project private constructor(
             platform: Platform,
         ): Either<Failure, InternalSuccess> =
             either {
+                var platformContainsAllProperties = true
                 val platformPropertiesNames = platform.properties.keys
-                val propertyDefinitionsNames = propertyDefinitionsForPlatform.keys
-                val platformContainsAllProperties = platformPropertiesNames == propertyDefinitionsNames
+                propertyDefinitionsForPlatform.forEach { (key, value) ->
+                    val containsProperty = platformPropertiesNames.contains(key)
+                    if (!containsProperty && !value.nullable) {
+                        platformContainsAllProperties = false
+                        return@forEach
+                    }
+                }
 
                 ensure(platformContainsAllProperties) {
                     Failure.PlatformMissingProperties(
