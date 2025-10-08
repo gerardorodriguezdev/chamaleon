@@ -2,7 +2,8 @@ package io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.theme.ThemeConstants.labelWidth
 import io.github.gerardorodriguezdev.chamaleon.intellij.plugin.ui.models.Field
@@ -33,16 +34,35 @@ internal fun InputTextField(
         },
         content = {
             InputContainer(label = label) {
+                val textFieldState = rememberTextFieldState(field.value)
                 TextField(
-                    value = field.value,
+                    state = textFieldState,
                     trailingIcon = trailingIcon,
                     readOnly = readOnly,
                     outline = outline,
-                    onValueChange = onValueChange,
                     modifier = Modifier
                         .widthIn(min = labelWidth)
                         .weight(weight = 1f, fill = false),
                 )
+
+                LaunchedEffect(field.value) {
+                    val newText = field.value
+                    if (textFieldState.text.toString() != newText) {
+                        textFieldState.edit {
+                            replace(0, length, newText)
+                        }
+                    }
+                }
+
+                val latestOnValueChange by rememberUpdatedState(onValueChange)
+                LaunchedEffect(textFieldState) {
+                    snapshotFlow { textFieldState.text.toString() }
+                        .collect { newText ->
+                            if (field.value != newText) {
+                                latestOnValueChange(newText)
+                            }
+                        }
+                }
             }
         },
     )

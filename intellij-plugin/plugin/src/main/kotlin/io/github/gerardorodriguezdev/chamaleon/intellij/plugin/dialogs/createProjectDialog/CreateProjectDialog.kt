@@ -75,7 +75,7 @@ internal class CreateProjectDialog(
                     CreateProjectWindow(
                         state = createProjectWindowState.value,
                         onAction = { action -> action.handle() },
-                        modifier = Modifier.Companion.requiredSize(
+                        modifier = Modifier.requiredSize(
                             LocalWindowInfo.current.containerSize.toSize().toDpSize()
                         )
                     )

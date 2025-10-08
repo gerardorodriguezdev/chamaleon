@@ -35,8 +35,8 @@ import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import io.github.gerardorodriguezdev.chamaleon.core.models.Project as ChamaleonProject
 
 internal class EnvironmentSelectionToolWindowFactory : ToolWindowFactory, Disposable, DumbAware {
-    private val projectSerializer = ProjectSerializer.Companion.create()
-    private val projectDeserializer = ProjectDeserializer.Companion.create()
+    private val projectSerializer = ProjectSerializer.create()
+    private val projectDeserializer = ProjectDeserializer.create()
     private val uiScope = CoroutineScope(Dispatchers.Swing)
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
