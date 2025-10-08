@@ -4,6 +4,7 @@ import org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask
 plugins {
     kotlin("jvm")
     alias(libs.plugins.intellij)
+    alias(libs.plugins.kmp.compose.api)
     alias(libs.plugins.kmp.compose.compiler)
 }
 
@@ -28,6 +29,18 @@ kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
+        listOf(
+            compose.desktop.linux_x64,
+            compose.desktop.linux_arm64,
+            compose.desktop.windows_x64,
+            compose.desktop.macos_x64,
+            compose.desktop.macos_arm64,
+        ).forEach { dependency ->
+            implementation(dependency) {
+                exclude(group = "org.jetbrains.kotlinx")
+                exclude(group = "org.jetbrains.compose.material")
+            }
+        }
         implementation(libs.jvm.coroutines) {
             exclude(group = "org.jetbrains.kotlinx")
         }
