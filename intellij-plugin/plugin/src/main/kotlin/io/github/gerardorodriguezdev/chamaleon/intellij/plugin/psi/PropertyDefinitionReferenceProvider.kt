@@ -16,7 +16,7 @@ internal class PropertyDefinitionReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(
         element: PsiElement,
         context: ProcessingContext
-    ): Array<out PsiReference?> =
+    ): Array<out PsiReference> =
         option {
             val element = (element as? KtStringTemplateExpression).bind()
             val callExpression = element.getStrictParentOfType<KtCallExpression>().bind()
