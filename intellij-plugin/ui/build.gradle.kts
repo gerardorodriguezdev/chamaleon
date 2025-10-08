@@ -21,14 +21,14 @@ kotlin {
             compose.desktop.macos_x64,
             compose.desktop.macos_arm64,
         ).forEach { dependency ->
-            implementation(dependency) {
+            compileOnly(dependency) {
                 exclude(group = "org.jetbrains.compose.material")
             }
         }
         implementation(libs.kmp.immutable)
-        implementation(libs.intellij.jewel.ui)
-        implementation(libs.intellij.jewel.standalone)
-        implementation(compose.preview)
+        compileOnly(libs.intellij.jewel.ui)
+        compileOnly(libs.intellij.jewel.standalone)
+        compileOnly(compose.preview)
         implementation(libs.jvm.coroutines)
         implementation(projects.intellijPlugin.shared)
 

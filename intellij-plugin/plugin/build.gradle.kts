@@ -4,7 +4,6 @@ import org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask
 plugins {
     kotlin("jvm")
     alias(libs.plugins.intellij)
-    alias(libs.plugins.kmp.compose.api)
     alias(libs.plugins.kmp.compose.compiler)
 }
 
@@ -29,19 +28,6 @@ kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
-        listOf(
-            compose.desktop.linux_x64,
-            compose.desktop.linux_arm64,
-            compose.desktop.windows_x64,
-            compose.desktop.macos_x64,
-            compose.desktop.macos_arm64,
-        ).forEach { dependency ->
-            implementation(dependency) {
-                exclude(group = "org.jetbrains.kotlinx")
-                exclude(group = "org.jetbrains.compose.material")
-            }
-        }
-        implementation(libs.intellij.jewel.laf)
         implementation(libs.jvm.coroutines) {
             exclude(group = "org.jetbrains.kotlinx")
         }
@@ -71,6 +57,11 @@ kotlin {
             intellijIdeaCommunity("2025.2.3")
 
             bundledPlugins("org.jetbrains.kotlin", "com.intellij.modules.json")
+            bundledModule("intellij.platform.jewel.foundation")
+            bundledModule("intellij.platform.jewel.ui")
+            bundledModule("intellij.platform.jewel.ideLafBridge")
+            bundledModule("intellij.libraries.compose.foundation.desktop")
+            bundledModule("intellij.libraries.skiko")
 
             pluginVerifier()
             zipSigner()

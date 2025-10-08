@@ -3,9 +3,16 @@
     <name>Chamaleon</name>
     <vendor>gerardorodriguezdev</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.json</depends>
-    <depends>org.jetbrains.kotlin</depends>
+    <dependencies>
+        <plugin id="com.intellij.modules.platform"/>
+        <plugin id="com.intellij.modules.json"/>
+        <plugin id="org.jetbrains.kotlin"/>
+        <module name="intellij.platform.jewel.foundation"/>
+        <module name="intellij.platform.jewel.ui"/>
+        <module name="intellij.platform.jewel.ideLafBridge"/>
+        <module name="intellij.libraries.compose.foundation.desktop"/>
+        <module name="intellij.libraries.skiko"/>
+    </dependencies>
 
     <description>
         <![CDATA[
