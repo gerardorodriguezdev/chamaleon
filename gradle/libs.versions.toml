@@ -1,6 +1,6 @@
 [versions]
 # Platforms
-kotlin = "2.1.10"
+kotlin = "2.1.21"
 java = "21"
 
 # Libraries
@@ -12,8 +12,9 @@ maven-publish = "0.31.0"
 intellij = "2.9.0"
 kmp-compose = "1.8.0"
 kmp-coroutines = "1.10.2"
-intellij-jewel = "0.27.0"
-kmp-immutable = "0.3.8"
+intellij-jewel = "0.30.0-252.26252"
+intellij-jewel-bridge = "0.28.0-243.27100"
+kmp-immutable = "0.4.0"
 kmp-binary-compability-validator = "0.17.0"
 kmp-arrow = "2.1.2"
 jvm-test-parameterized = "5.12.2"
@@ -29,9 +30,9 @@ kmp-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ver
 kmp-test-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kmp-coroutines" }
 kmp-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kmp-immutable" }
 kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-intellij-jewel-ui = { module = "org.jetbrains.jewel:jewel-ui-251", version.ref = "intellij-jewel" }
-intellij-jewel-laf = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge-251", version.ref = "intellij-jewel" }
-intellij-jewel-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-251", version.ref = "intellij-jewel" }
+intellij-jewel-ui = { module = "org.jetbrains.jewel:jewel-ui", version.ref = "intellij-jewel" }
+intellij-jewel-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standalone", version.ref = "intellij-jewel" }
+intellij-jewel-laf = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge", version.ref = "intellij-jewel-bridge" }
 jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
 jvm-test-parameterized = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jvm-test-parameterized" }
 kmp-arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "kmp-arrow" }

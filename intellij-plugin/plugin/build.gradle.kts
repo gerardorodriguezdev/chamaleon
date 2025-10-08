@@ -68,7 +68,7 @@ kotlin {
         testImplementation(libs.kmp.test.coroutines)
 
         intellijPlatform {
-            intellijIdeaCommunity("2025.1.1.1")
+            intellijIdeaCommunity("2025.2.3")
 
             bundledPlugins("org.jetbrains.kotlin", "com.intellij.modules.json")
 
@@ -105,6 +105,27 @@ intellijPlatform {
         ides {
             recommended()
         }
+    }
+}
+
+intellijPlatformTesting {
+    runIde {
+        register("runIdeForUiTests", Action {
+            task {
+                jvmArgumentProviders += CommandLineArgumentProvider {
+                    listOf(
+                        "-Drobot-server.port=8082",
+                        "-Dide.mac.message.dialogs.as.sheets=false",
+                        "-Djb.privacy.policy.text=<!--999.999-->",
+                        "-Djb.consents.confirmation.enabled=false",
+                    )
+                }
+            }
+
+            plugins {
+                robotServerPlugin()
+            }
+        })
     }
 }
 
