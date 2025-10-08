@@ -15,6 +15,7 @@ import io.github.gerardorodriguezdev.chamaleon.core.safeModels.NonEmptyString.Co
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Failure
 import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.CommandParser.CommandParserResult.Success
+import io.github.gerardorodriguezdev.chamaleon.gradle.plugin.tasks.generateEnvironment.DefaultCommandParser.Context.PlatformCommand
 
 internal interface CommandParser {
     fun parse(commands: List<String>): CommandParserResult
@@ -32,7 +33,7 @@ internal interface CommandParser {
             platformType: PlatformType,
             properties: List<Property>,
         ): String =
-            "$environmentName.${platformType.serialName}.properties[${properties.toStringPairs()}]"
+            "$environmentName(${platformType.serialName}[${properties.toStringPairs()}])"
 
         private fun List<Property>.toStringPairs(): String =
             joinToString(separator = "=") { property -> property.toStringPair() }
@@ -69,15 +70,13 @@ internal class DefaultCommandParser : CommandParser {
 
     private fun context(command: String): Either<Failure, Context> =
         either {
-            val regexResult = regex.find(command)
-            ensureNotNull(regexResult) { Failure("Command '$command' didn't match pattern '${regex.pattern}") }
+            val environmentNameString = command.substringBefore("(")
+            val platformsString = command.substringAfter("(")
 
-            val (environmentNameString, platformTypeString, propertiesString) = regexResult.destructured
             Context(
                 command = command,
                 environmentNameString = environmentNameString,
-                platformTypeString = platformTypeString,
-                propertiesString = propertiesString,
+                platformsCommands = platformsString.toPlatformsCommands(),
             )
         }
 
@@ -89,20 +88,24 @@ internal class DefaultCommandParser : CommandParser {
 
     private fun Context.platforms(): Either<Failure, NonEmptyKeySetStore<PlatformType, Platform>> =
         either {
-            val platformType = toPlatformType()
-            val properties = toProperties()
+            val platforms = platformsCommands
+                .map { platformCommand ->
+                    val platformType = toPlatformType(platformCommand)
+                    val properties = toProperties(platformCommand)
+                    Platform(
+                        platformType = platformType.bind(),
+                        properties = properties.bind(),
+                    )
+                }
+                .toSet()
+                .toNonEmptyKeySetStore()
 
-            val platforms = setOf(
-                Platform(
-                    platformType = platformType.bind(),
-                    properties = properties.bind(),
-                )
-            ).toNonEmptyKeySetStore()
             ensureNotNull(platforms) { Failure("Platforms not found on command '$command'") }
         }
 
-    private fun Context.toPlatformType(): Either<Failure, PlatformType> =
+    private fun Context.toPlatformType(platformCommand: PlatformCommand): Either<Failure, PlatformType> =
         either {
+            val platformTypeString = platformCommand.platformTypeString
             val platformType = PlatformType.values().firstOrNull { platformType ->
                 platformType.serialName == platformTypeString
             }
@@ -112,9 +115,9 @@ internal class DefaultCommandParser : CommandParser {
             }
         }
 
-    private fun Context.toProperties(): Either<Failure, NonEmptyKeySetStore<String, Property>> =
+    private fun Context.toProperties(platformCommand: PlatformCommand): Either<Failure, NonEmptyKeySetStore<String, Property>> =
         either {
-            val properties = propertiesString
+            val properties = platformCommand.propertiesString
                 .propertyStrings()
                 .map { propertyString ->
                     val property = toProperty(propertyString)
@@ -124,6 +127,16 @@ internal class DefaultCommandParser : CommandParser {
 
             ensureNotNull(properties) { Failure("No properties found on command '$command'") }
         }
+
+    private fun String.toPlatformsCommands(): List<PlatformCommand> {
+        val platformsStrings = split(":")
+        return platformsStrings.map { platformString ->
+            PlatformCommand(
+                platformTypeString = platformString.substringBefore("["),
+                propertiesString = platformString.substringAfter("[").substringBefore("]"),
+            )
+        }
+    }
 
     private fun String.propertyStrings(): List<String> = split(",")
 
@@ -189,11 +202,11 @@ internal class DefaultCommandParser : CommandParser {
     private data class Context(
         val command: String,
         val environmentNameString: String,
-        val platformTypeString: String,
-        val propertiesString: String,
-    )
-
-    private companion object {
-        val regex = "(.*?)\\.(.*?)\\.properties\\[(.*?)]".toRegex()
+        val platformsCommands: List<PlatformCommand>,
+    ) {
+        data class PlatformCommand(
+            val platformTypeString: String,
+            val propertiesString: String,
+        )
     }
 }

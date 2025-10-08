@@ -90,11 +90,11 @@ This file will be used only to validate that all the environments have the same 
 - **propertyDefinitions:** It's an array of property definition. Has to have at least one property definition
     - **propertyDefinition:**
         - **name:** The name of your property (cannot be an empty string) -> `required`
-      - **propertyType:** Can be `String` or `Boolean` -> `required`
-          - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
-      - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
-        template for this property only.
-        Only read if is not empty (default=[])-> `optional`
+        - **propertyType:** Can be `String` or `Boolean` -> `required`
+            - **nullable:** If the property is `nullable` or not (default=false)-> `optional`
+        - **supportedPlatforms:** It's an array of `supportedPlatforms` that will override the global platforms on the
+          template for this property only.
+          Only read if is not empty (default=[])-> `optional`
 
 ### `local.environment.chamaleon.json` file
 
@@ -195,13 +195,13 @@ You would need to generate your production environment file programmatically, as
 secrets.
 Here is an example of how to do it:
 
-`./gradlew :generateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"`
+`./gradlew :generateEnvironment -Penvironment="myProductionEnvironment(jvm[mySecretName=mySecretValue])"`
 
-The input command, in this case `myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]`, has the following
+The input command, in this case `myProductionEnvironment(jvm[mySecretName=mySecretValue])`, has the following
 structure:
 
 ```text
-environmentName.platformType.properties[propertyName=propertyValue,otherPropertyName=otherPropertyValue]
+environmentName(platformType[propertyName=propertyValue,otherPropertyName=otherPropertyValue]:platformType2[...])
 ```
 
 After running this task, your production environment file will be generated on your module's root
@@ -211,9 +211,7 @@ After running this task, your production environment file will be generated on y
 >
 > ./gradlew :generateEnvironment
 >
-> -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=mySecretValue]"
->
-> -Pchamaleon.environment="myProductionEnvironment.android.properties[mySecretName=mySecretValue]"
+> -Penvironment="myProductionEnvironment(jvm[mySecretName=mySecretValue]:android[mySecretName=mySecretValue])"
 >
 > This would create an environment with `jvm` and `android` platforms
 
@@ -221,7 +219,7 @@ After running this task, your production environment file will be generated on y
 
 Finally, the only remaining thing to do is to select the generated environment like this:
 
-`./gradlew :selectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment`
+`./gradlew :selectEnvironment -PnewSelectedEnvironment=myProductionEnvironment`
 
 It will create or update the `properties.chamaleon.json` file to point to your `myProductionEnvironment`
 
@@ -230,8 +228,8 @@ It will create or update the `properties.chamaleon.json` file to point to your `
 ```yaml
     - name: Generate and select production environment # Your step name
       run: |
-        ./gradlew :generateEnvironment -Pchamaleon.environment="myProductionEnvironment.jvm.properties[mySecretName=${{ secrets.MY_GITHUB_SECRET }}]"
-        ./gradlew :selectEnvironment -Pchamaleon.newSelectedEnvironment=myProductionEnvironment
+        ./gradlew :generateEnvironment -Penvironment="myProductionEnvironment(jvm[mySecretName=${{ secrets.MY_GITHUB_SECRET }}])"
+        ./gradlew :selectEnvironment -PnewSelectedEnvironment=myProductionEnvironment
 ```
 
 ### Restricting some properties only for certain platforms

@@ -48,7 +48,7 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
                 extension.project.set(projectDeserializationResult.project)
                 logger.chamaleonLog(
                     "Project deserialization " +
-                        "successful at '${projectDeserializationResult.project.environmentsDirectory.path}'"
+                            "successful at '${projectDeserializationResult.project.environmentsDirectory.path}'"
                 )
             }
 
@@ -140,8 +140,8 @@ public class ChamaleonGradlePlugin : Plugin<Project> {
         const val GENERATE_ENVIRONMENT_TASK_NAME = "generateEnvironment"
         const val VERSION_TASK_NAME = "version"
 
-        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "chamaleon.outputDirectory"
-        const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.newSelectedEnvironment"
-        const val GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "chamaleon.environment"
+        const val GENERATE_SAMPLE_COMMAND_LINE_ARGUMENT = "outputDirectory"
+        const val SELECT_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "newSelectedEnvironment"
+        const val GENERATE_ENVIRONMENT_COMMAND_LINE_ARGUMENT = "environment"
     }
 }
