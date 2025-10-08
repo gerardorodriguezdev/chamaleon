@@ -115,7 +115,10 @@ internal class DefaultCommandParser : CommandParser {
             }
         }
 
-    private fun Context.toProperties(platformCommand: PlatformCommand): Either<Failure, NonEmptyKeySetStore<String, Property>> =
+    @Suppress("MaximumLineLength")
+    private fun Context.toProperties(
+        platformCommand: PlatformCommand
+    ): Either<Failure, NonEmptyKeySetStore<String, Property>> =
         either {
             val properties = platformCommand.propertiesString
                 .propertyStrings()
