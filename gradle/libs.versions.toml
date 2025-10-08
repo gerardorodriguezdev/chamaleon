@@ -20,7 +20,7 @@ kmp-arrow = "2.1.2"
 jvm-test-parameterized = "5.12.2"
 
 # Releases
-release = "1.0.15"
+release = "1.0.16"
 
 [libraries]
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
