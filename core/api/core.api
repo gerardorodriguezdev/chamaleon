@@ -48,7 +48,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/models/Platform 
 	public fun toString ()Ljava/lang/String;
 }
 
-public synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Platform$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public final synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Platform$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lio/github/gerardorodriguezdev/chamaleon/core/models/Platform$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Platform;
@@ -56,6 +56,7 @@ public synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Platf
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lio/github/gerardorodriguezdev/chamaleon/core/models/Platform;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/models/Platform$Companion {
@@ -146,7 +147,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/models/Propertie
 	public fun toString ()Ljava/lang/String;
 }
 
-public synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Properties$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public final synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Properties$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;
@@ -154,6 +155,7 @@ public synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Prope
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lio/github/gerardorodriguezdev/chamaleon/core/models/Properties;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/models/Properties$Companion {
@@ -231,7 +233,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/models/Schema$Pr
 	public fun toString ()Ljava/lang/String;
 }
 
-public synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+public final synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
 	public static final field INSTANCE Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;
@@ -239,6 +241,7 @@ public synthetic class io/github/gerardorodriguezdev/chamaleon/core/models/Schem
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/models/Schema$PropertyDefinition$Companion {
@@ -363,7 +366,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectS
 }
 
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult {
-	public abstract fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
+	public fun project ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Project;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectValidationResult$DefaultImpls {
@@ -482,7 +485,7 @@ public final class io/github/gerardorodriguezdev/chamaleon/core/results/ProjectV
 }
 
 public abstract interface class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult {
-	public abstract fun schema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
+	public fun schema ()Lio/github/gerardorodriguezdev/chamaleon/core/models/Schema;
 }
 
 public final class io/github/gerardorodriguezdev/chamaleon/core/results/SchemaValidationResult$DefaultImpls {

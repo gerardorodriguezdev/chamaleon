@@ -29,18 +29,7 @@ kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
 
     dependencies {
-        listOf(
-            compose.desktop.linux_x64,
-            compose.desktop.linux_arm64,
-            compose.desktop.windows_x64,
-            compose.desktop.macos_x64,
-            compose.desktop.macos_arm64,
-        ).forEach { dependency ->
-            implementation(dependency) {
-                exclude(group = "org.jetbrains.kotlinx")
-                exclude(group = "org.jetbrains.compose.material")
-            }
-        }
+        compileOnly(compose.runtime)
         implementation(libs.jvm.coroutines) {
             exclude(group = "org.jetbrains.kotlinx")
         }
@@ -75,6 +64,7 @@ kotlin {
             bundledModule("intellij.platform.jewel.ideLafBridge")
             bundledModule("intellij.libraries.compose.foundation.desktop")
             bundledModule("intellij.libraries.skiko")
+            bundledModule("intellij.platform.compose")
 
             pluginVerifier()
             zipSigner()
