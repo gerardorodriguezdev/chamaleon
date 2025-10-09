@@ -118,7 +118,7 @@ private fun LazyListScope.environmentCards(
 ) {
     itemsIndexed(
         items = environmentCardStates,
-        key = { index, environmentCardState -> environmentCardState.environmentsDirectoryPath },
+        key = { _, environmentCardState -> environmentCardState.environmentsDirectoryPath },
     ) { index, environmentCardState ->
         EnvironmentCard(
             state = environmentCardState,

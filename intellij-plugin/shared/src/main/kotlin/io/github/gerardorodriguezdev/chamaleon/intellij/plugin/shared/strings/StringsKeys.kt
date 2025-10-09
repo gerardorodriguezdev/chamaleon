@@ -159,7 +159,7 @@ object StringsKeys {
         )
 
     class StringKey internal constructor(
-        @PropertyKey(resourceBundle = "messages.Bundle") val value: String,
+        @param:PropertyKey(resourceBundle = "messages.Bundle") val value: String,
         val params: ImmutableList<Any> = persistentListOf(),
     ) {
         override fun equals(other: Any?): Boolean =
