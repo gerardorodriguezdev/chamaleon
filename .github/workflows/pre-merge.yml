@@ -21,19 +21,19 @@ jobs:
         uses: ./.github/actions/build-action
 
       - name: Upload core artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: core-${{ github.head_ref }}
           path: ./core/build/libs/*.jar
 
       - name: Upload gradle plugin artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: gradle-plugin-${{ github.head_ref }}
           path: ./gradle-plugin/build/libs/*.jar
 
       - name: Upload intellij plugin artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: intellij-plugin-${{ github.head_ref }}
           path: ./intellij-plugin/plugin/build/distributions/*.zip
