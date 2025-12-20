@@ -62,8 +62,7 @@
         <![CDATA[
         <h2>New Features</h2>
         <ul>
-          <li>Add chamaleon file type</li>
-          <li>Adds quick navigation to templates when using properties</li>
+          <li>Makes it compatible with the unified IntelliJ version</li>
         </ul>
         ]]>
     </change-notes>

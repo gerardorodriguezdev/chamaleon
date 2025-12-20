@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.caching
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask
 
@@ -56,7 +57,7 @@ kotlin {
         testImplementation(libs.kmp.test.coroutines)
 
         intellijPlatform {
-            intellijIdeaCommunity("2025.2.3")
+            intellijIdea("2025.3.1")
 
             bundledPlugins("org.jetbrains.kotlin", "com.intellij.modules.json")
             bundledModule("intellij.platform.jewel.foundation")
@@ -81,7 +82,7 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = "252"
-            untilBuild = "252.*"
+            untilBuild = "253.*"
         }
     }
 
@@ -98,6 +99,12 @@ intellijPlatform {
     pluginVerification {
         ides {
             recommended()
+        }
+    }
+
+    caching {
+        ides {
+            enabled = true
         }
     }
 }

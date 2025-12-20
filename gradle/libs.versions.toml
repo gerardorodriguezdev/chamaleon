@@ -20,7 +20,7 @@ kmp-arrow = "2.1.2"
 jvm-test-parameterized = "5.12.2"
 
 # Releases
-release = "1.0.19"
+release = "1.0.20"
 
 [libraries]
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
@@ -32,7 +32,6 @@ kmp-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable"
 kmp-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 intellij-jewel-ui = { module = "org.jetbrains.jewel:jewel-ui", version.ref = "intellij-jewel" }
 intellij-jewel-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standalone", version.ref = "intellij-jewel" }
-intellij-jewel-laf = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge", version.ref = "intellij-jewel-bridge" }
 jvm-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kmp-coroutines" }
 jvm-test-parameterized = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jvm-test-parameterized" }
 kmp-arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "kmp-arrow" }
